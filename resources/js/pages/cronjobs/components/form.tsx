@@ -6,6 +6,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { LoaderCircleIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import InputError from '@/components/ui/input-error';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CronJob } from '@/types/cronjob';
@@ -13,7 +14,6 @@ import { SharedData } from '@/types';
 import { Server } from '@/types/server';
 import { Site } from '@/types/site';
 import { useConfigs } from '@/stores/bootstrap-store';
-import { cn } from '@/lib/utils';
 
 export { CRONJOB_TEMPLATES } from '@/config/cron-templates';
 import { CRONJOB_TEMPLATES } from '@/config/cron-templates';
@@ -137,70 +137,50 @@ export default function CronJobForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{cronJob ? 'Edit' : 'Create'} cron job</DialogTitle>
           <DialogDescription className="sr-only">{cronJob ? 'Edit' : 'Create new'} cron job</DialogDescription>
         </DialogHeader>
-        <Form id="cronjob-form" onSubmit={submit} className="p-4">
+        <Form id="cronjob-form" onSubmit={submit} className="min-h-0 overflow-y-auto p-4">
           <FormFields>
             {!cronJob && (
-              <div className="bg-muted/40 space-y-2 rounded-lg border p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <Label className="text-foreground text-xs font-semibold">Preset Templates</Label>
-                    <span className="text-muted-foreground text-[11px]">(Laravel Recommendations)</span>
-                  </div>
-                  {selectedTemplate && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-muted-foreground hover:text-foreground h-6 px-1.5 text-xs"
-                      onClick={() => {
-                        setSelectedTemplate('');
-                        form.setData({
-                          ...form.data,
-                          name: '',
-                          command: '',
-                          frequency: '* * * * *',
-                          custom: '',
-                        });
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                  {CRONJOB_TEMPLATES.map((t) => {
-                    const isSelected = selectedTemplate === t.id;
-                    return (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => applyTemplate(t.id)}
-                        className={cn(
-                          'hover:bg-accent/50 relative flex flex-col items-start rounded-md border p-2 text-left transition-colors',
-                          isSelected ? 'border-primary bg-primary/10 text-primary' : 'border-border/60 bg-background text-foreground',
-                        )}
-                      >
-                        <div className="flex w-full items-center justify-between gap-1">
-                          <span className="truncate text-xs font-semibold">{t.label}</span>
-                          {t.isOfficial && <span className="bg-primary/20 text-primary rounded px-1 py-0.5 text-[9px] font-medium">Official</span>}
-                        </div>
-                        <span className="text-muted-foreground line-clamp-1 font-mono text-[10px]">
-                          {t.frequency === 'custom' ? t.custom : configs.cronjob_intervals[t.frequency] || t.frequency}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <FormField>
+                <Label htmlFor="template">Start with a template</Label>
+                <Select
+                  value={selectedTemplate || 'custom'}
+                  onValueChange={(value) => {
+                    if (value === 'custom') {
+                      setSelectedTemplate('');
+                      return;
+                    }
+                    applyTemplate(value);
+                  }}
+                >
+                  <SelectTrigger id="template" className="h-auto min-h-9 w-full text-left [&>span]:line-clamp-none [&_span]:whitespace-normal">
+                    <SelectValue placeholder="Write your own command" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="custom">Write your own command</SelectItem>
+                      {CRONJOB_TEMPLATES.map((template) => (
+                        <SelectItem key={template.id} value={template.id} className="[&_span]:whitespace-normal">
+                          {template.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {selectedTemplate && (
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    {CRONJOB_TEMPLATES.find((template) => template.id === selectedTemplate)?.description}
+                  </p>
+                )}
+              </FormField>
             )}
 
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Name (optional)</Label>
               <Input
                 type="text"
                 id="name"
@@ -213,22 +193,24 @@ export default function CronJobForm({
 
             <FormField>
               <Label htmlFor="command">Command</Label>
-              <Input
-                type="text"
+              <Textarea
                 id="command"
+                rows={2}
+                className="min-h-20 resize-y font-mono text-sm"
+                aria-describedby="command-help"
                 value={form.data.command}
                 onChange={(e) => {
                   setSelectedTemplate('');
-                  form.setData('command', e.target.value);
+                  form.setData('command', e.target.value.replace(/[\r\n]+/g, ' '));
                 }}
                 placeholder="php artisan schedule:run"
               />
               <InputError message={form.errors.command} />
               {form.data.site_id !== '0' ? (
-                <p className="text-muted-foreground text-xs">Commands run automatically from the selected site's directory.</p>
-              ) : form.data.command.includes('artisan') && !form.data.command.includes('cd ') && (
-                <p className="text-amber-500 text-xs">
-                  Artisan commands need to run from the site directory. E.g.: <code className="font-mono">cd {site?.path || '/path/to/site'} &amp;&amp; {form.data.command}</code>
+                <p id="command-help" className="text-muted-foreground text-xs">Enter only the command. It runs from the selected site's directory.</p>
+              ) : (
+                <p id="command-help" className="text-muted-foreground text-xs leading-relaxed">
+                  Select a site to run from its directory, or include the full path in your command.
                 </p>
               )}
             </FormField>
@@ -273,7 +255,7 @@ export default function CronJobForm({
               </Select>
               <InputError message={form.errors.frequency} />
               {form.data.command.includes('schedule:run') && form.data.frequency !== '* * * * *' && (
-                <p className="text-amber-500 text-xs">
+                <p className="text-muted-foreground text-xs leading-relaxed">
                   Laravel Task Scheduler (<code className="font-mono">schedule:run</code>) should run every minute (<code className="font-mono">* * * * *</code>) to execute scheduled tasks on time.
                 </p>
               )}
