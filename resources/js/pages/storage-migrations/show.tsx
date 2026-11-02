@@ -113,7 +113,7 @@ export default function ShowStorageMigration() {
         )}
 
         {!page.props.itemsAvailable && (
-          <p className="text-muted-foreground text-sm">Scan data is not available yet. It appears once Vito can reach the scan database.</p>
+          <p className="text-muted-foreground text-sm">Scan data is not available yet. It appears once PurePanel can reach the scan database.</p>
         )}
 
         <DataTable columns={columns} paginatedData={page.props.items} />

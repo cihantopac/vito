@@ -2,12 +2,11 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
-import { initializeTheme } from './hooks/use-appearance';
 import { useBootstrapStore } from './stores/bootstrap-store';
 import './vito-table-setup';
 import { resolvePage } from '@/lib/resolve-page';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Vito';
+const appName = 'PurePanel';
 
 const pages = import.meta.glob(['./pages/**/*.tsx', '!./pages/**/components/**']);
 
@@ -25,5 +24,3 @@ createInertiaApp({
     color: 'var(--foreground)',
   },
 });
-
-initializeTheme();

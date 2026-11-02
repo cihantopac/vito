@@ -10,7 +10,6 @@ import { Form } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { LoaderCircleIcon } from 'lucide-react';
-import { useAppearance } from '@/hooks/use-appearance';
 
 export default function ServiceConfigFileDialog({
   open,
@@ -23,7 +22,6 @@ export default function ServiceConfigFileDialog({
   service: Service;
   configPath: ConfigPath;
 }) {
-  const { getActualAppearance } = useAppearance();
   const form = useForm<{
     content: string;
     config_name: string;
@@ -69,7 +67,7 @@ export default function ServiceConfigFileDialog({
             <Editor
               defaultLanguage="ini"
               value={form.data.content}
-              theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+              theme="vs-dark"
               className="h-full"
               onChange={(value) => form.setData('content', value ?? '')}
               options={{

@@ -214,7 +214,7 @@ export default function DeploymentProgress({
           ) : failed ? (
             <XCircleIcon className="size-4 text-destructive shrink-0" />
           ) : (
-            <CheckCircle2Icon className="size-4 text-neutral-500 shrink-0" />
+            <CheckCircle2Icon className="size-4 text-success shrink-0" />
           )}
 
           <span className="text-sm font-medium shrink-0">{title}</span>
@@ -271,7 +271,7 @@ export default function DeploymentProgress({
       />
 
       {steps.length > 0 && showSteps && (
-        <div className="divide-y rounded-md border bg-muted/10 overflow-hidden">
+        <div className="divide-y divide-border/60 overflow-hidden">
           {steps.map((stepItem, index) => (
             <StepRow
               key={`${stepItem.group}-${stepItem.line}-${index}`}

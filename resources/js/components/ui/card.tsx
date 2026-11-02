@@ -3,11 +3,11 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card" className={cn('bg-card text-card-foreground flex flex-col rounded-2xl border border-border/80 shadow-xs', className)} {...props} />;
+  return <div data-slot="card" className={cn('bg-card text-card-foreground flex flex-col rounded-xl shadow-[0_8px_32px_-16px_rgb(0_0_0/0.6)]', className)} {...props} />;
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-header" className={cn('flex flex-col gap-2 border-b border-border/60 p-5', className)} {...props} />;
+  return <div data-slot="card-header" className={cn('flex flex-col gap-1.5 p-4', className)} {...props} />;
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
@@ -27,7 +27,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 function CardRow({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-row" className={cn('flex min-h-20 items-center justify-between p-4', className)} {...props} />;
+  return <div data-slot="card-row" className={cn('flex min-h-14 items-center justify-between p-4', className)} {...props} />;
 }
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardRow };

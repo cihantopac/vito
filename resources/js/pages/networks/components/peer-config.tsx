@@ -138,7 +138,7 @@ export default function PeerConfigDialog({
             <>
               {privateKey && (
                 <section className="space-y-2">
-                  <SectionHeader title="Private key" hint="Shown once - Vito deletes it when you confirm below.">
+                  <SectionHeader title="Private key" hint="Shown once - PurePanel deletes it when you confirm below.">
                     <Button type="button" variant="outline" size="sm" onClick={() => copy(privateKey, 'key', 'Private key')}>
                       {copied === 'key' ? <CheckIcon /> : <CopyIcon />}
                       Copy
@@ -154,7 +154,7 @@ export default function PeerConfigDialog({
                   <AlertDescription>
                     <p>
                       {byo
-                        ? 'This peer uses a key you provided, so Vito never had its private key.'
+                        ? 'This peer uses a key you provided, so PurePanel never had its private key.'
                         : 'This private key was concealed and cannot be shown again.'}{' '}
                       Set the <span className="font-mono">PrivateKey</span> line below to the peer's own private key
                       {byo ? '.' : ', or regenerate the peer keys to issue a new one.'}

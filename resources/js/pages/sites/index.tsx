@@ -33,7 +33,7 @@ type Page = {
 };
 
 const siteCell = ({ row, value }: CellRenderProps) => (
-  <div className="flex min-w-48 flex-wrap items-baseline gap-x-2 gap-y-1 py-1">
+  <div className="flex min-w-0 flex-col items-baseline gap-x-2 gap-y-1 py-1">
     <Link
       href={`/servers/${row.server_id as number}/sites/${row.id as number}`}
       className="text-foreground font-medium hover:underline"
@@ -83,14 +83,16 @@ export default function Sites() {
       <Head title={`Sites ${page.props.server ? ' - ' + page.props.server.name : ''}`} />
       <Container className="py-3">
         <VitoTable
-          tableData={page.props.sites}
+          fitContent
+          toolbarClassName="[&_input]:h-8 [&_input]:min-w-36 [&_input]:max-w-56 [&_input]:text-sm"
+          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || !['id', 'created_at'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
           groupBy={page.props.groupBy}
           toolbar={
             <>
               {!page.props.server && (
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Project</span>
+
                     <Select
                       value={page.props.siteScope ?? page.props.auth.currentProject?.id.toString()}
                       onValueChange={(project) => {
@@ -111,7 +113,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="w-40 sm:w-48" aria-label="Filter sites by project">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by project">
                         <SelectValue placeholder="Select a project" />
                       </SelectTrigger>
                       <SelectContent>
@@ -126,7 +128,7 @@ export default function Sites() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Server</span>
+
                     <Select
                       value={page.props.serverScope ?? 'all'}
                       onValueChange={(server) => {
@@ -140,7 +142,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="w-40 sm:w-48" aria-label="Filter sites by server">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by server">
                         <SelectValue placeholder="All Servers" />
                       </SelectTrigger>
                       <SelectContent>
@@ -155,7 +157,7 @@ export default function Sites() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Group by</span>
+
                     <Select
                       value={page.props.groupBy ?? 'none'}
                       onValueChange={(groupBy) => {
@@ -169,7 +171,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="w-40 sm:w-48" aria-label="Group sites by">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Group sites by">
                         <SelectValue placeholder="No grouping" />
                       </SelectTrigger>
                       <SelectContent>
@@ -182,7 +184,7 @@ export default function Sites() {
                 </div>
               )}
               {!page.props.server?.is_self && (
-                <div className="ml-auto">
+                <div className="ml-auto shrink-0">
                   <Button asChild>
                     <Link
                       href={

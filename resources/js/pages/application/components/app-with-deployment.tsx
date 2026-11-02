@@ -50,7 +50,7 @@ import { DeploymentsSkeleton, WorkersCronJobsSkeleton } from '@/components/page-
 function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-md">
+      <div className="text-muted-foreground flex size-5 shrink-0 items-center justify-center">
         <Icon className="size-4" />
       </div>
       <div className="min-w-0 flex-1">
@@ -141,11 +141,11 @@ export default function AppWithDeployment() {
     <ServerLayout>
       <Head title={`${site.domain} - ${page.props.server.name}`} />
 
-      <Container className="gap-6">
+      <Container className="gap-4">
         {site.status === 'installation_failed' && <SiteBanners site={site} includeAppDebug />}
 
-        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
-          <div className="flex min-w-0 flex-col gap-6">
+        <div className="grid items-start gap-4 2xl:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="flex min-w-0 flex-col gap-4">
             {site.is_proxied_site_type && (
               <ProxiedAppCard site={site} initialWorker={page.props.worker} />
             )}
@@ -153,12 +153,9 @@ export default function AppWithDeployment() {
             <Deferred data={['deployments', 'deploymentScript']} fallback={<DeploymentsSkeleton />}>
               <section aria-labelledby="deployments-heading">
                 <Card>
-                  <CardHeader className="gap-4 p-4 sm:p-5">
+                  <CardHeader className="gap-3 p-4">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg text-lg font-semibold">
-                          {site.domain.charAt(0).toUpperCase()}
-                        </div>
                         <div className="min-w-0">
                           <div className="flex min-w-0 items-center gap-2">
                             <h1 id="deployments-heading" className="sr-only">Application</h1>
@@ -374,14 +371,11 @@ export default function AppWithDeployment() {
             </Deferred>
           </div>
 
-          <Card className="overflow-hidden lg:sticky lg:top-4">
+          <Card className="overflow-hidden xl:sticky xl:top-4">
             <CardHeader className="flex-row items-center gap-3">
-              <div className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
-                <Layers3Icon className="size-4" />
-              </div>
               <div className="flex flex-col gap-1">
                 <CardTitle>Site details</CardTitle>
-                <p className="text-muted-foreground text-sm">Runtime and connection information</p>
+
               </div>
             </CardHeader>
             <CardContent className="p-0">

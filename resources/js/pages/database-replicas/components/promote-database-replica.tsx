@@ -41,7 +41,7 @@ export default function PromoteDatabaseReplica({
         <Form id="promote-database-replica-form" onSubmit={submit} className="p-4">
           <FormFields>
             <div className="flex flex-col gap-2 text-sm">
-              <p>Vito will, in order:</p>
+              <p>PurePanel will, in order:</p>
               <ol className="text-muted-foreground list-decimal space-y-1 pl-5">
                 <li>Stop PostgreSQL, WAL archiving and the pgBackRest server on {replica.primary_server_name} and keep PostgreSQL from starting again.</li>
                 <li>Promote {replica.replica_server_name} and continue WAL archiving and backups from it.</li>
@@ -52,7 +52,7 @@ export default function PromoteDatabaseReplica({
                 Lag at the last check: <strong>{lag != null ? formatBytes(lag) : 'unknown'}</strong>. Commits that did not reach the replica are lost.
                 This cannot be undone.
               </p>
-              <p className="text-muted-foreground">Vito does not change your applications. Point them at the new primary afterwards.</p>
+              <p className="text-muted-foreground">PurePanel does not change your applications. Point them at the new primary afterwards.</p>
             </div>
 
             <FormField>

@@ -34,7 +34,7 @@ export default function ServerBanners({ server }: { server: Server }) {
     items.push({
       key: 'server-updating',
       title: 'Package update in progress',
-      description: <>Vito is applying package updates to this server. You can monitor the progress and view live console logs.</>,
+      description: <>PurePanel is applying package updates to this server. You can monitor the progress and view live console logs.</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={`/servers/${server.id}/update`}>

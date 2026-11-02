@@ -248,7 +248,7 @@ export default function ServerLayout({ children }: { children: ReactNode }) {
           icon: ChartLineIcon,
         },
         {
-          title: 'Vito Events',
+          title: 'PurePanel Events',
           href: `/servers/${serverId}/logs`,
           onlyActivePath: `/servers/${serverId}/logs`,
           icon: LogsIcon,

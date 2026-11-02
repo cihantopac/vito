@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { LoaderCircleIcon } from 'lucide-react';
 import { registerIniLanguage } from '@/lib/editor';
-import { useAppearance } from '@/hooks/use-appearance';
 
 export default function PhpIniDialog({
   open,
@@ -24,7 +23,6 @@ export default function PhpIniDialog({
   service: Service;
   type: 'fpm' | 'cli';
 }) {
-  const { getActualAppearance } = useAppearance();
   const form = useForm<{
     ini: string;
     type: 'fpm' | 'cli';
@@ -72,7 +70,7 @@ export default function PhpIniDialog({
             <Editor
               defaultLanguage="ini"
               value={form.data.ini}
-              theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+              theme="vs-dark"
               className="h-full"
               onChange={(value) => form.setData('ini', value ?? '')}
               options={{

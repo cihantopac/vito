@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vito daily health report</title></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PurePanel daily health report</title></head>
 <body style="margin:0;background:#f5f5f5;color:#202020;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6">
 <div style="max-width:640px;margin:24px auto;padding:28px;background:#fff;border:1px solid #ddd;border-radius:12px">
 <h1 style="font-size:24px;margin:0">Daily health report</h1>

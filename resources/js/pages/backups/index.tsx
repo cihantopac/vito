@@ -52,7 +52,7 @@ export default function Backups() {
             <AlertDescription>
               <p>
                 It holds the same data as {page.props.replicaOf.name}, so it isn't backed up separately. The cluster has one pgBackRest backup, set up on{' '}
-                {page.props.replicaOf.name}. Vito runs it on the healthiest, most caught-up replica, which can be this server, straight to S3, and on the
+                {page.props.replicaOf.name}. PurePanel runs it on the healthiest, most caught-up replica, which can be this server, straight to S3, and on the
                 primary only when no replica qualifies. The Host column of each backup shows where it ran.
               </p>
               {page.props.replicaOf.backup_id && (

@@ -159,10 +159,9 @@ export function AppSidebar({
               href={"/overview"}
               prefetch
               className="flex min-w-0 items-center gap-2 group-data-[state=collapsed]:hidden"
-              aria-label={`Vito ${page.props.version}`}
+              aria-label={`PurePanel ${page.props.version}`}
             >
               <AppLogo />
-              <span className="truncate font-semibold text-sm">Vito</span>
             </Link>
             <div className="flex shrink-0 items-center gap-1">
               {hasSecondNav && !secondNavOpen && onSecondNavOpenChange && (

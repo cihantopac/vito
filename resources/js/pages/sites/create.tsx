@@ -402,7 +402,7 @@ export default function CreateSitePage({
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-foreground">
-                      {isVitoType ? 'Install with Vito Config' : `Install a ${selectedTypeLabel} application`}
+                      {isVitoType ? 'Install with PurePanel Config' : `Install a ${selectedTypeLabel} application`}
                     </h2>
                   </div>
                 </div>
