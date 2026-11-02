@@ -13,7 +13,7 @@ class Cron
     {
         $this->server->ssh()->exec(
             view('ssh.cron.update', [
-                'cron' => str_replace("'", "'\\''", $cron),
+                'cron' => $cron,
                 'user' => $user,
             ]),
             'update-cron'

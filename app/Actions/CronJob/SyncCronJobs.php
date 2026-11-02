@@ -31,6 +31,7 @@ class SyncCronJobs
         
         $vitoCronJobs = $server->cronJobs()
             ->where('user', $user)
+            ->with('site')
             ->get();
 
         $serverLevelCronJobs = $vitoCronJobs->where('site_id', null);
@@ -97,7 +98,7 @@ class SyncCronJobs
 
             
             $matchingCronJob = $vitoCronJobs->first(function ($cronJob) use ($frequency, $command) {
-                return $this->normalizeFrequency($cronJob->frequency) === $frequency && $this->matchesCommand($cronJob->command, $command);
+                return $this->normalizeFrequency($cronJob->frequency) === $frequency && $this->matchesCommand($cronJob, $command);
             });
 
             if ($matchingCronJob) {
@@ -124,7 +125,7 @@ class SyncCronJobs
         
         foreach ($serverCronJobs as $cronJobData) {
             $isVitoManaged = $vitoCronJobs->contains(function ($cronJob) use ($cronJobData) {
-                return $this->normalizeFrequency($cronJob->frequency) === $cronJobData['frequency'] && $this->matchesCommand($cronJob->command, $cronJobData['command']);
+                return $this->normalizeFrequency($cronJob->frequency) === $cronJobData['frequency'] && $this->matchesCommand($cronJob, $cronJobData['command']);
             });
 
             if (! $isVitoManaged) {
@@ -151,16 +152,15 @@ class SyncCronJobs
         return preg_replace('/\s+/', ' ', trim($command));
     }
 
-    private function matchesCommand(string $cronJobCommand, string $serverCommand): bool
+    private function matchesCommand(CronJob $cronJob, string $serverCommand): bool
     {
-        $normalizedCronJob = $this->normalizeCommand($cronJobCommand);
-        if ($normalizedCronJob === $serverCommand) {
-            return true;
-        }
+        $commands = [
+            $this->normalizeCommand($cronJob->command),
+            $this->normalizeCommand($cronJob->executionCommand()),
+        ];
 
-        $unwrapped = CronJob::unwrapCommand($serverCommand);
-
-        return $unwrapped !== null && $this->normalizeCommand($unwrapped) === $normalizedCronJob;
+        return in_array($serverCommand, $commands, true)
+            || in_array($this->normalizeCommand(CronJob::unwrapCommand($serverCommand) ?? $serverCommand), $commands, true);
     }
 
     
