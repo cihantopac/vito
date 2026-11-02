@@ -68,7 +68,7 @@ export default function AddNetworkPeer({
                   onChange={(e) => form.setData('public_key', e.target.value)}
                   placeholder="Base64-encoded WireGuard public key"
                 />
-                <p className="text-muted-foreground text-xs">PurePanel will never hold this peer's private key. The device keeps it.</p>
+                <p className="text-muted-foreground text-xs">Pure will never hold this peer's private key. The device keeps it.</p>
                 <InputError message={form.errors.public_key} />
               </FormField>
             )}

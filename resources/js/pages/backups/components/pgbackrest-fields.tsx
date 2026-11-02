@@ -61,7 +61,7 @@ export default function PgBackRestFields({
         <Label htmlFor="wal_queue_max_gb">WAL queue limit (GiB)</Label>
         <Input id="wal_queue_max_gb" type="number" min={1} value={data.wal_queue_max_gb} onChange={(e) => onChange('wal_queue_max_gb', e.target.value)} />
         <div className="text-muted-foreground text-sm">
-          If S3 is unreachable and unarchived WAL grows past this size, pgBackRest drops it so the disk doesn't fill. Point-in-time recovery then has a gap until the next backup, and PurePanel notifies you.
+          If S3 is unreachable and unarchived WAL grows past this size, pgBackRest drops it so the disk doesn't fill. Point-in-time recovery then has a gap until the next backup, and Pure notifies you.
         </div>
         <InputError message={errors.wal_queue_max_gb} />
       </FormField>

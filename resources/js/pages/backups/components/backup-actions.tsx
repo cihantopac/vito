@@ -52,7 +52,7 @@ function Delete({ backup }: { backup: Backup }) {
           title: `Delete backup [${target}]`,
           description:
             backup.type === 'pgbackrest'
-              ? 'PurePanel stops pgBackRest backups and WAL archiving on this server. Backups already in S3 are kept. Save the encryption passphrase first, because without it they cannot be restored.'
+              ? 'Pure stops pgBackRest backups and WAL archiving on this server. Backups already in S3 are kept. Save the encryption passphrase first, because without it they cannot be restored.'
               : `Are you sure you want to delete this backup: ${target}? All backup files will be deleted and this action cannot be undone.`,
           variant: 'destructive',
           confirmLabel: 'Delete',

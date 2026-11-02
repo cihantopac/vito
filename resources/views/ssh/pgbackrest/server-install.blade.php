@@ -1,6 +1,6 @@
 sudo tee /etc/systemd/system/vito-pgbackrest-server.service > /dev/null <<'VITO_UNIT'
 [Unit]
-Description=pgBackRest TLS server (Vito)
+Description=pgBackRest TLS server (Pure)
 After=network-online.target
 Wants=network-online.target
 

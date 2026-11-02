@@ -44,7 +44,7 @@ function AutoUpdateRow({ server, autoUpdate }: { server: number; autoUpdate: Aut
               Automatic updates
               <Badge variant={autoUpdate.enabled ? 'success' : 'gray'}>{autoUpdate.enabled ? 'applied' : 'not applied'}</Badge>
             </CardTitle>
-            <CardDescription>PurePanel applies package updates to this server on a schedule (times are UTC).</CardDescription>
+            <CardDescription>Pure applies package updates to this server on a schedule (times are UTC).</CardDescription>
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <Switch checked={form.data.enabled} onCheckedChange={(value) => form.setData('enabled', value)} aria-label="Enable automatic updates" />
@@ -156,7 +156,7 @@ function ScoreCard({ score, children }: { score: SecurityScore; children: ReactN
                 </button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
-                This score only reflects the hardening features PurePanel manages. It is not an indicative or complete security rating for your server.
+                This score only reflects the hardening features Pure manages. It is not an indicative or complete security rating for your server.
               </TooltipContent>
             </Tooltip>
           </CardTitle>
@@ -293,13 +293,13 @@ export default function Security() {
             <SecurityToggleCard
               serverId={serverId}
               title="Disable root SSH login"
-              description={page.props.rootLogin.manageable ? 'When on, the root user cannot log in over SSH.' : 'PurePanel currently connects to this server as root; switch to a non-root SSH user before disabling root login.'}
+              description={page.props.rootLogin.manageable ? 'When on, the root user cannot log in over SSH.' : 'Pure currently connects to this server as root; switch to a non-root SSH user before disabling root login.'}
               state={page.props.rootLogin}
               onToggle={(nextSecure) => {
                 dialog.confirm.open({
                   title: nextSecure ? 'Disable root SSH login' : 'Allow root SSH login',
                   description: nextSecure
-                    ? 'Root SSH login will be refused. PurePanel connects as the deploy user and uses sudo, so this is safe.'
+                    ? 'Root SSH login will be refused. Pure connects as the deploy user and uses sudo, so this is safe.'
                     : 'Root will be allowed to log in over SSH again.',
                   variant: nextSecure ? 'destructive' : 'default',
                   confirmLabel: nextSecure ? 'Disable' : 'Allow',

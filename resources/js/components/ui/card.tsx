@@ -3,11 +3,11 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card" className={cn('bg-card text-card-foreground flex flex-col rounded-xl shadow-[0_8px_32px_-16px_rgb(0_0_0/0.6)]', className)} {...props} />;
+  return <div data-slot="card" className={cn('bg-card text-card-foreground flex flex-col rounded-xl border border-border/60', className)} {...props} />;
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-header" className={cn('flex flex-col gap-1.5 p-4', className)} {...props} />;
+  return <div data-slot="card-header" className={cn('flex flex-col gap-1.5 border-b border-border/50 p-4', className)} {...props} />;
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {

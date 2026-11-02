@@ -561,8 +561,8 @@ export default function ServerSettings() {
                     <p className="font-medium text-destructive text-sm">Remove Server</p>
                     <p className="text-muted-foreground text-xs">
                       {server.is_self
-                        ? 'This server hosts PurePanel itself and cannot be removed.'
-                        : 'Remove this server from PurePanel. The cloud instance remains active on your provider.'}
+                        ? 'This server hosts Pure itself and cannot be removed.'
+                        : 'Remove this server from Pure. The cloud instance remains active on your provider.'}
                     </p>
                   </div>
                   {server.is_self ? (

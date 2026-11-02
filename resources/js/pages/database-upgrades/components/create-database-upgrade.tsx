@@ -56,7 +56,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
       })
       .catch((failure: { response?: { data?: { message?: string } } }) => {
         setRequirements(null);
-        setError(failure.response?.data?.message ?? `PurePanel could not reach ${server.name} to read its PostgreSQL settings.`);
+        setError(failure.response?.data?.message ?? `Pure could not reach ${server.name} to read its PostgreSQL settings.`);
       });
   }, [open, server.id, setData]);
 
@@ -75,7 +75,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
         <Form id="create-database-upgrade-form" onSubmit={submit} className="p-4">
           <FormFields>
             <div className="text-muted-foreground rounded-md border p-3 text-sm">
-              PurePanel creates a server at your provider (billed by the provider), installs the PostgreSQL version you pick, and copies every database, role and
+              Pure creates a server at your provider (billed by the provider), installs the PostgreSQL version you pick, and copies every database, role and
               schema of {requirements?.source ?? server.name} onto it with logical replication. {requirements?.source ?? server.name} keeps serving reads and
               writes the whole time, and you decide when to switch over.
             </div>
@@ -87,7 +87,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
             )}
 
             {requirements === null && error === null && (
-              <p className="text-muted-foreground text-sm">Checking what {server.name} holds. On a server PurePanel cannot reach, this takes about half a minute.</p>
+              <p className="text-muted-foreground text-sm">Checking what {server.name} holds. On a server Pure cannot reach, this takes about half a minute.</p>
             )}
 
             {requirements && (
@@ -123,7 +123,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
 
             {versions && versions.versions.length === 0 && (
               <Alert>
-                <AlertTitle>PostgreSQL {versions.version} is the newest version PurePanel installs</AlertTitle>
+                <AlertTitle>PostgreSQL {versions.version} is the newest version Pure installs</AlertTitle>
                 <AlertDescription>There is no newer major version to move {versions.source} to yet.</AlertDescription>
               </Alert>
             )}
@@ -144,7 +144,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
                 </Select>
                 <p className="text-muted-foreground text-sm">
                   {form.data.mode === 'seeded'
-                    ? `PurePanel restores the backup of ${requirements.source} onto the new server, upgrades that copy to the version you pick, and then replays only the changes made since. For a large database this turns days of copying into hours, and the old server is never read for it — the rows come from the backup repository.`
+                    ? `Pure restores the backup of ${requirements.source} onto the new server, upgrades that copy to the version you pick, and then replays only the changes made since. For a large database this turns days of copying into hours, and the old server is never read for it — the rows come from the backup repository.`
                     : requirements.seed.available
                       ? 'Every row travels over the private network. Simple, and fine up to tens of GB; past that, starting from the backup is far faster.'
                       : `Every row travels over the private network. ${requirements.seed.reason}`}
@@ -234,7 +234,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
                   <Label htmlFor="upgrade-restart">Restart PostgreSQL on {requirements.source} once</Label>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  Logical replication needs wal_level = logical and {requirements.required_slots} replication slots, which only apply after a restart. PurePanel
+                  Logical replication needs wal_level = logical and {requirements.required_slots} replication slots, which only apply after a restart. Pure
                   restarts PostgreSQL once, early in the upgrade, and open connections are dropped at that moment.
                 </p>
                 <InputError message={form.errors.restart} />

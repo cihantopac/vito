@@ -5,4 +5,4 @@ sudo tee {!! escapeshellarg($path) !!} > /dev/null <<'VITO_REPLICA_SEED'
 VITO_REPLICA_SEED
 sudo chmod 700 {!! escapeshellarg($path) !!}
 sudo systemctl reset-failed {!! escapeshellarg($unit) !!} > /dev/null 2>&1 || true
-sudo systemd-run --unit={!! escapeshellarg($unit) !!} --remain-after-exit --description='Vito PostgreSQL replica seed' /bin/bash {!! escapeshellarg($path) !!}
+sudo systemd-run --unit={!! escapeshellarg($unit) !!} --remain-after-exit --description='Pure PostgreSQL replica seed' /bin/bash {!! escapeshellarg($path) !!}

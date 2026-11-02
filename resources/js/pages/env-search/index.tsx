@@ -53,16 +53,16 @@ export default function EnvSearch() {
           setResults(data.results);
           setSearching(false);
         } else if (data.status === 'failed') {
-          setError(data.error || 'Arama başarısız oldu.');
+          setError(data.error || 'Search failed.');
           setSearching(false);
         } else if (data.status === 'not_found') {
-          setError('Arama sonucu bulunamadı.');
+          setError('No search results found.');
           setSearching(false);
         } else {
           poll(searchId);
         }
       } catch (e) {
-        setError(errorMessage(e, 'Arama sırasında bir hata oluştu.'));
+        setError(errorMessage(e, 'An error occurred during the search.'));
         setSearching(false);
       }
     }, POLL_INTERVAL_MS);
@@ -82,20 +82,20 @@ export default function EnvSearch() {
       const response = await axios.post<{ search_id: string }>("/settings/env-search", { key: key.trim() });
       poll(response.data.search_id);
     } catch (e) {
-      setError(errorMessage(e, 'Arama başlatılamadı.'));
+      setError(errorMessage(e, 'Unable to start the search.'));
       setSearching(false);
     }
   };
 
   return (
     <SettingsLayout>
-      <Head title="Env Anahtarı Ara" />
+      <Head title="Environment key search" />
 
       <Container>
         <HeaderContainer>
           <Heading
-            title="Env Anahtarı Ara"
-            description="Sitelerinizin .env dosyalarında bir anahtarı (ör. APP_URL) arayın ve değerlerini görün"
+            title="Environment key search"
+            description="Find a key (e.g. APP_URL) in site .env files and view its values"
           />
         </HeaderContainer>
 
@@ -112,20 +112,20 @@ export default function EnvSearch() {
           </div>
           <Button type="submit" disabled={searching}>
             {searching && <LoaderCircleIcon className="size-3.5 animate-spin" />}
-            {searching ? 'Aranıyor...' : 'Ara'}
+            {searching ? 'Searching...' : 'Search'}
           </Button>
         </form>
 
         {error && <p className="text-destructive text-sm">{error}</p>}
 
         {!searching && results === null && !error && (
-          <p className="text-muted-foreground text-sm">Bir anahtar girip aramayı başlatın.</p>
+          <p className="text-muted-foreground text-sm">Enter a key to start searching.</p>
         )}
 
         {searching && results === null && (
           <p className="text-muted-foreground flex items-center gap-2 text-sm">
             <LoaderCircleIcon className="size-3.5 animate-spin" />
-            Sunuculardaki .env dosyaları taranıyor, bu biraz zaman alabilir...
+            Scanning server .env files. This may take a moment...
           </p>
         )}
 
@@ -135,15 +135,15 @@ export default function EnvSearch() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Site</TableHead>
-                  <TableHead>Sunucu</TableHead>
-                  <TableHead>Değer</TableHead>
+                  <TableHead>Server</TableHead>
+                  <TableHead>Value</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-muted-foreground text-center">
-                      Erişilebilir site bulunamadı.
+                      No accessible sites found.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -166,12 +166,12 @@ export default function EnvSearch() {
                       <TableCell className="font-mono text-xs">
                         {result.found ? (
                           result.value === '' ? (
-                            <span className="text-muted-foreground italic">(boş)</span>
+                            <span className="text-muted-foreground italic">(empty)</span>
                           ) : (
                             result.value
                           )
                         ) : (
-                          <span className="text-muted-foreground italic">Değeri yok</span>
+                          <span className="text-muted-foreground italic">No value</span>
                         )}
                       </TableCell>
                     </TableRow>

@@ -28,7 +28,7 @@ export default function SiteFeatures() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Features" description="Your site has some features enabled by PurePanel or other plugins" />
+          <Heading title="Features" description="Your site has some features enabled by Pure or other plugins" />
         </HeaderContainer>
 
         <SiteBanners site={page.props.site} />
@@ -36,7 +36,7 @@ export default function SiteFeatures() {
         <Alert>
           <TriangleAlertIcon className="text-warning!" />
           <AlertDescription className="flex gap-1">
-            PurePanel now uses the new plugins system. If the feature you're looking for is not here, check the
+            Pure now uses the new plugins system. If the feature you're looking for is not here, check the
             <Link className="text-primary" href={"/admin/plugins"}>
               plugins
             </Link>

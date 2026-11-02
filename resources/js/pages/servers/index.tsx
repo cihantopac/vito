@@ -1,3 +1,4 @@
+import { usePanelView } from '@/hooks/use-panel-view';
 import { useSocketStore } from '@/stores/socket-store';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 
@@ -35,7 +36,7 @@ const nameCell = ({ row, value }: CellRenderProps) => {
   const isFailed = status === 'installation_failed';
   const isSelf = Boolean(row.is_self);
   const id = row.id as number;
-  const name = isSelf ? 'PurePanel sunucusu' : String(value || row.name || '');
+  const name = isSelf ? 'Pure server' : String(value || row.name || '');
   const sitesCount = typeof row.sites_count === 'number' ? row.sites_count : 0;
 
   return (
@@ -258,15 +259,15 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
   const result = value as PhpVersions | null;
 
   if (!result) {
-    return <span className="text-muted-foreground text-xs">Kontrol edilmedi</span>;
+    return <span className="text-muted-foreground text-xs">Not checked</span>;
   }
 
   const labels = {
-    unknown: 'Kontrol edilmedi',
-    current: 'Güncel',
-    outdated: 'Güncel değil',
-    error: 'Kontrol başarısız',
-    no_php: 'PHP yok',
+    unknown: 'Not checked',
+    current: 'Up to date',
+    outdated: 'Outdated',
+    error: 'Check failed',
+    no_php: 'No PHP',
   };
   const stale = result.checked_at !== null && Date.now() - Date.parse(result.checked_at) > 3_600_000;
 
@@ -276,20 +277,20 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
         <Link href={`/servers/${row.id}/services`} className="inline-flex flex-col items-start gap-1">
           <Badge variant={result.status === 'outdated' ? 'warning' : result.status === 'current' ? 'success' : 'gray'}>
             {result.checking && <LoaderCircleIcon className="size-3 animate-spin" />}
-            {result.checking ? 'Kontrol ediliyor' : labels[result.status]}
+            {result.checking ? 'Checking' : labels[result.status]}
           </Badge>
           {result.versions.map((version) => (
             <span key={version.installed} className="text-muted-foreground whitespace-nowrap text-xs">
-              {version.installed}{version.outdated ? ` → ${version.latest}` : ''}{version.unsupported ? ' · Destek sona erdi' : ''}
+              {version.installed}{version.outdated ? ` → ${version.latest}` : ''}{version.unsupported ? ' · End of support' : ''}
             </span>
           ))}
-          {stale && <span className="text-muted-foreground text-xs">Önbellekteki sonuç</span>}
+          {stale && <span className="text-muted-foreground text-xs">Cached result</span>}
         </Link>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
-        <p>Her PHP dalının en son yama sürümüyle karşılaştırılır.</p>
-        <p>{result.checked_at ? `Son başarılı kontrol: ${new Date(result.checked_at).toLocaleString()}` : 'Henüz başarılı bir kontrol yapılmadı.'}</p>
-        {result.status === 'error' && <p>Sunucuya veya PHP sürüm kaynağına erişilemedi. Önceki sonuç korunuyor.</p>}
+        <p>Compared with the latest patch release for each PHP branch.</p>
+        <p>{result.checked_at ? `Last successful check: ${new Date(result.checked_at).toLocaleString()}` : 'No successful checks yet.'}</p>
+        {result.status === 'error' && <p>Unable to reach the server or PHP version source. Previous results are preserved.</p>}
       </TooltipContent>
     </Tooltip>
   );
@@ -298,13 +299,7 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
 export default function Servers() {
   const page = usePage<Page & SharedData>();
   const versionForm = useForm({ project: page.props.serverScope ?? 'all' });
-  const advanced = new URL(page.url, 'http://localhost').searchParams.get('view') === 'advanced';
-  const setView = (value: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('view', value);
-    if (value === 'basic') { url.searchParams.delete('php_status'); }
-    router.get(url.toString(), {}, { preserveState: true, preserveScroll: true, replace: true });
-  };
+  const { advanced, setView } = usePanelView();
   const checkingVersions = page.props.phpVersionsChecking || versionForm.processing;
 
   const socketStatus = useSocketStore((s) => s.status);
@@ -337,7 +332,7 @@ export default function Servers() {
               }}
             >
               <RefreshCwIcon className={cn(checkingVersions && 'animate-spin')} />
-              Sürümleri kontrol et
+              Check versions
             </Button>}
             <Button asChild>
               <Link href={"/servers/create"}>
@@ -364,8 +359,8 @@ export default function Servers() {
           toolbar={
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex rounded-md border border-border p-0.5" role="group" aria-label="Server view">
-                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basit</Button>
-                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Gelişmiş</Button>
+                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
+                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
               </div>
               {advanced && <Select
                 value={page.props.phpStatus ?? 'all'}
@@ -380,12 +375,12 @@ export default function Servers() {
                   router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                 }}
               >
-                <SelectTrigger className="h-8 w-44" aria-label="PHP güncellik filtresi">
+                <SelectTrigger className="h-8 w-44" aria-label="PHP version status filter">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tüm PHP durumları</SelectItem>
-                  <SelectItem value="outdated">PHP güncel olmayanlar</SelectItem>
+                  <SelectItem value="all">All PHP statuses</SelectItem>
+                  <SelectItem value="outdated">Outdated PHP</SelectItem>
                 </SelectContent>
               </Select>}
               <div className="flex flex-wrap items-center gap-2">

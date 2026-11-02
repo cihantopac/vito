@@ -50,7 +50,7 @@ export default function CronJobIndex() {
                 dialog.confirm.open({
                   title: 'Sync cron jobs',
                   description:
-                    'This action will connect to your server and perform a two-way synchronization of cron jobs. PurePanel will fetch any cron jobs created manually on the server, and verify the existence of cron jobs managed by PurePanel. If a cron job tracked by PurePanel no longer exists on the server, it will be removed from PurePanel. Are you sure you want to proceed?',
+                    'This action will connect to your server and perform a two-way synchronization of cron jobs. Pure will fetch any cron jobs created manually on the server, and verify the existence of cron jobs managed by Pure. If a cron job tracked by Pure no longer exists on the server, it will be removed from Pure. Are you sure you want to proceed?',
                   confirmLabel: 'Sync cron jobs',
                   url: `/servers/${page.props.server.id}/cronjobs/sync`,
                   method: 'post',

@@ -27,14 +27,13 @@ import {
   SlidersIcon,
   TerminalIcon,
   UsersIcon,
-  WifiOffIcon,
 } from 'lucide-react';
 import { ReactNode, useEffect } from 'react';
 import { Server } from '@/types/server';
 import ServerHeader from '@/pages/servers/components/header';
 import Layout from '@/layouts/app/layout';
 import { router, usePage } from '@inertiajs/react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import ServerOfflineBanner from '@/components/server-offline-banner';
 import { toast } from 'sonner';
 import { Site } from '@/types/site';
 import { useRealtimeRecord } from '@/hooks/use-socket-events';
@@ -248,7 +247,7 @@ export default function ServerLayout({ children }: { children: ReactNode }) {
           icon: ChartLineIcon,
         },
         {
-          title: 'PurePanel Events',
+          title: 'Pure Events',
           href: `/servers/${serverId}/logs`,
           onlyActivePath: `/servers/${serverId}/logs`,
           icon: LogsIcon,
@@ -319,13 +318,7 @@ export default function ServerLayout({ children }: { children: ReactNode }) {
 
       {isOffline && !isRestartPage && !isOverviewPage && (
         <div className="px-4 pt-4">
-          <Alert>
-            <WifiOffIcon />
-            <AlertTitle>Server offline — read-only mode</AlertTitle>
-            <AlertDescription>
-              You can view saved data. Creating, editing and deleting are unavailable until the server reconnects. Live server data cannot be refreshed.
-            </AlertDescription>
-          </Alert>
+          <ServerOfflineBanner server={server} />
         </div>
       )}
 

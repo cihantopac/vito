@@ -21,12 +21,12 @@ const commitCell = ({ row }: CellRenderProps) => {
   const href = commit.url && /^https?:\/\//.test(commit.url) ? commit.url : undefined;
 
   return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary inline-flex truncate font-mono">
-      <span className="block max-w-[200px] overflow-x-hidden overflow-ellipsis">{commit.message}</span>
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-info inline-flex text-xs font-medium hover:underline">
+      <span className="block whitespace-normal break-words">{commit.message}</span>
     </a>
   ) : (
-    <span className="inline-flex truncate font-mono">
-      <span className="block max-w-[200px] overflow-x-hidden overflow-ellipsis">{commit.message}</span>
+    <span className="inline-flex text-xs font-medium">
+      <span className="block whitespace-normal break-words">{commit.message}</span>
     </span>
   );
 };
@@ -115,6 +115,7 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
   return (
     <VitoTable
       fitContent
+      columnWidths={{ actions: '3.25rem', id: '4.5rem', deployed_by: '12%', status: '10%', duration: '8%', release: '9%', created_at: '15%' }}
       tableData={deployments}
       showPagination={showPagination}
       reloadOnly={['deployments']}

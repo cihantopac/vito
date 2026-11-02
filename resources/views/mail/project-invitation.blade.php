@@ -1,7 +1,7 @@
 @component('mail::message')
 # {{ __('You\'ve been added to :project', ['project' => $project->name]) }}
 
-{{ __('You have been added to collaborate on the :project project in PurePanel.', ['project' => $project->name]) }}
+{{ __('You have been added to collaborate on the :project project in Pure.', ['project' => $project->name]) }}
 
 {{ __('Click the button below to view the project.') }}
 

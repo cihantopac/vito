@@ -91,7 +91,7 @@ export default function Fail2banForm({
                 onChange={(e) => form.setData('ignoreip', e.target.value)}
               />
               <p className="text-muted-foreground text-xs">
-                Space-separated IPs/CIDRs that are never banned. Localhost and PurePanel&apos;s own address are always allowed.
+                Space-separated IPs/CIDRs that are never banned. Localhost and Pure&apos;s own address are always allowed.
               </p>
               <InputError message={form.errors.ignoreip} />
             </FormField>

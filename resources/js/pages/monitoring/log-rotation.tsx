@@ -176,7 +176,7 @@ function CleanupSuggestions({ serverId }: { serverId: number }) {
           <EraserIcon className="text-muted-foreground size-4 shrink-0" />
           <span className="text-sm font-semibold">Cleanup suggestions</span>
           <span className="text-muted-foreground hidden sm:inline text-xs">
-            Scan results from server. PurePanel never deletes anything itself.
+            Scan results from server. Pure never deletes anything itself.
           </span>
           {selectedBytes > 0 && (
             <span className="font-mono text-xs text-muted-foreground">

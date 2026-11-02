@@ -6,7 +6,7 @@ import { useBootstrapStore } from './stores/bootstrap-store';
 import './vito-table-setup';
 import { resolvePage } from '@/lib/resolve-page';
 
-const appName = 'PurePanel';
+const appName = 'Pure';
 
 const pages = import.meta.glob(['./pages/**/*.tsx', '!./pages/**/components/**']);
 

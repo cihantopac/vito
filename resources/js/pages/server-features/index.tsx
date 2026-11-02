@@ -23,7 +23,7 @@ export default function ServerFeatures() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Features" description="Your server has some features enabled by PurePanel or other plugins" />
+          <Heading title="Features" description="Your server has some features enabled by Pure or other plugins" />
         </HeaderContainer>
 
         <FeaturesCard
