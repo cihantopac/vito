@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { usePanelView } from '@/hooks/use-panel-view';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import { Site } from '@/types/site';
@@ -66,6 +67,7 @@ const statusCell = ({ row, value }: CellRenderProps) => {
 
 export default function Sites() {
   const page = usePage<Page & SharedData>();
+  const { advanced, setView } = usePanelView();
 
   const Comp = page.props.server ? ServerLayout : Layout;
 
@@ -85,10 +87,14 @@ export default function Sites() {
         <VitoTable
           fitContent
           toolbarClassName="[&_input]:h-8 [&_input]:min-w-36 [&_input]:max-w-56 [&_input]:text-sm"
-          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || !['id', 'created_at'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
+          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || advanced || ['domain', 'status'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
           groupBy={page.props.groupBy}
           toolbar={
             <>
+              <div className="flex rounded-md border border-border p-0.5" role="group" aria-label="Site view">
+                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
+                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
+              </div>
               {!page.props.server && (
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
