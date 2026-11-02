@@ -42,7 +42,7 @@ export default function ServerConfigDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>WireGuard on {name}</DialogTitle>
-          <DialogDescription>The live connection status and the configuration Vito wrote. The private key never leaves the server.</DialogDescription>
+          <DialogDescription>The live connection status and the configuration PurePanel wrote. The private key never leaves the server.</DialogDescription>
         </DialogHeader>
 
         <div className="max-h-[65vh] space-y-6 overflow-y-auto p-4">
@@ -69,7 +69,7 @@ export default function ServerConfigDialog({
                 {data.status !== null ? (
                   <pre className="bg-muted/50 max-h-64 overflow-auto rounded-md border p-3 font-mono text-xs leading-relaxed">{data.status || 'The interface is not up.'}</pre>
                 ) : (
-                  <p className="text-muted-foreground text-sm">Vito could not reach the server to read the live status.</p>
+                  <p className="text-muted-foreground text-sm">PurePanel could not reach the server to read the live status.</p>
                 )}
               </section>
               <section className="space-y-2">

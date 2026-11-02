@@ -56,7 +56,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
           <>
             <SlashIcon className="size-3" />
             <Badge variant="outline" className="text-[11px] gap-1 bg-primary/10 text-primary border-primary/20 font-medium">
-              Vito Host
+              PurePanel Host
             </Badge>
           </>
         )}

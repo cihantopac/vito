@@ -44,9 +44,12 @@ function getPaginationPages(currentPage: number, lastPage?: number): (number | '
 
 interface VitoTableProps extends Omit<InertiaTableProps, 'tableData'> {
   tableData: InertiaTableData;
+  fitContent?: boolean;
+  columnWidths?: Record<string, string>;
   children?: ReactNode;
   showPagination?: boolean;
   toolbar?: ReactNode;
+  toolbarClassName?: string;
   groupBy?: 'project' | 'server' | 'none' | string | null;
   /** Props to reload on realtime events; defaults to the whole page. */
   reloadOnly?: string[];
@@ -90,7 +93,7 @@ function vitoCellRenderer({ row, value, displays, defaultRender }: CellRenderPro
   return defaultRender();
 }
 
-export function VitoTable({ tableData, children, modal, isFetching, showPagination = true, toolbar, groupBy, reloadOnly, ...props }: VitoTableProps) {
+export function VitoTable({ tableData, children, modal, isFetching, showPagination = true, toolbar, groupBy, reloadOnly, fitContent = false, columnWidths, toolbarClassName, ...props }: VitoTableProps) {
   const orderedTableData = useMemo(() => {
     const rawCols = tableData?.columns ?? [];
     let cols = orderTableColumns(rawCols, (column) => column.name);
@@ -168,7 +171,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
   return (
     <div className="w-full">
       {(orderedTableData.searchable || toolbar) && (
-        <div className={cn('mb-4 flex items-center gap-2', toolbar && 'mb-3 flex-wrap')}>
+        <div className={cn('mb-4 flex items-center gap-2', toolbar && 'mb-3 flex-wrap', toolbarClassName)}>
           {orderedTableData.searchable && (
             <>
               <Input
@@ -186,7 +189,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
       )}
 
       <div className={cn('relative w-full overflow-hidden rounded-md border shadow-xs', modal && 'border-none shadow-none')}>
-        <Table>
+        <Table className={fitContent ? 'table-fixed [&_td]:whitespace-normal [&_td]:break-words [&_th]:whitespace-normal [&_svg]:shrink-0' : undefined}>
           <TableHeader>
             <TableRow>
               {(orderedTableData.columns ?? [])
@@ -195,7 +198,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                   const sortState = getSortState(colDef.sort_key);
 
                   return (
-                    <TableHead key={colDef.name} className={colDef.fit ? 'w-0' : undefined}>
+                    <TableHead style={columnWidths?.[colDef.name] ? { width: columnWidths[colDef.name] } : undefined} key={colDef.name} className={colDef.fit ? (fitContent ? 'w-20' : 'w-0') : undefined}>
                       {colDef.sortable ? (
                         <button type="button" className="flex cursor-pointer items-center gap-2" onClick={() => onSort(colDef.sort_key)}>
                           {colDef.header}

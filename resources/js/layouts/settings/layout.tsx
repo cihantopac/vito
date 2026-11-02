@@ -96,7 +96,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
       hidden: !isAdmin,
     },
     {
-      title: 'Vito Settings',
+      title: 'PurePanel Settings',
       href: "/admin/vito",
       icon: ShieldCheckIcon,
       hidden: !isAdmin,

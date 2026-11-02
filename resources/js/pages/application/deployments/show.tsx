@@ -130,7 +130,7 @@ export default function DeploymentShow() {
             )}
 
             {deployment.commit_data.message && (
-              <span className="text-foreground max-w-md truncate" title={deployment.commit_data.message}>
+              <span className="text-foreground max-w-3xl whitespace-normal break-words" title={deployment.commit_data.message}>
                 · {deployment.commit_data.message}
               </span>
             )}

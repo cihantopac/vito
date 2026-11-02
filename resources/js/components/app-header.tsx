@@ -1,6 +1,6 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ProjectSwitch } from '@/components/project-switch';
-import { HeartIcon, MailIcon, SlashIcon, WifiIcon, WifiOffIcon } from 'lucide-react';
+import { MailIcon, SlashIcon, WifiIcon, WifiOffIcon } from 'lucide-react';
 import { ServerSwitch } from '@/components/server-switch';
 import { SiteSwitch } from '@/components/site-switch';
 import { Link, usePage } from '@inertiajs/react';
@@ -20,11 +20,11 @@ export function AppHeader({
   const page = usePage<SharedData>();
 
   return (
-    <header className="bg-background -ml-1 flex shrink-0 flex-col md:-ml-2">
+    <header className="bg-sidebar -ml-1 flex shrink-0 flex-col md:-ml-2">
       <div className="flex h-12 items-center justify-between gap-2 border-b px-4">
         <div className="flex min-w-0 items-center gap-1">
           <SidebarTrigger className="-ml-1 md:hidden" aria-label="Toggle navigation" aria-controls="app-navigation" />
-          <div className="bg-muted/30 flex min-w-0 items-center gap-1 rounded-md border p-0.5 text-xs">
+          <div className="flex min-w-0 items-center gap-2 text-sm">
             <ProjectSwitch />
             <SlashIcon className="text-muted-foreground size-3 shrink-0" />
             <ServerSwitch />
@@ -63,20 +63,7 @@ export function AppHeader({
               </TooltipContent>
             </Tooltip>
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8"
-                onClick={() => window.open('https://github.com/sponsors/saeedvaziry')}
-                aria-label="Sponsor"
-              >
-                <HeartIcon className="text-neutral-600" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Sponsor</TooltipContent>
-          </Tooltip>
+
         </div>
       </div>
       <SiteHeaderNav />

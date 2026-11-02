@@ -13,11 +13,11 @@ export interface BannerItem {
 
 export function BannerRow({ item }: { item: BannerItem }) {
   return (
-    <div className="flex items-center gap-4 px-4 py-3">
+    <div className="flex flex-wrap items-start gap-3 px-4 py-3">
       <TriangleAlertIcon className="text-warning h-4 w-4 shrink-0" />
-      <div className="min-w-0 flex-1 text-sm">
+      <div className="min-w-0 flex-1 basis-64 text-sm leading-relaxed">
         <p className="font-medium">{item.title}</p>
-        <div className="text-muted-foreground mt-0.5">{item.description}</div>
+        <div className="text-muted-foreground">{item.description}</div>
       </div>
       {item.action && <div className="shrink-0">{item.action}</div>}
     </div>
@@ -75,7 +75,7 @@ export function WarningsPopover({ items }: { items: BannerItem[] }) {
           <span className="sr-only">{label}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-96 max-w-[calc(100vw-2rem)] p-0">
+      <PopoverContent align="end" className="w-[36rem] max-w-[calc(100vw-2rem)] p-0">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <p className="text-sm font-medium">{label}</p>
         </div>

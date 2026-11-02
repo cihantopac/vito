@@ -6,7 +6,6 @@ use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CanSeeProjectMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsurePasswordIsChanged;
-use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HasProjectMiddleware;
 use App\Http\Middleware\MustBeAdminMiddleware;
@@ -58,7 +57,6 @@ class Kernel extends HttpKernel
             PreventRequestForgery::class,
             SubstituteBindings::class,
             HandleInertiaRequests::class,
-            HandleAppearance::class,
             EnsurePasswordIsChanged::class,
             TrackUserActivity::class,
         ],

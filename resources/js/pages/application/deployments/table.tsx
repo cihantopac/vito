@@ -114,6 +114,7 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
 
   return (
     <VitoTable
+      fitContent
       tableData={deployments}
       showPagination={showPagination}
       reloadOnly={['deployments']}

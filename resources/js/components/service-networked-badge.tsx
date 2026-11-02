@@ -48,7 +48,7 @@ export function ServiceNetworkedBadge({ row, value }: CellComponentProps) {
           <TooltipTrigger asChild>
             <TriangleAlertIcon className="text-warning size-4" />
           </TooltipTrigger>
-          <TooltipContent>Doesn&apos;t match Vito&apos;s setting - open Networking to reapply.</TooltipContent>
+          <TooltipContent>Doesn&apos;t match PurePanel&apos;s setting - open Networking to reapply.</TooltipContent>
         </Tooltip>
       )}
       {intentWithoutObservation && (
@@ -56,7 +56,7 @@ export function ServiceNetworkedBadge({ row, value }: CellComponentProps) {
           <TooltipTrigger asChild>
             <InfoIcon className="text-muted-foreground size-4" />
           </TooltipTrigger>
-          <TooltipContent>Networking is enabled by Vito - live state not checked yet. Use Refresh.</TooltipContent>
+          <TooltipContent>Networking is enabled by PurePanel - live state not checked yet. Use Refresh.</TooltipContent>
         </Tooltip>
       )}
     </div>

@@ -1,10 +1,8 @@
 import { withQuery } from '@/lib/url';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import siteHelper from '@/lib/site-helper';
 import serverHelper from '@/lib/server-helper';
@@ -15,99 +13,50 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import {
   ArrowRightIcon,
   BoxIcon,
-  CloudIcon,
-  CloudUploadIcon,
-  EyeOffIcon,
-  FolderGit2Icon,
   GlobeIcon,
   LayersIcon,
   LayoutGridIcon,
   ListEndIcon,
   type LucideIcon,
-  ServerIcon,
+  UnplugIcon,
   Settings2Icon,
   TerminalIcon,
   TriangleAlertIcon,
 } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
-import { type OverviewProviderItem, type OverviewServer, type OverviewSite, useOverviewResources } from '@/hooks/use-overview-resources';
-
-const WIDGETS = [
-  { key: 'servers', label: 'Recent servers' },
-  { key: 'sites', label: 'Recent sites' },
-  { key: 'projects', label: 'Projects' },
-  { key: 'server_providers', label: 'Server providers' },
-  { key: 'source_controls', label: 'Source controls' },
-  { key: 'storage_providers', label: 'Storage providers' },
-  { key: 'dns_providers', label: 'DNS providers' },
-  { key: 'backups', label: 'Backups' },
-  { key: 'domains', label: 'Domains' },
-] as const;
-
-type WidgetKey = (typeof WIDGETS)[number]['key'];
-
-const allWidgetKeys = WIDGETS.map((widget) => widget.key);
-
-function overviewWidgetsKey(userId: number): string {
-  return `overview-widgets:${userId}`;
-}
-
-function readEnabledWidgets(userId: number): Set<WidgetKey> {
-  if (typeof window === 'undefined') {
-    return new Set(allWidgetKeys);
-  }
-
-  try {
-    const stored = localStorage.getItem(overviewWidgetsKey(userId));
-
-    return stored ? new Set(JSON.parse(stored) as WidgetKey[]) : new Set(allWidgetKeys);
-  } catch {
-    return new Set(allWidgetKeys);
-  }
-}
-
-function writeEnabledWidgets(userId: number, widgets: Set<WidgetKey>): void {
-  try {
-    localStorage.setItem(overviewWidgetsKey(userId), JSON.stringify([...widgets]));
-  } catch {
-    return;
-  }
-}
+import { type OverviewServer, type OverviewSite, useOverviewResources } from '@/hooks/use-overview-resources';
 
 function issueCount(status: string, statusColor: string, warnings: unknown[] | undefined): number {
   const warningCount = warnings?.length ?? 0;
   return warningCount > 0 || statusColor === 'danger' || status === 'disconnected' ? Math.max(warningCount, 1) : 0;
 }
 
-function IssueIndicator({ count }: { count: number }) {
+function IssueIndicator({ count, status }: { count: number; status: string }) {
   if (count === 0) {
     return null;
   }
 
-  return (
-    <span
-      className="bg-warning/15 text-warning border-warning/40 flex size-7 items-center justify-center rounded-md border"
-      role="img"
-      aria-label={`${count} important ${count === 1 ? 'issue' : 'issues'}`}
-    >
-      <TriangleAlertIcon className="size-4" />
-    </span>
-  );
-}
+  const label = status === 'disconnected' ? 'Disconnected' : `${count} important ${count === 1 ? 'issue' : 'issues'}`;
+  const StatusIcon = status === 'disconnected' ? UnplugIcon : TriangleAlertIcon;
 
-function StatusBadge({ status, color }: { status: string; color: 'gray' | 'success' | 'info' | 'warning' | 'danger' }) {
   return (
-    <Badge variant={color} className="px-1.5 py-0 text-[10px]">
-      {status}
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span tabIndex={0} role="img" aria-label={label} className="relative z-10 flex size-7 items-center justify-center rounded-md text-warning focus-visible:outline-2 focus-visible:outline-ring">
+          <StatusIcon className="size-4" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
 type QuickLink = { key: string; label: string; href: string; icon: LucideIcon };
 
 function serverQuickLinks(server: OverviewServer, userId: number): QuickLink[] {
-  return serverHelper
-    .getRecentVisitedServerPages(userId, server.id, 3)
+  const keys = serverHelper.getRecentVisitedServerPages(userId, server.id, 2);
+
+  return (keys.length ? keys : ['Sites', 'Services'])
     .map((key): QuickLink | null => {
       const page = SERVER_NAV_PAGES.find((candidate) => candidate.key === key);
       return page ? { key, label: page.label, href: `/servers/${server.id}${page.path}`, icon: page.icon } : null;
@@ -127,8 +76,9 @@ const SITE_PAGE_META: Record<string, { label: string; path: string; icon: Lucide
 
 function siteQuickLinks(site: OverviewSite, userId: number): QuickLink[] {
 
-  return siteHelper
-    .getRecentVisitedSitePages(userId, site.id, 3)
+  const keys = siteHelper.getRecentVisitedSitePages(userId, site.id, 2);
+
+  return (keys.length ? keys : ['Commands', 'Workers'])
     .map((key): QuickLink | null => {
       const meta = SITE_PAGE_META[key];
       return meta ? { key, label: meta.label, href: `/servers/${site.server_id}/sites/${site.id}${meta.path}`, icon: meta.icon } : null;
@@ -138,14 +88,12 @@ function siteQuickLinks(site: OverviewSite, userId: number): QuickLink[] {
 
 function ResourceRow({
   href,
-  icon: Icon,
   title,
   subtitle,
   right,
   quickLinks,
 }: {
   href: string;
-  icon: LucideIcon;
   title: string;
   subtitle?: ReactNode;
   right?: ReactNode;
@@ -153,14 +101,11 @@ function ResourceRow({
 }) {
   if (!quickLinks || quickLinks.length === 0) {
     return (
-      <Link href={href} className="hover:bg-muted/50 flex items-center justify-between gap-4 px-3.5 py-2.5 transition-colors" prefetch>
+      <Link href={href} className="w-full text-left hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg px-2 py-2.5 transition-colors" prefetch>
         <div className="flex min-w-0 items-center gap-3">
-          <div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg">
-            <Icon className="text-muted-foreground size-4" />
-          </div>
           <div className="flex min-w-0 flex-col gap-0.5">
-            <span className="truncate text-sm font-medium">{title}</span>
-            {subtitle && <span className="text-muted-foreground truncate text-[11px]">{subtitle}</span>}
+            <span className="break-words text-sm font-medium">{title}</span>
+            {subtitle && <span className="text-muted-foreground break-words text-xs">{subtitle}</span>}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -172,19 +117,16 @@ function ResourceRow({
   }
 
   return (
-    <div className="hover:bg-muted/50 group relative flex items-center justify-between gap-4 px-3.5 py-2.5 transition-colors">
+    <div className="hover:bg-muted/50 group relative flex items-center justify-between gap-2 rounded-lg px-2 py-2.5 transition-colors">
       <Link href={href} className="absolute inset-0" aria-label={title} prefetch />
       <div className="pointer-events-none flex min-w-0 items-center gap-3">
-        <div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg">
-          <Icon className="text-muted-foreground size-4" />
-        </div>
         <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-sm font-medium">{title}</span>
-          {subtitle && <span className="text-muted-foreground truncate text-[11px]">{subtitle}</span>}
+          <span className="break-words text-sm font-medium">{title}</span>
+          {subtitle && <span className="text-muted-foreground break-words text-xs">{subtitle}</span>}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
-        <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+        <div className="flex items-center gap-0.5">
           {quickLinks.map((link) => (
             <Tooltip key={link.key}>
               <TooltipTrigger asChild>
@@ -213,7 +155,6 @@ function QuickAccessCard({
   emptyText,
   loading,
   count,
-  onHide,
   children,
 }: {
   title: string;
@@ -221,63 +162,29 @@ function QuickAccessCard({
   emptyText: string;
   loading: boolean;
   count: number;
-  onHide: () => void;
   children?: ReactNode;
 }) {
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="bg-muted/20 flex-row items-center justify-between gap-4 border-b px-4 py-3.5">
-        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
-        <div className="flex items-center gap-1.5">
-          <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs" asChild>
-            <Link href={viewAllHref}>All</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground size-7"
-            onClick={onHide}
-            aria-label={`Hide ${title}`}
-            title={`Hide ${title}`}
-          >
-            <EyeOffIcon className="size-3.5" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col p-0">
-        {loading || count === 0 ? (
-          <div className="text-muted-foreground py-8 text-center text-xs">{loading ? 'Loading...' : emptyText}</div>
-        ) : (
-          <div className="divide-y">{children}</div>
-        )}
-      </CardContent>
-    </Card>
+    <section className="min-w-0 rounded-xl bg-card p-4">
+      <div className="flex items-center justify-between gap-3 pb-3">
+        <h2 className="text-base font-semibold tracking-tight">{title}</h2>
+        <Link href={viewAllHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-info hover:underline">
+          All <ArrowRightIcon className="size-4" />
+        </Link>
+      </div>
+      {loading || count === 0 ? (
+        <p className="py-8 text-sm text-muted-foreground">{loading ? 'Loading…' : emptyText}</p>
+      ) : (
+        <div className="flex flex-col gap-1">{children}</div>
+      )}
+    </section>
   );
-}
-
-function ProviderRows({ items, href }: { items: OverviewProviderItem[]; href: string }) {
-  return items.map((item) => (
-    <ResourceRow
-      key={item.id}
-      href={href}
-      icon={CloudIcon}
-      title={item.profile}
-      subtitle={<span className="capitalize">{item.provider}</span>}
-      right={
-        item.connected !== undefined && (
-          <Badge variant={item.connected ? 'default' : 'gray'} className="px-1.5 py-0 text-[10px] font-normal">
-            {item.connected ? 'Connected' : 'Disconnected'}
-          </Badge>
-        )
-      }
-    />
-  ));
 }
 
 function prioritize<T extends { id: number }>(items: T[], ids: number[]): T[] {
   const matched = ids.map((id) => items.find((item) => item.id === id)).filter((item): item is T => item !== undefined);
 
-  return [...matched, ...items.filter((item) => !ids.includes(item.id))].slice(0, 3);
+  return [...matched, ...items.filter((item) => !ids.includes(item.id))];
 }
 
 export default function Overview() {
@@ -286,256 +193,90 @@ export default function Overview() {
   const [recentServerIds, setRecentServerIds] = useState<number[]>([]);
   const [recentSiteIds, setRecentSiteIds] = useState<number[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const [enabledWidgets, setEnabledWidgets] = useState<Set<WidgetKey>>(() => new Set(allWidgetKeys));
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     setRecentServerIds(serverHelper.getAllRecentServers(userId, 25).map((server) => server.id));
     setRecentSiteIds(siteHelper.getAllRecentSites(userId, 25).map((site) => site.id));
-    setEnabledWidgets(readEnabledWidgets(userId));
     setHistoryLoaded(true);
   }, [userId]);
-
-  const toggleWidget = (key: WidgetKey) => {
-    setEnabledWidgets((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      writeEnabledWidgets(userId, next);
-      return next;
-    });
-  };
 
   const resources = useOverviewResources(undefined, recentServerIds, recentSiteIds, historyLoaded);
   const { isLoading } = resources;
   const data = resources.data;
 
-  const recentServers = prioritize(data?.servers ?? [], recentServerIds);
-  const recentSites = prioritize(data?.sites ?? [], recentSiteIds);
-  const projects = data?.projects ?? [];
-  const serverProviders = data?.server_providers ?? [];
-  const sourceControls = data?.source_controls ?? [];
-  const storageProviders = data?.storage_providers ?? [];
-  const dnsProviders = data?.dns_providers ?? [];
-  const backups = data?.backups ?? [];
-  const domains = data?.domains ?? [];
+  const query = search.trim().toLowerCase();
+  const recentServers = prioritize(data?.servers ?? [], recentServerIds)
+    .filter((server) => `${server.name} ${server.ip} ${server.status}`.toLowerCase().includes(query)).slice(0, 6);
+  const recentSites = prioritize(data?.sites ?? [], recentSiteIds)
+    .filter((site) => `${site.domain} ${site.server_name} ${site.status}`.toLowerCase().includes(query)).slice(0, 6);
 
   return (
     <Layout>
       <Head title="Overview" />
-      <Container className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
+      <Container>
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <Heading title="Overview" />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <LayoutGridIcon className="size-4" />
-                Customize
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {WIDGETS.map((widget) => (
-                <DropdownMenuCheckboxItem
-                  key={widget.key}
-                  checked={enabledWidgets.has(widget.key)}
-                  onSelect={(e) => e.preventDefault()}
-                  onCheckedChange={() => toggleWidget(widget.key)}
-                >
-                  {widget.label}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Input
+            type="search"
+            aria-label="Search servers and sites"
+            placeholder="Filter recent resources"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="w-full sm:max-w-xs"
+          />
         </div>
 
-        {enabledWidgets.size === 0 ? (
-          <div className="text-muted-foreground rounded-lg border border-dashed py-16 text-center text-sm">
-            No widgets selected. Use Customize to add some.
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {enabledWidgets.has('servers') && (
+        <div className="grid items-start gap-3 md:grid-cols-2">
               <QuickAccessCard
-                title="Recent servers"
+                title="Servers"
                 viewAllHref={"/servers"}
-                emptyText="No servers found."
+                emptyText={query ? 'No matching servers.' : 'No servers yet.'}
                 loading={isLoading}
                 count={recentServers.length}
-                onHide={() => toggleWidget('servers')}
               >
                 {recentServers.map((server) => (
                   <ResourceRow
                     key={server.id}
                     href={`/servers/${server.id}`}
-                    icon={ServerIcon}
                     title={server.name}
-                    subtitle={<span className="font-mono">{server.ip}</span>}
+                    subtitle={<><span className="font-mono">{server.ip}</span>{server.status !== 'ready' && server.status !== 'disconnected' && <span className="block text-muted-foreground">{server.status}</span>}</>}
                     quickLinks={serverQuickLinks(server, userId)}
                     right={
                       <>
-                        <IssueIndicator count={issueCount(server.status, server.status_color, server.warnings)} />
-                        {server.status !== 'ready' && <StatusBadge status={server.status} color={server.status_color} />}
+                        <IssueIndicator status={server.status} count={issueCount(server.status, server.status_color, server.warnings)} />
                       </>
                     }
                   />
                 ))}
               </QuickAccessCard>
-            )}
 
-            {enabledWidgets.has('sites') && (
               <QuickAccessCard
-                title="Recent sites"
+                title="Sites"
                 viewAllHref={withQuery("/sites", { project: 'all' })}
-                emptyText="No sites found."
+                emptyText={query ? 'No matching sites.' : 'No sites yet.'}
                 loading={isLoading}
                 count={recentSites.length}
-                onHide={() => toggleWidget('sites')}
               >
                 {recentSites.map((site) => (
                   <ResourceRow
                     key={site.id}
                     href={`/servers/${site.server_id}/sites/${site.id}`}
-                    icon={GlobeIcon}
                     title={site.domain}
-                    subtitle={site.server_name}
+                    subtitle={<>{site.server_name}{site.status !== 'ready' && site.status !== 'disconnected' && <span className="block text-muted-foreground">{site.status}</span>}</>}
                     quickLinks={siteQuickLinks(site, userId)}
                     right={
                       <>
-                        <IssueIndicator count={issueCount(site.status, site.status_color, site.warnings)} />
-                        {site.status !== 'ready' && <StatusBadge status={site.status} color={site.status_color} />}
+                        <IssueIndicator status={site.status} count={issueCount(site.status, site.status_color, site.warnings)} />
                       </>
                     }
                   />
                 ))}
               </QuickAccessCard>
-            )}
 
-            {enabledWidgets.has('projects') && (
-              <QuickAccessCard
-                title="Projects"
-                viewAllHref={"/settings/projects"}
-                emptyText="No projects found."
-                loading={isLoading}
-                count={projects.length}
-                onHide={() => toggleWidget('projects')}
-              >
-                {projects.map((project) => (
-                  <ResourceRow
-                    key={project.id}
-                    href={"/settings/projects"}
-                    icon={FolderGit2Icon}
-                    title={project.name}
-                    subtitle={`${project.users_count} ${project.users_count === 1 ? 'user' : 'users'}`}
-                    right={
-                      project.is_current && (
-                        <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-                          Current
-                        </Badge>
-                      )
-                    }
-                  />
-                ))}
-              </QuickAccessCard>
-            )}
 
-            {enabledWidgets.has('server_providers') && (
-              <QuickAccessCard
-                title="Server Providers"
-                viewAllHref={"/settings/server-providers"}
-                emptyText="No server providers configured."
-                loading={isLoading}
-                count={serverProviders.length}
-                onHide={() => toggleWidget('server_providers')}
-              >
-                <ProviderRows items={serverProviders} href={"/settings/server-providers"} />
-              </QuickAccessCard>
-            )}
 
-            {enabledWidgets.has('source_controls') && (
-              <QuickAccessCard
-                title="Source Controls"
-                viewAllHref={"/settings/source-controls"}
-                emptyText="No source controls configured."
-                loading={isLoading}
-                count={sourceControls.length}
-                onHide={() => toggleWidget('source_controls')}
-              >
-                <ProviderRows items={sourceControls} href={"/settings/source-controls"} />
-              </QuickAccessCard>
-            )}
-
-            {enabledWidgets.has('storage_providers') && (
-              <QuickAccessCard
-                title="Storage Providers"
-                viewAllHref={"/settings/storage-providers"}
-                emptyText="No storage providers configured."
-                loading={isLoading}
-                count={storageProviders.length}
-                onHide={() => toggleWidget('storage_providers')}
-              >
-                <ProviderRows items={storageProviders} href={"/settings/storage-providers"} />
-              </QuickAccessCard>
-            )}
-
-            {enabledWidgets.has('dns_providers') && (
-              <QuickAccessCard
-                title="DNS Providers"
-                viewAllHref={"/settings/dns-providers"}
-                emptyText="No DNS providers configured."
-                loading={isLoading}
-                count={dnsProviders.length}
-                onHide={() => toggleWidget('dns_providers')}
-              >
-                <ProviderRows items={dnsProviders} href={"/settings/dns-providers"} />
-              </QuickAccessCard>
-            )}
-
-            {enabledWidgets.has('backups') && (
-              <QuickAccessCard
-                title="Backups"
-                viewAllHref={"/backups"}
-                emptyText="No backups configured."
-                loading={isLoading}
-                count={backups.length}
-                onHide={() => toggleWidget('backups')}
-              >
-                {backups.map((backup) => (
-                  <ResourceRow
-                    key={backup.id}
-                    href={"/backups"}
-                    icon={CloudUploadIcon}
-                    title={backup.name}
-                    subtitle={backup.server_name || 'Server'}
-                    right={
-                      backup.interval && (
-                        <Badge variant="outline" className="px-1.5 py-0 font-mono text-[10px]">
-                          {backup.interval}
-                        </Badge>
-                      )
-                    }
-                  />
-                ))}
-              </QuickAccessCard>
-            )}
-
-            {enabledWidgets.has('domains') && (
-              <QuickAccessCard
-                title="Domains"
-                viewAllHref={"/domains"}
-                emptyText="No domains configured."
-                loading={isLoading}
-                count={domains.length}
-                onHide={() => toggleWidget('domains')}
-              >
-                {domains.map((domain) => (
-                  <ResourceRow key={domain.id} href={"/domains"} icon={GlobeIcon} title={domain.domain} subtitle={domain.provider_name} />
-                ))}
-              </QuickAccessCard>
-            )}
-          </div>
-        )}
+        </div>
       </Container>
     </Layout>
   );

@@ -41,7 +41,7 @@ return [
 
     
 
-    'name' => env('APP_NAME', 'Vito'),
+    'name' => 'PurePanel',
 
     
 

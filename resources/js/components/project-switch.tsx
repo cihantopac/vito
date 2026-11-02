@@ -5,8 +5,6 @@ import { router, useForm, usePage } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckIcon, ChevronsUpDownIcon, Layers3Icon, PlusIcon } from 'lucide-react';
-import { getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ProjectForm from '@/pages/projects/components/project-form';
 import { ProjectSelect } from '@/components/project-select';
 import { CommandGroup, CommandItem } from '@/components/ui/command';
@@ -17,7 +15,6 @@ export function ProjectSwitch() {
   const isAllProjects = page.props.siteScope === 'all' || page.props.serverScope === 'all';
   const [open, setOpen] = useState(false);
   const [projectFormOpen, setProjectFormOpen] = useState(false);
-  const initials = getInitials;
   const form = useForm();
 
   const currentProject = useMemo(() => {
@@ -94,11 +91,9 @@ export function ProjectSwitch() {
       aria-expanded={open}
       aria-label={`Switch project. Current project: ${isAllProjects ? 'All Projects' : (currentProject?.name ?? 'none')}`}
     >
-      <Avatar className="size-6 rounded-sm">
-        <AvatarFallback className="rounded-sm">{isAllProjects ? 'AP' : initials(currentProject?.name ?? '')}</AvatarFallback>
-      </Avatar>
+      <Layers3Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       <span className="hidden max-w-36 truncate sm:flex">{isAllProjects ? 'All Projects' : currentProject?.name}</span>
-      <ChevronsUpDownIcon size={5} />
+      <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
     </Button>
   );
 

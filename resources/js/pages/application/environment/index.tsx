@@ -36,7 +36,6 @@ import {
 } from 'lucide-react';
 import { Server } from '@/types/server';
 import { Site } from '@/types/site';
-import { useAppearance } from '@/hooks/use-appearance';
 import { registerDotEnvLanguage } from '@/lib/editor';
 import { EnvVariable } from '@/types/env';
 import EnvVariableRow from '@/pages/application/components/env-variable-row';
@@ -75,7 +74,6 @@ function EnvironmentEditorContent() {
 
   const { server, site } = page.props;
   const envPath = defaultEnvPath(site);
-  const { getActualAppearance } = useAppearance();
   const monaco = useMonaco();
 
   const [variables, setVariables] = useState<EnvVariable[]>([]);
@@ -514,7 +512,7 @@ function EnvironmentEditorContent() {
                       setRawContent(value ?? '');
                       setRawDirty(true);
                     }}
-                    theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+                    theme="vs-dark"
                     options={{
                       fontSize: 14,
                       lineNumbers: 'on',

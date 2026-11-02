@@ -15,7 +15,7 @@ export function UserInfo({
     <>
       <Avatar className="h-8 w-8 rounded-md shrink-0">
         <AvatarImage src={user.avatar} alt={user.name} />
-        <AvatarFallback className="bg-accent text-accent-foreground border-ring rounded-md border">{getInitials(user.name)}</AvatarFallback>
+        <AvatarFallback className="bg-accent text-accent-foreground border-border rounded-md border">{getInitials(user.name)}</AvatarFallback>
       </Avatar>
       <div className={cn("grid flex-1 text-left text-sm leading-tight", hideTextOnCollapse && "group-data-[state=collapsed]:hidden")}>
         <span className="truncate font-medium">{user.name}</span>

@@ -35,12 +35,12 @@ const nameCell = ({ row, value }: CellRenderProps) => {
   const isFailed = status === 'installation_failed';
   const isSelf = Boolean(row.is_self);
   const id = row.id as number;
-  const name = isSelf ? 'Vito sunucusu' : String(value || row.name || '');
+  const name = isSelf ? 'PurePanel sunucusu' : String(value || row.name || '');
   const sitesCount = typeof row.sites_count === 'number' ? row.sites_count : 0;
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Link
           href={`/servers/${id}`}
           className={cn('font-medium hover:underline', isSelf && 'text-primary font-semibold')}
@@ -178,7 +178,7 @@ const roleCell = ({ row, value }: CellRenderProps) => {
   const displayText = String(value || row.role || 'App server');
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Icon className="size-4 shrink-0 text-muted-foreground" />
       <span className="text-sm font-medium">{displayText}</span>
     </div>
@@ -298,6 +298,13 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
 export default function Servers() {
   const page = usePage<Page & SharedData>();
   const versionForm = useForm({ project: page.props.serverScope ?? 'all' });
+  const advanced = new URL(page.url, 'http://localhost').searchParams.get('view') === 'advanced';
+  const setView = (value: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', value);
+    if (value === 'basic') { url.searchParams.delete('php_status'); }
+    router.get(url.toString(), {}, { preserveState: true, preserveScroll: true, replace: true });
+  };
   const checkingVersions = page.props.phpVersionsChecking || versionForm.processing;
 
   const socketStatus = useSocketStore((s) => s.status);
@@ -321,7 +328,7 @@ export default function Servers() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <Heading title="Servers" />
           <div className="flex flex-wrap items-center gap-2">
-            <Button
+            {advanced && <Button
               variant="outline"
               disabled={checkingVersions}
               onClick={() => {
@@ -331,7 +338,7 @@ export default function Servers() {
             >
               <RefreshCwIcon className={cn(checkingVersions && 'animate-spin')} />
               Sürümleri kontrol et
-            </Button>
+            </Button>}
             <Button asChild>
               <Link href={"/servers/create"}>
                 <PlusIcon />
@@ -341,7 +348,12 @@ export default function Servers() {
           </div>
         </div>
         <VitoTable
-          tableData={page.props.servers}
+          fitContent
+          toolbarClassName="[&_input]:h-8 [&_input]:max-w-56"
+          columnWidths={advanced ? { name: '30%', monthly_cost: '18%', php_versions: '16%', cpu_usage_percent: '12%', memory_used_percent: '12%', disk_used_percent: '12%' } : { name: '65%', ip: '35%' }}
+          tableData={{ ...page.props.servers, columns: page.props.servers.columns.filter((column) => column.hidden || (advanced
+            ? ['name', 'monthly_cost', 'php_versions', 'cpu_usage_percent', 'memory_used_percent', 'disk_used_percent']
+            : ['name', 'ip']).includes(column.name)).map((column) => ({ ...column, fit: false })) }}
           groupBy={page.props.groupBy}
           rowClassName={(row: Row) => {
             if (row.is_self) {
@@ -351,7 +363,11 @@ export default function Servers() {
           }}
           toolbar={
             <div className="flex flex-wrap items-center gap-3">
-              <Select
+              <div className="flex rounded-md border border-border p-0.5" role="group" aria-label="Server view">
+                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basit</Button>
+                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Gelişmiş</Button>
+              </div>
+              {advanced && <Select
                 value={page.props.phpStatus ?? 'all'}
                 onValueChange={(status) => {
                   const url = new URL(window.location.href);
@@ -364,15 +380,15 @@ export default function Servers() {
                   router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                 }}
               >
-                <SelectTrigger className="w-56" aria-label="PHP güncellik filtresi">
+                <SelectTrigger className="h-8 w-44" aria-label="PHP güncellik filtresi">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tüm PHP durumları</SelectItem>
                   <SelectItem value="outdated">PHP güncel olmayanlar</SelectItem>
                 </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2">
+              </Select>}
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground text-sm">Group by</span>
                 <Select
                   value={page.props.groupBy ?? 'none'}
@@ -387,7 +403,7 @@ export default function Servers() {
                     router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                   }}
                 >
-                  <SelectTrigger className="w-40 sm:w-48" aria-label="Group servers by">
+                  <SelectTrigger className="h-8 w-40" aria-label="Group servers by">
                     <SelectValue placeholder="No grouping" />
                   </SelectTrigger>
                   <SelectContent>
@@ -399,9 +415,19 @@ export default function Servers() {
             </div>
           }
           cellRenderers={{
-            name: nameCell,
+            name: (props: CellRenderProps) => (
+              <div className="flex min-w-0 flex-col gap-1">
+                {nameCell(props)}
+                {Array.isArray(props.row.warnings) && props.row.warnings.length > 0 && warningsCell({ ...props, value: props.row.warnings })}
+                {advanced && <span className="font-mono text-xs text-muted-foreground">{String(props.row.ip ?? '')}</span>}
+                {advanced && <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {roleCell({ ...props, value: props.row.role })}
+                  {stageCell({ ...props, value: props.row.stage })}
+                </div>}
+              </div>
+            ),
             cpu_cores: coresCell,
-            monthly_cost: costCell,
+            monthly_cost: (props: CellRenderProps) => <div className="flex flex-col gap-1">{costCell(props)}{coresCell({ ...props, value: props.row.cpu_cores })}</div>,
             php_versions: phpVersionsCell,
             cpu_usage_percent: cpuCell,
             memory_used_percent: ramCell,

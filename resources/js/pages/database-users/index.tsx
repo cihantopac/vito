@@ -49,7 +49,7 @@ export default function DatabaseUsers() {
                 dialog.confirm.open({
                   title: 'Sync users',
                   description:
-                    'This action will connect to your server and perform a two-way synchronization of database users. Vito will fetch any database users created manually on the server, and verify the existence of users managed by Vito. If a user tracked by Vito no longer exists on the server, it will be removed from Vito. Are you sure you want to proceed?',
+                    'This action will connect to your server and perform a two-way synchronization of database users. PurePanel will fetch any database users created manually on the server, and verify the existence of users managed by PurePanel. If a user tracked by PurePanel no longer exists on the server, it will be removed from PurePanel. Are you sure you want to proceed?',
                   confirmLabel: 'Sync users',
                   url: `/servers/${page.props.server.id}/database/users/sync`,
                   method: 'post',
@@ -75,7 +75,7 @@ export default function DatabaseUsers() {
             <AlertTitle>This server is a PostgreSQL replica of {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
-                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Vito imports the list when
+                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. PurePanel imports the list when
                 the replica is built; use Sync to refresh it.
               </p>
               {page.props.replicaOf.server_id && (

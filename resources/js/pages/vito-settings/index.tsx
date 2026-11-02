@@ -10,11 +10,11 @@ import ImportVito from '@/pages/vito-settings/components/import';
 export default function VitoSettings() {
   return (
     <SettingsLayout>
-      <Head title="Vito Settings" />
+      <Head title="PurePanel Settings" />
 
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Vito Settings" description="Here you can manage general Vito settings" />
+          <Heading title="PurePanel Settings" description="Here you can manage general PurePanel settings" />
         </div>
 
         <Card>

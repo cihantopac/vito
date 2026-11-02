@@ -10,6 +10,6 @@ class DailyHealthReport extends Mailable
 
     public function build(): static
     {
-        return $this->subject('Vito · Daily health report · '.$this->date)->view('mail.daily-health-report');
+        return $this->subject('PurePanel · Daily health report · '.$this->date)->view('mail.daily-health-report');
     }
 }

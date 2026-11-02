@@ -4,7 +4,6 @@ import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types/user';
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings, ShieldCheckIcon } from 'lucide-react';
-import AppearanceToggleTab from '@/components/appearance-tabs';
 import { useBootstrapStore } from '@/stores/bootstrap-store';
 import { clearQueryClient } from '@/lib/query-client';
 import serverHelper from '@/lib/server-helper';
@@ -34,8 +33,6 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
         </div>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <AppearanceToggleTab />
-      <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem asChild>
           <Link className="block w-full" href={"/settings"} as="button" prefetch onClick={cleanup}>
@@ -48,7 +45,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuItem asChild>
               <Link className="block w-full" href={"/admin/vito"} as="button" prefetch onClick={cleanup}>
                 <ShieldCheckIcon className="mr-2" />
-                Vito Settings
+                PurePanel Settings
               </Link>
             </DropdownMenuItem>
           </>

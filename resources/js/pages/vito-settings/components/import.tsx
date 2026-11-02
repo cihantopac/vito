@@ -38,7 +38,7 @@ export default function ImportVito() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Import</DialogTitle>
-          <DialogDescription className="sr-only">Import settings to Vito</DialogDescription>
+          <DialogDescription className="sr-only">Import settings to PurePanel</DialogDescription>
         </DialogHeader>
         <Form id="import-vito-form" className="p-4" onSubmit={submit}>
           <FormFields>

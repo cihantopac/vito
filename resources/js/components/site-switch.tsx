@@ -4,9 +4,7 @@ import { type Site } from '@/types/site';
 import { router, useForm, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDownIcon, GlobeIcon, PlusIcon, SearchIcon } from 'lucide-react';
-import { getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ChevronsUpDownIcon, GlobeIcon, PlusIcon } from 'lucide-react';
 import SiteSelect from '@/pages/sites/components/site-select';
 import { CommandGroup, CommandItem } from '@/components/ui/command';
 import siteHelper from '@/lib/site-helper';
@@ -18,7 +16,6 @@ export function SiteSwitch() {
   const [open, setOpen] = useState(false);
   const currentSite = page.props.site || null;
   const [selected, setSelected] = useState<string>(currentSite?.id?.toString() ?? '');
-  const initials = getInitials;
   const form = useForm();
 
   useEffect(() => {
@@ -93,20 +90,16 @@ export function SiteSwitch() {
     >
       {currentSite ? (
         <>
-          <Avatar className="size-6 rounded-sm">
-            <AvatarFallback className="rounded-sm">{initials(currentSite?.domain ?? '')}</AvatarFallback>
-          </Avatar>
+          <GlobeIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span className="hidden max-w-48 truncate sm:flex">{currentSite?.domain}</span>
         </>
       ) : (
         <>
-          <Avatar className="size-6 rounded-sm">
-            <AvatarFallback className="rounded-sm"><SearchIcon className="size-4" /></AvatarFallback>
-          </Avatar>
+          <GlobeIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span className="hidden sm:flex">Search sites...</span>
         </>
       )}
-      <ChevronsUpDownIcon size={5} />
+      <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
     </Button>
   );
 

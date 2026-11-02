@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoaderCircleIcon, PlusIcon, RefreshCwIcon, UploadIcon, AlertCircleIcon, ClipboardIcon, InfoIcon } from 'lucide-react';
 import { Site } from '@/types/site';
 import { Input } from '@/components/ui/input';
-import { useAppearance } from '@/hooks/use-appearance';
 import { registerDotEnvLanguage } from '@/lib/editor';
 import { EnvVariable } from '@/types/env';
 import EnvVariableRow from './env-variable-row';
@@ -43,7 +42,6 @@ const preserveManagedVariables = (next: EnvVariable[], current: EnvVariable[]): 
 };
 
 export default function Env({ site, children }: { site: Site; children: ReactNode }) {
-  const { getActualAppearance } = useAppearance();
   const monaco = useMonaco();
   const [open, setOpen] = useState(false);
   const [variables, setVariables] = useState<EnvVariable[]>([]);
@@ -395,7 +393,7 @@ export default function Env({ site, children }: { site: Site; children: ReactNod
                     defaultLanguage="dotenv"
                     value={rawContent}
                     onChange={(value) => setRawContent(value ?? '')}
-                    theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+                    theme="vs-dark"
                     className="h-full"
                     options={{ fontSize: 14 }}
                   />

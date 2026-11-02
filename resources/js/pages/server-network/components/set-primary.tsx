@@ -10,7 +10,7 @@ export default function SetPrimary({ ipAddress }: { ipAddress: ServerIpAddress }
       onSelect={() =>
         dialog.confirm.open({
           title: `Set primary IP [${ipAddress.ip}]`,
-          description: `Make ${ipAddress.ip} the primary address for this server. Vito uses the primary public IP to connect to the server, so only change this if the address is reachable.`,
+          description: `Make ${ipAddress.ip} the primary address for this server. PurePanel uses the primary public IP to connect to the server, so only change this if the address is reachable.`,
           confirmLabel: 'Set as primary',
           method: 'post',
           url: `/servers/${ipAddress.server_id}/network/ips/${ipAddress.id}/primary`,

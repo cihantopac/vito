@@ -28,7 +28,7 @@ export default function SyncRecords({ domain }: { domain: Domain }) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Sync DNS Records</DialogTitle>
-          <DialogDescription className="sr-only">Sync DNS records from the DNS provider to Vito.</DialogDescription>
+          <DialogDescription className="sr-only">Sync DNS records from the DNS provider to PurePanel.</DialogDescription>
         </DialogHeader>
         <p className="p-4">This will delete the copy of the DNS records in vito and fetch them again from the provider</p>
         <DialogFooter>
