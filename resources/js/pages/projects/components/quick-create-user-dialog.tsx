@@ -122,7 +122,7 @@ export default function QuickCreateUserDialog({
             <div>
               <DialogTitle>Quick create user</DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Create a new PurePanel account and immediately add them to this project.
+                Create a new Pure account and immediately add them to this project.
               </DialogDescription>
             </div>
           </div>

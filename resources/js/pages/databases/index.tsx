@@ -46,7 +46,7 @@ export default function Databases() {
                 dialog.confirm.open({
                   title: 'Sync databases',
                   description:
-                    'This action will connect to your server and perform a two-way synchronization of databases. PurePanel will fetch any databases created manually on the server, and verify the existence of databases managed by PurePanel. If a database tracked by PurePanel no longer exists on the server, it will be removed from PurePanel. Are you sure you want to proceed?',
+                    'This action will connect to your server and perform a two-way synchronization of databases. Pure will fetch any databases created manually on the server, and verify the existence of databases managed by Pure. If a database tracked by Pure no longer exists on the server, it will be removed from Pure. Are you sure you want to proceed?',
                   confirmLabel: 'Sync databases',
                   url: `/servers/${page.props.server.id}/database/sync`,
                   method: 'post',
@@ -72,7 +72,7 @@ export default function Databases() {
             <AlertTitle>This server is a PostgreSQL replica of {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
-                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. PurePanel imports the list when
+                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Pure imports the list when
                 the replica is built; use Sync to refresh it.
               </p>
               {page.props.replicaOf.server_id && (

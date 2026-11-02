@@ -165,8 +165,8 @@ function QuickAccessCard({
   children?: ReactNode;
 }) {
   return (
-    <section className="min-w-0 rounded-xl bg-card p-4">
-      <div className="flex items-center justify-between gap-3 pb-3">
+    <section className="min-w-0 rounded-xl border border-border/60 bg-card p-4">
+      <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-3">
         <h2 className="text-base font-semibold tracking-tight">{title}</h2>
         <Link href={viewAllHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-info hover:underline">
           All <ArrowRightIcon className="size-4" />
@@ -175,7 +175,7 @@ function QuickAccessCard({
       {loading || count === 0 ? (
         <p className="py-8 text-sm text-muted-foreground">{loading ? 'Loading…' : emptyText}</p>
       ) : (
-        <div className="flex flex-col gap-1">{children}</div>
+        <div className="flex flex-col divide-y divide-border/50">{children}</div>
       )}
     </section>
   );

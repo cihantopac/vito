@@ -160,7 +160,7 @@ export default function NetworkSettings() {
             <CardHeader>
               <CardTitle>Provider managed</CardTitle>
               <CardDescription>
-                This network mirrors a private network at your cloud provider. Its members are synced automatically, and it is removed from PurePanel when
+                This network mirrors a private network at your cloud provider. Its members are synced automatically, and it is removed from Pure when
                 the network no longer exists at the provider.
               </CardDescription>
             </CardHeader>
@@ -199,7 +199,7 @@ export default function NetworkSettings() {
             <TriangleAlertIcon className="size-4" />
             <AlertTitle>Cannot be synced</AlertTitle>
             <AlertDescription>
-              None of this network's servers still carries the identifier its cloud provider knows them by, so PurePanel can no longer sync it or remove it
+              None of this network's servers still carries the identifier its cloud provider knows them by, so Pure can no longer sync it or remove it
               automatically. Deleting it here is the only way to clear it.
             </AlertDescription>
           </Alert>

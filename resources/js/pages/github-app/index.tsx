@@ -71,13 +71,13 @@ export default function GithubAppIndex() {
       <Container>
         <Heading
           title="GitHub App"
-          description="Register a GitHub App for this PurePanel instance. Organizations install it to connect their repositories."
+          description="Register a GitHub App for this Pure instance. Organizations install it to connect their repositories."
         />
 
         {localUrlWarning && (
           <Alert>
             <AlertTriangleIcon />
-            <AlertTitle>PurePanel is not publicly reachable</AlertTitle>
+            <AlertTitle>Pure is not publicly reachable</AlertTitle>
             <AlertDescription>
               Webhook events from GitHub cannot reach this instance. Installs and uninstalls will be detected on the 4-hour sync (or by clicking the
               Sync button below).
@@ -135,7 +135,7 @@ function CreateAppCard({ manifest, manualSetup }: { manifest: Manifest; manualSe
           <div>
             <h3 className="text-sm font-medium">No GitHub App configured</h3>
             <p className="text-muted-foreground text-sm">
-              Create a GitHub App for this PurePanel instance. The automatic flow works when PurePanel is reachable on a real public domain; for local
+              Create a GitHub App for this Pure instance. The automatic flow works when Pure is reachable on a real public domain; for local
               development use the manual flow.
             </p>
           </div>
@@ -260,7 +260,7 @@ function ManualSetupForm({ manualSetup }: { manualSetup: ManualSetup }) {
             </ul>
             <p className="text-muted-foreground pt-1 text-xs">
               <strong>Installation</strong> and <strong>installation repositories</strong> events are delivered automatically to every GitHub App with
-              a webhook URL — they aren&apos;t in the &ldquo;Subscribe to events&rdquo; list and don&apos;t need to be selected. PurePanel uses these to
+              a webhook URL — they aren&apos;t in the &ldquo;Subscribe to events&rdquo; list and don&apos;t need to be selected. Pure uses these to
               keep installed accounts and repositories in sync.
             </p>
           </div>

@@ -14,7 +14,6 @@ type Response = {
   server: Server;
   public_key: string;
   configs: Configs;
-  securityScore?: SecurityScore;
 };
 
 export default function ShowServer() {
@@ -26,7 +25,7 @@ export default function ShowServer() {
       {['installing', 'installation_failed'].includes(page.props.server.status) ? (
         <InstallingServer />
       ) : (
-        <ServerOverview securityScore={page.props.securityScore} />
+        <ServerOverview />
       )}
     </ServerLayout>
   );

@@ -308,7 +308,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                         Force delete
                       </Label>
                       <p className="text-muted-foreground text-xs">
-                        Remove the site from PurePanel even if cleaning up files on the remote server fails.
+                        Remove the site from Pure even if cleaning up files on the remote server fails.
                       </p>
                     </div>
                   </div>
@@ -472,7 +472,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                         {index + 1}. {s.label}
                       </span>
 
-                      {/* PurePanel Sub-commands compact view */}
+                      {/* Pure Sub-commands compact view */}
                       {s.key === 'running-auto-install' && vitoInstallCommands.length > 0 && (
                         <div className="mt-2 ml-1 flex flex-col gap-1 border-l pl-2.5">
                           {vitoInstallCommands.map((cmd, cmdIdx) => {

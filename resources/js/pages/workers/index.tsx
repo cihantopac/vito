@@ -57,7 +57,7 @@ export default function WorkerIndex() {
                   onSelect={() =>
                     dialog.confirm.open({
                       title: 'Resync workers',
-                      description: `Fetch the live status of ${scopeLabel} from the process manager and update PurePanel. Continue?`,
+                      description: `Fetch the live status of ${scopeLabel} from the process manager and update Pure. Continue?`,
                       confirmLabel: 'Resync',
                       method: 'post',
                       url: `/servers/${scope.server}/workers/resync${scope.site ? `/${scope.site}` : ''}`,

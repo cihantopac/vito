@@ -140,6 +140,14 @@ export function AppSidebar({
     },
   ];
 
+  const pathname = page.url.split('?')[0];
+  const activePrimaryHref = mainNavItems
+    .filter((item) => {
+      const path = item.href.split('?')[0];
+      return !item.hidden && (pathname === path || pathname.startsWith(`${path}/`));
+    })
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
   return (
     <Sidebar
       id="app-navigation"
@@ -159,7 +167,7 @@ export function AppSidebar({
               href={"/overview"}
               prefetch
               className="flex min-w-0 items-center gap-2 group-data-[state=collapsed]:hidden"
-              aria-label={`PurePanel ${page.props.version}`}
+              aria-label={`Pure ${page.props.version}`}
             >
               <AppLogo />
             </Link>
@@ -192,7 +200,7 @@ export function AppSidebar({
                   >
                     <SidebarMenuButton
                       asChild
-                      isActive={item.onlyActivePath ? currentPath() === item.onlyActivePath : (window.location.pathname + window.location.search).startsWith(item.href)}
+                      isActive={item.href === activePrimaryHref}
                       tooltip={item.title}
                       hidden={item.hidden}
                       className="group-data-[state=collapsed]:size-8! group-data-[state=collapsed]:p-2! group-data-[state=collapsed]:justify-center"

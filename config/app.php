@@ -41,7 +41,7 @@ return [
 
     
 
-    'name' => 'PurePanel',
+    'name' => 'Pure',
 
     
 

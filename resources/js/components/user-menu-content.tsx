@@ -45,7 +45,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuItem asChild>
               <Link className="block w-full" href={"/admin/vito"} as="button" prefetch onClick={cleanup}>
                 <ShieldCheckIcon className="mr-2" />
-                PurePanel Settings
+                Pure Settings
               </Link>
             </DropdownMenuItem>
           </>

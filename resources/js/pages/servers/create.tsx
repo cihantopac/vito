@@ -986,7 +986,7 @@ export default function CreateServerPage({
                       {publicKey && (
                         <div className="space-y-1.5 rounded-xl border bg-muted/40 p-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-foreground">PurePanel Public SSH Key</span>
+                            <span className="text-xs font-semibold text-foreground">Pure Public SSH Key</span>
                             <Button
                               type="button"
                               variant="outline"

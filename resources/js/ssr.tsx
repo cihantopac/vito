@@ -5,7 +5,7 @@ import { resolvePage } from '@/lib/resolve-page';
 
 
 
-const appName = import.meta.env.VITE_APP_NAME || 'PurePanel';
+const appName = import.meta.env.VITE_APP_NAME || 'Pure';
 
 const pages = import.meta.glob(['./pages/**/*.tsx', '!./pages/**/components/**']);
 

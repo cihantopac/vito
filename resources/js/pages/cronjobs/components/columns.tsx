@@ -6,7 +6,6 @@ import { Clock3Icon, LoaderCircleIcon, PlayIcon } from 'lucide-react';
 import FormSuccessful from '@/components/form-successful';
 import { CronJob } from '@/types/cronjob';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import DateTime from '@/components/date-time';
 import CopyableBadge from '@/components/copyable-badge';
 import { Site } from '@/types/site';
@@ -68,26 +67,17 @@ function Actions({ cronJob, site }: { cronJob: CronJob; site?: Site }) {
 
   return (
     <div className="flex items-center justify-end gap-1.5">
-      <Button variant="ghost" size="sm" asChild>
-        <Link href={showUrl}>
-          <Clock3Icon className="size-3.5" />
-          <span>Logs</span>
-        </Link>
-      </Button>
-      <Button size="sm" onClick={runCronJob} disabled={runForm.processing}>
-        {runForm.processing ? <LoaderCircleIcon className="size-3.5 animate-spin" /> : <PlayIcon className="size-3.5" />}
-        <span>Run</span>
-      </Button>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <TableActionTrigger />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={runCronJob} disabled={runForm.processing}>
+            {runForm.processing ? <LoaderCircleIcon className="animate-spin" /> : <PlayIcon />}
             Run now
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={showUrl}>View logs</Link>
+            <Link href={showUrl}><Clock3Icon />View logs</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => dialog.cronjobForm.open({ serverId: cronJob.server_id, site, cronJob })}>Edit</DropdownMenuItem>

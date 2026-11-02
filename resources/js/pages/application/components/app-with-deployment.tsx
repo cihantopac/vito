@@ -46,6 +46,8 @@ import { useLogContent } from '@/hooks/use-log-content';
 import LogOutput from '@/components/log-output';
 import { Deployment } from '@/types/deployment';
 import { DeploymentsSkeleton, WorkersCronJobsSkeleton } from '@/components/page-skeleton';
+import DateTime from '@/components/date-time';
+import { usePanelView } from '@/hooks/use-panel-view';
 
 function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: React.ReactNode }) {
   return (
@@ -97,7 +99,9 @@ export default function AppWithDeployment() {
     overviewCronJobsCount: number;
   }>();
   const site = useRealtimeRecord<Site>(page.props.site, 'site')!;
+  const { advanced, setView } = usePanelView();
   const [showDetails, setShowDetails] = useState(false);
+  const latestDeployment = page.props.deployments?.data[0] as unknown as Deployment | undefined;
   const [activeDeployment, setActiveDeployment] = useState<Deployment | null>(page.props.activeDeployment ?? null);
   const [showLog, setShowLog] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -144,7 +148,15 @@ export default function AppWithDeployment() {
       <Container className="gap-4">
         {site.status === 'installation_failed' && <SiteBanners site={site} includeAppDebug />}
 
-        <div className="grid items-start gap-4 2xl:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-lg font-semibold">{site.domain}</h1>
+          <div className="bg-muted/40 flex gap-1 rounded-md border p-1" role="group" aria-label="View">
+            <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
+            <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
+          </div>
+        </div>
+
+        <div className={advanced ? 'grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]' : 'grid gap-3'}>
           <div className="flex min-w-0 flex-col gap-4">
             {site.is_proxied_site_type && (
               <ProxiedAppCard site={site} initialWorker={page.props.worker} />
@@ -158,8 +170,7 @@ export default function AppWithDeployment() {
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="min-w-0">
                           <div className="flex min-w-0 items-center gap-2">
-                            <h1 id="deployments-heading" className="sr-only">Application</h1>
-                            <CardTitle>Deployments</CardTitle>
+                            <CardTitle id="deployments-heading">Deployments</CardTitle>
                             <Badge variant={site.status_color}>{site.status}</Badge>
                           </div>
                           <div className="text-muted-foreground mt-1 flex min-w-0 items-center gap-2 text-sm">
@@ -285,7 +296,23 @@ export default function AppWithDeployment() {
                     </div>
                   )}
                   <CardContent className="p-4">
-                    <DeploymentsTable deployments={page.props.deployments} showPagination={false} />
+                    {advanced ? (
+                      <DeploymentsTable deployments={page.props.deployments} showPagination={false} />
+                    ) : latestDeployment ? (
+                      <Link
+                        href={`/servers/${site.server_id}/sites/${site.id}/deployments/${latestDeployment.id}`}
+                        className="hover:bg-muted/30 flex flex-wrap items-center justify-between gap-3 rounded-md p-2 text-sm"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-muted-foreground text-xs">Latest deployment · #{latestDeployment.id}</p>
+                          <p className="break-words font-medium">{latestDeployment.commit_data?.message || latestDeployment.commit_id_short || 'Deployment'}</p>
+                        </div>
+                        <Badge variant={latestDeployment.status_color}>{latestDeployment.status}</Badge>
+                        <DateTime date={latestDeployment.created_at} relative className="text-muted-foreground text-xs" />
+                      </Link>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">No deployments yet.</p>
+                    )}
                   </CardContent>
                   <CardFooter className="justify-end p-3">
                     <Button variant="ghost" size="sm" asChild>
@@ -296,7 +323,22 @@ export default function AppWithDeployment() {
               </section>
             </Deferred>
 
-            <Deferred data={['overviewWorkers', 'overviewCronJobs']} fallback={<WorkersCronJobsSkeleton />}>
+            {!advanced && (
+              <div className="flex flex-wrap gap-2" aria-label="Site shortcuts">
+                {[
+                  ['workers', 'Workers'],
+                  ['cronjobs', 'Cron jobs'],
+                  ['logs', 'Logs'],
+                  ['resources', 'Resources'],
+                ].map(([path, label]) => (
+                  <Button key={path} variant="outline" size="sm" asChild>
+                    <Link href={`/servers/${site.server_id}/sites/${site.id}/${path}`}>{label}</Link>
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {advanced && <Deferred data={['overviewWorkers', 'overviewCronJobs']} fallback={<WorkersCronJobsSkeleton />}>
               <section className="grid gap-4 md:grid-cols-2" aria-label="Site automation">
                 <Card>
                   <CardHeader className="flex-row items-center justify-between gap-3">
@@ -368,10 +410,10 @@ export default function AppWithDeployment() {
                   </CardContent>
                 </Card>
               </section>
-            </Deferred>
+            </Deferred>}
           </div>
 
-          <Card className="overflow-hidden xl:sticky xl:top-4">
+          {advanced && <Card className="overflow-hidden lg:sticky lg:top-4">
             <CardHeader className="flex-row items-center gap-3">
               <div className="flex flex-col gap-1">
                 <CardTitle>Site details</CardTitle>
@@ -441,7 +483,7 @@ export default function AppWithDeployment() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </Card>}
         </div>
       </Container>
     </ServerLayout>

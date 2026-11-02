@@ -27,14 +27,14 @@ class Project extends AbstractModel
 
         static::deleting(function (Project $project): void {
             if ($project->isSelf()) {
-                throw new \RuntimeException('The Vito system project cannot be deleted.');
+                throw new \RuntimeException('The Pure system project cannot be deleted.');
             }
         });
     }
 
     public function isSelf(): bool
     {
-        return $this->name === 'Vito' || $this->servers()->where('is_self', true)->exists();
+        return $this->name === 'Pure' || $this->servers()->where('is_self', true)->exists();
     }
 
     

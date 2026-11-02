@@ -32,7 +32,7 @@ export default function AuthLayout({ children, title, description, showFooter = 
           {children}
           {showFooter && (
             <div className="text-muted-foreground text-center text-xs">
-              PurePanel{' '}
+              Pure{' '}
               <a
                 href={`https://github.com/vitodeploy/vito/releases/tag/${page.props.version}`}
                 className="hover:text-primary cursor-pointer"

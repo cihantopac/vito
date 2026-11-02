@@ -101,7 +101,7 @@ export default function EnvHistory({
         ) : versions.data.length === 0 ? (
           <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-muted-foreground">
             <HistoryIcon className="size-6" />
-            No versions recorded yet. A version is saved every time the .env file is changed from PurePanel.
+            No versions recorded yet. A version is saved every time the .env file is changed from Pure.
           </div>
         ) : (
           <ul className="flex flex-col">
