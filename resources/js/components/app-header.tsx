@@ -72,7 +72,7 @@ export function AppHeader({
                 onClick={() => window.open('https://github.com/sponsors/saeedvaziry')}
                 aria-label="Sponsor"
               >
-                <HeartIcon className="text-pink-600" />
+                <HeartIcon className="text-neutral-600" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Sponsor</TooltipContent>

@@ -95,7 +95,7 @@ export default function Show() {
             )}
             {isSchedulerWrongFrequency && (
               <Alert>
-                <AlertCircleIcon className="size-4 text-amber-500" />
+                <AlertCircleIcon className="size-4 text-neutral-500" />
                 <AlertTitle>Non-standard Laravel scheduler frequency</AlertTitle>
                 <AlertDescription>
                   Laravel Task Scheduler (<code className="font-mono">schedule:run</code>) is set to <code className="font-mono font-semibold">{cronjob.frequency}</code>. It should run <strong>every minute</strong> (<code className="font-mono font-semibold">* * * * *</code>) so that tasks scheduled inside your Laravel application run at their intended time.

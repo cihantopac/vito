@@ -357,7 +357,7 @@ export default function DomainPicker({
                       <span>&rarr;</span>
                       <span className="font-semibold text-foreground">{serverIp}</span>
                       {tempDnsRecordProxied && (
-                        <Badge variant="outline" className="text-[9px] px-1 py-0 text-orange-600 dark:text-orange-400 border-orange-500/30 ml-1">
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 text-neutral-600 dark:text-neutral-400 border-neutral-500/30 ml-1">
                           Proxied
                         </Badge>
                       )}
@@ -397,7 +397,7 @@ export default function DomainPicker({
                   htmlFor="modal_dns_record_proxied"
                   className={cn(
                     'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors select-none ml-4',
-                    tempDnsRecordProxied ? 'bg-orange-500/5 border-orange-500/30' : 'bg-muted/20 hover:bg-muted/40'
+                    tempDnsRecordProxied ? 'bg-neutral-500/5 border-neutral-500/30' : 'bg-muted/20 hover:bg-muted/40'
                   )}
                 >
                   <Checkbox

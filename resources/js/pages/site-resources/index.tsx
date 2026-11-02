@@ -296,7 +296,7 @@ export default function SiteResources() {
                         Installing...
                       </Badge>
                     ) : isDbReady ? (
-                      <Badge variant="outline" className="text-xs font-normal text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                      <Badge variant="outline" className="text-xs font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
                         Ready
                       </Badge>
                     ) : (
@@ -443,7 +443,7 @@ export default function SiteResources() {
                         Installing...
                       </Badge>
                     ) : isCacheReady ? (
-                      <Badge variant="outline" className="text-xs font-normal text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                      <Badge variant="outline" className="text-xs font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
                         Ready
                       </Badge>
                     ) : (

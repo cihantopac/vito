@@ -40,7 +40,7 @@ export default function DiskView({ server, filter }: { server: Server; filter?: 
               <div
                 className={cn(
                   'h-full rounded-full transition-all',
-                  usedAccent === 'destructive' ? 'bg-destructive' : usedAccent === 'warning' ? 'bg-amber-500' : 'bg-emerald-500',
+                  usedAccent === 'destructive' ? 'bg-destructive' : usedAccent === 'warning' ? 'bg-neutral-500' : 'bg-neutral-500',
                 )}
                 style={{ width: `${Math.min(100, current.disk_used_percent)}%` }}
               />

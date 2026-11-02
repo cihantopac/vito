@@ -124,9 +124,9 @@ export default function SiteResourceDiagram({
           className={cn(
             'size-1.5 rounded-full',
             isPrimaryProxied
-              ? 'bg-emerald-500'
+              ? 'bg-neutral-500'
               : hasCloudflare
-              ? 'bg-amber-500/80'
+              ? 'bg-neutral-500/80'
               : anyConnectedDns
               ? 'bg-muted-foreground/50'
               : 'bg-muted-foreground/40',
@@ -136,7 +136,7 @@ export default function SiteResourceDiagram({
       </span>
 
       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium bg-muted/50 text-muted-foreground border border-border/40 font-mono">
-        <span className="size-1.5 rounded-full bg-emerald-500" />
+        <span className="size-1.5 rounded-full bg-neutral-500" />
         {site.php_version ? `PHP ${site.php_version}` : site.type}
       </span>
 
@@ -262,9 +262,9 @@ export default function SiteResourceDiagram({
                           className={cn(
                             'size-1.5 rounded-full',
                             isPrimaryProxied
-                              ? 'bg-emerald-500'
+                              ? 'bg-neutral-500'
                               : hasCloudflare
-                              ? 'bg-amber-500/80'
+                              ? 'bg-neutral-500/80'
                               : anyConnectedDns
                               ? 'bg-muted-foreground/50'
                               : 'bg-muted-foreground/40',
@@ -293,7 +293,7 @@ export default function SiteResourceDiagram({
                           <span
                             className={cn(
                               'size-1.5 rounded-full',
-                              isPrimaryProxied ? 'bg-emerald-500' : 'bg-muted-foreground/50',
+                              isPrimaryProxied ? 'bg-neutral-500' : 'bg-muted-foreground/50',
                             )}
                           />
                           {isPrimaryProxied
@@ -319,7 +319,7 @@ export default function SiteResourceDiagram({
                           <span
                             className={cn(
                               'size-1.5 rounded-full',
-                              isPrimaryProxied ? 'bg-emerald-500' : 'bg-muted-foreground/50',
+                              isPrimaryProxied ? 'bg-neutral-500' : 'bg-muted-foreground/50',
                             )}
                           />
                           {isPrimaryProxied
@@ -345,7 +345,7 @@ export default function SiteResourceDiagram({
                           <span
                             className={cn(
                               'size-1.5 rounded-full',
-                              isPrimaryProxied || site.ssl_enabled ? 'bg-emerald-500' : 'bg-muted-foreground/50',
+                              isPrimaryProxied || site.ssl_enabled ? 'bg-neutral-500' : 'bg-muted-foreground/50',
                             )}
                           />
                           {isPrimaryProxied
@@ -382,7 +382,7 @@ export default function SiteResourceDiagram({
                           <span
                             className={cn(
                               'size-1.5 rounded-full shrink-0',
-                              isPrimaryProxied ? 'bg-emerald-500' : 'bg-muted-foreground/40',
+                              isPrimaryProxied ? 'bg-neutral-500' : 'bg-muted-foreground/40',
                             )}
                           />
                           <span className="font-mono text-[11px] font-medium text-foreground truncate max-w-[120px]" title={site.domain}>
@@ -398,7 +398,7 @@ export default function SiteResourceDiagram({
                             className={cn(
                               'flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border cursor-pointer',
                               isPrimaryProxied
-                                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20'
+                                ? 'bg-neutral-500/10 text-neutral-500 border-neutral-500/30 hover:bg-neutral-500/20'
                                 : 'bg-muted/40 text-muted-foreground border-border/50 hover:text-foreground hover:bg-muted',
                               togglingDomain === site.domain && 'opacity-60 pointer-events-none',
                             )}
@@ -407,7 +407,7 @@ export default function SiteResourceDiagram({
                             {togglingDomain === site.domain ? (
                               <LoaderCircleIcon className="size-2.5 animate-spin" />
                             ) : isPrimaryProxied ? (
-                              <ShieldCheckIcon className="size-2.5 text-emerald-500" />
+                              <ShieldCheckIcon className="size-2.5 text-neutral-500" />
                             ) : (
                               <ShieldAlertIcon className="size-2.5 text-muted-foreground" />
                             )}
@@ -438,7 +438,7 @@ export default function SiteResourceDiagram({
                                     className={cn(
                                       'flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors border cursor-pointer',
                                       isProxied
-                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20'
+                                        ? 'bg-neutral-500/10 text-neutral-500 border-neutral-500/30 hover:bg-neutral-500/20'
                                         : 'bg-muted/40 text-muted-foreground border-border/50 hover:text-foreground hover:bg-muted',
                                       isUpdating && 'opacity-60 pointer-events-none',
                                     )}
@@ -447,7 +447,7 @@ export default function SiteResourceDiagram({
                                     {isUpdating ? (
                                       <LoaderCircleIcon className="size-2.5 animate-spin" />
                                     ) : isProxied ? (
-                                      <ShieldCheckIcon className="size-2.5 text-emerald-500" />
+                                      <ShieldCheckIcon className="size-2.5 text-neutral-500" />
                                     ) : (
                                       <ShieldAlertIcon className="size-2.5 text-muted-foreground" />
                                     )}
@@ -457,7 +457,7 @@ export default function SiteResourceDiagram({
                                   <span
                                     className={cn(
                                       'size-1.5 rounded-full shrink-0',
-                                      hd.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500',
+                                      hd.status === 'active' ? 'bg-neutral-500' : 'bg-neutral-500',
                                     )}
                                   />
                                 )}
@@ -477,7 +477,7 @@ export default function SiteResourceDiagram({
                         <span
                           className={cn(
                             'size-1.5 rounded-full shrink-0',
-                            isPrimaryProxied ? 'bg-emerald-500' : 'bg-muted-foreground/40',
+                            isPrimaryProxied ? 'bg-neutral-500' : 'bg-muted-foreground/40',
                           )}
                         />
                         <span className="font-mono text-[11px] font-medium text-foreground truncate max-w-[120px]" title={site.domain}>
@@ -490,7 +490,7 @@ export default function SiteResourceDiagram({
                             className={cn(
                               'inline-flex items-center gap-0.5 text-[10px] font-mono px-1 py-0.5 rounded border',
                               isPrimaryProxied
-                                ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'
+                                ? 'text-neutral-500 bg-neutral-500/10 border-neutral-500/20'
                                 : 'text-muted-foreground bg-muted/40 border-border/50',
                             )}
                           >
@@ -532,7 +532,7 @@ export default function SiteResourceDiagram({
                       <span className="text-xs font-semibold text-foreground">App server</span>
                     </div>
                     <span className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
-                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      <span className="size-1.5 rounded-full bg-neutral-500" />
                       {site.status || 'Ready'}
                     </span>
                   </div>
@@ -588,7 +588,7 @@ export default function SiteResourceDiagram({
                       <Layers3Icon className="size-4 text-muted-foreground" />
                       <span className="text-xs font-semibold text-foreground">Queues & Cron</span>
                     </div>
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    <span className="size-1.5 rounded-full bg-neutral-500" />
                   </div>
 
                   {isDetailed ? (
@@ -740,7 +740,7 @@ export default function SiteResourceDiagram({
                             <span>Status</span>
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
+                            <span className="size-1.5 rounded-full bg-neutral-500" />
                             {dbResource.status === 'ready' ? 'Connected' : dbResource.status}
                           </span>
                         </div>
@@ -803,7 +803,7 @@ export default function SiteResourceDiagram({
                             <span>Status</span>
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
+                            <span className="size-1.5 rounded-full bg-neutral-500" />
                             {cacheResource.status === 'ready' ? 'Connected' : cacheResource.status}
                           </span>
                         </div>
@@ -866,7 +866,7 @@ export default function SiteResourceDiagram({
                             <span>Status</span>
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
+                            <span className="size-1.5 rounded-full bg-neutral-500" />
                             {storageResource.status === 'ready' ? 'Connected' : storageResource.status}
                           </span>
                         </div>

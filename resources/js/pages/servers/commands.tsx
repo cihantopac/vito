@@ -82,7 +82,7 @@ function CommandRow({ item }: { item: CommandItem }) {
           onClick={handleCopy}
           aria-label="Copy command"
         >
-          {copied ? <CheckIcon className="size-3.5 text-emerald-500" /> : <CopyIcon className="size-3.5" />}
+          {copied ? <CheckIcon className="size-3.5 text-neutral-500" /> : <CopyIcon className="size-3.5" />}
         </Button>
       </div>
     </div>

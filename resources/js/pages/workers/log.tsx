@@ -260,7 +260,7 @@ function WorkerLogContent() {
                   className="h-7 gap-1.5 px-2.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                   title={autoRefresh ? 'Disable auto-refresh' : 'Enable auto-refresh'}
                 >
-                  <span className={cn('size-1.5 rounded-full', autoRefresh ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground/40')} />
+                  <span className={cn('size-1.5 rounded-full', autoRefresh ? 'bg-neutral-500 animate-pulse' : 'bg-muted-foreground/40')} />
                   <span>Auto-refresh</span>
                 </Button>
               )}

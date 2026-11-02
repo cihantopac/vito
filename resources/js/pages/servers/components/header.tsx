@@ -117,7 +117,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
             <SlashIcon className="size-3" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" asChild className="h-6 gap-1 px-1.5 text-xs text-amber-500 hover:text-amber-600 dark:text-amber-400 cursor-pointer">
+                <Button variant="ghost" size="sm" asChild className="h-6 gap-1 px-1.5 text-xs text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 cursor-pointer">
                   <Link href={`/servers/${server.id}/update`}>
                     <LoaderCircleIcon className="size-3 animate-spin" />
                     <span>Updating...</span>

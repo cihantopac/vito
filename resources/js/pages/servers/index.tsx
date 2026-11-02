@@ -104,7 +104,7 @@ const metricCell = (threshold: number) =>
     }
 
     return (
-      <span className={cn('font-mono text-sm', numeric > threshold ? 'font-semibold text-rose-500' : 'text-foreground')}>
+      <span className={cn('font-mono text-sm', numeric > threshold ? 'font-semibold text-neutral-500' : 'text-foreground')}>
         {numeric.toFixed(1)}%
       </span>
     );
@@ -188,18 +188,18 @@ const roleCell = ({ row, value }: CellRenderProps) => {
 const stageCell = ({ value }: CellRenderProps) => {
   const stage = String(value || 'prod').toLowerCase();
 
-  let dotColor = 'bg-rose-400 dark:bg-rose-500';
-  let textColor = 'text-rose-700 dark:text-rose-300';
-  let bgClass = 'bg-rose-500/5 dark:bg-rose-500/10 border-rose-500/15';
+  let dotColor = 'bg-neutral-400 dark:bg-neutral-500';
+  let textColor = 'text-neutral-700 dark:text-neutral-300';
+  let bgClass = 'bg-neutral-500/5 dark:bg-neutral-500/10 border-neutral-500/15';
 
   if (stage === 'beta') {
-    dotColor = 'bg-sky-400 dark:bg-sky-500';
-    textColor = 'text-sky-700 dark:text-sky-300';
-    bgClass = 'bg-sky-500/5 dark:bg-sky-500/10 border-sky-500/15';
+    dotColor = 'bg-neutral-400 dark:bg-neutral-500';
+    textColor = 'text-neutral-700 dark:text-neutral-300';
+    bgClass = 'bg-neutral-500/5 dark:bg-neutral-500/10 border-neutral-500/15';
   } else if (stage === 'alfa') {
-    dotColor = 'bg-emerald-400 dark:bg-emerald-500';
-    textColor = 'text-emerald-700 dark:text-emerald-300';
-    bgClass = 'bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/15';
+    dotColor = 'bg-neutral-400 dark:bg-neutral-500';
+    textColor = 'text-neutral-700 dark:text-neutral-300';
+    bgClass = 'bg-neutral-500/5 dark:bg-neutral-500/10 border-neutral-500/15';
   }
 
   return (
@@ -244,7 +244,7 @@ const warningsCell = ({ row, value }: CellRenderProps) => {
         <TooltipContent className="max-w-xs space-y-1 p-2">
           {warnings.map((warning, i) => (
             <div key={i} className="flex items-center gap-1.5 text-xs">
-              <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
+              <span className="size-1.5 rounded-full bg-neutral-500 shrink-0" />
               <span>{formatWarningLabel(warning)}</span>
             </div>
           ))}
