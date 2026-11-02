@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useEffect } from 'react';
 import type { PhpVersions } from '@/types/php-versions';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 type Page = {
@@ -234,24 +235,26 @@ const warningsCell = ({ row, value }: CellRenderProps) => {
   };
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="bg-warning/15 text-warning border-warning/40 inline-flex cursor-default items-center gap-1.5 rounded-md border px-2 py-1">
-            <TriangleAlertIcon className="size-3.5 shrink-0" />
-            <span className="text-xs font-semibold">{count} {count === 1 ? 'warning' : 'warnings'}</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-xs space-y-1 p-2">
-          {warnings.map((warning, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs">
-              <span className="size-1.5 rounded-full bg-neutral-500 shrink-0" />
-              <span>{formatWarningLabel(warning)}</span>
-            </div>
-          ))}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 shrink-0 gap-1 px-1.5 text-warning/80 hover:text-warning"
+          aria-label={`${count} server ${count === 1 ? 'warning' : 'warnings'}`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <TriangleAlertIcon className="size-3.5" />
+          <span className="text-xs tabular-nums">{count}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-72 p-3" onClick={(event) => event.stopPropagation()}>
+        <p className="mb-2 text-xs font-medium">Server warnings</p>
+        <ul className="text-muted-foreground flex flex-col gap-2 text-xs">
+          {warnings.map((warning) => <li key={warning.key}>{formatWarningLabel(warning)}</li>)}
+        </ul>
+      </PopoverContent>
+    </Popover>
   );
 };
 
@@ -412,8 +415,10 @@ export default function Servers() {
           cellRenderers={{
             name: (props: CellRenderProps) => (
               <div className="flex min-w-0 flex-col gap-1">
-                {nameCell(props)}
-                {Array.isArray(props.row.warnings) && props.row.warnings.length > 0 && warningsCell({ ...props, value: props.row.warnings })}
+                <div className="flex flex-wrap items-center gap-2">
+                  {nameCell(props)}
+                  {Array.isArray(props.row.warnings) && props.row.warnings.length > 0 && warningsCell({ ...props, value: props.row.warnings })}
+                </div>
                 {advanced && <span className="font-mono text-xs text-muted-foreground">{String(props.row.ip ?? '')}</span>}
                 {advanced && <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {roleCell({ ...props, value: props.row.role })}
