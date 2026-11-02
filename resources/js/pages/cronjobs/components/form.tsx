@@ -221,10 +221,12 @@ export default function CronJobForm({
                   setSelectedTemplate('');
                   form.setData('command', e.target.value);
                 }}
-                placeholder={site ? `cd ${site.path} && php artisan schedule:run >> /dev/null 2>&1` : 'php artisan schedule:run'}
+                placeholder="php artisan schedule:run"
               />
               <InputError message={form.errors.command} />
-              {form.data.command.includes('artisan') && !form.data.command.includes('cd ') && (
+              {form.data.site_id !== '0' ? (
+                <p className="text-muted-foreground text-xs">Commands run automatically from the selected site's directory.</p>
+              ) : form.data.command.includes('artisan') && !form.data.command.includes('cd ') && (
                 <p className="text-amber-500 text-xs">
                   Artisan commands need to run from the site directory. E.g.: <code className="font-mono">cd {site?.path || '/path/to/site'} &amp;&amp; {form.data.command}</code>
                 </p>

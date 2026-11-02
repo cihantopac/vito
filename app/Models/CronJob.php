@@ -76,6 +76,7 @@ class CronJob extends AbstractModel
     {
         return $server->cronJobs()
             ->where('user', $user)
+            ->with('site')
             ->whereIn('status', [
                 CronjobStatus::READY,
                 CronjobStatus::CREATING,
@@ -83,8 +84,15 @@ class CronJob extends AbstractModel
                 CronjobStatus::ENABLING,
             ])
             ->get()
-            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' ? $cronJob->command : self::wrapCommand($cronJob->command)))
+            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
             ->implode("\n");
+    }
+
+    public function executionCommand(): string
+    {
+        return $this->site
+            ? 'cd '.escapeshellarg($this->site->path).' && ('.$this->command.')'
+            : $this->command;
     }
 
     public static function wrapCommand(string $command): string

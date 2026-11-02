@@ -59,7 +59,7 @@ export default function Show() {
     },
   ];
 
-  const isArtisanMissingCd = cronjob.command.includes('artisan') && !cronjob.command.includes('cd ');
+  const isArtisanMissingCd = !cronjob.site_id && cronjob.command.includes('artisan') && !cronjob.command.includes('cd ');
   const isSchedulerWrongFrequency = cronjob.command.includes('schedule:run') && cronjob.frequency !== '* * * * *';
 
   return (
