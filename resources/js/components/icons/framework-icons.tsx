@@ -236,7 +236,7 @@ export function LoadBalancerIcon({ className, size = 24 }: IconProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-center rounded-md bg-blue-600 text-white shrink-0',
+        'flex items-center justify-center rounded-md bg-neutral-600 text-white shrink-0',
         className,
       )}
       style={{ width: size, height: size }}
@@ -250,7 +250,7 @@ export function OtherIcon({ className, size = 24 }: IconProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-center rounded-md bg-slate-700 text-white shrink-0',
+        'flex items-center justify-center rounded-md bg-neutral-700 text-white shrink-0',
         className,
       )}
       style={{ width: size, height: size }}

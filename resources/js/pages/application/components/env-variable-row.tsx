@@ -195,7 +195,7 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
             className={cn(
               'font-mono',
               isManaged ? 'pr-36' : isExisting && variable.isSecret && !revealable ? 'pr-9' : '',
-              duplicate && !hasError && 'border-amber-500/70 focus-visible:ring-amber-500',
+              duplicate && !hasError && 'border-neutral-500/70 focus-visible:ring-neutral-500',
               hasError && 'border-destructive',
             )}
             disabled={isExisting}
@@ -220,10 +220,10 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
         </div>
         {hasError && <p className="text-destructive mt-1 text-xs">{error}</p>}
         {duplicate && !hasError && (
-          <p className={cn('mt-0.5 text-[11px] flex items-center gap-1.5', duplicate.isEffective ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground')}>
+          <p className={cn('mt-0.5 text-[11px] flex items-center gap-1.5', duplicate.isEffective ? 'text-neutral-600 dark:text-neutral-400 font-medium' : 'text-muted-foreground')}>
             <span>Duplicate #{duplicate.index}</span>
             {duplicate.isEffective ? (
-              <span className="rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 px-1 py-0.2 text-[10px] font-semibold">
+              <span className="rounded bg-neutral-500/15 text-neutral-700 dark:text-neutral-300 px-1 py-0.2 text-[10px] font-semibold">
                 Active
               </span>
             ) : (

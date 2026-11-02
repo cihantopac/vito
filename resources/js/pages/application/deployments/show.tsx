@@ -124,7 +124,7 @@ export default function DeploymentShow() {
                   onClick={() => copySha(deployment.commit_id || deployment.commit_id_short)}
                   title="Copy commit SHA"
                 >
-                  {copiedSha ? <CheckIcon className="size-3 text-emerald-500" /> : <CopyIcon className="size-3" />}
+                  {copiedSha ? <CheckIcon className="size-3 text-neutral-500" /> : <CopyIcon className="size-3" />}
                 </Button>
               </div>
             )}
@@ -196,7 +196,7 @@ export default function DeploymentShow() {
                   className="h-8 px-2 text-sm gap-1.5 cursor-pointer"
                   onClick={() => copyLog(selectedOutput)}
                 >
-                  {copiedLog ? <CheckIcon className="size-3.5 text-emerald-500" /> : <CopyIcon className="size-3.5" />}
+                  {copiedLog ? <CheckIcon className="size-3.5 text-neutral-500" /> : <CopyIcon className="size-3.5" />}
                   <span>{copiedLog ? 'Copied' : 'Copy'}</span>
                 </Button>
               )}

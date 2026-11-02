@@ -33,14 +33,12 @@
         <link rel="icon" href="{{ asset('favicon/favicon-96x96.png') }}" sizes="any" />
         <link rel="apple-touch-icon" href="{{ asset('favicon/apple-icon.png') }}" />
 
-        <link rel="preconnect" href="https://fonts.bunny.net" />
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
     </head>
-    <body class="selection:bg-brand font-sans antialiased selection:text-white">
+    <body class="selection:bg-foreground selection:text-background font-sans antialiased">
         @inertia
     </body>
 </html>

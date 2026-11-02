@@ -517,7 +517,7 @@ export default function CreateSitePage({
                           <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <CheckCircle2Icon className="size-4 text-emerald-500" />
+                                <CheckCircle2Icon className="size-4 text-neutral-500" />
                                 <span className="text-xs font-semibold text-foreground">
                                   vito.json recognized ({vitoDetected.path})
                                 </span>

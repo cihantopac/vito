@@ -210,19 +210,19 @@ export function parseAnsi(text: string): ReactNode[] {
         } else if (code === 24) {
           isUnderline = false;
         } else if (code === 30) {
-          fgColor = 'text-black dark:text-zinc-900';
+          fgColor = 'text-black dark:text-neutral-900';
         } else if (code === 31 || code === 91) {
-          fgColor = 'text-red-500 font-bold';
+          fgColor = 'text-neutral-500 font-bold';
         } else if (code === 32 || code === 92) {
-          fgColor = 'text-emerald-500 font-bold';
+          fgColor = 'text-neutral-500 font-bold';
         } else if (code === 33 || code === 93) {
-          fgColor = 'text-amber-500 font-medium';
+          fgColor = 'text-neutral-500 font-medium';
         } else if (code === 34 || code === 94) {
-          fgColor = 'text-sky-500 font-medium';
+          fgColor = 'text-neutral-500 font-medium';
         } else if (code === 35 || code === 95) {
-          fgColor = 'text-purple-500 font-medium';
+          fgColor = 'text-neutral-500 font-medium';
         } else if (code === 36 || code === 96) {
-          fgColor = 'text-cyan-500 font-medium';
+          fgColor = 'text-neutral-500 font-medium';
         } else if (code === 37 || code === 97) {
           fgColor = 'text-white';
         } else if (code === 39) {
@@ -232,19 +232,19 @@ export function parseAnsi(text: string): ReactNode[] {
         } else if (code === 40) {
           bgColor = 'bg-black text-white px-1.5 py-0.5 rounded';
         } else if (code === 41) {
-          bgColor = 'bg-red-600 text-white font-bold px-1.5 py-0.5 rounded';
+          bgColor = 'bg-neutral-600 text-white font-bold px-1.5 py-0.5 rounded';
         } else if (code === 42) {
-          bgColor = 'bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded';
+          bgColor = 'bg-neutral-600 text-white font-bold px-1.5 py-0.5 rounded';
         } else if (code === 43) {
-          bgColor = 'bg-amber-500 text-black font-bold px-1.5 py-0.5 rounded';
+          bgColor = 'bg-neutral-500 text-black font-bold px-1.5 py-0.5 rounded';
         } else if (code === 44) {
-          bgColor = 'bg-blue-600 text-white font-bold px-1.5 py-0.5 rounded text-xs';
+          bgColor = 'bg-neutral-600 text-white font-bold px-1.5 py-0.5 rounded text-xs';
         } else if (code === 45) {
-          bgColor = 'bg-purple-600 text-white font-bold px-1.5 py-0.5 rounded';
+          bgColor = 'bg-neutral-600 text-white font-bold px-1.5 py-0.5 rounded';
         } else if (code === 46) {
-          bgColor = 'bg-cyan-600 text-white font-bold px-1.5 py-0.5 rounded';
+          bgColor = 'bg-neutral-600 text-white font-bold px-1.5 py-0.5 rounded';
         } else if (code === 47) {
-          bgColor = 'bg-zinc-200 text-black px-1.5 py-0.5 rounded';
+          bgColor = 'bg-neutral-200 text-black px-1.5 py-0.5 rounded';
         } else if (code === 49) {
           bgColor = null;
         }

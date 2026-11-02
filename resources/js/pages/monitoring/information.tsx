@@ -87,7 +87,7 @@ function UsageBar({ percent, label, used, total }: { percent: number; label: str
         <span className="text-muted-foreground">{label}</span>
         <span className="font-mono text-xs">
           {used && total ? `${used} / ${total} ` : ''}
-          <span className={cn('font-semibold', isHigh ? 'text-destructive' : isMed ? 'text-amber-500' : 'text-foreground')}>
+          <span className={cn('font-semibold', isHigh ? 'text-destructive' : isMed ? 'text-neutral-500' : 'text-foreground')}>
             ({percent}%)
           </span>
         </span>
@@ -96,7 +96,7 @@ function UsageBar({ percent, label, used, total }: { percent: number; label: str
         <div
           className={cn(
             'h-full rounded-full transition-all',
-            isHigh ? 'bg-destructive' : isMed ? 'bg-amber-500' : 'bg-primary/80'
+            isHigh ? 'bg-destructive' : isMed ? 'bg-neutral-500' : 'bg-primary/80'
           )}
           style={{ width: `${Math.min(percent, 100)}%` }}
         />
@@ -248,7 +248,7 @@ export default function Information() {
                             <td className="py-1.5 px-3 font-mono">{d.used}</td>
                             <td className="py-1.5 px-3 font-mono text-muted-foreground">{d.avail}</td>
                             <td className="py-1.5 px-3 font-mono text-right">
-                              <span className={cn('font-medium', pct >= 85 ? 'text-destructive' : pct >= 70 ? 'text-amber-500' : 'text-foreground')}>
+                              <span className={cn('font-medium', pct >= 85 ? 'text-destructive' : pct >= 70 ? 'text-neutral-500' : 'text-foreground')}>
                                 {d.use_percent}
                               </span>
                             </td>

@@ -634,7 +634,7 @@ export default function CreateServerPage({
                     <span
                       className={cn(
                         'flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
-                        isDone && 'bg-emerald-500 text-white',
+                        isDone && 'bg-neutral-500 text-white',
                         isActive && 'bg-primary text-primary-foreground',
                         !isActive && !isDone && 'bg-muted text-muted-foreground border',
                       )}
@@ -996,7 +996,7 @@ export default function CreateServerPage({
                             >
                               {copiedKey ? (
                                 <>
-                                  <ClipboardCheckIcon className="size-3 text-emerald-500" />
+                                  <ClipboardCheckIcon className="size-3 text-neutral-500" />
                                   <span>Copied</span>
                                 </>
                               ) : (

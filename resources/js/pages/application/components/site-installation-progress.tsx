@@ -440,7 +440,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                       <div
                         className={cn(
                           'absolute left-[11px] top-7 bottom-0 w-px',
-                          isStepCompleted ? 'bg-emerald-500/30' : 'bg-border/60'
+                          isStepCompleted ? 'bg-neutral-500/30' : 'bg-border/60'
                         )}
                       />
                     )}
@@ -448,7 +448,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                     {/* Step Icon */}
                     <div className="relative z-10 flex size-6 shrink-0 items-center justify-center bg-card">
                       {isStepCompleted ? (
-                        <CheckCircle2 className="size-5 text-emerald-500" />
+                        <CheckCircle2 className="size-5 text-neutral-500" />
                       ) : isStepActive ? (
                         <Loader2 className="size-5 text-primary animate-spin" />
                       ) : isStepFailed ? (
@@ -494,7 +494,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                                 title={cmd}
                               >
                                 {isCmdDone ? (
-                                  <CheckCircle2 className="size-4 my-1 text-emerald-500 shrink-0" />
+                                  <CheckCircle2 className="size-4 my-1 text-neutral-500 shrink-0" />
                                 ) : isCmdActive ? (
                                   <Loader2 className="size-4 my-1 text-primary animate-spin shrink-0" />
                                 ) : (

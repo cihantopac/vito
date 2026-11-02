@@ -214,7 +214,7 @@ export default function DeploymentProgress({
           ) : failed ? (
             <XCircleIcon className="size-4 text-destructive shrink-0" />
           ) : (
-            <CheckCircle2Icon className="size-4 text-emerald-500 shrink-0" />
+            <CheckCircle2Icon className="size-4 text-neutral-500 shrink-0" />
           )}
 
           <span className="text-sm font-medium shrink-0">{title}</span>

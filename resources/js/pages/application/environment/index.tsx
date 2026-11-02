@@ -354,12 +354,12 @@ function EnvironmentEditorContent() {
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold tracking-tight">Environment Variables</h1>
                 {isDirty && (
-                  <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-500">
+                  <span className="inline-flex items-center rounded-md bg-neutral-500/10 px-2 py-0.5 text-xs font-medium text-neutral-500">
                     Unsaved changes
                   </span>
                 )}
                 {saveSuccess && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500 animate-in fade-in">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-neutral-500/10 px-2 py-0.5 text-xs font-medium text-neutral-500 animate-in fade-in">
                     <CheckIcon className="size-3" /> Saved
                   </span>
                 )}
@@ -448,9 +448,9 @@ function EnvironmentEditorContent() {
         )}
 
         {mode === 'variables' && !showHistory && hasDuplicates && (
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200">
+          <div className="rounded-lg border border-neutral-500/30 bg-neutral-500/10 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-neutral-900 dark:text-neutral-200">
             <div className="flex items-start sm:items-center gap-2.5">
-              <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
+              <AlertTriangleIcon className="size-4 text-neutral-600 dark:text-neutral-400 shrink-0 mt-0.5 sm:mt-0" />
               <div>
                 Duplicate keys detected: <span className="font-mono font-semibold">{Array.from(duplicateKeys).join(', ')}</span>.
                 You can save anyway, but applications will typically only evaluate the last defined value.
@@ -462,7 +462,7 @@ function EnvironmentEditorContent() {
                 variant="outline"
                 size="sm"
                 onClick={() => setFilterDuplicatesOnly((prev) => !prev)}
-                className="h-7 text-xs bg-background/80 hover:bg-background border-amber-500/30 cursor-pointer"
+                className="h-7 text-xs bg-background/80 hover:bg-background border-neutral-500/30 cursor-pointer"
               >
                 {filterDuplicatesOnly ? 'Show all variables' : `Filter duplicates (${duplicateKeys.size})`}
               </Button>
@@ -471,7 +471,7 @@ function EnvironmentEditorContent() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setDuplicateModalOpen(true)}
-                className="h-7 text-xs hover:bg-amber-500/20 cursor-pointer"
+                className="h-7 text-xs hover:bg-neutral-500/20 cursor-pointer"
               >
                 Inspect details
               </Button>
@@ -640,7 +640,7 @@ function EnvironmentEditorContent() {
         <Dialog open={duplicateModalOpen} onOpenChange={setDuplicateModalOpen}>
           <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
             <DialogHeader>
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+              <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400">
                 <AlertTriangleIcon className="size-5" />
                 <DialogTitle className="text-foreground">Duplicate Keys Detected</DialogTitle>
               </div>
@@ -654,7 +654,7 @@ function EnvironmentEditorContent() {
                 <div key={key} className="rounded-lg border bg-muted/30 p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-semibold text-foreground">{key}</span>
-                    <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                    <span className="rounded-full bg-neutral-500/10 px-2 py-0.5 text-[11px] font-medium text-neutral-600 dark:text-neutral-400">
                       {entries.length} occurrences
                     </span>
                   </div>
@@ -671,7 +671,7 @@ function EnvironmentEditorContent() {
                           className={cn(
                             'flex items-center justify-between rounded px-2.5 py-1 text-xs',
                             isLast
-                              ? 'bg-amber-500/15 border border-amber-500/25 text-foreground font-medium'
+                              ? 'bg-neutral-500/15 border border-neutral-500/25 text-foreground font-medium'
                               : 'text-muted-foreground bg-background/60',
                           )}
                         >

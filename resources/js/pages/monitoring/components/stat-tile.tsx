@@ -13,9 +13,9 @@ interface Props {
 
 const accentClasses: Record<Accent, string> = {
   default: '',
-  warning: 'border-amber-500/40 bg-amber-500/5',
+  warning: 'border-neutral-500/40 bg-neutral-500/5',
   destructive: 'border-destructive/40 bg-destructive/5',
-  success: 'border-emerald-500/40 bg-emerald-500/5',
+  success: 'border-neutral-500/40 bg-neutral-500/5',
 };
 
 export function StatTile({ label, value, subtitle, accent = 'default' }: Props) {

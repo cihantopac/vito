@@ -9,7 +9,7 @@ export default function AppLogo() {
   return (
     <div className="relative flex aspect-square size-8 items-center justify-center rounded-md">
       <AppLogoIcon />
-      {!isProduction && <div className="absolute right-0 bottom-0 left-0 bg-yellow-400 px-1 text-[8px] leading-tight font-bold text-black">DEV</div>}
+      {!isProduction && <div className="absolute right-0 bottom-0 left-0 bg-neutral-400 px-1 text-[8px] leading-tight font-bold text-black">DEV</div>}
     </div>
   );
 }

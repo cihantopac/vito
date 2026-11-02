@@ -74,7 +74,7 @@ export default function ServerSetupGuide({ server, securityScore }: ServerSetupG
           <div className="hover:bg-muted/50 flex items-center justify-between gap-4 px-4 py-3 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               {hasSites ? (
-                <CheckCircle2Icon className="size-4 text-emerald-500 shrink-0" />
+                <CheckCircle2Icon className="size-4 text-neutral-500 shrink-0" />
               ) : (
                 <div className="size-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />
               )}
@@ -101,7 +101,7 @@ export default function ServerSetupGuide({ server, securityScore }: ServerSetupG
           <div className="hover:bg-muted/50 flex items-center justify-between gap-4 px-4 py-3 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               {hasSshKeys ? (
-                <CheckCircle2Icon className="size-4 text-emerald-500 shrink-0" />
+                <CheckCircle2Icon className="size-4 text-neutral-500 shrink-0" />
               ) : (
                 <div className="size-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />
               )}
@@ -128,9 +128,9 @@ export default function ServerSetupGuide({ server, securityScore }: ServerSetupG
           <div className="hover:bg-muted/50 flex items-center justify-between gap-4 px-4 py-3 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               {isSecure ? (
-                <CheckCircle2Icon className="size-4 text-emerald-500 shrink-0" />
+                <CheckCircle2Icon className="size-4 text-neutral-500 shrink-0" />
               ) : (
-                <div className="size-4 rounded-full border-2 border-amber-500/60 shrink-0" />
+                <div className="size-4 rounded-full border-2 border-neutral-500/60 shrink-0" />
               )}
               <div className="min-w-0">
                 <p className={cn('text-sm font-medium', isSecure && 'text-muted-foreground line-through')}>

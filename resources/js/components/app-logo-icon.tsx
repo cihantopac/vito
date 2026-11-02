@@ -3,7 +3,7 @@ import { Ref, SVGAttributes } from 'react';
 export default function AppLogoIcon(props: SVGAttributes<SVGElement> & { ref?: Ref<SVGSVGElement> }) {
   return (
     <svg {...props} viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="1024" height="1024" rx="50" fill="#312E81" />
+      <rect width="1024" height="1024" rx="50" fill="#737373" />
       <rect width="1024" height="1024" rx="50" fill="url(#paint0_linear_29_4)" />
       <g filter="url(#filter0_d_29_4)">
         <path
@@ -23,8 +23,8 @@ export default function AppLogoIcon(props: SVGAttributes<SVGElement> & { ref?: R
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_29_4" result="shape" />
         </filter>
         <linearGradient id="paint0_linear_29_4" x1="512" y1="0" x2="512" y2="1024" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6366F1" />
-          <stop offset="1" stopColor="#393B8B" />
+          <stop stopColor="#737373" />
+          <stop offset="1" stopColor="#737373" />
         </linearGradient>
       </defs>
     </svg>

@@ -38,10 +38,10 @@ const STATE_LABELS: Record<string, string> = {
 };
 
 const COLOR_CLASSES: Record<string, string> = {
-  success: 'text-green-500',
-  danger: 'text-red-500',
-  warning: 'text-yellow-500',
-  gray: 'text-gray-400',
+  success: 'text-neutral-500',
+  danger: 'text-neutral-500',
+  warning: 'text-neutral-500',
+  gray: 'text-neutral-400',
 };
 
 function LiveStatusBadge({ serviceId, liveStatuses }: { serviceId: number; liveStatuses: Record<number, LiveStatus> }) {
@@ -50,7 +50,7 @@ function LiveStatusBadge({ serviceId, liveStatuses }: { serviceId: number; liveS
   if (!status) {
     return (
       <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <CircleIcon className="size-2 animate-pulse fill-gray-400 text-gray-400" />
+        <CircleIcon className="size-2 animate-pulse fill-neutral-400 text-neutral-400" />
         <span>…</span>
       </span>
     );

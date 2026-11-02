@@ -532,7 +532,7 @@ export default function DiskUsage() {
                               aria-label="Copy"
                             >
                               {copiedPath === folder.path ? (
-                                <CheckIcon className="size-3 text-emerald-500" />
+                                <CheckIcon className="size-3 text-neutral-500" />
                               ) : (
                                 <CopyIcon className="size-3" />
                               )}
@@ -649,7 +649,7 @@ export default function DiskUsage() {
                               aria-label="Copy"
                             >
                               {copiedPath === file.path ? (
-                                <CheckIcon className="size-3 text-emerald-500" />
+                                <CheckIcon className="size-3 text-neutral-500" />
                               ) : (
                                 <CopyIcon className="size-3" />
                               )}
