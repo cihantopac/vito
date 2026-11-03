@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { usePanelView } from '@/hooks/use-panel-view';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import { Site } from '@/types/site';
@@ -11,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-react';
 import { VitoTable } from '@/components/vito-table';
 import { Badge } from '@/components/ui/badge';
+import DateTime from '@/components/date-time';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { WarningsPopover } from '@/components/banners';
 import { getSiteWarningItems } from '@/components/site-banners';
 import type { CellRenderProps, InertiaTableData, Row } from '@forjedio/inertia-table-react';
@@ -34,7 +35,7 @@ type Page = {
 };
 
 const siteCell = ({ row, value }: CellRenderProps) => (
-  <div className="flex min-w-0 flex-col items-baseline gap-x-2 gap-y-1 py-1">
+  <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
     <Link
       href={`/servers/${row.server_id as number}/sites/${row.id as number}`}
       className="text-foreground font-medium hover:underline"
@@ -44,30 +45,48 @@ const siteCell = ({ row, value }: CellRenderProps) => (
     </Link>
     <Link
       href={`/servers/${row.server_id as number}`}
-      className="text-muted-foreground text-sm hover:underline"
+      className="text-muted-foreground text-xs hover:underline"
     >
       ({row.server_name as string})
     </Link>
+    <SiteWarnings row={row} />
   </div>
 );
 
-const statusCell = ({ row, value }: CellRenderProps) => {
-  const site = row as unknown as Site;
-  const warningItems = getSiteWarningItems(site);
+function SiteWarnings({ row }: { row: Row }) {
+  const warningItems = getSiteWarningItems(row as unknown as Site);
 
   return (
-    <div className="flex items-center gap-2">
-      <Badge variant={(row.status_color as 'default') ?? 'default'}>
-        {String(value)}
-      </Badge>
+    <>
+      {row.status && row.status !== 'ready' && (
+        <Badge variant={(row.status_color as 'default') ?? 'default'}>{String(row.status)}</Badge>
+      )}
       {warningItems.length > 0 && <WarningsPopover items={warningItems} />}
-    </div>
+    </>
   );
-};
+}
+
+function CreatedAtCell({ value }: CellRenderProps) {
+  if (typeof value !== 'string' || !value) {
+    return null;
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="text-muted-foreground hover:text-foreground cursor-pointer whitespace-nowrap text-xs" aria-label="Show exact creation date">
+          <DateTime date={value} relative />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto text-sm" align="end">
+        <DateTime date={value} />
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function Sites() {
   const page = usePage<Page & SharedData>();
-  const { advanced, setView } = usePanelView();
 
   const Comp = page.props.server ? ServerLayout : Layout;
 
@@ -87,14 +106,12 @@ export default function Sites() {
         <VitoTable
           fitContent
           toolbarClassName="[&_input]:h-8 [&_input]:min-w-36 [&_input]:max-w-56 [&_input]:text-sm"
-          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || advanced || ['domain', 'status'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
+          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || ['domain', 'server.project.name', 'created_at'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
+          columnWidths={{ 'server.project.name': '18%', created_at: '9rem' }}
+          rowClassName={() => '[&>td]:py-2'}
           groupBy={page.props.groupBy}
           toolbar={
             <>
-              <div className="flex rounded-md border border-border p-0.5" role="group" aria-label="Site view">
-                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
-                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
-              </div>
               {!page.props.server && (
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
@@ -208,8 +225,9 @@ export default function Sites() {
             </>
           }
           cellRenderers={{
-            ...(page.props.server ? {} : { domain: siteCell }),
-            status: statusCell,
+            domain: siteCell,
+            'server.project.name': ({ value }) => <span className="text-muted-foreground text-xs">{String(value ?? '')}</span>,
+            created_at: CreatedAtCell,
           }}
           onRowClick={(row: Row) => {
             const site = asRow<{ id: number; server_id: number }>(row, ['id', 'server_id']);
