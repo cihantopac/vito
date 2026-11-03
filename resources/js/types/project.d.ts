@@ -3,6 +3,7 @@ import { ProjectUser } from '@/types/project-user';
 export interface Project {
   id: number;
   name: string;
+  is_starred: boolean;
   owner?: ProjectUser;
   users: ProjectUser[];
   role: string;

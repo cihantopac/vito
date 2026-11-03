@@ -20,6 +20,7 @@ class UserProject extends AbstractModel
         'project_id' => 'integer',
         'user_id' => 'integer',
         'role' => UserRole::class,
+        'is_starred' => 'boolean',
     ];
 
     public function user(): BelongsTo
