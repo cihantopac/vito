@@ -2,14 +2,12 @@ import DateTime from '@/components/date-time';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import ProjectForm from '@/pages/projects/components/project-form';
 import { SharedData } from '@/types';
 import type { Project } from '@/types/project';
 import { usePage } from '@inertiajs/react';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { ColumnDef } from '@tanstack/react-table';
 import { UsersIcon } from 'lucide-react';
-import LeaveProject from '@/pages/projects/components/leave-project';
 import { useDialog } from '@/hooks/use-dialog';
 
 import { ProjectUser } from '@/types/project-user';
@@ -23,7 +21,7 @@ function getActiveRegisteredUsers(project: Project): ProjectUser[] {
   return (project.users || []).filter((user) => user.type === 'user' && Boolean(user.name || user.email));
 }
 
-function ProjectActions({ project }: { project: Project }) {
+export function ProjectActions({ project }: { project: Project }) {
   const dialog = useDialog();
   const page = usePage<SharedData>();
   const canDelete = project.role === 'owner' || page.props.auth.user.is_admin;
@@ -34,17 +32,24 @@ function ProjectActions({ project }: { project: Project }) {
         <TableActionTrigger />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <ProjectForm project={project}>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit</DropdownMenuItem>
-        </ProjectForm>
+        <DropdownMenuItem onSelect={() => dialog.projectForm.open({ project })}>Edit</DropdownMenuItem>
         <DropdownMenuItem onSelect={() => dialog.projectUsers.open({ project })}>
           <UsersIcon className="size-3.5 mr-2" />
           <span>{project.role === 'user' ? 'View access' : 'Manage access'}</span>
         </DropdownMenuItem>
         {project.role !== 'owner' && (
-          <LeaveProject project={project}>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Leave project</DropdownMenuItem>
-          </LeaveProject>
+          <DropdownMenuItem
+            onSelect={() => dialog.confirm.open({
+              title: `Leave ${project.name}`,
+              description: 'Are you sure you want to leave this project?',
+              confirmLabel: 'Leave',
+              variant: 'destructive',
+              method: 'delete',
+              url: `/settings/projects/${project.id}/leave`,
+            })}
+          >
+            Leave project
+          </DropdownMenuItem>
         )}
         {canDelete && (
           <>
