@@ -29,8 +29,6 @@ class StartEnvSearch
     }
 
     /**
-     * Results contain environment values, so only the user who started the search may read them.
-     *
      * @return array<string, mixed>
      */
     public function status(User $user, string $searchId): array

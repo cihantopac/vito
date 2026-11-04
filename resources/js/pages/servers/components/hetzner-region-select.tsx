@@ -90,7 +90,7 @@ export default function HetznerRegionSelect({
       <DialogContent className="gap-0 p-0 sm:max-w-4xl">
         <DialogHeader className="border-b px-6 py-4">
           <DialogTitle>Hetzner Region</DialogTitle>
-          <DialogDescription>Latency is measured from this Vito server with small HTTP requests to Hetzner speedtest endpoints.</DialogDescription>
+          <DialogDescription>Latency is measured from this Pure server with small HTTP requests to Hetzner speedtest endpoints.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 p-6">
           <div className="flex items-center justify-between gap-3">

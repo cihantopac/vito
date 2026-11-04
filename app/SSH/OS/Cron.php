@@ -8,12 +8,11 @@ class Cron
 {
     public function __construct(protected Server $server) {}
 
-    
     public function update(string $user, string $cron): void
     {
         $this->server->ssh()->exec(
             view('ssh.cron.update', [
-                'cron' => str_replace("'", "'\\''", $cron),
+                'cron' => $cron,
                 'user' => $user,
             ]),
             'update-cron'

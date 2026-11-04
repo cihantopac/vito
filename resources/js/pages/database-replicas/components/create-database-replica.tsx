@@ -98,7 +98,7 @@ export default function CreateDatabaseReplica({
         <Form id="create-database-replica-form" onSubmit={submit} className="p-4">
           <FormFields>
             <div className="text-muted-foreground rounded-md border p-3 text-sm">
-              Vito connects both servers over a private network (a provider network such as a Hetzner Cloud Network when it can, else an encrypted WireGuard
+              Pure connects both servers over a private network (a provider network such as a Hetzner Cloud Network when it can, else an encrypted WireGuard
               network), opens PostgreSQL and pgBackRest only to the replica, restores the replica from the latest pgBackRest backup and streams WAL from this
               server. Backups then run on the replica straight to S3. PostgreSQL on this server restarts once to listen on its private address.
             </div>
@@ -122,7 +122,7 @@ export default function CreateDatabaseReplica({
                 <div className="flex flex-col gap-1 rounded-md border p-3 text-sm">
                   <p className="font-medium">The new server</p>
                   <p className="text-muted-foreground">
-                    Vito creates it at your provider (billed by the provider) with the same operating system and PostgreSQL {requirements?.postgresql ?? ''} as{' '}
+                    Pure creates it at your provider (billed by the provider) with the same operating system and PostgreSQL {requirements?.postgresql ?? ''} as{' '}
                     {server.name}, and nothing else on it, so no data of yours can be replaced by the restore.
                   </p>
                   {requirements && (
@@ -175,7 +175,7 @@ export default function CreateDatabaseReplica({
                     <Alert variant="destructive">
                       <AlertTitle>Everything PostgreSQL holds on {selected.name} is destroyed</AlertTitle>
                       <AlertDescription>
-                        Vito wipes the PostgreSQL data directory of {selected.name} and restores this server's backup over it. The server keeps{' '}
+                        Pure wipes the PostgreSQL data directory of {selected.name} and restores this server's backup over it. The server keeps{' '}
                         {selected.sites === 1 ? '1 site' : `${selected.sites} sites`} and everything outside PostgreSQL, but its databases cannot be recovered
                         afterwards unless you have your own backup of them.
                       </AlertDescription>

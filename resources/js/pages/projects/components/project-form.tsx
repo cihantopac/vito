@@ -20,16 +20,19 @@ import { Form, FormField, FormFields } from '@/components/ui/form';
 
 export default function ProjectForm({
   project,
+  open: controlledOpen,
   defaultOpen,
   onOpenChange,
   children,
 }: {
   project?: Project;
+  open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen || false);
+  const [localOpen, setOpen] = useState(defaultOpen || false);
+  const open = controlledOpen ?? localOpen;
   useEffect(() => {
     setOpen(defaultOpen || false);
   }, [defaultOpen]);
@@ -51,7 +54,7 @@ export default function ProjectForm({
     if (project) {
       form.patch(`/settings/projects/${project.id}`, {
         onSuccess() {
-          setOpen(false);
+          handleOpenChange(false);
         },
       });
       return;
@@ -59,14 +62,14 @@ export default function ProjectForm({
 
     form.post('/settings/projects', {
       onSuccess() {
-        setOpen(false);
+        handleOpenChange(false);
       },
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{project ? 'Edit Project' : 'Create Project'}</DialogTitle>

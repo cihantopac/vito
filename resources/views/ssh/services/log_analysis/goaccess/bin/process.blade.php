@@ -5,16 +5,12 @@ set -euo pipefail
 CONF="${1:-}"
 [ -n "$CONF" ] && [ -f "$CONF" ] || exit 0
 
-# shellcheck disable=SC1090
 source "$CONF"
 
 BASE_DIR="{{ $baseDir }}"
 SITE_DATA="$BASE_DIR/data/$SITE_ID"
 mkdir -p "$SITE_DATA"
 
-# Per-site lock shared by the hourly runner AND the manual-refresh path.
-# Non-blocking: if a run is already in progress, report busy and exit cleanly
-# (exit 0 so the SSH `set -e` wrapper does not treat it as a failure).
 exec 9>"$SITE_DATA/.lock"
 if ! flock -n 9; then
     echo "VITO_STATS_BUSY"
@@ -44,9 +40,7 @@ process_month() {
     fi
 
     if [ "$BOUNDARY" = "1" ]; then
-        # Boundary window (days 1–2): date-filter live+rotated into the right month db.
         if [ "$LOG_FORMAT" = "CADDY" ]; then
-            # shellcheck disable=SC2086
             zcat -f $LOG_GLOB 2>/dev/null \
                 | jq -c "select(.ts | startswith(\"$key\"))" \
                 | goaccess - --log-format=CADDY --persist --restore --db-path="$db" -o "$out" --date-spec=date --no-progress
@@ -54,19 +48,12 @@ process_month() {
             local mon year
             mon="$(date -d "$key-01" +%b)"
             year="$(date -d "$key-01" +%Y)"
-            # shellcheck disable=SC2086
             zcat -f $LOG_GLOB 2>/dev/null \
                 | grep -- "/$mon/$year:" \
                 | goaccess - --log-format=COMBINED --persist --restore --db-path="$db" -o "$out" --date-spec=date --no-progress
         fi
     else
-        # Normal path: direct-file incremental (GoAccess tracks inode/offset).
-        # Feed only uncompressed logs — GoAccess reads rotated *.gz files as
-        # binary and aborts the run. Compressed rotations were already ingested
-        # by earlier runs, and the boundary window above re-reads them via
-        # `zcat -f` when crossing months.
         local files=() f
-        # shellcheck disable=SC2086
         for f in $LOG_GLOB; do
             [ -e "$f" ] || continue
             case "$f" in *.gz) continue ;; esac

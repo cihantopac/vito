@@ -6,39 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRealtimeRecord } from '@/hooks/use-socket-events';
 import siteHelper from '@/lib/site-helper';
 import MetricsCards from '@/pages/monitoring/components/metrics-cards';
-import ServerSetupGuide from '@/pages/servers/components/server-setup-guide';
 import { SharedData } from '@/types';
 import type { Server } from '@/types/server';
-import type { SecurityScore } from '@/types/security';
-import { Link, router, usePage } from '@inertiajs/react';
-import { ArrowRightIcon, ExternalLinkIcon, GlobeIcon, PlusIcon } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { useSocketListener } from '@/hooks/use-socket-events';
+import { Link, usePage } from '@inertiajs/react';
+import { ExternalLinkIcon, GlobeIcon, PlusIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { type OverviewSite, useOverviewResources } from '@/hooks/use-overview-resources';
 import { RecentSitesSkeleton } from '@/components/page-skeleton';
 
-export default function ServerOverview({ securityScore }: { securityScore?: SecurityScore }) {
+export default function ServerOverview() {
   const page = usePage<SharedData & { server: Server }>();
   const server = useRealtimeRecord<Server>(page.props.server, 'server')!;
   const [recentSiteIds, setRecentSiteIds] = useState<number[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-
-  useSocketListener(
-    useCallback(
-      (event) => {
-        const data = event.data;
-        const isObject = !!data && typeof data === 'object' && !Array.isArray(data);
-        if (
-          (event.type === 'security.updated' || event.type?.startsWith('service.')) &&
-          isObject &&
-          (data as { server_id?: number }).server_id === server.id
-        ) {
-          router.reload({ only: ['securityScore'] });
-        }
-      },
-      [server.id],
-    ),
-  );
 
   useEffect(() => {
     setRecentSiteIds(siteHelper.getRecentSites(page.props.auth.user.id, server.id, 25).map((site) => site.id));
@@ -60,7 +40,6 @@ export default function ServerOverview({ securityScore }: { securityScore?: Secu
 
       <MetricsCards server={server} />
 
-      <ServerSetupGuide server={server} securityScore={securityScore} />
 
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-4 border-b px-4 py-3">
@@ -84,20 +63,28 @@ export default function ServerOverview({ securityScore }: { securityScore?: Secu
               {recentSites.map((site) => (
                 <div
                   key={site.id}
-                  className="hover:bg-muted/50 flex items-center justify-between gap-4 px-4 py-2.5 transition-colors"
+                  className="hover:bg-muted/50 flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 transition-colors"
                 >
                   <Link
                     href={`/servers/${server.id}/sites/${site.id}`}
                     className="flex min-w-0 flex-1 items-center gap-3"
                     prefetch
                   >
-                    <div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg">
-                      <GlobeIcon className="text-muted-foreground size-4" />
-                    </div>
                     <span className="truncate text-sm font-medium">{site.domain}</span>
                   </Link>
                   <div className="flex shrink-0 items-center gap-2">
                     <Badge variant={site.status_color} className="text-[10px] px-1.5 py-0">{site.status}</Badge>
+                    {[
+                      { label: 'Deployments', path: 'deployments' },
+                      { label: 'Resources', path: 'resources' },
+                      { label: 'Workers', path: 'workers' },
+                    ].map((shortcut) => (
+                      <Button key={shortcut.path} variant="ghost" size="sm" asChild>
+                        <Link href={`/servers/${server.id}/sites/${site.id}/${shortcut.path}`} aria-label={`${site.domain}: ${shortcut.label}`} prefetch>
+                          {shortcut.label}
+                        </Link>
+                      </Button>
+                    ))}
                     <a
                       href={site.domain.includes('.') ? `https://${site.domain}` : '/'}
                       target="_blank"
@@ -107,13 +94,7 @@ export default function ServerOverview({ securityScore }: { securityScore?: Secu
                     >
                       <ExternalLinkIcon className="size-3.5" />
                     </a>
-                    <Link
-                      href={`/servers/${server.id}/sites/${site.id}`}
-                      className="text-muted-foreground hover:text-foreground"
-                      prefetch
-                    >
-                      <ArrowRightIcon className="size-4" />
-                    </Link>
+
                   </div>
                 </div>
               ))}

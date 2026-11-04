@@ -36,7 +36,7 @@ export default function DatabaseReplicas() {
         ['Backups', backup ? `${backup.pgbackrest?.strategy === 'custom' ? 'Custom' : 'Standard'} strategy on ${backup.storage?.profile ?? 'S3'}` : 'none'],
         ['Backups run on', cluster.backups_from_replicas ? 'a healthy replica, else the primary' : 'the primary'],
         ['Last verify', backup?.pgbackrest?.last_verify_result ?? 'not yet'],
-        ['TLS certificates expire', cluster.tls_expires_at ? new Date(cluster.tls_expires_at).toLocaleDateString() : '-'],
+        ['TLS certificates expire', cluster.tls_expires_at ? new Date(cluster.tls_expires_at).toLocaleDateString('en-US') : '-'],
       ]
     : [];
 
@@ -79,7 +79,7 @@ export default function DatabaseReplicas() {
                     onClick={() =>
                       dialog.confirm.open({
                         title: 'Continue failover',
-                        description: 'Vito continues from the last finished step. It does not stop the old primary or promote the replica again.',
+                        description: 'Pure continues from the last finished step. It does not stop the old primary or promote the replica again.',
                         confirmLabel: 'Continue',
                         method: 'post',
                         url: `/servers/${server.id}/database-replicas/failover/retry`,
@@ -118,7 +118,7 @@ export default function DatabaseReplicas() {
                   </p>
                   <p className="text-muted-foreground">
                     {cluster.network.type === 'wireguard'
-                      ? `Encrypted WireGuard tunnels between the servers${cluster.network.managed ? ', created by Vito for this cluster' : ''}`
+                      ? `Encrypted WireGuard tunnels between the servers${cluster.network.managed ? ', created by Pure for this cluster' : ''}`
                       : cluster.network.type === 'provider'
                         ? "Traffic stays on the provider's private network"
                         : 'Private addresses you assigned to the servers'}

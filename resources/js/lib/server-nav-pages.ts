@@ -47,7 +47,7 @@ export const SERVER_NAV_PAGES: ServerNavPage[] = [
   { key: 'Features', label: 'Features', path: '/features', icon: BoxIcon },
   { key: 'Limits', label: 'Limits', path: '/limits', icon: SlidersIcon },
   { key: 'Metrics', label: 'Metrics', path: '/monitoring', icon: ChartLineIcon },
-  { key: 'Server logs', label: 'Vito Events', path: '/logs', icon: LogsIcon },
+  { key: 'Server logs', label: 'Pure Events', path: '/logs', icon: LogsIcon },
   { key: 'Service logs', label: 'Service logs', path: '/logs/services', icon: ScrollTextIcon },
   { key: 'Custom logs', label: 'Custom logs', path: '/logs/remote', icon: CloudIcon },
   { key: 'Processes', label: 'Processes', path: '/monitoring/processes', icon: CpuIcon },

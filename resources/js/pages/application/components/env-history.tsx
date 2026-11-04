@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import DateTime from '@/components/date-time';
-import { useAppearance } from '@/hooks/use-appearance';
 import { useDialog } from '@/hooks/use-dialog';
 import { errorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
@@ -31,7 +30,6 @@ export default function EnvHistory({
   hasUnsavedChanges: boolean;
   onRestored: () => void;
 }) {
-  const { getActualAppearance } = useAppearance();
   const dialog = useDialog();
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -103,7 +101,7 @@ export default function EnvHistory({
         ) : versions.data.length === 0 ? (
           <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-muted-foreground">
             <HistoryIcon className="size-6" />
-            No versions recorded yet. A version is saved every time the .env file is changed from Vito.
+            No versions recorded yet. A version is saved every time the .env file is changed from Pure.
           </div>
         ) : (
           <ul className="flex flex-col">
@@ -165,7 +163,7 @@ export default function EnvHistory({
                 language="dotenv"
                 original={content.data}
                 modified={current}
-                theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+                theme="vs-dark"
                 options={{ readOnly: true, fontSize: 14, automaticLayout: true, renderSideBySide: true, wordWrap: 'on' }}
               />
             )

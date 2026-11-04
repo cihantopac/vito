@@ -67,7 +67,7 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
                 <Label htmlFor="force">Force delete</Label>
               </div>
               <p className="text-muted-foreground text-sm">
-                Remove the site from Vito even if cleaning it up on the server fails (unreachable server, already removed files).
+                Remove the site from Pure even if cleaning it up on the server fails (unreachable server, already removed files).
               </p>
               <InputError message={form.errors.force} />
             </FormField>

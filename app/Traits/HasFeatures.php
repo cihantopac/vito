@@ -27,10 +27,4 @@ trait HasFeatures
 
         return $features;
     }
-
-    
-    public function hasFeature(string $feature): bool
-    {
-        return array_key_exists($feature, $this->featuresConfig());
-    }
 }

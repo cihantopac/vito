@@ -3,7 +3,6 @@ import { Server } from '@/types/server';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
 import SiteBanners from '@/components/site-banners';
 import { TriangleAlertIcon } from 'lucide-react';
@@ -28,7 +27,7 @@ export default function SiteFeatures() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Features" description="Your site has some features enabled by Vito or other plugins" />
+          <Heading title="Features" description="Your site has some features enabled by Pure or other plugins" />
         </HeaderContainer>
 
         <SiteBanners site={page.props.site} />
@@ -36,7 +35,7 @@ export default function SiteFeatures() {
         <Alert>
           <TriangleAlertIcon className="text-warning!" />
           <AlertDescription className="flex gap-1">
-            Vito now uses the new plugins system. If the feature you're looking for is not here, check the
+            Pure now uses the new plugins system. If the feature you're looking for is not here, check the
             <Link className="text-primary" href={"/admin/plugins"}>
               plugins
             </Link>

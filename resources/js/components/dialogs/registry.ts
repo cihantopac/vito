@@ -54,6 +54,7 @@ const PeerConfigDialog = lazy(() => import('@/pages/networks/components/peer-con
 const NetworkServerConfigDialog = lazy(() => import('@/pages/networks/components/server-config'));
 const RevealSiteResourceDialog = lazy(() => import('@/pages/site-resources/components/reveal-site-resource-dialog'));
 const InviteProjectUser = lazy(() => import('@/pages/projects/components/invite'));
+const ProjectForm = lazy(() => import('@/pages/projects/components/project-form'));
 const ProjectUsers = lazy(() => import('@/pages/projects/components/users'));
 const CleanupCommandsDialog = lazy(() => import('@/pages/monitoring/components/cleanup-commands-dialog'));
 
@@ -119,6 +120,7 @@ export const dialogs = {
   networkServerConfig: NetworkServerConfigDialog,
   projectInvite: InviteProjectUser,
   projectUsers: ProjectUsers,
+  projectForm: ProjectForm,
   siteResourceReveal: RevealSiteResourceDialog,
   
 } as const satisfies Record<string, ComponentType<any>>;

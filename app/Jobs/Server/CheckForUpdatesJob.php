@@ -2,9 +2,7 @@
 
 namespace App\Jobs\Server;
 
-use App\DTOs\SocketEventDTO;
-use App\Events\SocketEvent;
-use App\Http\Resources\ServerResource;
+use App\Actions\Server\BroadcastServerUpdate;
 use App\Models\Server;
 use App\Traits\UniqueQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,11 +22,7 @@ class CheckForUpdatesJob implements ShouldQueue
         $this->run("server-{$this->server->id}-check-updates", function () {
             $this->server->checkForUpdates();
 
-            SocketEvent::dispatch(new SocketEventDTO(
-                projectId: $this->server->project_id,
-                type: 'server.updated',
-                data: new ServerResource($this->server->refresh()),
-            ));
+            app(BroadcastServerUpdate::class)->broadcast($this->server);
         });
     }
 }

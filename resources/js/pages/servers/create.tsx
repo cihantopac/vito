@@ -1,18 +1,4 @@
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  CheckCircle2Icon,
-  CheckIcon,
-  ChevronsUpDownIcon,
-  ClipboardCheckIcon,
-  ClipboardIcon,
-  LoaderCircle,
-  PlusIcon,
-  ServerIcon,
-  TrashIcon,
-  TriangleAlertIcon,
-  WifiIcon,
-} from 'lucide-react';
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, ClipboardCheckIcon, ClipboardIcon, LoaderCircle, PlusIcon, ServerIcon, TrashIcon, TriangleAlertIcon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -309,7 +295,6 @@ export default function CreateServerPage({
     if (defaultProvider) {
       fetchRegions(defaultProvider.id, defaultProvider.provider);
     }
-    // Only for the connection pre-selected on mount; later switches are handled by selectProviderMode/handleProviderSelect.
   }, []);
 
   useEffect(() => {
@@ -410,8 +395,8 @@ export default function CreateServerPage({
       if (list.length > 0 && form.data.server_provider === 0) {
         handleProviderSelect(list[0]);
       }
-    } catch {
-      // silent
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Could not fetch server providers');
     }
   };
 
@@ -634,7 +619,7 @@ export default function CreateServerPage({
                     <span
                       className={cn(
                         'flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
-                        isDone && 'bg-emerald-500 text-white',
+                        isDone && 'bg-neutral-500 text-white',
                         isActive && 'bg-primary text-primary-foreground',
                         !isActive && !isDone && 'bg-muted text-muted-foreground border',
                       )}
@@ -986,7 +971,7 @@ export default function CreateServerPage({
                       {publicKey && (
                         <div className="space-y-1.5 rounded-xl border bg-muted/40 p-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-foreground">Vito Public SSH Key</span>
+                            <span className="text-xs font-semibold text-foreground">Pure Public SSH Key</span>
                             <Button
                               type="button"
                               variant="outline"
@@ -996,7 +981,7 @@ export default function CreateServerPage({
                             >
                               {copiedKey ? (
                                 <>
-                                  <ClipboardCheckIcon className="size-3 text-emerald-500" />
+                                  <ClipboardCheckIcon className="size-3 text-neutral-500" />
                                   <span>Copied</span>
                                 </>
                               ) : (

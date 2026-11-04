@@ -7,7 +7,7 @@ import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { BookOpenIcon, PlusIcon } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/pages/redirects/components/columns';
 import { Redirect } from '@/types/redirect';

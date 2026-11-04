@@ -151,7 +151,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
                 <FormField>
                   <Label htmlFor="domain_id">Domain</Label>
                   <p className="text-muted-foreground text-xs">
-                    Only domains managed by Vito with a DNS provider are available, as wildcard SSL requires DNS verification.
+                    Only domains managed by Pure with a DNS provider are available, as wildcard SSL requires DNS verification.
                   </p>
                   <Select onValueChange={(value) => form.setData('domain_id', value)} value={form.data.domain_id}>
                     <SelectTrigger id="domain_id">

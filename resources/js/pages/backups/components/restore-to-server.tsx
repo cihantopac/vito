@@ -64,9 +64,9 @@ export default function RestoreToServer({
         <Form id="restore-to-server-form" onSubmit={submit} className="p-4">
           <FormFields>
             <div className="text-muted-foreground rounded-md border p-3 text-sm">
-              Vito creates a server at your provider (billed by the provider), installs the same operating system and PostgreSQL version as{' '}
+              Pure creates a server at your provider (billed by the provider), installs the same operating system and PostgreSQL version as{' '}
               {requirements?.source ?? 'the source'}, and restores the backup onto it. The copy is independent: it doesn't connect to the source, archive WAL or
-              take backups, and Vito removes the backup storage credentials from it when the restore finishes. It holds every database and user in the
+              take backups, and Pure removes the backup storage credentials from it when the restore finishes. It holds every database and user in the
               backup.
             </div>
 

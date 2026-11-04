@@ -2,13 +2,10 @@
 
 namespace App\Actions\Server;
 
-use App\DTOs\SocketEventDTO;
 use App\Enums\ServerStatus;
 use App\Enums\ServiceStatus;
-use App\Events\SocketEvent;
 use App\Exceptions\SSHConnectionError;
 use App\Facades\Notifier;
-use App\Http\Resources\ServerResource;
 use App\Jobs\ServerIp\RefreshServerIpsJob;
 use App\Models\Server;
 use App\Notifications\ServerInstallationSucceed;
@@ -140,10 +137,6 @@ class InstallServer
         $this->server->progress_step = $step;
         $this->server->save();
 
-        SocketEvent::dispatch(new SocketEventDTO(
-            projectId: $this->server->project_id,
-            type: 'server.updated',
-            data: new ServerResource($this->server),
-        ));
+        app(BroadcastServerUpdate::class)->broadcast($this->server);
     }
 }

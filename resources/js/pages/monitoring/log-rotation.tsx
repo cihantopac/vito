@@ -65,7 +65,7 @@ function formatBytes(b: number): string {
   if (b <= 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
   const i = Math.min(Math.floor(Math.log(b) / Math.log(1024)), units.length - 1);
-  return `${(b / Math.pow(1024, i)).toFixed(2)} ${units[i]}`;
+  return `${Math.round(b / Math.pow(1024, i))} ${units[i]}`;
 }
 
 function SizeCell({ entry }: { entry: LogEntry }) {
@@ -83,7 +83,7 @@ function SizeCell({ entry }: { entry: LogEntry }) {
             : 'text-muted-foreground',
       )}
     >
-      {entry.size_human}
+      {formatBytes(entry.size_bytes)}
     </span>
   );
 }
@@ -176,7 +176,7 @@ function CleanupSuggestions({ serverId }: { serverId: number }) {
           <EraserIcon className="text-muted-foreground size-4 shrink-0" />
           <span className="text-sm font-semibold">Cleanup suggestions</span>
           <span className="text-muted-foreground hidden sm:inline text-xs">
-            Scan results from server. Vito never deletes anything itself.
+            Scan results from server. Pure never deletes anything itself.
           </span>
           {selectedBytes > 0 && (
             <span className="font-mono text-xs text-muted-foreground">
@@ -438,7 +438,6 @@ export default function LogRotation() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-md border shadow-xs bg-card min-w-0">
-            {/* Service Tabs */}
             <div className="border-b px-4 pt-3 pb-0 bg-muted/20">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <div className="flex items-center justify-between gap-4 overflow-x-auto pb-2">
@@ -458,7 +457,6 @@ export default function LogRotation() {
               </Tabs>
             </div>
 
-            {/* Filter and Search Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2.5 bg-muted/10">
               <div className="flex flex-1 items-center gap-2 min-w-48 max-w-sm">
                 <div className="relative w-full">
@@ -510,7 +508,6 @@ export default function LogRotation() {
               </div>
             </div>
 
-            {/* Compact Table */}
             <div className="max-h-[540px] overflow-auto min-w-0">
               <Table className="table-fixed w-full">
                 <TableHeader className="sticky top-0 bg-card shadow-xs z-10">

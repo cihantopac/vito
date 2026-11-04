@@ -8,6 +8,7 @@ use App\Actions\Projects\GetAccessibleProjects;
 use App\Actions\Projects\GetPendingInvitations;
 use App\Actions\Projects\GetProjects;
 use App\Actions\Projects\UpdateProject;
+use App\Actions\Projects\StarProject;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\ProjectUserResource;
@@ -28,7 +29,6 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth'])]
 class ProjectController extends Controller
 {
-
     #[Get('/', name: 'projects')]
     public function index(GetAccessibleProjects $getProjects, GetPendingInvitations $getInvitations): Response
     {
@@ -70,6 +70,16 @@ class ProjectController extends Controller
 
         return redirect()->route('projects')
             ->with('success', __('Project updated successfully.'));
+    }
+
+    #[Patch('/{project}/star', name: 'projects.star')]
+    public function star(Project $project, Request $request): RedirectResponse
+    {
+        $this->authorize('view', $project);
+
+        app(StarProject::class)->update(user(), $project, $request->input());
+
+        return back();
     }
 
     #[Delete('/{project}', name: 'projects.destroy')]

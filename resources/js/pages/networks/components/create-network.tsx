@@ -129,7 +129,7 @@ export default function CreateNetwork({
                   <Label htmlFor="port">Listen port</Label>
                   <Input id="port" value={form.data.port} onChange={(e) => form.setData('port', e.target.value)} />
                   <p className="text-muted-foreground text-xs">
-                    The UDP port the tunnel listens on. Vito moves to the next free port if a selected server already uses this one for another
+                    The UDP port the tunnel listens on. Pure moves to the next free port if a selected server already uses this one for another
                     network.
                   </p>
                   <InputError message={form.errors.port} />

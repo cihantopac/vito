@@ -39,7 +39,7 @@ export default function DatabaseUpgrades() {
     axios
       .get<{ content: string }>(`/servers/${upgrade.source_server_id}/database-upgrades/${upgrade.id}/output`)
       .then((response) => setOutput(response.data.content))
-      .catch(() => setOutput('Vito could not read the copy output.'))
+      .catch(() => setOutput('Pure could not read the copy output.'))
       .finally(() => setLoadingOutput(false));
   };
   const isSource = !upgrade || upgrade.source_server_id === server.id;
@@ -61,7 +61,7 @@ export default function DatabaseUpgrades() {
             ? '-'
             : `${(upgrade.lag_bytes / 1048576).toFixed(1)} MB of WAL${upgrade.wal_keep_gb ? ` (of ${upgrade.wal_keep_gb} GB kept)` : ''}`,
         ],
-        ['Started', new Date(upgrade.created_at).toLocaleString()],
+        ['Started', new Date(upgrade.created_at).toLocaleString('en-US')],
       ]
     : [];
 
@@ -99,7 +99,7 @@ export default function DatabaseUpgrades() {
                 it in sync. {server.name} keeps serving reads and writes the whole time.
               </p>
               <p>
-                When the new server has caught up, you press <span className="text-foreground font-medium">Finish</span>: Vito stops new writes on{' '}
+                When the new server has caught up, you press <span className="text-foreground font-medium">Finish</span>: Pure stops new writes on{' '}
                 {server.name}, waits for the last rows, copies the sequence values and stops the copy. Pointing your applications at the new server is then up
                 to you.
               </p>
@@ -210,7 +210,7 @@ export default function DatabaseUpgrades() {
                     {[...upgrade.events].reverse().map((event) => (
                       <li key={`${event.at}-${event.message}`} className="flex gap-3">
                         <span className="text-muted-foreground shrink-0 font-mono text-xs">
-                          {new Date(event.at).toLocaleTimeString()}
+                          {new Date(event.at).toLocaleTimeString('en-US')}
                         </span>
                         <span className={event.level === 'error' ? 'text-destructive' : event.level === 'waiting' ? 'text-muted-foreground' : ''}>
                           {event.message}
@@ -224,7 +224,7 @@ export default function DatabaseUpgrades() {
 
                 {logs.length > 0 && (
                   <div className="flex flex-col gap-1 border-t pt-3">
-                    <p className="text-muted-foreground">Commands Vito ran on the servers</p>
+                    <p className="text-muted-foreground">Commands Pure ran on the servers</p>
                     <div className="flex max-h-56 flex-col gap-1 overflow-y-auto">
                       {logs.map((log) => (
                         <button
@@ -235,7 +235,7 @@ export default function DatabaseUpgrades() {
                         >
                           <span className="font-mono text-xs">{log.name}</span>
                           <span className="text-muted-foreground shrink-0 text-xs">
-                            {log.server_name} · {log.created_at ? new Date(log.created_at).toLocaleTimeString() : ''}
+                            {log.server_name} · {log.created_at ? new Date(log.created_at).toLocaleTimeString('en-US') : ''}
                           </span>
                         </button>
                       ))}
@@ -257,7 +257,7 @@ export default function DatabaseUpgrades() {
                   onClick={() =>
                     dialog.confirm.open({
                       title: 'Cancel the upgrade',
-                      description: `Vito stops the copy, removes the publications, the replication user and the pg_hba rule from ${upgrade.source_server_name}, and lets it take writes again. ${upgrade.target_server_name ?? 'The new server'} is kept; delete it yourself when you no longer need it.`,
+                      description: `Pure stops the copy, removes the publications, the replication user and the pg_hba rule from ${upgrade.source_server_name}, and lets it take writes again. ${upgrade.target_server_name ?? 'The new server'} is kept; delete it yourself when you no longer need it.`,
                       confirmLabel: 'Cancel the upgrade',
                       method: 'post',
                       url: `/servers/${upgrade.source_server_id}/database-upgrades/${upgrade.id}/cancel`,
@@ -273,7 +273,7 @@ export default function DatabaseUpgrades() {
                   onClick={() =>
                     dialog.confirm.open({
                       title: 'Remove this upgrade',
-                      description: 'This only removes the record from Vito. Neither server is changed.',
+                      description: 'This only removes the record from Pure. Neither server is changed.',
                       confirmLabel: 'Remove',
                       method: 'delete',
                       url: `/servers/${upgrade.source_server_id}/database-upgrades/${upgrade.id}`,

@@ -1,12 +1,11 @@
+import ServerOfflineBanner from '@/components/server-offline-banner';
 import { withQuery } from '@/lib/url';
 import { Button } from '@/components/ui/button';
 import { Server, ServerWarning } from '@/types/server';
 import { BannerItem, WarningsBlock } from '@/components/banners';
-import { useDialog } from '@/hooks/use-dialog';
 import { Link } from '@inertiajs/react';
 
 export default function ServerBanners({ server }: { server: Server }) {
-  const dialog = useDialog();
   const warnings: ServerWarning[] = server.warnings ?? [];
   const items: BannerItem[] = [];
 
@@ -34,7 +33,7 @@ export default function ServerBanners({ server }: { server: Server }) {
     items.push({
       key: 'server-updating',
       title: 'Package update in progress',
-      description: <>Vito is applying package updates to this server. You can monitor the progress and view live console logs.</>,
+      description: <>Pure is applying package updates to this server. You can monitor the progress and view live console logs.</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={`/servers/${server.id}/update`}>
@@ -90,43 +89,12 @@ export default function ServerBanners({ server }: { server: Server }) {
     });
   }
 
-  if (server.status === 'disconnected') {
-    items.push({
-      key: 'server-offline',
-      title: 'Server is offline',
-      description: server.can_power_manage
-        ? `This server is disconnected or stopped on ${server.provider}. Start it to bring hosted sites and services back online.`
-        : 'This server is disconnected. Saved data is shown in read-only mode until the server reconnects.',
-      action: server.can_power_manage ? (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            dialog.confirm.open({
-              title: `Start ${server.name}?`,
-              description: `Power on this server via ${server.provider}? The server will boot up and reconnect.`,
-              confirmLabel: 'Start server',
-              method: 'post',
-              url: `/servers/${server.id}/start`,
-            })
-          }
-        >
-          Start server
-        </Button>
-      ) : (
-        <Button variant="outline" size="sm" asChild>
-          <Link href={withQuery(`/servers/${server.id}/restart`, { start: 1 })}>
-            Restart
-          </Link>
-        </Button>
-      ),
-    });
-  }
 
-  if (items.length === 0) return null;
+  if (items.length === 0 && server.status !== 'disconnected') return null;
 
   return (
     <div className="flex flex-col gap-3">
+      {server.status === 'disconnected' && <ServerOfflineBanner server={server} />}
       <WarningsBlock items={items} summaryLabel={(count) => `${count} server warnings require your attention`} />
     </div>
   );

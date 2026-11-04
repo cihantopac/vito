@@ -6,7 +6,6 @@ use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CanSeeProjectMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsurePasswordIsChanged;
-use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HasProjectMiddleware;
 use App\Http\Middleware\MustBeAdminMiddleware;
@@ -37,9 +36,8 @@ use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 class Kernel extends HttpKernel
 {
-    
     protected $middleware = [
-        
+
         TrustProxies::class,
         HandleCors::class,
         PreventRequestsDuringMaintenance::class,
@@ -48,7 +46,6 @@ class Kernel extends HttpKernel
         ConvertEmptyStringsToNull::class,
     ];
 
-    
     protected $middlewareGroups = [
         'web' => [
             EncryptCookies::class,
@@ -58,7 +55,6 @@ class Kernel extends HttpKernel
             PreventRequestForgery::class,
             SubstituteBindings::class,
             HandleInertiaRequests::class,
-            HandleAppearance::class,
             EnsurePasswordIsChanged::class,
             TrackUserActivity::class,
         ],
@@ -70,7 +66,6 @@ class Kernel extends HttpKernel
         ],
     ];
 
-    
     protected $middlewareAliases = [
         'auth' => Authenticate::class,
         'auth.basic' => AuthenticateWithBasicAuth::class,

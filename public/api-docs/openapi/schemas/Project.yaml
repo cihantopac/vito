@@ -6,6 +6,10 @@ properties:
   name:
     type: string
     example: 'my-project'
+  is_starred:
+    type: boolean
+    description: Whether the authenticated user has starred this project.
+    example: false
   role:
     type: string
     enum: ['user', 'admin', 'owner']

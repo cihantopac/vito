@@ -5,18 +5,23 @@ namespace App\Actions\Projects;
 use App\Actions\Server\ResolveHetznerServerSpecs;
 use App\Helpers\QueryBuilder;
 use App\Models\User;
+use App\Models\UserProject;
 use Illuminate\Contracts\Pagination\Paginator;
 
 class GetAccessibleProjects
 {
     public function get(User $user): Paginator
     {
-        $costOrderSql = app(ResolveHetznerServerSpecs::class)->projectCostOrderSql();
+        $costOrderSql = request('sort_by') === 'monthly_cost'
+            ? app(ResolveHetznerServerSpecs::class)->projectCostOrderSql()
+            : '0';
 
         $query = $user
             ->allProjects()
             ->withCount(['servers', 'sites'])
             ->selectRaw("({$costOrderSql}) as monthly_cost_order")
+            ->orderByDesc(UserProject::query()->select('is_starred')
+                ->whereColumn('project_id', 'projects.id')->where('user_id', $user->id)->limit(1))
             ->with([
                 'servers:id,project_id,provider,provider_id,provider_data',
                 'servers.serverProvider',

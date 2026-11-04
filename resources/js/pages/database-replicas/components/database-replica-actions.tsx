@@ -43,7 +43,7 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
                 dialog.confirm.open({
                   title: `Rebuild ${replica.replica_server_name}`,
                   description:
-                    'Vito restores this server again from the latest pgBackRest backup and replaces its PostgreSQL data. Use it when the replica lost WAL it needed, setup failed, or it is a former primary.',
+                    'Pure restores this server again from the latest pgBackRest backup and replaces its PostgreSQL data. Use it when the replica lost WAL it needed, setup failed, or it is a former primary.',
                   confirmLabel: 'Rebuild',
                   method: 'post',
                   url: `/servers/${server}/database-replicas/${replica.id}/resync`,
@@ -63,7 +63,7 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
               dialog.confirm.open({
                 title: `Delete replica ${replica.replica_server_name}`,
                 description:
-                  'Removes the replication slot, user and firewall access from the primary, stops WAL archiving on the replica and turns it into an independent writable server. No data is deleted. If the replica cannot be reached, Vito asks you to delete it a second time.',
+                  'Removes the replication slot, user and firewall access from the primary, stops WAL archiving on the replica and turns it into an independent writable server. No data is deleted. If the replica cannot be reached, Pure asks you to delete it a second time.',
                 variant: 'destructive',
                 confirmLabel: 'Delete',
                 method: 'delete',

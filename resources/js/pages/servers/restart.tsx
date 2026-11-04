@@ -40,7 +40,7 @@ export default function ServerRestart() {
   const [uptime, setUptime] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [milestones, setMilestones] = useState<Milestone[]>(() => {
-    const now = new Date().toLocaleTimeString();
+    const now = new Date().toLocaleTimeString('en-US');
     if (server.status === 'disconnected') {
       return [{ id: 'init-0', time: now, text: 'Server is currently disconnected. Probing for reconnection.' }];
     }
@@ -48,7 +48,7 @@ export default function ServerRestart() {
   });
 
   const addMilestone = useCallback((text: string) => {
-    const time = new Date().toLocaleTimeString();
+    const time = new Date().toLocaleTimeString('en-US');
     setMilestones((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, time, text }]);
   }, []);
 
@@ -84,7 +84,7 @@ export default function ServerRestart() {
     setPhase('rebooting');
     setProbeAttempt(0);
     setUptime(null);
-    setMilestones([{ id: `${Date.now()}`, time: new Date().toLocaleTimeString(), text: 'Reboot signal sent ($ sudo reboot)' }]);
+    setMilestones([{ id: `${Date.now()}`, time: new Date().toLocaleTimeString('en-US'), text: 'Reboot signal sent ($ sudo reboot)' }]);
 
     try {
       await fetch(`/servers/${server.id}/restart/trigger`, {
@@ -146,8 +146,8 @@ export default function ServerRestart() {
 
           <div>
             {phase === 'online' ? (
-              <Badge variant="outline" className="gap-1 text-xs text-emerald-600 border-emerald-500/30 dark:text-emerald-400">
-                <CheckCircle2Icon className="size-3 text-emerald-500" />
+              <Badge variant="outline" className="gap-1 text-xs text-neutral-600 border-neutral-500/30 dark:text-neutral-400">
+                <CheckCircle2Icon className="size-3 text-neutral-500" />
                 <span>Online</span>
               </Badge>
             ) : phase === 'probing' || phase === 'rebooting' ? (
@@ -166,7 +166,7 @@ export default function ServerRestart() {
         <Card className="border-border/60 bg-card shadow-2xs">
           <CardContent className="flex flex-col items-center justify-center text-center p-6 space-y-4">
             {phase === 'online' ? (
-              <div className="flex size-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <div className="flex size-10 items-center justify-center rounded-full bg-neutral-500/10 text-neutral-600 dark:text-neutral-400">
                 <CheckCircle2Icon className="size-5" />
               </div>
             ) : phase === 'probing' || phase === 'rebooting' ? (

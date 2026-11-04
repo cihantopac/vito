@@ -3,15 +3,15 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card" className={cn('bg-card text-card-foreground flex flex-col rounded-xl border shadow-xs', className)} {...props} />;
+  return <div data-slot="card" className={cn('bg-card text-card-foreground flex flex-col rounded-xl border border-border/60', className)} {...props} />;
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-header" className={cn('flex flex-col gap-1.5 border-b p-4', className)} {...props} />;
+  return <div data-slot="card-header" className={cn('flex flex-col gap-1.5 border-b border-border/50 p-4', className)} {...props} />;
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-title" className={cn('leading-none font-semibold', className)} {...props} />;
+  return <div data-slot="card-title" className={cn('leading-snug font-semibold tracking-tight', className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
@@ -27,7 +27,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 function CardRow({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="card-row" className={cn('flex min-h-20 items-center justify-between p-4', className)} {...props} />;
+  return <div data-slot="card-row" className={cn('flex min-h-14 items-center justify-between p-4', className)} {...props} />;
 }
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardRow };

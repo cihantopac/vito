@@ -759,9 +759,6 @@ class ManageDatabaseUpgrade
         ]));
     }
 
-    /**
-     * Converts a PostgreSQL LSN such as 0/1A2B3C4D into a comparable integer.
-     */
     private static function lsnToInt(string $lsn): int
     {
         [$high, $low] = array_pad(explode('/', $lsn, 2), 2, '0');

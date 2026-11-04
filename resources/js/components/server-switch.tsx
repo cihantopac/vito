@@ -4,8 +4,6 @@ import { router, useForm, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon, ServerIcon } from 'lucide-react';
-import { getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ServerSelect from '@/pages/servers/components/server-select';
 import { CommandGroup, CommandItem } from '@/components/ui/command';
 import serverHelper from '@/lib/server-helper';
@@ -14,7 +12,6 @@ export function ServerSwitch() {
   const page = usePage<SharedData>();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string>(page.props.server?.id?.toString() ?? '');
-  const initials = getInitials;
   const form = useForm();
 
   useEffect(() => {
@@ -79,20 +76,16 @@ export function ServerSwitch() {
     >
       {page.props.server ? (
         <>
-          <Avatar className="size-6 rounded-sm">
-            <AvatarFallback className="rounded-sm">{initials(page.props.server?.name ?? '')}</AvatarFallback>
-          </Avatar>
+          <ServerIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span className="hidden max-w-36 truncate sm:flex">{page.props.server?.name}</span>
         </>
       ) : (
         <>
-          <Avatar className="size-6 rounded-sm">
-            <AvatarFallback className="rounded-sm">S</AvatarFallback>
-          </Avatar>
+          <ServerIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span className="hidden sm:flex">Select a server</span>
         </>
       )}
-      <ChevronsUpDownIcon size={5} />
+      <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
     </Button>
   );
 

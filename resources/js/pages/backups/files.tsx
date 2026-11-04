@@ -128,9 +128,9 @@ export default function Files() {
                       {restore.target === 'backup'
                         ? `backup ${restore.backup_file_name ?? ''}`
                         : restore.target === 'time' && restore.target_time
-                          ? `point in time ${new Date(restore.target_time).toLocaleString()}`
+                          ? `point in time ${new Date(restore.target_time).toLocaleString('en-US')}`
                           : 'latest'}{' '}
-                      · started {new Date(restore.created_at).toLocaleString()}
+                      · started {new Date(restore.created_at).toLocaleString('en-US')}
                     </span>
                   </span>
                   <Badge variant={restore.status_color}>{restore.status}</Badge>

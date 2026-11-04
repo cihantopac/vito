@@ -180,12 +180,6 @@ class EventsHandler implements WebSocketHandler
         }
     }
 
-    
-    public function getSubscribedProjectIds(): array
-    {
-        return array_keys($this->projectSubscriptions);
-    }
-
     protected function isSubscribeRateLimited(int $userId): bool
     {
         $now = microtime(true);

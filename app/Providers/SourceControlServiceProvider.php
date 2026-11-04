@@ -5,8 +5,6 @@ namespace App\Providers;
 use App\DTOs\DynamicField;
 use App\DTOs\DynamicForm;
 use App\Plugins\RegisterSourceControl;
-use App\SourceControlProviders\BitbucketV2;
-use App\SourceControlProviders\Gitea;
 use App\SourceControlProviders\Github;
 use App\SourceControlProviders\GithubApp;
 use App\SourceControlProviders\Gitlab;
@@ -21,8 +19,6 @@ class SourceControlServiceProvider extends ServiceProvider
         $this->github();
         $this->githubApp();
         $this->gitlab();
-        $this->bitbucketV2();
-        $this->gitea();
     }
 
     private function githubApp(): void
@@ -54,48 +50,6 @@ class SourceControlServiceProvider extends ServiceProvider
         RegisterSourceControl::make(Gitlab::id())
             ->label('Gitlab')
             ->handler(Gitlab::class)
-            ->form(
-                DynamicForm::make([
-                    DynamicField::make('token')
-                        ->text()
-                        ->label('Token'),
-                    DynamicField::make('url')
-                        ->text()
-                        ->label('Self hosted URL'),
-                    DynamicField::make('ssh_port')
-                        ->text()
-                        ->label('SSH Port')
-                        ->default(22)
-                        ->placeholder('22')
-                        ->description('Numeric SSH port used when cloning repositories (default: 22).'),
-                ])
-            )
-            ->register();
-    }
-
-    private function bitbucketV2(): void
-    {
-        RegisterSourceControl::make(BitbucketV2::id())
-            ->label('Bitbucket V2')
-            ->handler(BitbucketV2::class)
-            ->form(
-                DynamicForm::make([
-                    DynamicField::make('key')
-                        ->text()
-                        ->label('Key'),
-                    DynamicField::make('secret')
-                        ->text()
-                        ->label('Secret'),
-                ])
-            )
-            ->register();
-    }
-
-    private function gitea(): void
-    {
-        RegisterSourceControl::make(Gitea::id())
-            ->label('Gitea')
-            ->handler(Gitea::class)
             ->form(
                 DynamicForm::make([
                     DynamicField::make('token')

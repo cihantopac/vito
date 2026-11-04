@@ -8,7 +8,7 @@ import { ApiKey } from '@/types/api-key';
 import { getColumns } from '@/pages/api-keys/components/columns';
 import CreateApiKey from '@/pages/api-keys/components/create-api-key';
 import { PaginatedData } from '@/types';
-import { BookOpenIcon, PlusIcon } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import { Project } from '@/types/project';
 import { useMemo } from 'react';
 

@@ -2,12 +2,10 @@
 
 namespace App\Jobs\Server;
 
+use App\Actions\Server\BroadcastServerUpdate;
 use App\Actions\Server\InstallServer;
-use App\DTOs\SocketEventDTO;
 use App\Enums\ServerStatus;
-use App\Events\SocketEvent;
 use App\Facades\Notifier;
-use App\Http\Resources\ServerResource;
 use App\Models\Server;
 use App\Models\ServerLog;
 use App\Notifications\ServerInstallationFailed;
@@ -42,12 +40,6 @@ class InstallJob implements ShouldQueue
 
     private function broadcastServerUpdate(): void
     {
-        $this->server->refresh();
-
-        SocketEvent::dispatch(new SocketEventDTO(
-            projectId: $this->server->project_id,
-            type: 'server.updated',
-            data: new ServerResource($this->server),
-        ));
+        app(BroadcastServerUpdate::class)->broadcast($this->server);
     }
 }

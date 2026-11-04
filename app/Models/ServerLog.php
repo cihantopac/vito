@@ -88,18 +88,27 @@ class ServerLog extends AbstractModel
     }
 
     
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
     
+    /**
+     * @return BelongsTo<Network, $this>
+     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);

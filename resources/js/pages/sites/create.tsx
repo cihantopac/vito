@@ -2,15 +2,7 @@ import { useState, FormEventHandler, useEffect, useMemo } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-  ArrowLeftIcon,
-  CheckCircle2Icon,
-  ChevronRightIcon,
-  Layers3Icon,
-  LoaderCircleIcon,
-  SparklesIcon,
-  TriangleAlertIcon,
-} from 'lucide-react';
+import { ArrowLeftIcon, CheckCircle2Icon, ChevronRightIcon, LoaderCircleIcon, TriangleAlertIcon } from 'lucide-react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -402,7 +394,7 @@ export default function CreateSitePage({
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-foreground">
-                      {isVitoType ? 'Install with Vito Config' : `Install a ${selectedTypeLabel} application`}
+                      {isVitoType ? 'Install with Pure Config' : `Install a ${selectedTypeLabel} application`}
                     </h2>
                   </div>
                 </div>
@@ -517,7 +509,7 @@ export default function CreateSitePage({
                           <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <CheckCircle2Icon className="size-4 text-emerald-500" />
+                                <CheckCircle2Icon className="size-4 text-neutral-500" />
                                 <span className="text-xs font-semibold text-foreground">
                                   vito.json recognized ({vitoDetected.path})
                                 </span>

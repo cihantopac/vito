@@ -7,9 +7,9 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('reports:health')->hourly()->withoutOverlapping();
         $schedule->command('backups:run')->everyMinute();
         $schedule->command('backups:reconcile')->everyThirtyMinutes();
         $schedule->command('backups:check-archiving')->everyFifteenMinutes();
@@ -29,7 +29,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('github-app:sync')->cron('0 */4 * * *');
     }
 
-    
     protected function commands(): void
     {
         $this->load(__DIR__.'/Commands');

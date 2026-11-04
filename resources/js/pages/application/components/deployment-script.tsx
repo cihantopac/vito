@@ -8,7 +8,6 @@ import { LoaderCircleIcon } from 'lucide-react';
 import { Site } from '@/types/site';
 import { registerBashLanguage } from '@/lib/editor';
 import InputError from '@/components/ui/input-error';
-import { useAppearance } from '@/hooks/use-appearance';
 import { DeploymentScript as DeploymentScriptType } from '@/types/deployment-script';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -26,7 +25,6 @@ export default function DeploymentScript({
   description?: string;
   children: ReactNode;
 }) {
-  const { getActualAppearance } = useAppearance();
 
   const availableCommands = site.available_tooling_commands ?? [];
 
@@ -67,7 +65,7 @@ export default function DeploymentScript({
             <Editor
               defaultLanguage="bash"
               value={form.data.script}
-              theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+              theme="vs-dark"
               className="h-full"
               onChange={(value) => form.setData('script', value ?? '')}
               options={{

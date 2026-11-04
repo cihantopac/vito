@@ -100,6 +100,11 @@ export default function DeploymentShow() {
 
             <Badge variant={deployment.status_color}>{deployment.status}</Badge>
             {deployment.active && <Badge variant="outline">active</Badge>}
+            {deployment.is_duplicate && (
+              <Badge variant="outline" className="text-neutral-500 border-neutral-500/30 bg-neutral-500/10 uppercase font-mono text-[10px]">
+                duplicate
+              </Badge>
+            )}
 
             {deployment.commit_id_short && (
               <div className="flex items-center gap-1">
@@ -124,14 +129,20 @@ export default function DeploymentShow() {
                   onClick={() => copySha(deployment.commit_id || deployment.commit_id_short)}
                   title="Copy commit SHA"
                 >
-                  {copiedSha ? <CheckIcon className="size-3 text-emerald-500" /> : <CopyIcon className="size-3" />}
+                  {copiedSha ? <CheckIcon className="size-3 text-neutral-500" /> : <CopyIcon className="size-3" />}
                 </Button>
               </div>
             )}
 
             {deployment.commit_data.message && (
-              <span className="text-foreground max-w-md truncate" title={deployment.commit_data.message}>
+              <span className="text-foreground max-w-3xl whitespace-normal break-words" title={deployment.commit_data.message}>
                 · {deployment.commit_data.message}
+              </span>
+            )}
+
+            {deployment.commit_data.date && (
+              <span title={`Committed on ${moment(deployment.commit_data.date).format('YYYY-MM-DD HH:mm:ss')}`}>
+                · Committed <DateTime date={deployment.commit_data.date} relative />
               </span>
             )}
 
@@ -196,7 +207,7 @@ export default function DeploymentShow() {
                   className="h-8 px-2 text-sm gap-1.5 cursor-pointer"
                   onClick={() => copyLog(selectedOutput)}
                 >
-                  {copiedLog ? <CheckIcon className="size-3.5 text-emerald-500" /> : <CopyIcon className="size-3.5" />}
+                  {copiedLog ? <CheckIcon className="size-3.5 text-neutral-500" /> : <CopyIcon className="size-3.5" />}
                   <span>{copiedLog ? 'Copied' : 'Copy'}</span>
                 </Button>
               )}

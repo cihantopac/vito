@@ -16,7 +16,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Laravel Scheduler',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan schedule:run >> /dev/null 2>&1`
+        ? 'php artisan schedule:run >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1',
     frequency: '* * * * *',
     description: 'Official Laravel Task Scheduler (runs every minute)',
@@ -28,7 +28,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Prune Queue Batches',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan queue:prune-batches --hours=48 >> /dev/null 2>&1`
+        ? 'php artisan queue:prune-batches --hours=48 >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan queue:prune-batches --hours=48 >> /dev/null 2>&1',
     frequency: '0 0 * * *',
     description: 'Prune stale queue batches from database daily',
@@ -39,7 +39,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Prune Failed Queue Jobs',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan queue:prune-failed --hours=168 >> /dev/null 2>&1`
+        ? 'php artisan queue:prune-failed --hours=168 >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan queue:prune-failed --hours=168 >> /dev/null 2>&1',
     frequency: '0 0 * * *',
     description: 'Prune failed queue jobs older than 7 days daily',
@@ -50,7 +50,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Prune Models',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan model:prune >> /dev/null 2>&1`
+        ? 'php artisan model:prune >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan model:prune >> /dev/null 2>&1',
     frequency: '0 0 * * *',
     description: 'Prune models with Prunable trait daily',
@@ -61,7 +61,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Prune Sanctum Tokens',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan sanctum:prune-expired --hours=24 >> /dev/null 2>&1`
+        ? 'php artisan sanctum:prune-expired --hours=24 >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan sanctum:prune-expired --hours=24 >> /dev/null 2>&1',
     frequency: '0 0 * * *',
     description: 'Prune expired personal access tokens daily',
@@ -72,7 +72,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Prune Telescope',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan telescope:prune --hours=48 >> /dev/null 2>&1`
+        ? 'php artisan telescope:prune --hours=48 >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan telescope:prune --hours=48 >> /dev/null 2>&1',
     frequency: '0 0 * * *',
     description: 'Prune entries older than 48 hours from Telescope database',
@@ -83,7 +83,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Horizon Snapshot',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan horizon:snapshot >> /dev/null 2>&1`
+        ? 'php artisan horizon:snapshot >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan horizon:snapshot >> /dev/null 2>&1',
     frequency: 'custom',
     custom: '*/5 * * * *',
@@ -95,7 +95,7 @@ export const CRONJOB_TEMPLATES: CronJobTemplate[] = [
     name: 'Optimize Clear Cache',
     getCommand: (sitePath) =>
       sitePath
-        ? `cd ${sitePath} && php artisan optimize:clear >> /dev/null 2>&1`
+        ? 'php artisan optimize:clear >> /dev/null 2>&1'
         : 'cd /path-to-your-project && php artisan optimize:clear >> /dev/null 2>&1',
     frequency: '0 0 * * 0',
     description: 'Clear cached configurations and views weekly',

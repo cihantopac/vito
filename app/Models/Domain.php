@@ -38,30 +38,45 @@ class Domain extends AbstractModel
     }
 
     
+    /**
+     * @return BelongsTo<DNSProvider, $this>
+     */
     public function dnsProvider(): BelongsTo
     {
         return $this->belongsTo(DNSProvider::class)->withTrashed();
     }
 
     
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     
+    /**
+     * @return BelongsTo<Project, $this>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
     
+    /**
+     * @return HasMany<Ssl, $this>
+     */
     public function ssls(): HasMany
     {
         return $this->hasMany(Ssl::class);
     }
 
     
+    /**
+     * @return HasMany<DNSRecord, $this>
+     */
     public function records(): HasMany
     {
         return $this->hasMany(DNSRecord::class);

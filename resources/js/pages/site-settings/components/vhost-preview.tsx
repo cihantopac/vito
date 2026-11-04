@@ -6,11 +6,9 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHe
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { registerCaddyLanguage, registerNginxLanguage } from '@/lib/editor';
-import { useAppearance } from '@/hooks/use-appearance';
 import { Site } from '@/types/site';
 
 export default function VHostPreview({ site, children }: { site: Site; children: ReactNode }) {
-  const { getActualAppearance } = useAppearance();
   const [open, setOpen] = useState(false);
 
   const query = useQuery({
@@ -48,7 +46,7 @@ export default function VHostPreview({ site, children }: { site: Site; children:
             <Editor
               defaultLanguage={site.webserver}
               value={query.data.vhost}
-              theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+              theme="vs-dark"
               className="h-full"
               options={{
                 fontSize: 15,

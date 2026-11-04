@@ -22,11 +22,11 @@ use Illuminate\Support\Facades\Storage;
 
 class EnsureSelfServerExists
 {
-    public const string PROJECT_NAME = 'Vito';
+    public const string PROJECT_NAME = 'Pure';
 
-    public const string SERVER_NAME = 'Vito sunucusu';
+    public const string SERVER_NAME = 'Pure server';
 
-    public const string SITE_DOMAIN = 'Vito';
+    public const string SITE_DOMAIN = 'Pure';
 
     private const array DEFAULT_SERVICES = [
         ['type' => 'webserver', 'name' => 'nginx', 'unit' => 'nginx'],
@@ -46,7 +46,7 @@ class EnsureSelfServerExists
 
     public function ensure(?User $user = null, bool $force = false): ?Server
     {
-        $cacheKey = 'vito:self_server_ensured_v3:'.($user?->id ?? 0);
+        $cacheKey = 'vito:self_server_ensured_v4:'.($user?->id ?? 0);
 
         if (! $force && isset(self::$ensured[$cacheKey])) {
             return self::$ensured[$cacheKey];
@@ -110,7 +110,8 @@ class EnsureSelfServerExists
             return null;
         }
 
-        $project = Project::withTrashed()->firstOrCreate(['name' => self::PROJECT_NAME]);
+        $project = Project::withTrashed()->find(Server::query()->where('is_self', true)->value('project_id'))
+            ?? Project::withTrashed()->firstOrCreate(['name' => self::PROJECT_NAME]);
         if ($project->trashed()) {
             $project->restore();
         }
@@ -193,7 +194,7 @@ class EnsureSelfServerExists
     private function detectGitRepository(): string
     {
         $configPath = base_path('.git/config');
-        if (File::exists($configPath) && preg_match('#(?:github\.com|gitlab\.com|bitbucket\.org)[:/]([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?\s*$#m', (string) File::get($configPath), $matches)) {
+        if (File::exists($configPath) && preg_match('#(?:github\.com|gitlab\.com)[:/]([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?\s*$#m', (string) File::get($configPath), $matches)) {
             return $matches[1];
         }
 

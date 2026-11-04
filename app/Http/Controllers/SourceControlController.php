@@ -33,7 +33,6 @@ use Spatie\RouteAttributes\Attributes\Where;
 #[Middleware(['auth'])]
 class SourceControlController extends Controller
 {
-
     #[Get('/', name: 'source-controls')]
     public function index(Request $request): Response
     {
@@ -41,15 +40,18 @@ class SourceControlController extends Controller
 
         $sourceControls = app(GetSourceControls::class)->get(user(), $request->all());
 
-        $projects = Project::query()->orderBy('name')->get(['id', 'name']);
-        $users = User::query()->orderBy('name')->get(['id', 'name', 'email']);
+        $viewer = user();
+        $projects = ($viewer->isAdmin() ? Project::query() : $viewer->allProjects())
+            ->forResource($viewer)->orderBy('name')->get();
+        $users = User::query()
+            ->when(! $viewer->can('viewAny', User::class), fn ($query) => $query->whereKey($viewer->id))
+            ->orderBy('name')->get();
 
         $providers = [
             ['value' => 'all', 'label' => 'All Providers'],
             ['value' => 'github', 'label' => 'GitHub'],
             ['value' => 'github-app', 'label' => 'GitHub App'],
             ['value' => 'gitlab', 'label' => 'GitLab'],
-            ['value' => 'bitbucket', 'label' => 'Bitbucket'],
             ['value' => 'custom', 'label' => 'Custom'],
         ];
 

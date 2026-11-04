@@ -239,7 +239,7 @@ export default function ServiceNetworkingDialog({
                   <LoaderCircleIcon className="animate-spin" />
                   <AlertTitle>Applying the change</AlertTitle>
                   <AlertDescription>
-                    Vito is updating the configuration and restarting the service. This dialog updates automatically.
+                    Pure is updating the configuration and restarting the service. This dialog updates automatically.
                   </AlertDescription>
                 </Alert>
               )}
@@ -249,7 +249,7 @@ export default function ServiceNetworkingDialog({
                   <TriangleAlertIcon />
                   <AlertTitle>The last change failed</AlertTitle>
                   <AlertDescription>
-                    Vito could not apply the last networking change and reverted the configuration. Check the server logs for details, then try again.
+                    Pure could not apply the last networking change and reverted the configuration. Check the server logs for details, then try again.
                   </AlertDescription>
                 </Alert>
               )}
@@ -261,14 +261,14 @@ export default function ServiceNetworkingDialog({
                   <AlertDescription>
                     <p>
                       {neverChecked ? (
-                        <>Vito hasn&apos;t checked this service&apos;s live state yet.</>
+                        <>Pure hasn&apos;t checked this service&apos;s live state yet.</>
                       ) : (
                         <>
-                          Vito couldn&apos;t read this service&apos;s live state on the last check (<DateTime date={details.checked_at as string} />
+                          Pure couldn&apos;t read this service&apos;s live state on the last check (<DateTime date={details.checked_at as string} />
                           ). Check that the service is healthy first.
                         </>
                       )}{' '}
-                      Close this dialog and use Refresh on the Services page - networking can&apos;t be changed until Vito knows the current state.
+                      Close this dialog and use Refresh on the Services page - networking can&apos;t be changed until Pure knows the current state.
                     </p>
                   </AlertDescription>
                 </Alert>
@@ -279,7 +279,7 @@ export default function ServiceNetworkingDialog({
                   <TriangleAlertIcon />
                   <AlertTitle>A password will be set</AlertTitle>
                   <AlertDescription>
-                    Vito generates a password when networking is enabled. Every existing client on this server (apps, workers, queues) must be updated
+                    Pure generates a password when networking is enabled. Every existing client on this server (apps, workers, queues) must be updated
                     to authenticate with it, or it will fail with NOAUTH.
                   </AlertDescription>
                 </Alert>

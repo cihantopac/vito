@@ -3,8 +3,6 @@ import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { BookOpenIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ReactNode } from 'react';
 import NetworkLayout from '@/layouts/network/layout';

@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-react';
 import { VitoTable } from '@/components/vito-table';
 import { Badge } from '@/components/ui/badge';
+import DateTime from '@/components/date-time';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { WarningsPopover } from '@/components/banners';
 import { getSiteWarningItems } from '@/components/site-banners';
 import type { CellRenderProps, InertiaTableData, Row } from '@forjedio/inertia-table-react';
@@ -33,7 +35,7 @@ type Page = {
 };
 
 const siteCell = ({ row, value }: CellRenderProps) => (
-  <div className="flex min-w-48 flex-wrap items-baseline gap-x-2 gap-y-1 py-1">
+  <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
     <Link
       href={`/servers/${row.server_id as number}/sites/${row.id as number}`}
       className="text-foreground font-medium hover:underline"
@@ -43,26 +45,45 @@ const siteCell = ({ row, value }: CellRenderProps) => (
     </Link>
     <Link
       href={`/servers/${row.server_id as number}`}
-      className="text-muted-foreground text-sm hover:underline"
+      className="text-muted-foreground text-xs hover:underline"
     >
       ({row.server_name as string})
     </Link>
+    <SiteWarnings row={row} />
   </div>
 );
 
-const statusCell = ({ row, value }: CellRenderProps) => {
-  const site = row as unknown as Site;
-  const warningItems = getSiteWarningItems(site);
+function SiteWarnings({ row }: { row: Row }) {
+  const warningItems = getSiteWarningItems(row as unknown as Site);
 
   return (
-    <div className="flex items-center gap-2">
-      <Badge variant={(row.status_color as 'default') ?? 'default'}>
-        {String(value)}
-      </Badge>
+    <>
+      {row.status && row.status !== 'ready' && (
+        <Badge variant={(row.status_color as 'default') ?? 'default'}>{String(row.status)}</Badge>
+      )}
       {warningItems.length > 0 && <WarningsPopover items={warningItems} />}
-    </div>
+    </>
   );
-};
+}
+
+function CreatedAtCell({ value }: CellRenderProps) {
+  if (typeof value !== 'string' || !value) {
+    return null;
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="text-muted-foreground hover:text-foreground cursor-pointer whitespace-nowrap text-xs" aria-label="Show exact creation date">
+          <DateTime date={value} relative />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto text-sm" align="end">
+        <DateTime date={value} />
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function Sites() {
   const page = usePage<Page & SharedData>();
@@ -83,14 +104,18 @@ export default function Sites() {
       <Head title={`Sites ${page.props.server ? ' - ' + page.props.server.name : ''}`} />
       <Container className="py-3">
         <VitoTable
-          tableData={page.props.sites}
+          fitContent
+          toolbarClassName="[&_input]:h-8 [&_input]:min-w-36 [&_input]:max-w-56 [&_input]:text-sm"
+          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || ['domain', 'server.project.name', 'created_at'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
+          columnWidths={{ 'server.project.name': '18%', created_at: '9rem' }}
+          rowClassName={() => '[&>td]:py-2'}
           groupBy={page.props.groupBy}
           toolbar={
             <>
               {!page.props.server && (
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Project</span>
+
                     <Select
                       value={page.props.siteScope ?? page.props.auth.currentProject?.id.toString()}
                       onValueChange={(project) => {
@@ -111,7 +136,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="w-40 sm:w-48" aria-label="Filter sites by project">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by project">
                         <SelectValue placeholder="Select a project" />
                       </SelectTrigger>
                       <SelectContent>
@@ -126,7 +151,7 @@ export default function Sites() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Server</span>
+
                     <Select
                       value={page.props.serverScope ?? 'all'}
                       onValueChange={(server) => {
@@ -140,7 +165,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="w-40 sm:w-48" aria-label="Filter sites by server">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by server">
                         <SelectValue placeholder="All Servers" />
                       </SelectTrigger>
                       <SelectContent>
@@ -155,7 +180,7 @@ export default function Sites() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Group by</span>
+
                     <Select
                       value={page.props.groupBy ?? 'none'}
                       onValueChange={(groupBy) => {
@@ -169,7 +194,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="w-40 sm:w-48" aria-label="Group sites by">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Group sites by">
                         <SelectValue placeholder="No grouping" />
                       </SelectTrigger>
                       <SelectContent>
@@ -182,7 +207,7 @@ export default function Sites() {
                 </div>
               )}
               {!page.props.server?.is_self && (
-                <div className="ml-auto">
+                <div className="ml-auto shrink-0">
                   <Button asChild>
                     <Link
                       href={
@@ -200,8 +225,9 @@ export default function Sites() {
             </>
           }
           cellRenderers={{
-            ...(page.props.server ? {} : { domain: siteCell }),
-            status: statusCell,
+            domain: siteCell,
+            'server.project.name': ({ value }) => <span className="text-muted-foreground text-xs">{String(value ?? '')}</span>,
+            created_at: CreatedAtCell,
           }}
           onRowClick={(row: Row) => {
             const site = asRow<{ id: number; server_id: number }>(row, ['id', 'server_id']);

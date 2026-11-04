@@ -11,9 +11,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DownloadCsr
 {
-    /**
-     * Copies the CSR from the server into local storage, streams it, and removes the copy a few minutes later.
-     */
     public function download(Server $server, Ssl $ssl): StreamedResponse
     {
         $csrPath = $ssl->csr_data['csr_path'] ?? null;

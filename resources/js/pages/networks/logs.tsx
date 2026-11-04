@@ -2,8 +2,6 @@ import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { BookOpenIcon } from 'lucide-react';
 import NetworkLayout from '@/layouts/network/layout';
 import { DataTable } from '@/components/data-table';
 import { networkLogColumns } from '@/pages/networks/components/log-columns';

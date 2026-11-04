@@ -217,46 +217,6 @@ export function DataTable<TData, TValue>({
     router.get(url.toString(), {}, { preserveState: true, preserveScroll: true });
   };
 
-  const handlePageChange = (url: string) => {
-    if (onPageChange) {
-      
-      const urlObj = new URL(url);
-      const page = urlObj.searchParams.get('page');
-      if (page) {
-        onPageChange(parseInt(page));
-        return;
-      }
-
-      onPageChange(1);
-    } else {
-      
-      const urlObj = new URL(url);
-
-      
-      if (searchQuery) {
-        urlObj.searchParams.set('search', searchQuery);
-      }
-
-      
-      const currentParams = new URLSearchParams(window.location.search);
-      const sortBy = currentParams.get('sort_by');
-      const sortDir = currentParams.get('sort_dir');
-      const perPage = currentParams.get('per_page');
-
-      if (sortBy) {
-        urlObj.searchParams.set('sort_by', sortBy);
-      }
-      if (sortDir) {
-        urlObj.searchParams.set('sort_dir', sortDir);
-      }
-      if (perPage) {
-        urlObj.searchParams.set('per_page', perPage);
-      }
-
-      router.get(urlObj.toString(), {}, { preserveState: true, preserveScroll: true });
-    }
-  };
-
   
   useEffect(() => {
     const handler = setTimeout(() => {

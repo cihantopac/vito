@@ -38,17 +38,21 @@ export default function Layout({
   const bootstrapStatus = useBootstrapStore((s) => s.status);
   const serverBootstrapVersion = page.props.bootstrap_version;
   const hasSecondNav = secondNavGroups?.some((group) => group.items.length > 0) ?? !!secondNavItems?.length;
+  const pathname = page.url.split('?')[0].replace(/\/$/, '');
+  const expandPrimaryNav = ['/overview', '/servers', '/sites', '/admin/users', '/settings/projects'].includes(pathname);
   const isServerLevel = defaultPrimaryNavOpen !== undefined ? !defaultPrimaryNavOpen : (!!page.props.site || !!page.props.server || secondNavSubtitle === 'Server');
-  const [primaryNavOpen, setPrimaryNavOpen] = useState(() => (isServerLevel ? false : getStoredSidebarOpen(hasSecondNav)));
+  const [primaryNavOpen, setPrimaryNavOpen] = useState(() => expandPrimaryNav || (!isServerLevel && getStoredSidebarOpen(hasSecondNav)));
   const [secondNavOpen, setSecondNavOpen] = useState(hasSecondNav);
 
   useEffect(() => {
-    if (isServerLevel) {
+    if (expandPrimaryNav) {
+      setPrimaryNavOpen(true);
+    } else if (isServerLevel) {
       setPrimaryNavOpen(false);
     } else {
       setPrimaryNavOpen(getStoredSidebarOpen(hasSecondNav));
     }
-  }, [hasSecondNav, page.props.site?.id, page.props.server?.id, isServerLevel]);
+  }, [hasSecondNav, page.props.site?.id, page.props.server?.id, isServerLevel, expandPrimaryNav, pathname]);
 
   useEffect(() => {
     setSecondNavOpen(hasSecondNav);
@@ -94,8 +98,8 @@ export default function Layout({
           onOpenChange={setPrimaryNavOpen}
           style={
             {
-              '--primary-sidebar-width': '9.5rem',
-              '--sidebar-width': hasSecondNav && secondNavOpen ? '22.5rem' : '9.5rem',
+              '--primary-sidebar-width': '13rem',
+              '--sidebar-width': hasSecondNav && secondNavOpen ? '26rem' : '13rem',
             } as CSSProperties
           }
         >

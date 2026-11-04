@@ -1,3 +1,4 @@
+import { usePanelView } from '@/hooks/use-panel-view';
 import { useSocketStore } from '@/stores/socket-store';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 
@@ -16,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useEffect } from 'react';
 import type { PhpVersions } from '@/types/php-versions';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 type Page = {
@@ -35,12 +37,12 @@ const nameCell = ({ row, value }: CellRenderProps) => {
   const isFailed = status === 'installation_failed';
   const isSelf = Boolean(row.is_self);
   const id = row.id as number;
-  const name = isSelf ? 'Vito sunucusu' : String(value || row.name || '');
+  const name = isSelf ? 'Pure server' : String(value || row.name || '');
   const sitesCount = typeof row.sites_count === 'number' ? row.sites_count : 0;
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Link
           href={`/servers/${id}`}
           className={cn('font-medium hover:underline', isSelf && 'text-primary font-semibold')}
@@ -104,7 +106,7 @@ const metricCell = (threshold: number) =>
     }
 
     return (
-      <span className={cn('font-mono text-sm', numeric > threshold ? 'font-semibold text-rose-500' : 'text-foreground')}>
+      <span className={cn('font-mono text-sm', numeric > threshold ? 'font-semibold text-neutral-500' : 'text-foreground')}>
         {numeric.toFixed(1)}%
       </span>
     );
@@ -178,7 +180,7 @@ const roleCell = ({ row, value }: CellRenderProps) => {
   const displayText = String(value || row.role || 'App server');
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Icon className="size-4 shrink-0 text-muted-foreground" />
       <span className="text-sm font-medium">{displayText}</span>
     </div>
@@ -188,18 +190,18 @@ const roleCell = ({ row, value }: CellRenderProps) => {
 const stageCell = ({ value }: CellRenderProps) => {
   const stage = String(value || 'prod').toLowerCase();
 
-  let dotColor = 'bg-rose-400 dark:bg-rose-500';
-  let textColor = 'text-rose-700 dark:text-rose-300';
-  let bgClass = 'bg-rose-500/5 dark:bg-rose-500/10 border-rose-500/15';
+  let dotColor = 'bg-neutral-400 dark:bg-neutral-500';
+  let textColor = 'text-neutral-700 dark:text-neutral-300';
+  let bgClass = 'bg-neutral-500/5 dark:bg-neutral-500/10 border-neutral-500/15';
 
   if (stage === 'beta') {
-    dotColor = 'bg-sky-400 dark:bg-sky-500';
-    textColor = 'text-sky-700 dark:text-sky-300';
-    bgClass = 'bg-sky-500/5 dark:bg-sky-500/10 border-sky-500/15';
+    dotColor = 'bg-neutral-400 dark:bg-neutral-500';
+    textColor = 'text-neutral-700 dark:text-neutral-300';
+    bgClass = 'bg-neutral-500/5 dark:bg-neutral-500/10 border-neutral-500/15';
   } else if (stage === 'alfa') {
-    dotColor = 'bg-emerald-400 dark:bg-emerald-500';
-    textColor = 'text-emerald-700 dark:text-emerald-300';
-    bgClass = 'bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/15';
+    dotColor = 'bg-neutral-400 dark:bg-neutral-500';
+    textColor = 'text-neutral-700 dark:text-neutral-300';
+    bgClass = 'bg-neutral-500/5 dark:bg-neutral-500/10 border-neutral-500/15';
   }
 
   return (
@@ -233,24 +235,26 @@ const warningsCell = ({ row, value }: CellRenderProps) => {
   };
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="bg-warning/15 text-warning border-warning/40 inline-flex cursor-default items-center gap-1.5 rounded-md border px-2 py-1">
-            <TriangleAlertIcon className="size-3.5 shrink-0" />
-            <span className="text-xs font-semibold">{count} {count === 1 ? 'warning' : 'warnings'}</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-xs space-y-1 p-2">
-          {warnings.map((warning, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs">
-              <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
-              <span>{formatWarningLabel(warning)}</span>
-            </div>
-          ))}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 shrink-0 gap-1 px-1.5 text-warning/80 hover:text-warning"
+          aria-label={`${count} server ${count === 1 ? 'warning' : 'warnings'}`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <TriangleAlertIcon className="size-3.5" />
+          <span className="text-xs tabular-nums">{count}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-72 p-3" onClick={(event) => event.stopPropagation()}>
+        <p className="mb-2 text-xs font-medium">Server warnings</p>
+        <ul className="text-muted-foreground flex flex-col gap-2 text-xs">
+          {warnings.map((warning) => <li key={warning.key}>{formatWarningLabel(warning)}</li>)}
+        </ul>
+      </PopoverContent>
+    </Popover>
   );
 };
 
@@ -258,15 +262,15 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
   const result = value as PhpVersions | null;
 
   if (!result) {
-    return <span className="text-muted-foreground text-xs">Kontrol edilmedi</span>;
+    return <span className="text-muted-foreground text-xs">Not checked</span>;
   }
 
   const labels = {
-    unknown: 'Kontrol edilmedi',
-    current: 'Güncel',
-    outdated: 'Güncel değil',
-    error: 'Kontrol başarısız',
-    no_php: 'PHP yok',
+    unknown: 'Not checked',
+    current: 'Up to date',
+    outdated: 'Outdated',
+    error: 'Check failed',
+    no_php: 'No PHP',
   };
   const stale = result.checked_at !== null && Date.now() - Date.parse(result.checked_at) > 3_600_000;
 
@@ -276,20 +280,20 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
         <Link href={`/servers/${row.id}/services`} className="inline-flex flex-col items-start gap-1">
           <Badge variant={result.status === 'outdated' ? 'warning' : result.status === 'current' ? 'success' : 'gray'}>
             {result.checking && <LoaderCircleIcon className="size-3 animate-spin" />}
-            {result.checking ? 'Kontrol ediliyor' : labels[result.status]}
+            {result.checking ? 'Checking' : labels[result.status]}
           </Badge>
           {result.versions.map((version) => (
             <span key={version.installed} className="text-muted-foreground whitespace-nowrap text-xs">
-              {version.installed}{version.outdated ? ` → ${version.latest}` : ''}{version.unsupported ? ' · Destek sona erdi' : ''}
+              {version.installed}{version.outdated ? ` → ${version.latest}` : ''}{version.unsupported ? ' · End of support' : ''}
             </span>
           ))}
-          {stale && <span className="text-muted-foreground text-xs">Önbellekteki sonuç</span>}
+          {stale && <span className="text-muted-foreground text-xs">Cached result</span>}
         </Link>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
-        <p>Her PHP dalının en son yama sürümüyle karşılaştırılır.</p>
-        <p>{result.checked_at ? `Son başarılı kontrol: ${new Date(result.checked_at).toLocaleString()}` : 'Henüz başarılı bir kontrol yapılmadı.'}</p>
-        {result.status === 'error' && <p>Sunucuya veya PHP sürüm kaynağına erişilemedi. Önceki sonuç korunuyor.</p>}
+        <p>Compared with the latest patch release for each PHP branch.</p>
+        <p>{result.checked_at ? `Last successful check: ${new Date(result.checked_at).toLocaleString('en-US')}` : 'No successful checks yet.'}</p>
+        {result.status === 'error' && <p>Unable to reach the server or PHP version source. Previous results are preserved.</p>}
       </TooltipContent>
     </Tooltip>
   );
@@ -298,6 +302,7 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
 export default function Servers() {
   const page = usePage<Page & SharedData>();
   const versionForm = useForm({ project: page.props.serverScope ?? 'all' });
+  const { advanced, setView } = usePanelView();
   const checkingVersions = page.props.phpVersionsChecking || versionForm.processing;
 
   const socketStatus = useSocketStore((s) => s.status);
@@ -321,7 +326,7 @@ export default function Servers() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <Heading title="Servers" />
           <div className="flex flex-wrap items-center gap-2">
-            <Button
+            {advanced && <Button
               variant="outline"
               disabled={checkingVersions}
               onClick={() => {
@@ -330,8 +335,8 @@ export default function Servers() {
               }}
             >
               <RefreshCwIcon className={cn(checkingVersions && 'animate-spin')} />
-              Sürümleri kontrol et
-            </Button>
+              Check versions
+            </Button>}
             <Button asChild>
               <Link href={"/servers/create"}>
                 <PlusIcon />
@@ -341,7 +346,12 @@ export default function Servers() {
           </div>
         </div>
         <VitoTable
-          tableData={page.props.servers}
+          fitContent
+          toolbarClassName="[&_input]:h-8 [&_input]:max-w-56"
+          columnWidths={advanced ? { name: '30%', monthly_cost: '18%', php_versions: '16%', cpu_usage_percent: '12%', memory_used_percent: '12%', disk_used_percent: '12%' } : { name: '65%', ip: '35%' }}
+          tableData={{ ...page.props.servers, columns: page.props.servers.columns.filter((column) => column.hidden || (advanced
+            ? ['name', 'monthly_cost', 'php_versions', 'cpu_usage_percent', 'memory_used_percent', 'disk_used_percent']
+            : ['name', 'ip']).includes(column.name)).map((column) => ({ ...column, fit: false })) }}
           groupBy={page.props.groupBy}
           rowClassName={(row: Row) => {
             if (row.is_self) {
@@ -351,7 +361,11 @@ export default function Servers() {
           }}
           toolbar={
             <div className="flex flex-wrap items-center gap-3">
-              <Select
+              <div className="flex rounded-md border border-border p-0.5" role="group" aria-label="Server view">
+                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
+                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
+              </div>
+              {advanced && <Select
                 value={page.props.phpStatus ?? 'all'}
                 onValueChange={(status) => {
                   const url = new URL(window.location.href);
@@ -364,15 +378,15 @@ export default function Servers() {
                   router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                 }}
               >
-                <SelectTrigger className="w-56" aria-label="PHP güncellik filtresi">
+                <SelectTrigger className="h-8 w-44" aria-label="PHP version status filter">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tüm PHP durumları</SelectItem>
-                  <SelectItem value="outdated">PHP güncel olmayanlar</SelectItem>
+                  <SelectItem value="all">All PHP statuses</SelectItem>
+                  <SelectItem value="outdated">Outdated PHP</SelectItem>
                 </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2">
+              </Select>}
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground text-sm">Group by</span>
                 <Select
                   value={page.props.groupBy ?? 'none'}
@@ -387,7 +401,7 @@ export default function Servers() {
                     router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                   }}
                 >
-                  <SelectTrigger className="w-40 sm:w-48" aria-label="Group servers by">
+                  <SelectTrigger className="h-8 w-40" aria-label="Group servers by">
                     <SelectValue placeholder="No grouping" />
                   </SelectTrigger>
                   <SelectContent>
@@ -399,9 +413,21 @@ export default function Servers() {
             </div>
           }
           cellRenderers={{
-            name: nameCell,
+            name: (props: CellRenderProps) => (
+              <div className="flex min-w-0 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  {nameCell(props)}
+                  {Array.isArray(props.row.warnings) && props.row.warnings.length > 0 && warningsCell({ ...props, value: props.row.warnings })}
+                </div>
+                {advanced && <span className="font-mono text-xs text-muted-foreground">{String(props.row.ip ?? '')}</span>}
+                {advanced && <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {roleCell({ ...props, value: props.row.role })}
+                  {stageCell({ ...props, value: props.row.stage })}
+                </div>}
+              </div>
+            ),
             cpu_cores: coresCell,
-            monthly_cost: costCell,
+            monthly_cost: (props: CellRenderProps) => <div className="flex flex-col gap-1">{costCell(props)}{coresCell({ ...props, value: props.row.cpu_cores })}</div>,
             php_versions: phpVersionsCell,
             cpu_usage_percent: cpuCell,
             memory_used_percent: ramCell,

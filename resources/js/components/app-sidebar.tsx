@@ -18,21 +18,8 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavGroup, type NavItem, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import {
-  ChevronRightIcon,
-  CogIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  LogsIcon,
-  MousePointerClickIcon,
-  NetworkIcon,
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
-  ServerIcon,
-  UsersIcon,
-} from 'lucide-react';
+import { ChevronRightIcon, CogIcon, LayoutDashboardIcon, ListIcon, MousePointerClickIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, ServerIcon, UsersIcon } from 'lucide-react';
 import AppLogo from './app-logo';
-import { Icon } from '@/components/icon';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
@@ -140,6 +127,14 @@ export function AppSidebar({
     },
   ];
 
+  const pathname = page.url.split('?')[0];
+  const activePrimaryHref = mainNavItems
+    .filter((item) => {
+      const path = item.href.split('?')[0];
+      return !item.hidden && (pathname === path || pathname.startsWith(`${path}/`));
+    })
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
   return (
     <Sidebar
       id="app-navigation"
@@ -159,10 +154,9 @@ export function AppSidebar({
               href={"/overview"}
               prefetch
               className="flex min-w-0 items-center gap-2 group-data-[state=collapsed]:hidden"
-              aria-label={`Vito ${page.props.version}`}
+              aria-label={`Pure ${page.props.version}`}
             >
               <AppLogo />
-              <span className="truncate font-semibold text-sm">Vito</span>
             </Link>
             <div className="flex shrink-0 items-center gap-1">
               {hasSecondNav && !secondNavOpen && onSecondNavOpenChange && (
@@ -193,7 +187,7 @@ export function AppSidebar({
                   >
                     <SidebarMenuButton
                       asChild
-                      isActive={item.onlyActivePath ? currentPath() === item.onlyActivePath : (window.location.pathname + window.location.search).startsWith(item.href)}
+                      isActive={item.href === activePrimaryHref}
                       tooltip={item.title}
                       hidden={item.hidden}
                       className="group-data-[state=collapsed]:size-8! group-data-[state=collapsed]:p-2! group-data-[state=collapsed]:justify-center"

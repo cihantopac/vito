@@ -26,12 +26,18 @@ class SshKey extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     
+    /**
+     * @return BelongsToMany<Server, $this>
+     */
     public function servers(): BelongsToMany
     {
         return $this->belongsToMany(Server::class, 'server_ssh_keys')

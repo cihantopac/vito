@@ -43,7 +43,6 @@ export default function QueueSettings({ open, onOpenChange }: { open: boolean; o
     if (open) {
       void load();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const submit = (e: React.FormEvent) => {

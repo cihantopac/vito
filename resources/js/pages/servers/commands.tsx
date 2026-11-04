@@ -1,5 +1,6 @@
 import { useClipboard } from '@/hooks/use-clipboard';
 import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import { Head, usePage } from '@inertiajs/react';
 import {
   CheckIcon,
@@ -82,7 +83,7 @@ function CommandRow({ item }: { item: CommandItem }) {
           onClick={handleCopy}
           aria-label="Copy command"
         >
-          {copied ? <CheckIcon className="size-3.5 text-emerald-500" /> : <CopyIcon className="size-3.5" />}
+          {copied ? <CheckIcon className="size-3.5 text-neutral-500" /> : <CopyIcon className="size-3.5" />}
         </Button>
       </div>
     </div>
@@ -118,11 +119,13 @@ export default function ServerCommands() {
           }),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setItems(data.items ?? []);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message ?? `Request failed with status ${response.status}`);
         }
-      } catch {
+        setItems(data.items ?? []);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to load command history.');
       } finally {
         setLoading(false);
       }

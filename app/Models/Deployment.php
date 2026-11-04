@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Deployment extends AbstractModel
 {
-    
     use HasFactory;
 
     protected $fillable = [
@@ -70,32 +69,62 @@ class Deployment extends AbstractModel
         });
     }
 
-    
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    
+    /**
+     * @return BelongsTo<DeploymentScript, $this>
+     */
     public function deploymentScript(): BelongsTo
     {
         return $this->belongsTo(DeploymentScript::class);
     }
 
-    
+    /**
+     * @return BelongsTo<ServerLog, $this>
+     */
     public function log(): BelongsTo
     {
         return $this->belongsTo(ServerLog::class, 'log_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function rolledBackBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rolled_back_by_id');
+    }
+
+    public function getCommitIdShortAttribute(): ?string
+    {
+        return $this->commit_id ? substr($this->commit_id, 0, 7) : null;
+    }
+
+    public function isDuplicate(): bool
+    {
+        if (empty($this->commit_id)) {
+            return false;
+        }
+
+        return static::query()
+            ->where('site_id', $this->site_id)
+            ->where('commit_id', $this->commit_id)
+            ->where('id', '<', $this->id)
+            ->exists();
     }
 
     public function path(): string

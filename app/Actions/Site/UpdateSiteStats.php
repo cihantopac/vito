@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Validator;
 
 class UpdateSiteStats
 {
-    /**
-     * Validates the toggle input and returns the new state.
-     */
     public function toggle(Site $site, array $input): bool
     {
         $validated = Validator::make($input, ['enabled' => ['required', 'boolean']])->validate();

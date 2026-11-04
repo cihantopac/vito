@@ -10,4 +10,4 @@ sudo rm -rf /etc/vito-agent
 
 sudo systemctl daemon-reload
 
-echo "Vito Agent uninstalled successfully"
+echo "Pure Agent uninstalled successfully"

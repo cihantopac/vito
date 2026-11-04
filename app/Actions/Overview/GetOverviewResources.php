@@ -5,15 +5,9 @@ namespace App\Actions\Overview;
 use App\Enums\DeploymentStatus;
 use App\Http\Resources\ProjectOverviewServerResource;
 use App\Http\Resources\ProjectOverviewSiteResource;
-use App\Models\Backup;
-use App\Models\DNSProvider;
-use App\Models\Domain;
 use App\Models\Project;
 use App\Models\Server;
-use App\Models\ServerProvider;
 use App\Models\Site;
-use App\Models\SourceControl;
-use App\Models\StorageProvider;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GetOverviewResources
 {
-    private const int LIMIT = 3;
+    private const int LIMIT = 6;
 
     private User $user;
 
@@ -60,57 +54,7 @@ class GetOverviewResources
                     'is_current' => $project->id === $this->user->current_project_id,
                 ],
             ),
-            'server_providers' => $this->latestOf(
-                $this->scopeToUserOrProjects(ServerProvider::query()),
-                fn (ServerProvider $provider): array => [
-                    'id' => $provider->id,
-                    'provider' => $provider->provider,
-                    'profile' => $provider->profile ?? $provider->provider,
-                    'connected' => (bool) $provider->connected,
-                ],
-            ),
-            'source_controls' => $this->latestOf(
-                $this->scopeToUserOrProjects(SourceControl::query()),
-                fn (SourceControl $sourceControl): array => [
-                    'id' => $sourceControl->id,
-                    'provider' => $sourceControl->provider,
-                    'profile' => $sourceControl->profile ?? $sourceControl->provider,
-                ],
-            ),
-            'storage_providers' => $this->latestOf(
-                $this->scopeToUserOrProjects(StorageProvider::query()),
-                fn (StorageProvider $provider): array => [
-                    'id' => $provider->id,
-                    'provider' => $provider->provider,
-                    'profile' => $provider->profile ?? $provider->provider,
-                ],
-            ),
-            'dns_providers' => $this->latestOf(
-                $this->scopeToUserOrProjects(DNSProvider::query()),
-                fn (DNSProvider $provider): array => [
-                    'id' => $provider->id,
-                    'provider' => $provider->provider,
-                    'profile' => $provider->name ?? $provider->provider,
-                    'connected' => (bool) $provider->connected,
-                ],
-            ),
-            'backups' => $this->latestOf(
-                $this->scopeToServerProjects(Backup::query())->with(['server', 'database']),
-                fn (Backup $backup): array => [
-                    'id' => $backup->id,
-                    'name' => $backup->database->name ?? $backup->type->getText(),
-                    'server_name' => $backup->server?->name,
-                    'interval' => $backup->interval,
-                ],
-            ),
-            'domains' => $this->latestOf(
-                $this->scopeToUserOrProjects(Domain::query())->with('dnsProvider'),
-                fn (Domain $domain): array => [
-                    'id' => $domain->id,
-                    'domain' => $domain->domain,
-                    'provider_name' => $domain->dnsProvider->name ?? $domain->dnsProvider->provider,
-                ],
-            ),
+
         ];
     }
 
@@ -149,13 +93,6 @@ class GetOverviewResources
     private function scopeToProjects(Builder $query): Builder
     {
         return $query->when(! $this->isAdmin, fn ($query) => $query->whereIn('project_id', $this->projectIds));
-    }
-
-    private function scopeToUserOrProjects(Builder $query): Builder
-    {
-        return $query->when(! $this->isAdmin, fn ($query) => $query->where(
-            fn (Builder $query) => $query->whereIn('project_id', $this->projectIds)->orWhere('user_id', $this->user->id),
-        ));
     }
 
     private function scopeToServerProjects(Builder $query): Builder

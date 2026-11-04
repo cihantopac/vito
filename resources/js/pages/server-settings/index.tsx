@@ -48,19 +48,19 @@ const STAGE_OPTIONS = [
   {
     value: 'prod',
     label: 'Production',
-    dotColor: 'bg-rose-500',
+    dotColor: 'bg-neutral-500',
     description: 'Live production environment',
   },
   {
     value: 'beta',
     label: 'Beta',
-    dotColor: 'bg-sky-500',
+    dotColor: 'bg-neutral-500',
     description: 'Staging and testing environment',
   },
   {
     value: 'alfa',
     label: 'Alpha',
-    dotColor: 'bg-emerald-500',
+    dotColor: 'bg-neutral-500',
     description: 'Development and experimental environment',
   },
 ] as const;
@@ -168,7 +168,6 @@ export default function ServerSettings() {
         </HeaderContainer>
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-          {/* Main Configuration Form Column */}
           <div className="lg:col-span-7">
             <form onSubmit={submit}>
               <Card>
@@ -213,7 +212,7 @@ export default function ServerSettings() {
                               const selected = STAGE_OPTIONS.find((s) => s.value === form.data.stage);
                               return (
                                 <div className="flex items-center gap-2">
-                                  <span className={cn('size-2 rounded-full shrink-0', selected?.dotColor ?? 'bg-rose-500')} />
+                                  <span className={cn('size-2 rounded-full shrink-0', selected?.dotColor ?? 'bg-neutral-500')} />
                                   <span>{selected?.label ?? form.data.stage}</span>
                                 </div>
                               );
@@ -355,8 +354,8 @@ export default function ServerSettings() {
                 <CardFooter className="flex items-center justify-between border-t bg-muted/20 px-6 py-3.5">
                   <div>
                     {form.isDirty ? (
-                      <span className="flex items-center gap-2 text-xs font-medium text-amber-600 dark:text-amber-400">
-                        <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
+                      <span className="flex items-center gap-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                        <span className="size-2 rounded-full bg-neutral-500 animate-pulse" />
                         Unsaved changes
                       </span>
                     ) : (
@@ -387,9 +386,7 @@ export default function ServerSettings() {
             </form>
           </div>
 
-          {/* Right Column: System Overview, SSH Access & Danger Zone */}
           <div className="space-y-6 lg:col-span-5">
-            {/* System Overview Card */}
             <Card>
               <CardHeader className="p-6 pb-3">
                 <div className="flex items-center justify-between">
@@ -485,7 +482,6 @@ export default function ServerSettings() {
               </CardContent>
             </Card>
 
-            {/* SSH Access & Keys Card */}
             <Card>
               <CardHeader className="p-6 pb-3">
                 <div className="flex items-center justify-between">
@@ -527,7 +523,6 @@ export default function ServerSettings() {
               </CardContent>
             </Card>
 
-            {/* Danger Zone Card */}
             <Card className="border-destructive/30 bg-destructive/[0.02]">
               <CardHeader className="p-6 pb-3">
                 <div className="flex items-center gap-2">
@@ -561,8 +556,8 @@ export default function ServerSettings() {
                     <p className="font-medium text-destructive text-sm">Remove Server</p>
                     <p className="text-muted-foreground text-xs">
                       {server.is_self
-                        ? 'This server hosts Vito itself and cannot be removed.'
-                        : 'Remove this server from Vito. The cloud instance remains active on your provider.'}
+                        ? 'This server hosts Pure itself and cannot be removed.'
+                        : 'Remove this server from Pure. The cloud instance remains active on your provider.'}
                     </p>
                   </div>
                   {server.is_self ? (

@@ -6,7 +6,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { BookOpenIcon, InfoIcon, PlusIcon } from 'lucide-react';
+import { InfoIcon, PlusIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Backup } from '@/types/backup';
 import { VitoTable } from '@/components/vito-table';
@@ -52,7 +52,7 @@ export default function Backups() {
             <AlertDescription>
               <p>
                 It holds the same data as {page.props.replicaOf.name}, so it isn't backed up separately. The cluster has one pgBackRest backup, set up on{' '}
-                {page.props.replicaOf.name}. Vito runs it on the healthiest, most caught-up replica, which can be this server, straight to S3, and on the
+                {page.props.replicaOf.name}. Pure runs it on the healthiest, most caught-up replica, which can be this server, straight to S3, and on the
                 primary only when no replica qualifies. The Host column of each backup shows where it ran.
               </p>
               {page.props.replicaOf.backup_id && (

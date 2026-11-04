@@ -139,8 +139,8 @@ export default function ServerUpdate() {
                 {server.updates} {server.updates === 1 ? 'update' : 'updates'} available
               </Badge>
             ) : (
-              <Badge variant="outline" className="gap-1.5 px-2.5 py-1 text-xs text-emerald-600 border-emerald-500/30 dark:text-emerald-400">
-                <CheckCircle2Icon className="size-3 text-emerald-500" />
+              <Badge variant="outline" className="gap-1.5 px-2.5 py-1 text-xs text-neutral-600 border-neutral-500/30 dark:text-neutral-400">
+                <CheckCircle2Icon className="size-3 text-neutral-500" />
                 <span>Up to date</span>
               </Badge>
             )}
@@ -148,9 +148,9 @@ export default function ServerUpdate() {
         </div>
 
         {rebootRequired && !isUpdating && (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-300">
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-500/30 bg-neutral-500/10 px-3.5 py-2.5 text-xs text-neutral-700 dark:text-neutral-300">
             <div className="flex items-center gap-2 min-w-0">
-              <RefreshCwIcon className="size-4 shrink-0 text-amber-500" />
+              <RefreshCwIcon className="size-4 shrink-0 text-neutral-500" />
               <span className="truncate">A restart is required to apply kernel or core system updates.</span>
             </div>
             <Button size="sm" asChild className="h-7 text-xs shrink-0 cursor-pointer" variant="outline">
@@ -162,8 +162,8 @@ export default function ServerUpdate() {
         )}
 
         {triggerError && (
-          <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
-            <XCircleIcon className="size-4 shrink-0 text-rose-500" />
+          <div className="rounded-lg border border-neutral-500/30 bg-neutral-500/10 p-3 text-xs text-neutral-600 dark:text-neutral-400 flex items-center gap-2">
+            <XCircleIcon className="size-4 shrink-0 text-neutral-500" />
             <p className="font-medium">{triggerError}</p>
           </div>
         )}
@@ -198,7 +198,7 @@ export default function ServerUpdate() {
                 size="sm"
                 disabled={isUpdating}
                 onClick={() => triggerUpdate('kernel')}
-                className="h-7.5 text-xs gap-1.5 cursor-pointer border-amber-500/40 text-amber-600 hover:bg-amber-500/10"
+                className="h-7.5 text-xs gap-1.5 cursor-pointer border-neutral-500/40 text-neutral-600 hover:bg-neutral-500/10"
               >
                 <RefreshCwIcon className="size-3" />
                 <span>Update kernel &amp; restart</span>
@@ -250,7 +250,7 @@ export default function ServerUpdate() {
               title="Copy terminal logs"
               aria-label="Copy logs"
             >
-              {copied ? <CheckIcon className="size-3.5 text-emerald-500" /> : <CopyIcon className="size-3.5" />}
+              {copied ? <CheckIcon className="size-3.5 text-neutral-500" /> : <CopyIcon className="size-3.5" />}
             </Button>
             <Button
               variant="ghost"
@@ -285,13 +285,13 @@ export default function ServerUpdate() {
             )}
 
             {logError && (
-              <div className="text-rose-400">
+              <div className="text-neutral-400">
                 Error loading log: {logError}
               </div>
             )}
 
             {!isLoading && !logError && !content && isUpdating && (
-              <div className="flex items-center gap-2 text-amber-400/90">
+              <div className="flex items-center gap-2 text-neutral-400/90">
                 <LoaderCircleIcon className="size-3.5 animate-spin shrink-0" />
                 <span>Connecting to server and running update...</span>
               </div>
@@ -307,7 +307,7 @@ export default function ServerUpdate() {
 
             {content && !isCleared && (
               isPendingLog(content) ? (
-                <div className="flex items-center gap-2 text-amber-400/90 py-6">
+                <div className="flex items-center gap-2 text-neutral-400/90 py-6">
                   <LoaderCircleIcon className="size-4 animate-spin shrink-0" />
                   <span>Job is queued and will begin automatically...</span>
                 </div>
@@ -319,7 +319,7 @@ export default function ServerUpdate() {
             )}
 
             {isUpdating && content && (
-              <div className="flex items-center gap-2 text-amber-400/90 pt-2 border-t border-neutral-800/60 mt-2">
+              <div className="flex items-center gap-2 text-neutral-400/90 pt-2 border-t border-neutral-800/60 mt-2">
                 <LoaderCircleIcon className="size-3.5 animate-spin shrink-0" />
                 <span>Applying updates in real time...</span>
               </div>

@@ -96,13 +96,13 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
       hidden: !isAdmin,
     },
     {
-      title: 'Vito Settings',
+      title: 'Pure Settings',
       href: "/admin/vito",
       icon: ShieldCheckIcon,
       hidden: !isAdmin,
     },
     {
-      title: 'Env Anahtarı Ara',
+      title: 'Environment key search',
       href: "/settings/env-search",
       icon: SearchIcon,
       hidden: !isAdmin,

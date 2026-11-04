@@ -19,7 +19,29 @@ class DeploymentTable extends Table
 
     private bool $overview = false;
 
-    
+    /** @var array<string, int>|null */
+    private ?array $firstDeploymentIdByCommit = null;
+
+    protected function getFirstDeploymentIdForCommit(Deployment $deployment): ?int
+    {
+        if (empty($deployment->commit_id)) {
+            return null;
+        }
+
+        if ($this->firstDeploymentIdByCommit === null) {
+            $this->firstDeploymentIdByCommit = Deployment::query()
+                ->where('site_id', $deployment->site_id)
+                ->whereNotNull('commit_id')
+                ->where('commit_id', '!=', '')
+                ->groupBy('commit_id')
+                ->selectRaw('commit_id, MIN(id) as first_id')
+                ->pluck('first_id', 'commit_id')
+                ->toArray();
+        }
+
+        return $this->firstDeploymentIdByCommit[$deployment->commit_id] ?? null;
+    }
+
     public function overview(): array
     {
         $this->overview = true;
@@ -80,6 +102,13 @@ class DeploymentTable extends Table
             Column::data('trigger_color', fn (Deployment $deployment): ?string => $deployment->trigger?->getColor()),
             Column::data('rolled_back_by', fn (Deployment $deployment): ?string => $deployment->rolledBackBy?->name),
             Column::data('rolled_back_at', fn (Deployment $deployment) => $deployment->rolled_back_at),
+            Column::data('commit_id'),
+            Column::data('commit_id_short', fn (Deployment $deployment): ?string => $deployment->commit_id_short),
+            Column::data('is_duplicate', function (Deployment $deployment): bool {
+                $firstId = $this->getFirstDeploymentIdForCommit($deployment);
+                return $firstId !== null && $deployment->id > $firstId;
+            }),
+            Column::data('original_deployment_id', fn (Deployment $deployment): ?int => $this->getFirstDeploymentIdForCommit($deployment)),
             Column::data('commit_data'),
             Column::data('finished_at', fn (Deployment $deployment) => $deployment->finished_at),
             Column::data('duration', fn (Deployment $deployment): ?int => $deployment->duration()),

@@ -74,8 +74,8 @@ export default function ShowStorageMigration() {
           <Progress value={progress} />
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <span>{progressText}</span>
-            <span>{(storageMigration.items_copied + storageMigration.items_skipped).toLocaleString()} / {storageMigration.items_total.toLocaleString()} objects</span>
-            {storageMigration.items_processing > 0 && <span>{storageMigration.items_processing.toLocaleString()} files assigned to workers</span>}
+            <span>{(storageMigration.items_copied + storageMigration.items_skipped).toLocaleString('en-US')} / {storageMigration.items_total.toLocaleString('en-US')} objects</span>
+            {storageMigration.items_processing > 0 && <span>{storageMigration.items_processing.toLocaleString('en-US')} files assigned to workers</span>}
             <span>{formatBytes(storageMigration.bytes_copied, 2)} / {formatBytes(storageMigration.bytes_total, 2)}</span>
             {storageMigration.items_skipped > 0 && <span>{storageMigration.items_skipped} already on target</span>}
             {storageMigration.items_failed > 0 && <span className="text-destructive">{storageMigration.items_failed} failed</span>}
@@ -113,7 +113,7 @@ export default function ShowStorageMigration() {
         )}
 
         {!page.props.itemsAvailable && (
-          <p className="text-muted-foreground text-sm">Scan data is not available yet. It appears once Vito can reach the scan database.</p>
+          <p className="text-muted-foreground text-sm">Scan data is not available yet. It appears once Pure can reach the scan database.</p>
         )}
 
         <DataTable columns={columns} paginatedData={page.props.items} />

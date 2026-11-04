@@ -27,7 +27,7 @@ export default function PgBackRestPassphrase({ open, onOpenChange, backup }: { o
         <DialogHeader>
           <DialogTitle>Encryption passphrase</DialogTitle>
           <DialogDescription>
-            pgBackRest encrypts these backups with this passphrase. Store it outside Vito and this server, for example in a password manager. Without it the
+            pgBackRest encrypts these backups with this passphrase. Store it outside Pure and this server, for example in a password manager. Without it the
             backups in S3 can't be restored.
           </DialogDescription>
         </DialogHeader>

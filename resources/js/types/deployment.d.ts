@@ -20,11 +20,14 @@ export interface Deployment {
   log: ServerLog | null;
   commit_id: string;
   commit_id_short: string;
+  is_duplicate?: boolean;
+  original_deployment_id?: number | null;
   commit_data: {
     name?: string;
     email?: string;
     message?: string;
     url?: string;
+    date?: string;
   };
   status: string;
   status_color: 'gray' | 'success' | 'info' | 'warning' | 'danger';

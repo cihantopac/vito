@@ -8,7 +8,6 @@ use App\Models\Server;
 
 class SyncCronJobs
 {
-    
     public function sync(Server $server): void
     {
         $users = array_values(array_filter($server->getSshUsers(), fn ($u) => is_string($u) && $u !== ''));
@@ -18,25 +17,22 @@ class SyncCronJobs
         }
     }
 
-    
     private function syncUserCronJobs(Server $server, string $user): void
     {
-        
         $crontabOutput = $this->getUserCrontab($server, $user);
 
         if ($crontabOutput === null) {
             return;
         }
 
-        
         $vitoCronJobs = $server->cronJobs()
             ->where('user', $user)
+            ->with('site')
             ->get();
 
         $serverLevelCronJobs = $vitoCronJobs->where('site_id', null);
 
         if (empty($crontabOutput)) {
-            
             foreach ($serverLevelCronJobs as $cronJob) {
                 if ($cronJob->status === CronjobStatus::READY) {
                     $cronJob->update(['status' => CronjobStatus::DISABLED]);
@@ -53,27 +49,22 @@ class SyncCronJobs
         foreach ($lines as $line) {
             $line = trim($line);
 
-            
             if (empty($line)) {
                 continue;
             }
 
             $isCommented = str_starts_with($line, '#');
 
-            
             if ($isCommented) {
                 $line = ltrim($line, '#');
                 $line = trim($line);
             }
 
-            
             $parts = preg_split('/\s+/', $line, 6);
             if (count($parts) < 6) {
                 continue;
             }
 
-            
-            
             $isValidCronFormat = true;
             for ($i = 0; $i < 5; $i++) {
                 if (! preg_match('/^[\d\*\-\/,]+$/', $parts[$i])) {
@@ -95,15 +86,13 @@ class SyncCronJobs
                 'commented' => $isCommented,
             ];
 
-            
             $matchingCronJob = $vitoCronJobs->first(function ($cronJob) use ($frequency, $command) {
-                return $this->normalizeFrequency($cronJob->frequency) === $frequency && $this->matchesCommand($cronJob->command, $command);
+                return $this->normalizeFrequency($cronJob->frequency) === $frequency && $this->matchesCommand($cronJob, $command);
             });
 
             if ($matchingCronJob) {
                 $foundCronJobs[] = $matchingCronJob->id;
 
-                
                 if ($matchingCronJob->site_id === null) {
                     if ($isCommented && $matchingCronJob->status === CronjobStatus::READY) {
                         $matchingCronJob->update(['status' => CronjobStatus::DISABLED]);
@@ -114,17 +103,15 @@ class SyncCronJobs
             }
         }
 
-        
         foreach ($serverLevelCronJobs as $cronJob) {
             if (! in_array($cronJob->id, $foundCronJobs) && $cronJob->status === CronjobStatus::READY) {
                 $cronJob->update(['status' => CronjobStatus::DISABLED]);
             }
         }
 
-        
         foreach ($serverCronJobs as $cronJobData) {
             $isVitoManaged = $vitoCronJobs->contains(function ($cronJob) use ($cronJobData) {
-                return $this->normalizeFrequency($cronJob->frequency) === $cronJobData['frequency'] && $this->matchesCommand($cronJob->command, $cronJobData['command']);
+                return $this->normalizeFrequency($cronJob->frequency) === $cronJobData['frequency'] && $this->matchesCommand($cronJob, $cronJobData['command']);
             });
 
             if (! $isVitoManaged) {
@@ -141,32 +128,25 @@ class SyncCronJobs
 
     private function normalizeFrequency(string $frequency): string
     {
-        
         return preg_replace('/\s+/', ' ', trim($frequency));
     }
 
     private function normalizeCommand(string $command): string
     {
-        
         return preg_replace('/\s+/', ' ', trim($command));
     }
 
-    private function matchesCommand(string $cronJobCommand, string $serverCommand): bool
+    private function matchesCommand(CronJob $cronJob, string $serverCommand): bool
     {
-        $normalizedCronJob = $this->normalizeCommand($cronJobCommand);
-        if ($normalizedCronJob === $serverCommand) {
-            return true;
-        }
+        $commands = [
+            $this->normalizeCommand($cronJob->command),
+            $this->normalizeCommand($cronJob->executionCommand()),
+        ];
 
-        $unwrapped = CronJob::unwrapCommand($serverCommand);
-
-        return $unwrapped !== null && $this->normalizeCommand($unwrapped) === $normalizedCronJob;
+        return in_array($serverCommand, $commands, true)
+            || in_array($this->normalizeCommand(CronJob::unwrapCommand($serverCommand) ?? $serverCommand), $commands, true);
     }
 
-    
-    /**
-     * Returns null when the crontab could not be read, so callers never mistake an SSH failure for an empty crontab.
-     */
     private function getUserCrontab(Server $server, string $user): ?string
     {
         try {

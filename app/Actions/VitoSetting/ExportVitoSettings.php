@@ -10,8 +10,6 @@ use ZipArchive;
 class ExportVitoSettings
 {
     /**
-     * Paths relative to the project root that make up a Vito backup, keyed by their name inside the archive.
-     *
      * @var array<string, string>
      */
     public const PATHS = [
@@ -23,9 +21,6 @@ class ExportVitoSettings
         'server-logs' => 'storage/app/server-logs',
     ];
 
-    /**
-     * Returns the absolute path of the archive written to the tmp disk.
-     */
     public function export(string $zipFileName): string
     {
         $zipPath = Storage::disk('tmp')->path($zipFileName);

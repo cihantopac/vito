@@ -32,7 +32,7 @@ export default function ReplicaLogs({ replica }: { replica: DatabaseReplica }) {
       <div className="flex flex-col gap-1">
         <h3 className="text-lg font-semibold">Logs</h3>
         <p className="text-muted-foreground text-sm">
-          Every command Vito runs for this replica is logged on the server it ran on: network, firewall, pg_hba.conf, pgBackRest and certificates. The
+          Every command Pure runs for this replica is logged on the server it ran on: network, firewall, pg_hba.conf, pgBackRest and certificates. The
           restore output comes straight from the restore process on the replica.
         </p>
       </div>

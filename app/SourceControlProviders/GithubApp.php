@@ -68,7 +68,6 @@ class GithubApp extends AbstractSourceControlProvider
         }
     }
 
-    
     public function getRepo(string $repo): mixed
     {
         $res = $this->getClient()->get(self::API_BASE_URL.'/repos/'.$repo);
@@ -83,7 +82,6 @@ class GithubApp extends AbstractSourceControlProvider
         return sprintf('https://github.com/%s.git', $repo);
     }
 
-    
     public function deployHook(string $repo, array $events, string $secret): array
     {
         return [
@@ -96,7 +94,6 @@ class GithubApp extends AbstractSourceControlProvider
 
     public function destroyHook(string $repo, string $hookId): void {}
 
-    
     public function getLastCommit(string $repo, string $branch): ?array
     {
         $url = self::API_BASE_URL.'/repos/'.$repo.'/commits/'.$branch;
@@ -109,10 +106,11 @@ class GithubApp extends AbstractSourceControlProvider
             return [
                 'commit_id' => $commit['sha'],
                 'commit_data' => [
-                    'name' => $commit['commit']['committer']['name'] ?? null,
-                    'email' => $commit['commit']['committer']['email'] ?? null,
+                    'name' => $commit['commit']['committer']['name'] ?? $commit['commit']['author']['name'] ?? null,
+                    'email' => $commit['commit']['committer']['email'] ?? $commit['commit']['author']['email'] ?? null,
                     'message' => $commit['commit']['message'] ?? null,
                     'url' => $commit['html_url'] ?? null,
+                    'date' => $commit['commit']['committer']['date'] ?? $commit['commit']['author']['date'] ?? null,
                 ],
             ];
         }
@@ -264,7 +262,6 @@ class GithubApp extends AbstractSourceControlProvider
         ]);
     }
 
-    
     private function fetchAllPages(string $endpoint, array $params = [], ?string $wrapKey = null): Collection
     {
         $allData = collect();

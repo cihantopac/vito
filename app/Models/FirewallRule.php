@@ -29,6 +29,9 @@ class FirewallRule extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);

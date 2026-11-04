@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useId, useMemo, useState } from 'react';
+import { FormEvent, useId, useMemo, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

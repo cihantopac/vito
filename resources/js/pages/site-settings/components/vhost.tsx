@@ -10,13 +10,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { EyeIcon, LoaderCircleIcon, RotateCcwIcon } from 'lucide-react';
 import { registerCaddyLanguage, registerNginxLanguage } from '@/lib/editor';
-import { useAppearance } from '@/hooks/use-appearance';
 import { Site } from '@/types/site';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { StatusRipple } from '@/components/status-ripple';
 
 export default function VHost({ site, children }: { site: Site; children: ReactNode }) {
-  const { getActualAppearance } = useAppearance();
   const [open, setOpen] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -114,7 +112,7 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
             <Editor
               defaultLanguage={site.webserver}
               value={form.data.template}
-              theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+              theme="vs-dark"
               className="h-full"
               onChange={(value) => form.setData('template', value ?? '')}
               options={{
@@ -184,7 +182,7 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
             <Editor
               defaultLanguage={site.webserver}
               value={previewContent}
-              theme={getActualAppearance() === 'dark' ? 'vs-dark' : 'vs'}
+              theme="vs-dark"
               className="h-full"
               options={{
                 fontSize: 15,

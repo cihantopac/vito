@@ -32,7 +32,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
   const groups = useMemo(() => [...new Set(filteredPlans.map((plan) => plan.group))], [filteredPlans]);
 
   const money = (amount: number) =>
-    new Intl.NumberFormat('de-DE', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'EUR',
       maximumFractionDigits: 2,
@@ -48,7 +48,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
               <span className="flex items-center gap-2 truncate font-medium">
                 {selectedPlan.name}
                 {selectedPlan.deprecated && (
-                  <Badge variant="outline" className="text-[10px] font-normal text-amber-600 dark:text-amber-400 border-amber-500/30">
+                  <Badge variant="outline" className="text-[10px] font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
                     Deprecated
                   </Badge>
                 )}
@@ -90,7 +90,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
                 <section key={group} className="space-y-2">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-medium">{group}</h3>
-                    <Badge variant={group.includes('Deprecated') ? 'outline' : 'gray'} className={cn(group.includes('Deprecated') && 'text-amber-600 dark:text-amber-400 border-amber-500/30')}>
+                    <Badge variant={group.includes('Deprecated') ? 'outline' : 'gray'} className={cn(group.includes('Deprecated') && 'text-neutral-600 dark:text-neutral-400 border-neutral-500/30')}>
                       {filteredPlans.filter((plan) => plan.group === group).length} plans
                     </Badge>
                   </div>
@@ -125,7 +125,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
                                   <div className="flex items-center gap-2">
                                     <span className="font-medium">{plan.name}</span>
                                     {plan.deprecated && (
-                                      <Badge variant="outline" className="text-[10px] text-amber-600 dark:text-amber-400 border-amber-500/30">
+                                      <Badge variant="outline" className="text-[10px] text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
                                         Deprecated
                                       </Badge>
                                     )}

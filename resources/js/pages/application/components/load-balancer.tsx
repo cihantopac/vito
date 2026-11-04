@@ -6,7 +6,7 @@ import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { BookOpenIcon, LoaderCircleIcon, XIcon } from 'lucide-react';
+import { LoaderCircleIcon, XIcon } from 'lucide-react';
 import SiteBanners from '@/components/site-banners';
 import React, { FormEvent, useEffect } from 'react';
 import { LoadBalancerServer } from '@/types/load-balancer-server';

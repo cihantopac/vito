@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-theme="{{ $config->get('ui.theme', 'light') }}">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="color-scheme" content="{{ $config->get('ui.theme', 'light') }}">
+    <meta name="color-scheme" content="dark">
     <title>{{ $config->get('ui.title', config('app.name') . ' - API Docs') }}</title>
 
     <script src="https://unpkg.com/@stoplight/elements@8.4.2/web-components.min.js"></script>
@@ -87,23 +87,5 @@
     })();
 </script>
 
-@if($config->get('ui.theme', 'light') === 'system')
-    <script>
-        var mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-        function updateTheme(e) {
-            if (e.matches) {
-                window.document.documentElement.setAttribute('data-theme', 'dark');
-                window.document.getElementsByName('color-scheme')[0].setAttribute('content', 'dark');
-            } else {
-                window.document.documentElement.setAttribute('data-theme', 'light');
-                window.document.getElementsByName('color-scheme')[0].setAttribute('content', 'light');
-            }
-        }
-
-        mediaQuery.addEventListener('change', updateTheme);
-        updateTheme(mediaQuery);
-    </script>
-@endif
 </body>
 </html>

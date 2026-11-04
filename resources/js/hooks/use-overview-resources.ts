@@ -22,48 +22,16 @@ export type OverviewProject = {
   is_current: boolean;
 };
 
-export type OverviewProviderItem = {
-  id: number;
-  provider: string;
-  profile: string;
-  connected?: boolean;
-};
-
-export type OverviewBackup = {
-  id: number;
-  name: string;
-  server_name?: string;
-  interval?: string;
-};
-
-export type OverviewDomain = {
-  id: number;
-  domain: string;
-  provider_name?: string;
-};
-
 export type OverviewResources = {
   servers: OverviewServer[];
   sites: OverviewSite[];
   projects?: OverviewProject[];
-  server_providers?: OverviewProviderItem[];
-  source_controls?: OverviewProviderItem[];
-  storage_providers?: OverviewProviderItem[];
-  dns_providers?: OverviewProviderItem[];
-  backups?: OverviewBackup[];
-  domains?: OverviewDomain[];
 };
 
 const emptyResources: OverviewResources = {
   servers: [],
   sites: [],
   projects: [],
-  server_providers: [],
-  source_controls: [],
-  storage_providers: [],
-  dns_providers: [],
-  backups: [],
-  domains: [],
 };
 
 export function useOverviewResources(

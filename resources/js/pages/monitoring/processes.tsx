@@ -197,7 +197,7 @@ export default function Processes() {
                 className="h-8 w-[95px] text-xs bg-muted/30 border-muted-foreground/20 hover:bg-muted/50 gap-1 px-2"
                 aria-label="Auto refresh"
               >
-                {interval !== '0' && <span className="size-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />}
+                {interval !== '0' && <span className="size-1.5 rounded-full bg-neutral-500 shrink-0 animate-pulse" />}
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

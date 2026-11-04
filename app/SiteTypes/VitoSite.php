@@ -501,10 +501,8 @@ class VitoSite extends PHPSite
                 foreach ($config['environment'] as $key => $val) {
                     $envLines[] = escapeshellarg("{$key}={$val}");
                 }
-                if (! empty($envLines)) {
-                    $appendCmd = 'echo '.implode(' >> '.$sitePath.'/.env && echo ', $envLines).' >> '.$sitePath.'/.env';
-                    $this->site->server->ssh($this->site->user)->exec($appendCmd, 'append-env', $this->site->id);
-                }
+                $appendCmd = 'echo '.implode(' >> '.$sitePath.'/.env && echo ', $envLines).' >> '.$sitePath.'/.env';
+                $this->site->server->ssh($this->site->user)->exec($appendCmd, 'append-env', $this->site->id);
             }
 
             $log?->write("Environment file (.env) ready.\n");

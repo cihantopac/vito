@@ -14,20 +14,88 @@ import moment from 'moment';
 
 const commitCell = ({ row }: CellRenderProps) => {
   const commit = (row.commit_data ?? {}) as Deployment['commit_data'];
-  if (!commit.message) {
-    return <span className="text-muted-foreground">No message</span>;
+  const isDuplicate = Boolean(row.is_duplicate);
+  const commitShort = (row.commit_id_short as string) || (row.commit_id ? String(row.commit_id).slice(0, 7) : '');
+  const originalDeploymentId = row.original_deployment_id as number | undefined;
+
+  if (!commit.message && !commitShort) {
+    return <span className="text-muted-foreground">—</span>;
   }
 
   const href = commit.url && /^https?:\/\//.test(commit.url) ? commit.url : undefined;
+  const duplicateTitle = originalDeploymentId
+    ? `Same commit already deployed in deployment #${originalDeploymentId}`
+    : 'Same commit already deployed in an earlier deployment';
 
-  return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary inline-flex truncate font-mono">
-      <span className="block max-w-[200px] overflow-x-hidden overflow-ellipsis">{commit.message}</span>
-    </a>
-  ) : (
-    <span className="inline-flex truncate font-mono">
-      <span className="block max-w-[200px] overflow-x-hidden overflow-ellipsis">{commit.message}</span>
-    </span>
+  return (
+    <div className="flex flex-col gap-0.5 min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0">
+        {href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground hover:text-info whitespace-normal break-words font-medium text-xs hover:underline"
+            title={commit.message || commitShort}
+          >
+            {commit.message || commitShort}
+          </a>
+        ) : (
+          <span
+            className="text-foreground whitespace-normal break-words font-medium text-xs"
+            title={commit.message || commitShort}
+          >
+            {commit.message || commitShort}
+          </span>
+        )}
+
+        {isDuplicate && (
+          <Badge
+            variant="outline"
+            className="text-[10px] uppercase font-mono px-1 py-0 shrink-0 text-neutral-500 border-neutral-500/30 bg-neutral-500/10 dark:text-neutral-400"
+            title={duplicateTitle}
+          >
+            duplicate
+          </Badge>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-mono flex-wrap">
+        {commitShort && (
+          href ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground underline decoration-dotted"
+              title="View commit"
+            >
+              {commitShort}
+            </a>
+          ) : (
+            <span>{commitShort}</span>
+          )
+        )}
+
+        {commit.date && (
+          <>
+            <span className="text-muted-foreground/50">·</span>
+            <span title={`Committed on ${moment(commit.date).format('YYYY-MM-DD HH:mm:ss')}`}>
+              Committed <DateTime date={commit.date} relative />
+            </span>
+          </>
+        )}
+
+        {commit.name && (
+          <>
+            <span className="text-muted-foreground/50">·</span>
+            <span className="truncate max-w-[120px]" title={commit.name}>
+              {commit.name}
+            </span>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
@@ -43,9 +111,14 @@ const deployedAtCell = ({ row, value }: CellRenderProps) => {
   if (!dateStr) return <span className="text-muted-foreground">—</span>;
 
   return (
-    <span className="text-xs font-medium text-foreground cursor-default">
-      <DateTime date={dateStr} relative />
-    </span>
+    <div className="flex flex-col text-xs cursor-default">
+      <span className="font-medium text-foreground">
+        <DateTime date={dateStr} relative />
+      </span>
+      <span className="text-[11px] text-muted-foreground" title={dateStr}>
+        {moment(dateStr).format('MMM D, HH:mm')}
+      </span>
+    </div>
   );
 };
 
@@ -83,10 +156,7 @@ const durationCell = ({ row }: CellRenderProps) => {
   const deployment = row as unknown as Deployment;
   if (deployment.status === 'deploying') {
     return (
-      <span className="text-warning text-xs font-mono inline-flex items-center gap-1">
-        <LoaderCircleIcon className="size-3 animate-spin" />
-        <span>Running</span>
-      </span>
+      <span className="text-muted-foreground text-xs font-mono">Running</span>
     );
   }
 
@@ -114,6 +184,8 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
 
   return (
     <VitoTable
+      fitContent
+      columnWidths={{ actions: '3.25rem', id: '4.5rem', deployed_by: '12%', status: '10%', duration: '8%', release: '9%', created_at: '15%' }}
       tableData={deployments}
       showPagination={showPagination}
       reloadOnly={['deployments']}

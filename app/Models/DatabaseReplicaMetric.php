@@ -31,6 +31,9 @@ class DatabaseReplicaMetric extends AbstractModel
         'slot_retained_bytes' => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<DatabaseReplica, $this>
+     */
     public function databaseReplica(): BelongsTo
     {
         return $this->belongsTo(DatabaseReplica::class);

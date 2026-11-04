@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CronJob extends AbstractModel
 {
-    
     use HasFactory;
 
     public static function boot(): void
@@ -39,23 +38,33 @@ class CronJob extends AbstractModel
         'status' => CronjobStatus::class,
     ];
 
-    
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
+    /**
+     * @return HasMany<CommandExecution, $this>
+     */
     public function executions(): HasMany
     {
         return $this->hasMany(CommandExecution::class);
     }
 
+    /**
+     * @return HasOne<CommandExecution, $this>
+     */
     public function lastExecution(): HasOne
     {
         return $this->hasOne(CommandExecution::class)->latestOfMany();
@@ -76,6 +85,7 @@ class CronJob extends AbstractModel
     {
         return $server->cronJobs()
             ->where('user', $user)
+            ->with('site')
             ->whereIn('status', [
                 CronjobStatus::READY,
                 CronjobStatus::CREATING,
@@ -83,8 +93,15 @@ class CronJob extends AbstractModel
                 CronjobStatus::ENABLING,
             ])
             ->get()
-            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' ? $cronJob->command : self::wrapCommand($cronJob->command)))
+            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
             ->implode("\n");
+    }
+
+    public function executionCommand(): string
+    {
+        return $this->site
+            ? 'cd '.escapeshellarg($this->site->path).' && ('.$this->command.')'
+            : $this->command;
     }
 
     public static function wrapCommand(string $command): string

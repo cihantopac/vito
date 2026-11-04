@@ -41,10 +41,10 @@ class DeleteSite
         }
 
         $iuser = $site->isolatedUser;
-        $lock = $iuser->lock();
+        $lock = $iuser?->lock();
 
         try {
-            $lock->block(30);
+            $lock?->block(30);
         } catch (LockTimeoutException) {
             throw ValidationException::withMessages([
                 'domain' => "Another operation on isolated user '{$site->user}' is in progress, please retry.",
@@ -69,7 +69,7 @@ class DeleteSite
                 $iuser?->delete();
             }
         } finally {
-            $lock->release();
+            $lock?->release();
         }
     }
 

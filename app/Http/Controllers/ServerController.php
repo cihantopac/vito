@@ -9,7 +9,6 @@ use App\Actions\Server\ExecuteServerReboot;
 use App\Actions\Server\GetAccessibleServers;
 use App\Actions\Server\GetServers;
 use App\Actions\Server\ProbeServerConnection;
-use App\Actions\Server\Security\CalculateSecurityScore;
 use App\Actions\Server\StartServer;
 use App\Actions\Server\StopServer;
 use App\Actions\Server\TransferServer;
@@ -39,7 +38,6 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth', 'has-project'])]
 class ServerController extends Controller
 {
-
     #[Get('/', name: 'servers')]
     public function index(Request $request): Response
     {
@@ -131,7 +129,6 @@ class ServerController extends Controller
         $this->authorize('view', $server);
 
         return Inertia::render('servers/show', [
-            'securityScore' => app(CalculateSecurityScore::class)->calculate($server),
             'logs' => $server->isInstalling()
                 ? Inertia::defer(fn () => ServerLogResource::collection($server->logs()->latest()->simplePaginate(config('web.pagination_size'), pageName: 'logsPage')))
                 : null,
@@ -218,8 +215,6 @@ class ServerController extends Controller
 
         return back()->with('success', 'Server start command sent to '.$server->provider.'.');
     }
-
-    
 
     #[Post('/{server}/check-for-updates', name: 'servers.check-for-updates')]
     public function checkForUpdates(Server $server): RedirectResponse

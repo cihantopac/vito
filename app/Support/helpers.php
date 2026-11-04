@@ -15,7 +15,7 @@ function generate_public_key(string $privateKeyPath, string $publicKeyPath): voi
 {
     if (file_exists($privateKeyPath)) {
         chmod($privateKeyPath, 0400);
-        exec("ssh-keygen -y -f {$privateKeyPath} > {$publicKeyPath}");
+        exec('ssh-keygen -y -f '.escapeshellarg($privateKeyPath).' > '.escapeshellarg($publicKeyPath));
     }
 }
 
@@ -30,7 +30,7 @@ function generate_key_pair(string $path): void
         @unlink("{$path}.pub");
     }
 
-    exec("ssh-keygen -t ed25519 -N '' -f {$path} -q");
+    exec("ssh-keygen -t ed25519 -N '' -q -f ".escapeshellarg($path));
 
     if (! file_exists($path)) {
         throw new RuntimeException('Failed to generate SSH key pair.');

@@ -49,7 +49,7 @@ export default function Invite({
               <div>
                 <DialogTitle>Add user to {project.name}</DialogTitle>
                 <DialogDescription>
-                  Select a Vito user and choose their role. The user will be added to the project immediately.
+                  Select a Pure user and choose their role. The user will be added to the project immediately.
                 </DialogDescription>
               </div>
             </div>

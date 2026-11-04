@@ -11,9 +11,8 @@ use Illuminate\Support\Facades\Cache;
 class ServerProvider extends AbstractModel
 {
     use HasProjectScopedQueries;
-    
-    use HasFactory;
 
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -31,19 +30,22 @@ class ServerProvider extends AbstractModel
         'project_id' => 'integer',
     ];
 
-    
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    
     public function getCredentials(): array
     {
         return $this->credentials;
     }
 
-    
+    /**
+     * @return HasMany<Server, $this>
+     */
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class, 'provider_id');
@@ -53,21 +55,20 @@ class ServerProvider extends AbstractModel
     {
         $providerClass = config('server-provider.providers.'.$this->provider.'.handler');
 
-        
         $provider = new $providerClass($this, new Server);
 
         return $provider;
     }
 
-    
+    /**
+     * @return BelongsTo<Project, $this>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
     /**
-     * Provider catalogues change rarely, so they are cached per provider and dropped by forgetCatalogue() when credentials change.
-     *
      * @return array<string, mixed>
      */
     public function cachedRegions(): array
@@ -94,6 +95,4 @@ class ServerProvider extends AbstractModel
 
         return "server-provider:{$this->id}:{$version}:{$suffix}";
     }
-
-
 }

@@ -18,10 +18,9 @@ chmod +x ./$executable
 
 sudo mv ./$executable /usr/local/bin/vito-agent
 
-# create service
 export VITO_AGENT_SERVICE="
 [Unit]
-Description=Vito Agent
+Description=Pure Agent
 After=network.target
 
 [Service]
@@ -51,4 +50,4 @@ sudo systemctl daemon-reload
 sudo systemctl enable vito-agent
 sudo systemctl start vito-agent
 
-echo "Vito Agent installed successfully"
+echo "Pure Agent installed successfully"

@@ -4,7 +4,7 @@ import * as RechartsPrimitive from 'recharts';
 import { cn } from '@/lib/utils';
 
 
-const THEMES = { light: '', dark: '.dark' } as const;
+const THEMES = { dark: '.dark' } as const;
 
 export type ChartConfig = {
   [k in string]: {
@@ -193,7 +193,7 @@ function ChartTooltipContent({
                       {nestLabel ? tooltipLabel : null}
                       <span className="text-muted-foreground">{itemConfig?.label || item.name}</span>
                     </div>
-                    {item.value && <span className="text-foreground font-mono font-medium tabular-nums">{item.value.toLocaleString()}</span>}
+                    {item.value && <span className="text-foreground font-mono font-medium tabular-nums">{item.value.toLocaleString('en-US')}</span>}
                   </div>
                 </>
               )}

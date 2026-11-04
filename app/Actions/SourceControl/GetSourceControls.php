@@ -6,14 +6,22 @@ use App\Helpers\QueryBuilder;
 use App\Models\SourceControl;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Validator;
 
 class GetSourceControls
 {
     public function get(User $user, array $input): LengthAwarePaginator
     {
+        $input = Validator::make($input, [
+            'search' => ['nullable', 'string', 'max:255'],
+            'provider' => ['nullable', 'string', 'max:100'],
+            'project_id' => ['nullable', 'regex:/^(all|global|[0-9]+)$/'],
+            'user_id' => ['nullable', 'regex:/^(all|[0-9]+)$/'],
+        ])->validate();
+
         $query = SourceControl::query()
             ->when(! $user->isAdmin(), fn ($query) => $query->where('user_id', $user->id))
-            ->with(['user', 'project']);
+            ->with(['user', 'project' => fn ($query) => $query->forResource($user)]);
 
         $provider = $input['provider'] ?? null;
         if ($provider && $provider !== 'all') {

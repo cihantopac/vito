@@ -71,6 +71,6 @@ class GetLogRotationData
         $units = ['B', 'KB', 'MB', 'GB'];
         $i = (int) floor(log($bytes, 1024));
         $i = min($i, count($units) - 1);
-        return round($bytes / pow(1024, $i), 2) . ' ' . $units[$i];
+        return round($bytes / pow(1024, $i)) . ' ' . $units[$i];
     }
 }

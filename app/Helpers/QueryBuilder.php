@@ -35,17 +35,15 @@ class QueryBuilder
     {
         $this->columnMap = $columnMap;
 
-        if (request()->has('sort_by') && request()->has('sort_dir')) {
-            $sortBy = (string) request('sort_by');
-            $sortDir = (string) request('sort_dir');
+        $this->sortBy = $defaultSortBy ? ($columnMap[$defaultSortBy] ?? $defaultSortBy) : null;
+        $this->sortDir = strtolower($defaultSortDir ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sortBy = request('sort_by');
+        $sortDir = request('sort_dir');
 
-            $dir = strtolower($sortDir) === 'asc' ? 'asc' : 'desc';
-
-            $this->sortBy = $this->columnMap[$sortBy] ?? $sortBy;
-            $this->sortDir = $dir;
-        } elseif ($defaultSortBy && $defaultSortDir) {
-            $this->sortBy = $this->columnMap[$defaultSortBy] ?? $defaultSortBy;
-            $this->sortDir = strtolower($defaultSortDir) === 'asc' ? 'asc' : 'desc';
+        if (is_string($sortBy) && is_string($sortDir)
+            && (array_key_exists($sortBy, $columnMap) || $sortBy === $defaultSortBy)) {
+            $this->sortBy = $columnMap[$sortBy] ?? $sortBy;
+            $this->sortDir = strtolower($sortDir) === 'asc' ? 'asc' : 'desc';
         }
 
         return $this;
@@ -80,7 +78,7 @@ class QueryBuilder
     public function query(): Builder|Relation
     {
         $this->query->where(function ($query) {
-            if (request()->has('search') && ! empty(request('search'))) {
+            if (is_string(request('search')) && request('search') !== '' && $this->searchableFields !== []) {
                 $search = request('search');
                 $query->where(function ($q) use ($search) {
                     foreach ($this->searchableFields as $field) {
