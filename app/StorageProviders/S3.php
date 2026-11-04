@@ -201,7 +201,6 @@ class S3 extends AbstractStorageProvider
                 'Bucket' => $bucket,
                 'Key' => $key,
                 'Body' => $body,
-                'ContentMD5' => base64_encode(md5($body, true)),
             ]);
 
             try {
