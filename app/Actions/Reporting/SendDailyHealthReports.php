@@ -43,7 +43,7 @@ class SendDailyHealthReports
     }
 
     /**
-     * @return array{}|array{projects: int, servers: int, critical: array<int, array{server: string, project: string, url: string, issues: array<int, string>}>, warning: array<int, array{server: string, project: string, url: string, issues: array<int, string>}>, updates: array{servers: int, packages: int, kernel: int, top: array<int, array{server: string, url: string, count: int}>}, clear: array<int, string>, missing: array<int, string>}
+     * @return array{}|array{projects: int, servers: int, critical: array<int, array{server: string, project: string, url: string, down: bool, issues: array<string, array<int, string>>}>, warning: array<int, array{server: string, project: string, url: string, down: bool, issues: array<string, array<int, string>>}>, updates: array{servers: int, packages: int, kernel: int, top: array<int, array{server: string, url: string, count: int}>}, clear: array<int, string>, missing: array<int, string>}
      */
     public function report(User $user, string $date): array
     {
@@ -71,6 +71,7 @@ class SendDailyHealthReports
                     continue;
                 }
                 $label = str_replace(' (server measurement)', '', array_pad(explode(' · ', $issue['label'], 2), 2, '')[1]);
+                $label = $type === 'metrics' ? 'No monitoring data for 15+ min' : $label;
                 $levels[(int) $match[1]][$type === 'metrics' ? 'warning' : 'critical'][] = $label;
             }
             $hasIssues = false;
@@ -86,12 +87,12 @@ class SendDailyHealthReports
                     unset($issues['warning']);
                 }
                 foreach ($issues as $level => $labels) {
-                    $counts = array_count_values($labels);
                     $report[$level][] = [
                         'server' => $server->name,
                         'project' => $project->name,
                         'url' => $base.'/servers/'.$server->id,
-                        'issues' => array_map(fn ($label, $count) => $count > 1 ? $label.' ×'.$count : $label, array_keys($counts), $counts),
+                        'down' => $server->status === ServerStatus::DISCONNECTED,
+                        'issues' => $this->byStatus($labels),
                     ];
                     $hasIssues = true;
                 }
@@ -107,11 +108,29 @@ class SendDailyHealthReports
             }
         }
         foreach (['critical', 'warning'] as $level) {
-            usort($report[$level], fn ($a, $b) => count($b['issues']) <=> count($a['issues']));
+            usort($report[$level], fn ($a, $b) => [$b['down'], count($b['issues'], COUNT_RECURSIVE), json_encode($b['issues'])] <=> [$a['down'], count($a['issues'], COUNT_RECURSIVE), json_encode($a['issues'])]);
         }
         usort($report['updates']['top'], fn ($a, $b) => $b['count'] <=> $a['count']);
         $report['updates']['top'] = array_slice($report['updates']['top'], 0, 5);
 
         return $report;
+    }
+
+    /**
+     * Groups "name — status" labels by status so the email reads "Failed: horizon ×2, app".
+     *
+     * @param  array<int, string>  $labels
+     * @return array<string, array<int, string>>
+     */
+    private function byStatus(array $labels): array
+    {
+        $groups = [];
+        foreach (array_count_values($labels) as $label => $count) {
+            [$name, $status] = str_contains($label, ' — ') ? explode(' — ', $label, 2) : [$label, ''];
+            $name = $status === '' ? ucfirst($name) : $name;
+            $groups[ucfirst(str_replace('_', ' ', $status))][] = $count > 1 ? $name.' ×'.$count : $name;
+        }
+
+        return $groups;
     }
 }
