@@ -111,11 +111,25 @@ class CronJob extends AbstractModel
 
     public static function unwrapAll(string $command): string
     {
-        while (($inner = self::unwrapCommand(trim($command))) !== null) {
-            $command = $inner;
+        $command = trim($command);
+
+        while (($inner = self::unwrapCommand($command) ?? self::stripLegacyEscaping($command)) !== null) {
+            $command = trim($inner);
         }
 
         return $command;
+    }
+
+    /**
+     * Older releases escaped crontab content twice, leaving commands stored as \''command'\'.
+     */
+    private static function stripLegacyEscaping(string $command): ?string
+    {
+        if (! str_starts_with($command, "\\''") || ! str_ends_with($command, "'\\'")) {
+            return null;
+        }
+
+        return str_replace("'\\''", "'", substr($command, 3, -3));
     }
 
     public static function unwrapCommand(string $command): ?string

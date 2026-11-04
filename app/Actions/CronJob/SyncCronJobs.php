@@ -5,46 +5,55 @@ namespace App\Actions\CronJob;
 use App\Enums\CronjobStatus;
 use App\Models\CronJob;
 use App\Models\Server;
+use Throwable;
 
 class SyncCronJobs
 {
-    public function sync(Server $server): void
+    /**
+     * @return array<string, string> failure messages keyed by the user whose crontab could not be synced
+     */
+    public function sync(Server $server): array
     {
         $users = array_values(array_filter($server->getSshUsers(), fn ($u) => is_string($u) && $u !== ''));
+        $errors = [];
 
         foreach ($users as $user) {
-            $this->syncUserCronJobs($server, $user);
+            try {
+                $this->syncUserCronJobs($server, $user);
+            } catch (Throwable $e) {
+                $errors[$user] = $e->getMessage();
+            }
         }
+
+        return $errors;
     }
 
     private function syncUserCronJobs(Server $server, string $user): void
     {
         $crontabOutput = $this->getUserCrontab($server, $user);
 
-        if ($crontabOutput === null) {
-            return;
-        }
-
         $vitoCronJobs = $server->cronJobs()
             ->where('user', $user)
             ->with('site')
             ->get();
 
-        $serverLevelCronJobs = $vitoCronJobs->where('site_id', null);
+        if ($user !== 'root') {
+            foreach ($vitoCronJobs as $cronJob) {
+                $cleanCommand = CronJob::unwrapAll($cronJob->command);
 
-        if (empty($crontabOutput)) {
-            foreach ($serverLevelCronJobs as $cronJob) {
-                if ($cronJob->status === CronjobStatus::READY) {
-                    $cronJob->update(['status' => CronjobStatus::DISABLED]);
+                if ($cleanCommand !== $cronJob->command) {
+                    $cronJob->update(['command' => $cleanCommand]);
                 }
             }
-
-            return;
         }
 
-        $lines = explode("\n", trim($crontabOutput));
+        $serverLevelCronJobs = $vitoCronJobs->where('site_id', null);
+
+        $lines = explode("\n", $crontabOutput);
         $serverCronJobs = [];
         $foundCronJobs = [];
+        $activeLines = [];
+        $unmanagedLines = [];
 
         foreach ($lines as $line) {
             $line = trim($line);
@@ -53,6 +62,7 @@ class SyncCronJobs
                 continue;
             }
 
+            $rawLine = $line;
             $isCommented = str_starts_with($line, '#');
 
             if ($isCommented) {
@@ -62,6 +72,8 @@ class SyncCronJobs
 
             $parts = preg_split('/\s+/', $line, 6);
             if (count($parts) < 6) {
+                $unmanagedLines[] = $rawLine;
+
                 continue;
             }
 
@@ -74,11 +86,17 @@ class SyncCronJobs
             }
 
             if (! $isValidCronFormat) {
+                $unmanagedLines[] = $rawLine;
+
                 continue;
             }
 
             $frequency = $this->normalizeFrequency(implode(' ', array_slice($parts, 0, 5)));
-            $command = $this->normalizeCommand(CronJob::unwrapAll($parts[5]));
+            $command = $this->normalizeCommand($user === 'root' ? $parts[5] : CronJob::unwrapAll($parts[5]));
+
+            if (! $isCommented) {
+                $activeLines[] = $this->normalizeCommand($line);
+            }
 
             $serverCronJobs[] = [
                 'frequency' => $frequency,
@@ -124,6 +142,12 @@ class SyncCronJobs
                 ]);
             }
         }
+
+        $desiredLines = array_values(array_filter(explode("\n", CronJob::crontab($server, $user))));
+
+        if (array_diff(array_map($this->normalizeCommand(...), $desiredLines), $activeLines) !== []) {
+            $server->cron()->update($user, implode("\n", [...$unmanagedLines, ...$desiredLines]));
+        }
     }
 
     private function normalizeFrequency(string $frequency): string
@@ -146,14 +170,10 @@ class SyncCronJobs
         ], true);
     }
 
-    private function getUserCrontab(Server $server, string $user): ?string
+    private function getUserCrontab(Server $server, string $user): string
     {
-        try {
-            $output = $server->ssh($user)->exec("crontab -l 2>/dev/null || echo ''", 'get-user-crontab');
+        $output = $server->ssh($user)->exec("crontab -l 2>/dev/null || echo ''", 'get-user-crontab');
 
-            return trim(str_replace('cron updated!', '', $output));
-        } catch (\Throwable) {
-            return null;
-        }
+        return trim(str_replace('cron updated!', '', $output));
     }
 }
