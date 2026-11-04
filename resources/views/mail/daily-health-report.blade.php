@@ -1,34 +1,36 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pure daily health report</title></head>
-<body style="margin:0;background:#f5f5f5;color:#202020;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6">
-<div style="max-width:640px;margin:24px auto;padding:28px;background:#fff;border:1px solid #ddd;border-radius:12px">
-<h1 style="font-size:24px;margin:0">Daily health report</h1>
-<p style="color:#666">{{ $date }} · 09:00 · {{ config('app.timezone') }}<br>Previous 24 hours. Each recipient receives one report across their authorized projects.</p>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Daily health report</title></head>
+<body style="margin:0;background:#f5f5f5;color:#202020;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5">
+<div style="max-width:640px;margin:16px auto;padding:20px 24px;background:#fff;border:1px solid #ddd;border-radius:10px">
+<h1 style="font-size:20px;margin:0">Daily health report</h1>
+<p style="color:#666;margin:2px 0 0">{{ $date }} · last 24 hours until 09:00 {{ config('app.timezone') }}</p>
 @foreach ($groups as $group)
-<h2 style="font-size:19px;border-top:1px solid #ddd;padding-top:20px">{{ $group['name'] }}</h2>
-@if (count($group['hours']) === 0)
-<p>No monitoring snapshots are available for this period.</p>
-@elseif (count($group['issues']) === 0)
-<p>No issues detected in {{ count($group['hours']) }} hourly observations.</p>
+<h2 style="font-size:16px;margin:18px 0 4px;padding-top:14px;border-top:1px solid #ddd">{{ $group['name'] }}
+<span style="font-weight:normal;color:#666;font-size:13px">· {{ $group['open'] }} open · {{ $group['checks'] }} hourly checks</span></h2>
+@if ($group['checks'] === 0)
+<p style="margin:0;color:#666">No monitoring data for this period.</p>
+@elseif ($group['servers'] === [])
+<p style="margin:0">All clear.</p>
 @else
-<p>{{ count($group['issues']) }} distinct items need attention.</p>
-<ul style="padding-left:20px">
-@foreach ($group['issues'] as $issue)
-<li style="padding:5px 0"><a href="{{ $issue['url'] }}" style="color:#202020;text-decoration:underline">{{ $issue['label'] }}</a></li>
-@endforeach
-</ul>
+<table style="width:100%;border-collapse:collapse">
+@foreach ($group['servers'] as $name => $server)
+<tr>
+<td style="border-top:1px solid #eee;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap"><a href="{{ $server['url'] }}" style="color:#202020;font-weight:600">{{ $name }}</a></td>
+<td style="border-top:1px solid #eee;padding:6px 0">
+@if ($server['open'] === [])
+<span style="color:#1a7f37">OK</span>
+@else
+@foreach ($server['open'] as $issue)<a href="{{ $issue['url'] }}" style="color:#202020">{{ $issue['label'] }}</a>@if (! $loop->last)<span style="color:#999"> · </span>@endif @endforeach
 @endif
-@if (count($group['hours']) > 0)
-<h3 style="font-size:15px">Hourly summary</h3>
-<table style="width:100%;border-collapse:collapse;font-size:14px">
-<thead><tr><th align="left">Observation ({{ config('app.timezone') }})</th><th align="right">Items requiring attention</th></tr></thead>
-<tbody>
-@foreach ($group['hours'] as $hour)
-<tr><td style="border-top:1px solid #eee;padding:6px 0">{{ $hour->hour->format('d M H:i') }}</td><td align="right" style="border-top:1px solid #eee">{{ count($hour->issues) }}</td></tr>
+@if ($server['resolved'] !== [])
+<div style="color:#1a7f37;font-size:12px">Resolved: {{ implode(' · ', $server['resolved']) }}</div>
+@endif
+</td>
+</tr>
 @endforeach
-</tbody></table>
+</table>
 @endif
 @endforeach
-<p style="font-size:12px;color:#666;border-top:1px solid #ddd;padding-top:16px">RAM and disk percentages are server measurements. Listed sites share the affected server. Hourly observations may not capture short-lived incidents between samples.</p>
+<p style="font-size:12px;color:#666;margin:16px 0 0;padding-top:12px;border-top:1px solid #ddd">Open = still present in the latest hourly check. Short incidents between checks may not appear.</p>
 </div></body></html>

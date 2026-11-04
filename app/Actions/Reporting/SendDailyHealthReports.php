@@ -9,7 +9,6 @@ use App\Models\HealthReportSnapshot;
 use App\Models\Project;
 use App\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 
 class SendDailyHealthReports
@@ -43,7 +42,7 @@ class SendDailyHealthReports
     }
 
     /**
-     * @return array<int, array{name: string, issues: array<int, array{key: string, label: string, url: string}>, hours: Collection<int, HealthReportSnapshot>}>
+     * @return array<int, array{name: string, checks: int, open: int, servers: array<string, array{url: string, open: array<int, array{label: string, url: string}>, resolved: array<int, string>}>}>
      */
     public function groups(User $user, string $date): array
     {
@@ -57,8 +56,20 @@ class SendDailyHealthReports
         $groups = [];
         foreach ($projects as $project) {
             $hours = $snapshots->get($project->id, collect());
-            $issues = $hours->flatMap(fn ($snapshot) => $snapshot->issues)->unique('key')->values()->all();
-            $groups[] = ['name' => $project->name, 'issues' => $issues, 'hours' => $hours];
+            $latest = collect($hours->last()?->issues ?? [])->keyBy('key');
+            $seen = $hours->flatMap(fn ($snapshot) => $snapshot->issues)->reject(fn ($issue) => str_contains($issue['key'], ':site:'))->keyBy('key');
+            $servers = [];
+            foreach ($seen as $key => $issue) {
+                [$server, $label] = array_pad(explode(' · ', $issue['label'], 2), 2, '');
+                $servers[$server] ??= ['url' => preg_replace('#(/servers/\d+).*#', '$1', $issue['url']), 'open' => [], 'resolved' => []];
+                if ($latest->has($key)) {
+                    $servers[$server]['open'][] = ['label' => $label, 'url' => $issue['url']];
+                } else {
+                    $servers[$server]['resolved'][] = $label;
+                }
+            }
+            uasort($servers, fn ($a, $b) => count($b['open']) <=> count($a['open']));
+            $groups[] = ['name' => $project->name, 'checks' => $hours->count(), 'open' => array_sum(array_map(fn ($server) => count($server['open']), $servers)), 'servers' => $servers];
         }
 
         return $groups;

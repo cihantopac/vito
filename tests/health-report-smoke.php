@@ -49,9 +49,9 @@ $action=app(App\Actions\Reporting\SendDailyHealthReports::class);
 $action->handle(1,'2026-11-02');$action->handle(1,'2026-11-02');$action->handle(2,'2026-11-02');
 if (Mail::sent(App\Mail\DailyHealthReport::class)->count() !== 1) {throw new Exception('Duplicate email');}
 if (Mail::sent(App\Mail\DailyHealthReport::class,fn ($mail)=>count($mail->groups)===2 && $mail->hasTo('admin@example.test'))->count() !== 1) {throw new Exception('Permission or grouping failure');}
-$mail=new App\Mail\DailyHealthReport([['name'=>'Project','issues'=>$issues,'hours'=>App\Models\HealthReportSnapshot::query()->where('project_id',1)->get()]],'2026-11-02');
+$mail=new App\Mail\DailyHealthReport(app(App\Actions\Reporting\SendDailyHealthReports::class)->groups(App\Models\User::query()->find(1),'2026-11-02'),'2026-11-02');
 $html=$mail->render();
-if (!str_contains($html,'Hourly summary') || !str_contains($html,'https://vito.test/servers/1/services')) {throw new Exception('Email links/render: '.json_encode($issues));}
+if (!str_contains($html,'1 hourly checks') || !str_contains($html,'https://vito.test/servers/1/services') || str_contains($html,'affected by server')) {throw new Exception('Email links/render: '.$html);}
 
 echo "PASS: hourly idempotency, >90% boundary, service/worker/resource issues, affected sites, project authorization, per-user daily deduplication, email rendering and links.\n";
 
