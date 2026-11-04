@@ -208,7 +208,13 @@ class CronJobController extends Controller
     {
         $this->authorize('create', [CronJob::class, $server]);
 
-        app(SyncCronJobs::class)->sync($server);
+        $errors = app(SyncCronJobs::class)->sync($server);
+
+        if ($errors !== []) {
+            $details = collect($errors)->map(fn (string $message, string $user): string => "{$user}: {$message}")->implode('; ');
+
+            return back()->with('error', "Failed to sync cron jobs for {$details}");
+        }
 
         return back()
             ->with('success', 'Cron jobs synced successfully.');
