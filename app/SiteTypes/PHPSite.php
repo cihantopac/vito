@@ -2,16 +2,23 @@
 
 namespace App\SiteTypes;
 
-use App\Exceptions\FailedToDeployGitKey;
 use App\Exceptions\SSHError;
 use App\Models\Site;
+use App\Models\SourceControl;
 use App\SSH\OS\Composer;
-use App\SSH\OS\Git;
-use Illuminate\Contracts\View\View;
+use App\Tooling\NodeTooling;
+use App\Tooling\PnpmTooling;
+use App\Tooling\ToolingRegistry;
+use App\Tooling\YarnTooling;
+use App\Traits\NormalizesWebDirectory;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\ValidationRules\BranchExistsRule;
 
 class PHPSite extends AbstractSiteType
 {
+    use NormalizesWebDirectory;
+
     public static function id(): string
     {
         return 'php';
@@ -35,67 +42,147 @@ class PHPSite extends AbstractSiteType
         return new self(new Site(['type' => self::id()]));
     }
 
+    public static function createTimeTools(): array
+    {
+        return ['node', 'pnpm', 'yarn', 'composer'];
+    }
+
+    public static function requiredTooling(): array
+    {
+        return ['composer'];
+    }
+
+    public static function supportsTooling(): bool
+    {
+        return true;
+    }
+
     public function createRules(array $input): array
     {
-        return [
+        $rules = [
             'php_version' => [
                 'required',
                 Rule::in($this->site->server->installedPHPVersions()),
             ],
-            'source_control' => [
-                'required',
-                Rule::exists('source_controls', 'id'),
-            ],
+            'source_control' => SourceControl::siteValidationRules($this->site->server),
             'web_directory' => [
                 'nullable',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z0-9._\-\/]+$/',
+                'not_regex:/\.\./',
             ],
             'repository' => [
                 'required',
             ],
             'branch' => [
                 'required',
+                new BranchExistsRule($input['source_control'] ?? null, $input['repository'] ?? null),
             ],
             'composer' => [
                 'nullable',
             ],
         ];
+
+        foreach (static::createTimeTools() as $toolId) {
+            $tool = ToolingRegistry::find($toolId);
+            if (! $tool) {
+                continue;
+            }
+            $rules[$tool::typeDataKey()] = [
+                'nullable',
+                Rule::in($tool::supportedVersionsWithNone()),
+            ];
+        }
+
+        $rules['package_manager'] = [
+            'nullable',
+            Rule::in(['none', NodeTooling::id(), PnpmTooling::id(), YarnTooling::id()]),
+        ];
+
+        return $rules;
     }
 
     public function createFields(array $input): array
     {
         return [
-            'web_directory' => $input['web_directory'] ?? '',
+            'web_directory' => $this->normalizeWebDirectory($input['web_directory'] ?? ''),
             'source_control_id' => $input['source_control'] ?? '',
             'repository' => $input['repository'] ?? '',
             'branch' => $input['branch'] ?? '',
             'php_version' => $input['php_version'] ?? '',
-            'composer' => $input['composer'] ?? '',
         ];
     }
 
     public function data(array $input): array
     {
+        $data = [
+            
+            'composer' => ! isset($input['composer']) || (bool) $input['composer'],
+        ];
+
+        $packageManager = $input['package_manager'] ?? 'none';
+
+        foreach (static::createTimeTools() as $toolId) {
+            $tool = ToolingRegistry::find($toolId);
+            if (! $tool) {
+                continue;
+            }
+            $key = $tool::typeDataKey();
+
+            if (in_array($toolId, static::requiredTooling(), true)) {
+                $data[$key] = $tool::supportedVersions()[0] ?? 'none';
+            } elseif ($toolId === $packageManager) {
+                $data[$key] = $input[$key] ?? $tool::supportedVersions()[0];
+            } else {
+                $data[$key] = 'none';
+            }
+        }
+
+        return $data;
+    }
+
+    
+    public function install(): void
+    {
+        $this->step('isolating-user', 0, fn () => $this->isolate());
+        $this->step('installing-tooling', 15, fn () => $this->setupRequestedTooling());
+        $this->step('creating-vhost', 20, fn () => $this->site->webserver()->createVHost($this->site));
+        $this->step('deploying-ssh-key', 25, fn () => $this->deployKey());
+        $this->step('cloning-repository', 40, fn () => $this->cloneRepository());
+        $this->step('restarting-php', 60, fn () => $this->site->php()?->restart());
+        $this->step('installing-composer-dependencies', 75, function () {
+            if ($this->site->type_data['composer'] ?? true) {
+                $this->installComposerDependencies();
+            }
+        });
+        $this->progress(90, 'finishing');
+    }
+
+    public function installationSteps(): array
+    {
         return [
-            'composer' => isset($input['composer']) && $input['composer'],
+            ['key' => 'isolating-user', 'label' => 'Isolating User & Environment', 'percentage' => 0],
+            ['key' => 'installing-tooling', 'label' => 'Installing Runtime Tooling', 'percentage' => 15],
+            ['key' => 'creating-vhost', 'label' => 'Configuring Web Server VHost', 'percentage' => 20],
+            ['key' => 'deploying-ssh-key', 'label' => 'Deploying Repository SSH Key', 'percentage' => 25],
+            ['key' => 'cloning-repository', 'label' => 'Cloning Source Code', 'percentage' => 40],
+            ['key' => 'restarting-php', 'label' => 'Restarting PHP Runtime', 'percentage' => 60],
+            ['key' => 'installing-composer-dependencies', 'label' => 'Installing Composer Dependencies', 'percentage' => 75],
+            ['key' => 'finishing', 'label' => 'Finalizing & Verifying', 'percentage' => 90],
         ];
     }
 
-    /**
-     * @throws FailedToDeployGitKey
-     * @throws SSHError
-     */
-    public function install(): void
+    
+    private function installComposerDependencies(): void
     {
-        $this->isolate();
-        $this->site->webserver()->createVHost($this->site);
-        $this->progress(15);
-        $this->deployKey();
-        $this->progress(30);
-        app(Git::class)->clone($this->site);
-        $this->progress(65);
-        $this->site->php()?->restart();
-        if ($this->site->type_data['composer']) {
-            app(Composer::class)->installDependencies($this->site);
+        $override = $this->site->type_data['composer_install_command'] ?? null;
+
+        try {
+            app(Composer::class)->installDependencies($this->site, is_string($override) ? $override : null);
+        } catch (SSHError $e) {
+            Log::warning("Composer install failed during installation of site #{$this->site->id}: {$e->getMessage()}");
+            $this->site->jsonUpdate('type_data', 'composer_install_failed', true);
         }
     }
 
@@ -109,34 +196,10 @@ class PHPSite extends AbstractSiteType
         ];
     }
 
-    public function vhost(string $webserver): string|View
+    public function vhostData(): array
     {
-        if ($webserver === 'nginx') {
-            return view('ssh.services.webserver.nginx.vhost', [
-                'header' => [
-                    view('ssh.services.webserver.nginx.vhost-blocks.force-ssl', ['site' => $this->site]),
-                ],
-                'main' => [
-                    view('ssh.services.webserver.nginx.vhost-blocks.port', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.core', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.php', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.redirects', ['site' => $this->site]),
-                ],
-            ]);
-        }
-
-        if ($webserver === 'caddy') {
-            return view('ssh.services.webserver.caddy.vhost', [
-                'main' => [
-                    view('ssh.services.webserver.caddy.vhost-blocks.force-ssl', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.port', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.core', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.php', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.redirects', ['site' => $this->site]),
-                ],
-            ]);
-        }
-
-        return '';
+        return [
+            'is_php' => true,
+        ];
     }
 }

@@ -4,18 +4,17 @@ import Container from '@/components/container';
 import Heading from '@/components/heading';
 import { Card, CardContent, CardRow } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import React from 'react';
 import ExportVito from '@/pages/vito-settings/components/export';
 import ImportVito from '@/pages/vito-settings/components/import';
 
-export default function Users() {
+export default function VitoSettings() {
   return (
     <SettingsLayout>
-      <Head title="Vito Settings" />
+      <Head title="Pure Settings" />
 
-      <Container className="max-w-5xl">
+      <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Vito Settings" description="Here you can manage general Vito settings" />
+          <Heading title="Pure Settings" description="Here you can manage general Pure settings" />
         </div>
 
         <Card>

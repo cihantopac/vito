@@ -5,8 +5,17 @@ namespace App\Http\Controllers;
 use App\Actions\SourceControl\ConnectSourceControl;
 use App\Actions\SourceControl\DeleteSourceControl;
 use App\Actions\SourceControl\EditSourceControl;
+use App\Actions\SourceControl\GetRepoVitoConfig;
+use App\Actions\SourceControl\GetSourceControls;
+use App\Exceptions\AppError;
+use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SourceControlResource;
+use App\Http\Resources\UserResource;
+use App\Models\Project;
+use App\Models\Server;
 use App\Models\SourceControl;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -18,27 +27,131 @@ use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Patch;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
+use Spatie\RouteAttributes\Attributes\Where;
 
 #[Prefix('settings/source-controls')]
 #[Middleware(['auth'])]
 class SourceControlController extends Controller
 {
+
     #[Get('/', name: 'source-controls')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $this->authorize('viewAny', SourceControl::class);
 
+        $sourceControls = app(GetSourceControls::class)->get(user(), $request->all());
+
+        $projects = Project::query()->orderBy('name')->get(['id', 'name']);
+        $users = User::query()->orderBy('name')->get(['id', 'name', 'email']);
+
+        $providers = [
+            ['value' => 'all', 'label' => 'All Providers'],
+            ['value' => 'github', 'label' => 'GitHub'],
+            ['value' => 'github-app', 'label' => 'GitHub App'],
+            ['value' => 'gitlab', 'label' => 'GitLab'],
+            ['value' => 'bitbucket', 'label' => 'Bitbucket'],
+            ['value' => 'custom', 'label' => 'Custom'],
+        ];
+
         return Inertia::render('source-controls/index', [
-            'sourceControls' => SourceControlResource::collection(SourceControl::getByProjectId(user()->current_project_id)->simplePaginate(config('web.pagination_size'))),
+            'sourceControls' => SourceControlResource::collection($sourceControls),
+            'projects' => ProjectResource::collection($projects)->resolve(),
+            'users' => UserResource::collection($users)->resolve(),
+            'providers' => $providers,
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'provider' => $request->input('provider', 'all'),
+                'project_id' => $request->input('project_id', 'all'),
+                'user_id' => $request->input('user_id', 'all'),
+            ],
         ]);
     }
 
     #[Get('/json', name: 'source-controls.json')]
-    public function json(): ResourceCollection
+    public function json(Request $request): ResourceCollection
     {
         $this->authorize('viewAny', SourceControl::class);
 
-        return SourceControlResource::collection(SourceControl::getByProjectId(user()->current_project_id)->get());
+        $user = user();
+        $serverId = $request->integer('server');
+
+        if ($serverId) {
+            $server = Server::query()->findOrFail($serverId);
+            $this->authorize('view', $server);
+
+            $sourceControls = SourceControl::usableForServer($server, $user)->with('user')->get();
+
+            return SourceControlResource::collection($sourceControls);
+        }
+
+        $sourceControls = SourceControl::getByProjectId($user->current_project_id, $user)
+            ->with('user')
+            ->get();
+
+        return SourceControlResource::collection($sourceControls);
+    }
+
+    #[Get('/{source_control}/repos', name: 'source-controls.repos')]
+    public function repos(SourceControl $sourceControl): JsonResponse
+    {
+        $this->authorize('view', $sourceControl);
+
+        try {
+            return response()->json($sourceControl->provider()->getRepos());
+        } catch (AppError $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    #[Get('/{source_control}/repos/nocache', name: 'source-controls.repos.nocache')]
+    public function liveRepos(SourceControl $sourceControl): JsonResponse
+    {
+        $this->authorize('view', $sourceControl);
+
+        try {
+            return response()->json($sourceControl->provider()->getRepos(false));
+        } catch (AppError $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    #[Get('/{source_control}/branches/{repo}', name: 'source-controls.branches')]
+    #[Where('repo', '.*')]
+    public function branches(SourceControl $sourceControl, string $repo): JsonResponse
+    {
+        $this->authorize('view', $sourceControl);
+
+        try {
+            return response()->json($sourceControl->provider()->getBranches($repo));
+        } catch (AppError $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    #[Get('/{source_control}/branches/nocache/{repo}', name: 'source-controls.branches.nocache')]
+    #[Where('repo', '.*')]
+    public function liveBranches(SourceControl $sourceControl, string $repo): JsonResponse
+    {
+        $this->authorize('view', $sourceControl);
+
+        try {
+            return response()->json($sourceControl->provider()->getBranches($repo, false));
+        } catch (AppError $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    #[Get('/{source_control}/vito-config/{repo}', name: 'source-controls.vito-config')]
+    #[Where('repo', '.*')]
+    public function vitoConfig(Request $request, SourceControl $sourceControl, string $repo, GetRepoVitoConfig $getRepoVitoConfig): JsonResponse
+    {
+        $this->authorize('view', $sourceControl);
+
+        return response()->json($getRepoVitoConfig->get(
+            $sourceControl,
+            $repo,
+            $request->input('branch')
+        ));
     }
 
     #[Post('/', name: 'source-controls.store')]
@@ -46,7 +159,12 @@ class SourceControlController extends Controller
     {
         $this->authorize('create', SourceControl::class);
 
-        app(ConnectSourceControl::class)->connect(user()->currentProject, $request->all());
+        $user = user();
+        $projectId = $request->boolean('global') ? null : $user->currentProject?->id;
+
+        $this->authorize('assignToProject', [SourceControl::class, $projectId]);
+
+        app(ConnectSourceControl::class)->connect($user, $request->all(), $projectId);
 
         return back()->with('success', 'Source control created.');
     }
@@ -56,7 +174,11 @@ class SourceControlController extends Controller
     {
         $this->authorize('update', $sourceControl);
 
-        app(EditSourceControl::class)->edit($sourceControl, user()->currentProject, $request->all());
+        $projectId = $request->boolean('global') ? null : user()->currentProject?->id;
+
+        $this->authorize('assignToProject', [SourceControl::class, $projectId]);
+
+        app(EditSourceControl::class)->edit($sourceControl, $request->all(), $projectId);
 
         return back()->with('success', 'Source control updated.');
     }

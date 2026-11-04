@@ -1,39 +1,133 @@
-import { Head, usePage } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { CircleIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
+import type { InertiaTableData, Row } from '@forjedio/inertia-table-react';
 import { Server } from '@/types/server';
-import { PaginatedData } from '@/types';
+import { Service } from '@/types/service';
 import ServerLayout from '@/layouts/server/layout';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { BookOpenIcon, PlusIcon } from 'lucide-react';
 import Container from '@/components/container';
-import { DataTable } from '@/components/data-table';
-import { columns } from '@/pages/services/components/columns';
-import { Service } from '@/types/service';
+import { VitoTable } from '@/components/vito-table';
+import { asRow } from '@/lib/inertia-table';
 import InstallService from '@/pages/services/components/install';
+import ServiceActions from '@/pages/services/components/service-actions';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-export default function WorkerIndex() {
-  const page = usePage<{
-    server: Server;
-    services: PaginatedData<Service>;
-  }>();
+type LiveStatus = {
+  state: string;
+  color: 'success' | 'danger' | 'warning' | 'gray';
+};
+
+type Page = {
+  server: Server;
+  services: InertiaTableData;
+  refreshing: boolean;
+};
+
+const STATE_LABELS: Record<string, string> = {
+  active: 'Running',
+  inactive: 'Stopped',
+  failed: 'Failed',
+  activating: 'Activating',
+  deactivating: 'Deactivating',
+  reloading: 'Reloading',
+  unknown: 'Unknown',
+};
+
+const COLOR_CLASSES: Record<string, string> = {
+  success: 'text-neutral-500',
+  danger: 'text-neutral-500',
+  warning: 'text-neutral-500',
+  gray: 'text-neutral-400',
+};
+
+function LiveStatusBadge({ serviceId, liveStatuses }: { serviceId: number; liveStatuses: Record<number, LiveStatus> }) {
+  const status = liveStatuses[serviceId];
+
+  if (!status) {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <CircleIcon className="size-2 animate-pulse fill-neutral-400 text-neutral-400" />
+        <span>…</span>
+      </span>
+    );
+  }
+
+  const label = STATE_LABELS[status.state] ?? status.state;
+  const colorClass = COLOR_CLASSES[status.color] ?? COLOR_CLASSES.gray;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className={cn('flex items-center gap-1.5 text-xs font-medium', colorClass)}>
+          <CircleIcon className="size-2 fill-current" />
+          <span>{label}</span>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          systemctl:{' '}
+          <code className="font-mono">{status.state}</code>
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+export default function ServicesIndex() {
+  const page = usePage<Page>();
+  const { server, services, refreshing } = page.props;
+  const isOffline = server.status === 'disconnected';
+
+  const form = useForm({});
+  const [liveStatuses, setLiveStatuses] = useState<Record<number, LiveStatus>>({});
+
+  const fetchLiveStatuses = useCallback(async () => {
+    try {
+      const res = await fetch(`/servers/${server.id}/services/live-statuses`, {
+        headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLiveStatuses(data);
+      }
+    } catch {
+      return;
+    }
+  }, [server.id]);
+
+  useEffect(() => {
+    if (isOffline) return;
+    fetchLiveStatuses();
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') fetchLiveStatuses();
+    }, 10_000);
+    return () => clearInterval(interval);
+  }, [fetchLiveStatuses, isOffline]);
+
+  const refresh = () => {
+    form.post(`/servers/${server.id}/services/refresh`, { preserveScroll: true });
+  };
+
+  const busy = refreshing || form.processing;
 
   return (
     <ServerLayout>
-      <Head title={`Services - ${page.props.server.name}`} />
+      <Head title={`Services - ${server.name}`} />
 
-      <Container className="max-w-5xl">
+      <Container>
         <HeaderContainer>
           <Heading title="Services" description="Here you can manage server's services" />
           <div className="flex items-center gap-2">
-            <a href="https://vitodeploy.com/docs/servers/services" target="_blank">
-              <Button variant="outline">
-                <BookOpenIcon />
-                <span className="hidden lg:block">Docs</span>
-              </Button>
-            </a>
+            <Button variant="outline" onClick={refresh} disabled={busy || isOffline}>
+              <RefreshCwIcon className={cn(busy && 'animate-spin')} />
+              <span className="hidden lg:block">Refresh</span>
+            </Button>
             <InstallService>
-              <Button>
+              <Button disabled={isOffline}>
                 <PlusIcon />
                 <span className="hidden lg:block">Install</span>
               </Button>
@@ -41,7 +135,24 @@ export default function WorkerIndex() {
           </div>
         </HeaderContainer>
 
-        <DataTable columns={columns} paginatedData={page.props.services} />
+        <VitoTable
+          tableData={services}
+          actions={(row: Row) => {
+            const service = asRow<{ resource: Service }>(row, ['resource']).resource;
+            return (
+              <div className="flex items-center gap-3">
+                {isOffline ? (
+                  <span className="text-muted-foreground text-xs">Live status unavailable</span>
+                ) : (
+                  <>
+                    <ServiceActions service={service} />
+                    <LiveStatusBadge serviceId={service.id} liveStatuses={liveStatuses} />
+                  </>
+                )}
+              </div>
+            );
+          }}
+        />
       </Container>
     </ServerLayout>
   );

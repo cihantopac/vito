@@ -9,11 +9,7 @@ use ZipArchive;
 
 final readonly class ExtractPlugin
 {
-    /**
-     * Extract a GitHub ZIP archive containing a plugin
-     *
-     * @throws Exception
-     */
+    
     public function handle(string $zipPath, string $extractPath): void
     {
         $zip = new ZipArchive;
@@ -37,15 +33,13 @@ final readonly class ExtractPlugin
             $zip->extractTo($temp);
 
             $tempDir = $temp.DIRECTORY_SEPARATOR.$rootFolder;
-            File::moveDirectory($tempDir, $extractPath, true);
+            move_directory($tempDir, $extractPath);
         } finally {
             $zip->close();
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    
     private function detectGitHubRootFolder(ZipArchive $zip): ?string
     {
         if ($zip->numFiles === 0) {

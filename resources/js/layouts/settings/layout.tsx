@@ -1,86 +1,118 @@
-import { type BreadcrumbItem, type NavItem } from '@/types';
-import { BellIcon, CloudIcon, CodeIcon, CommandIcon, DatabaseIcon, KeyIcon, ListIcon, PlugIcon, TagIcon, UserIcon, UsersIcon } from 'lucide-react';
+import { type NavItem, SharedData } from '@/types';
+import {
+  ArrowLeftRightIcon,
+  BellIcon,
+  CloudIcon,
+  CloudUploadIcon,
+  CodeIcon,
+  CommandIcon,
+  DatabaseIcon,
+  GithubIcon,
+  GlobeIcon,
+  KeyIcon,
+  NetworkIcon,
+  PlugIcon,
+  SearchIcon,
+  ShieldCheckIcon,
+} from 'lucide-react';
 import { ReactNode } from 'react';
 import Layout from '@/layouts/app/layout';
-import VitoIcon from '@/icons/vito';
+import { usePage } from '@inertiajs/react';
 
-const sidebarNavItems: NavItem[] = [
-  {
-    title: 'Profile',
-    href: route('profile'),
-    icon: UserIcon,
-  },
-  {
-    title: 'Users',
-    href: route('users'),
-    icon: UsersIcon,
-  },
-  {
-    title: 'Projects',
-    href: route('projects'),
-    icon: ListIcon,
-  },
-  {
-    title: 'Server Providers',
-    href: route('server-providers'),
-    icon: CloudIcon,
-  },
-  {
-    title: 'Source Controls',
-    href: route('source-controls'),
-    icon: CodeIcon,
-  },
-  {
-    title: 'Storage Providers',
-    href: route('storage-providers'),
-    icon: DatabaseIcon,
-  },
-  {
-    title: 'Notification Channels',
-    href: route('notification-channels'),
-    icon: BellIcon,
-  },
-  {
-    title: 'SSH Keys',
-    href: route('ssh-keys'),
-    icon: KeyIcon,
-  },
-  {
-    title: 'Tags',
-    href: route('tags'),
-    icon: TagIcon,
-  },
-  {
-    title: 'API Keys',
-    href: route('api-keys'),
-    icon: CommandIcon,
-  },
-  {
-    title: 'Plugins',
-    href: route('plugins'),
-    icon: PlugIcon,
-  },
-  {
-    title: 'Legacy Plugins',
-    href: route('legacy-plugins'),
-    icon: PlugIcon,
-  },
-  {
-    title: 'Vito Settings',
-    href: route('vito-settings'),
-    icon: VitoIcon,
-  },
-];
+export default function SettingsLayout({ children }: { children: ReactNode }) {
+  const page = usePage<SharedData>();
+  const isAdmin = page.props.auth.user?.is_admin;
 
-export default function SettingsLayout({ children, breadcrumbs }: { children: ReactNode; breadcrumbs?: BreadcrumbItem[] }) {
-  // When server-side rendering, we only render the layout on the client...
   if (typeof window === 'undefined') {
     return null;
   }
 
+  const sidebarNavItems: NavItem[] = [
+    {
+      title: 'Server Providers',
+      href: "/settings/server-providers",
+      icon: CloudIcon,
+    },
+    {
+      title: 'Source Controls',
+      href: "/settings/source-controls",
+      icon: CodeIcon,
+    },
+    {
+      title: 'Storage Providers',
+      href: "/settings/storage-providers",
+      icon: DatabaseIcon,
+    },
+    {
+      title: 'DNS Providers',
+      href: "/settings/dns-providers",
+      icon: GlobeIcon,
+    },
+    {
+      title: 'Networks',
+      href: "/networks",
+      icon: NetworkIcon,
+    },
+    {
+      title: 'Notification Channels',
+      href: "/settings/notification-channels",
+      icon: BellIcon,
+    },
+    {
+      title: 'SSH Keys',
+      href: "/settings/ssh-keys",
+      icon: KeyIcon,
+    },
+    {
+      title: 'API Keys',
+      href: "/settings/api-keys",
+      icon: CommandIcon,
+    },
+    {
+      title: 'Backups',
+      href: "/backups",
+      icon: CloudUploadIcon,
+    },
+    {
+      title: 'Storage Migrations',
+      href: "/storage-migrations",
+      icon: ArrowLeftRightIcon,
+    },
+    {
+      title: 'Domains',
+      href: "/domains",
+      icon: GlobeIcon,
+    },
+    {
+      title: 'Plugins',
+      href: "/admin/plugins",
+      icon: PlugIcon,
+      hidden: !isAdmin,
+    },
+    {
+      title: 'GitHub App',
+      href: "/admin/github-app",
+      icon: GithubIcon,
+      hidden: !isAdmin,
+    },
+    {
+      title: 'Pure Settings',
+      href: "/admin/vito",
+      icon: ShieldCheckIcon,
+      hidden: !isAdmin,
+    },
+    {
+      title: 'Environment key search',
+      href: "/settings/env-search",
+      icon: SearchIcon,
+      hidden: !isAdmin,
+    },
+  ];
+
   return (
-    <Layout breadcrumbs={breadcrumbs} secondNavItems={sidebarNavItems} secondNavTitle="Settings">
+    <Layout secondNavItems={sidebarNavItems} secondNavTitle="Settings">
       {children}
     </Layout>
   );
 }
+

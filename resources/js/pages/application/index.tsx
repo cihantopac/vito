@@ -5,19 +5,13 @@ import LoadBalancer from '@/pages/application/components/load-balancer';
 import siteHelper from '@/lib/site-helper';
 import ServerLayout from '@/layouts/server/layout';
 import Container from '@/components/container';
-import HeaderContainer from '@/components/header-container';
-import Heading from '@/components/heading';
-import { DataTable } from '@/components/data-table';
-import { columns } from '../server-logs/components/columns';
+import SiteInstallationProgress from '@/pages/application/components/site-installation-progress';
 import { Server } from '@/types/server';
-import { PaginatedData } from '@/types';
-import { ServerLog } from '@/types/server-log';
 
 export default function Application() {
   const page = usePage<{
     server: Server;
     site: Site;
-    logs: PaginatedData<ServerLog>;
   }>();
 
   siteHelper.storeSite(page.props.site);
@@ -27,12 +21,8 @@ export default function Application() {
       <ServerLayout>
         <Head title={`${page.props.site.domain} - ${page.props.server.name}`} />
 
-        <Container className="max-w-5xl">
-          <HeaderContainer>
-            <Heading title="Installing site" description="Your site is being installed. Here you can see the logs" />
-          </HeaderContainer>
-
-          <DataTable columns={columns} paginatedData={page.props.logs} />
+        <Container className="flex flex-col gap-6 space-y-0">
+          <SiteInstallationProgress server={page.props.server} site={page.props.site} />
         </Container>
       </ServerLayout>
     );

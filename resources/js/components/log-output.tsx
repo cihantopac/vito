@@ -1,52 +1,123 @@
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { ReactNode, useRef, useEffect, useState } from 'react';
+import React, { ReactNode, useRef, useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowDown, ClockArrowDownIcon } from 'lucide-react';
+import { ArrowDown, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { parseAnsi } from '@/lib/ansi';
+import { isPendingLog } from '@/lib/log';
+
+function formatLogNode(node: ReactNode): ReactNode {
+  if (node === null || node === undefined || typeof node === 'boolean') {
+    return null;
+  }
+  if (typeof node === 'string') {
+    const trimmed = node.trim();
+    if (isPendingLog(trimmed) || trimmed === 'Loading...') {
+      return (
+        <div className="flex h-full min-h-[200px] w-full items-center justify-center py-12">
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+    return parseAnsi(node);
+  }
+  if (typeof node === 'number') {
+    return node;
+  }
+  if (Array.isArray(node)) {
+    return node.map((child, index) => (
+      <React.Fragment key={index}>{formatLogNode(child)}</React.Fragment>
+    ));
+  }
+  if (React.isValidElement(node)) {
+    const props = node.props as { children?: ReactNode };
+    if (props && 'children' in props) {
+      return React.cloneElement(node, undefined, formatLogNode(props.children));
+    }
+  }
+  return node;
+}
 
 export default function LogOutput({ className, children }: { className?: string; children: ReactNode }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const [autoScroll, setAutoScroll] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
+
+  const formattedContent = useMemo(() => {
+    return formatLogNode(children);
+  }, [children]);
+
+  const isPending = useMemo(() => {
+    const checkPending = (n: ReactNode): boolean => {
+      if (typeof n === 'string') return isPendingLog(n) || n.trim() === 'Loading...';
+      if (Array.isArray(n)) return n.some(checkPending);
+      if (React.isValidElement(n)) {
+        const props = n.props as { children?: ReactNode };
+        return props?.children !== undefined ? checkPending(props.children) : false;
+      }
+      return false;
+    };
+    return checkPending(children);
+  }, [children]);
 
   useEffect(() => {
-    if (autoScroll && endRef.current) {
-      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (!autoScroll || !endRef.current) return;
+
+    const viewport = endRef.current.closest<HTMLElement>('[data-slot="scroll-area-viewport"]');
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
+    } else {
+      endRef.current.scrollIntoView({ block: 'nearest' });
     }
   }, [children, autoScroll]);
 
-  const toggleAutoScroll = () => {
-    setAutoScroll(!autoScroll);
-  };
+  useEffect(() => {
+    const viewport = rootRef.current?.querySelector<HTMLElement>('[data-slot="scroll-area-viewport"]');
+    if (!viewport) return;
+    let previous = viewport.scrollTop;
+    const onScroll = () => {
+      if (viewport.scrollTop < previous) setAutoScroll(false);
+      previous = viewport.scrollTop;
+    };
+    viewport.addEventListener('scroll', onScroll, { passive: true });
+    return () => viewport.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <div className="relative w-full">
+    <div
+      ref={rootRef}
+      className="relative w-full h-full flex flex-col flex-1 min-h-0"
+      onWheelCapture={() => setAutoScroll(false)}
+      onTouchMoveCapture={() => setAutoScroll(false)}
+    >
       <ScrollArea
-        ref={scrollRef}
         className={cn(
-          'bg-accent/50 text-accent-foreground relative h-[500px] w-full overflow-auto p-4 font-mono text-sm break-all whitespace-pre-wrap',
+          'bg-accent/50 text-accent-foreground relative h-[500px] w-full overflow-auto p-4 font-mono text-sm leading-relaxed break-all whitespace-pre-wrap',
           className,
         )}
       >
-        <div>{children}</div>
+        <div>{formattedContent}</div>
         <div ref={endRef} />
         <ScrollBar orientation="vertical" />
       </ScrollArea>
-      <Button
-        variant="outline"
-        size="icon"
-        className="bg-accent! absolute right-4 bottom-4 z-10"
-        onClick={toggleAutoScroll}
-        title={autoScroll ? 'Disable auto-scroll' : 'Enable auto-scroll'}
-      >
+      {!isPending && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div>{autoScroll ? <ClockArrowDownIcon className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}</div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="bg-accent! absolute right-4 bottom-4 z-10"
+              aria-label={autoScroll ? 'Disable auto-scroll' : 'Enable auto-scroll'}
+              aria-pressed={autoScroll}
+              onClick={() => setAutoScroll(!autoScroll)}
+            >
+              <ArrowDown className={cn('h-4 w-4', autoScroll && 'animate-bounce')} />
+            </Button>
           </TooltipTrigger>
-          <TooltipContent side="left">{autoScroll ? 'Turn off auto scroll' : 'Auto scroll down'}</TooltipContent>
+          <TooltipContent side="left">{autoScroll ? 'Disable auto-scroll' : 'Enable auto-scroll'}</TooltipContent>
         </Tooltip>
-      </Button>
+      )}
     </div>
   );
 }

@@ -7,6 +7,14 @@ use App\Actions\Worker\DeleteWorker;
 use App\Actions\Worker\EditWorker;
 use App\Actions\Worker\GetWorkerLogs;
 use App\Actions\Worker\ManageWorker;
+use App\Actions\Worker\RestartAllWorkers;
+use App\Actions\Worker\SyncWorkerStatuses;
+use App\Actions\Worker\UpdateWorkerEnvironment;
+use App\Actions\Worker\WorkerEnvironmentUpdateResult;
+use App\Enums\ServerRole;
+use App\Helpers\EnvParser;
+use App\Helpers\QueryBuilder;
+use App\Http\Resources\WorkerLogResource;
 use App\Http\Resources\WorkerResource;
 use App\Models\Server;
 use App\Models\Site;
@@ -19,23 +27,30 @@ use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Delete;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Middleware;
+use Spatie\RouteAttributes\Attributes\Patch;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 use Spatie\RouteAttributes\Attributes\Put;
+use Spatie\RouteAttributes\Attributes\WhereNumber;
 
 #[Prefix('servers/{server}')]
 #[Middleware(['auth', 'has-project'])]
 class WorkerController extends Controller
 {
+
     #[Get('/workers', name: 'workers')]
     public function index(Server $server): Response
     {
         $this->authorize('viewAny', [Worker::class, $server]);
 
+        $query = $server->workers()->with(['site:id,server_id,type_data', 'creator:id,name,email']);
+        $workers = QueryBuilder::for($query)
+            ->sortable('created_at', 'desc')
+            ->simplePaginate();
+
         return Inertia::render('workers/index', [
-            'workers' => WorkerResource::collection(
-                $server->workers()->latest()->simplePaginate(config('web.pagination_size'))
-            ),
+            'workers' => WorkerResource::collection($workers),
+            'sites' => $server->sites()->select('id', 'domain')->get(),
         ]);
     }
 
@@ -46,23 +61,81 @@ class WorkerController extends Controller
 
         return Inertia::render('workers/index', [
             'workers' => WorkerResource::collection(
-                $site->workers()->latest()->simplePaginate(config('web.pagination_size'))
+                $site->workers()
+                    ->with(['site:id,server_id,type_data', 'creator:id,name,email'])
+                    ->latest()
+                    ->simplePaginate(config('web.pagination_size'))
             ),
+            'sites' => $server->sites()->select('id', 'domain')->get(),
         ]);
     }
 
+    #[Get('/workers/target-servers/{site?}', name: 'workers.target-servers')]
+    #[WhereNumber('site')]
+    public function targetServers(Server $server, ?Site $site = null): JsonResponse
+    {
+        $this->authorize('viewAny', [Worker::class, $server, $site]);
+
+        if (! $site) {
+            return response()->json([]);
+        }
+
+        $servers = $server->project->servers()
+            ->where('id', '!=', $site->server_id)
+            ->where('role', ServerRole::QUEUE->value)
+            ->whereIn('status', ['ready', 'updating'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'ip', 'services'])
+            ->map(fn (Server $candidate): array => [
+                'id' => $candidate->id,
+                'name' => $candidate->name,
+                'ip' => $candidate->ip,
+                'has_process_manager' => (bool) $candidate->processManager(),
+            ]);
+
+        return response()->json($servers);
+    }
+
+    #[Post('/workers/resync/{site?}', name: 'workers.resync')]
+    #[WhereNumber('site')]
+    public function resync(Server $server, ?Site $site = null): RedirectResponse
+    {
+        $this->authorize('manage', [Worker::class, $server, $site]);
+
+        $count = app(SyncWorkerStatuses::class)->sync($server, $site);
+
+        return back()
+            ->with('success', $count === 0
+                ? 'Worker statuses are already up to date.'
+                : "Updated statuses of {$count} worker(s).");
+    }
+
+    #[Post('/workers/restart-all/{site?}', name: 'workers.restart-all')]
+    #[WhereNumber('site')]
+    public function restartAll(Server $server, ?Site $site = null): RedirectResponse
+    {
+        $this->authorize('manage', [Worker::class, $server, $site]);
+
+        app(RestartAllWorkers::class)->restart($server, $site, user());
+
+        return back()
+            ->with('info', 'Workers are being restarted.');
+    }
+
     #[Post('/workers/{site?}', name: 'workers.store')]
+    #[WhereNumber('site')]
     public function store(Request $request, Server $server, ?Site $site = null): RedirectResponse
     {
         $this->authorize('create', [Worker::class, $server, $site]);
 
-        app(CreateWorker::class)->create($server, $request->all(), $site);
+        app(CreateWorker::class)->create($server, $request->all(), $site, user());
 
         return back()
             ->with('info', 'Worker is being created.');
     }
 
     #[Put('/workers/{worker}/{site?}', name: 'workers.update')]
+    #[WhereNumber('site')]
     public function update(Request $request, Server $server, Worker $worker, ?Site $site = null): RedirectResponse
     {
         $this->authorize('update', [$worker, $server, $site]);
@@ -78,10 +151,12 @@ class WorkerController extends Controller
     {
         $this->authorize('update', [$worker, $server]);
 
-        app(ManageWorker::class)->start($worker);
+        app(ManageWorker::class)->start($worker, user());
 
-        return back()
-            ->with('info', 'Worker is being started.');
+        return redirect()->route('workers.log', [
+            'server' => $server->id,
+            'worker' => $worker->id,
+        ])->with('info', 'Worker is being started.');
     }
 
     #[Post('/workers/{worker}/stop', name: 'workers.stop')]
@@ -89,7 +164,7 @@ class WorkerController extends Controller
     {
         $this->authorize('update', [$worker, $server]);
 
-        app(ManageWorker::class)->stop($worker);
+        app(ManageWorker::class)->stop($worker, user());
 
         return back()
             ->with('info', 'Worker is being stopped.');
@@ -100,22 +175,80 @@ class WorkerController extends Controller
     {
         $this->authorize('update', [$worker, $server]);
 
-        app(ManageWorker::class)->restart($worker);
+        app(ManageWorker::class)->restart($worker, user());
 
-        return back()
-            ->with('info', 'Worker is being restarted.');
+        return redirect()->route('workers.log', [
+            'server' => $server->id,
+            'worker' => $worker->id,
+        ])->with('info', 'Worker is being restarted.');
     }
 
-    #[Get('/workers/{worker}/logs', name: 'workers.logs')]
-    public function logs(Server $server, Worker $worker): JsonResponse
+    #[Get('/workers/{worker}/env', name: 'workers.env')]
+    public function env(Server $server, Worker $worker): JsonResponse
     {
         $this->authorize('view', [$worker, $server]);
 
-        $logs = app(GetWorkerLogs::class)->getLogs($worker);
+        return response()->json([
+            'variables' => EnvParser::maskSecrets($worker->environment ?? []),
+        ]);
+    }
+
+    #[Patch('/workers/{worker}/env', name: 'workers.update-env')]
+    public function updateEnv(Request $request, Server $server, Worker $worker): RedirectResponse
+    {
+        $this->authorize('update', [$worker, $server]);
+
+        $result = app(UpdateWorkerEnvironment::class)->update($worker, $request->input());
+
+        return match ($result) {
+            WorkerEnvironmentUpdateResult::PendingRestart => back()->with(
+                'warning',
+                'Environment updated. The worker is still running with the previous variables — restart it or deploy to apply.',
+            ),
+            default => back()->with(
+                'info',
+                'Environment updated. The worker is restarting to apply the change.',
+            ),
+        };
+    }
+
+    #[Get('/workers/{worker}/log', name: 'workers.log')]
+    public function log(Server $server, Worker $worker): Response
+    {
+        $this->authorize('view', [$worker, $server]);
+
+        return Inertia::render('workers/log', [
+            'worker' => new WorkerResource($worker->loadMissing(['site', 'creator'])),
+            'history' => WorkerLogResource::collection(
+                $worker->logs()->with('user:id,name,email')->latest()->take(100)->get()
+            ),
+        ]);
+    }
+
+    #[Get('/workers/{worker}/logs', name: 'workers.logs')]
+    public function logs(Request $request, Server $server, Worker $worker): JsonResponse
+    {
+        $this->authorize('view', [$worker, $server]);
+
+        $lines = (int) $request->query('lines', 100);
+        $logs = app(GetWorkerLogs::class)->getLogs($worker, $lines);
 
         return response()->json([
             'logs' => $logs,
+            'history' => WorkerLogResource::collection(
+                $worker->logs()->with('user:id,name,email')->latest()->take(100)->get()
+            ),
         ]);
+    }
+
+    #[Post('/workers/{worker}/clear-logs', name: 'workers.clear-logs')]
+    public function clearLogs(Server $server, Worker $worker): RedirectResponse
+    {
+        $this->authorize('update', [$worker, $server]);
+
+        app(GetWorkerLogs::class)->clear($worker);
+
+        return back()->with('success', 'Worker logs cleared.');
     }
 
     #[Delete('/{worker}/{site?}', name: 'workers.destroy')]

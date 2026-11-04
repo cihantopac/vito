@@ -3,21 +3,18 @@
 namespace App\Actions\Database;
 
 use App\Enums\DatabaseStatus;
+use App\Enums\DatabaseUserPermission;
 use App\Models\Database;
 use App\Models\Server;
-use App\Models\Service;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class CreateDatabase
 {
-    /**
-     * @param  array<string, mixed>  $input
-     */
+    
     public function create(Server $server, array $input): Database
     {
-        Validator::make($input, self::rules($server, $input))->validate();
+        $this->validate($server, $input);
 
         $database = new Database([
             'server_id' => $server->id,
@@ -26,31 +23,37 @@ class CreateDatabase
             'name' => $input['name'],
         ]);
 
-        /** @var Service $service */
+        
         $service = $server->database();
 
-        /** @var \App\Services\Database\Database $databaseHandler */
+        
         $databaseHandler = $service->handler();
         $databaseHandler->create($database->name, $database->charset, $database->collation);
         $database->status = DatabaseStatus::READY;
         $database->save();
 
-        if (isset($input['user']) && $input['user']) {
-            $databaseUser = app(CreateDatabaseUser::class)->create($server, $input, [$database->name]);
+        $hasCreatedUser = false;
+        if (isset($input['user']) && $input['user'] && isset($input['existing_user_id']) && $input['existing_user_id']) {
+            
+            $databaseUser = $server->databaseUsers()->findOrFail($input['existing_user_id']);
+            $databases = $databaseUser->databases ?? [];
+            $databases[] = $database->name;
+            app(LinkUser::class)->link($databaseUser, ['databases' => $databases]);
+            $hasCreatedUser = true;
+        }
 
-            app(LinkUser::class)->link($databaseUser, ['databases' => [$database->name]]);
+        if (! $hasCreatedUser && (isset($input['username']) && $input['username'])) {
+            app(CreateDatabaseUser::class)->create($server, [
+                'username' => $input['username'],
+                'password' => $input['password'],
+                'permission' => DatabaseUserPermission::ADMIN->value,
+            ], [$database->name]);
         }
 
         return $database;
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     *
-     * @throws ValidationException
-     */
-    public static function rules(Server $server, array $input): array
+    private function validate(Server $server, array $input): void
     {
         $rules = [
             'name' => [
@@ -61,27 +64,34 @@ class CreateDatabase
             'charset' => [
                 'required',
                 'string',
+                'regex:/^[A-Za-z0-9_]+$/',
             ],
             'collation' => [
                 'required',
                 'string',
+                'regex:/^[A-Za-z0-9._@-]+$/',
+            ],
+            'username' => [
+                'nullable',
+                'alpha_dash',
+                Rule::unique('database_users', 'username')->where('server_id', $server->id)->whereNull('deleted_at'),
+            ],
+            'password' => [
+                'nullable',
+                'string',
+                'min:6',
+                'max:128',
+                'regex:/^[A-Za-z0-9!@#%^*()_+=\\-\\[\\]{}:,.?~\\/]+$/',
             ],
         ];
         if (isset($input['user']) && $input['user']) {
-            $rules['username'] = [
+            $rules['existing_user_id'] = [
                 'required',
-                'alpha_dash',
-                Rule::unique('database_users', 'username')->where('server_id', $server->id),
+                'integer',
+                Rule::exists('database_users', 'id')->where('server_id', $server->id),
             ];
-            $rules['password'] = [
-                'required',
-                'min:6',
-            ];
-        }
-        if (isset($input['remote']) && $input['remote']) {
-            $rules['host'] = 'required';
         }
 
-        return $rules;
+        Validator::make($input, $rules)->validate();
     }
 }

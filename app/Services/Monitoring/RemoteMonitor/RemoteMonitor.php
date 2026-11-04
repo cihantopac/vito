@@ -45,7 +45,7 @@ class RemoteMonitor extends AbstractService
     public function creationData(array $input): array
     {
         return [
-            'data_retention' => 10,
+            'data_retention' => 7,
         ];
     }
 
@@ -58,7 +58,7 @@ class RemoteMonitor extends AbstractService
 
     public function install(): void
     {
-        //
+        
     }
 
     public function uninstall(): void

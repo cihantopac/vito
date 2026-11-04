@@ -3,17 +3,17 @@
 namespace App\Actions\CronJob;
 
 use App\Enums\CronjobStatus;
-use App\Exceptions\SSHError;
 use App\Models\CronJob;
 use App\Models\Server;
 
 class EnableCronJob
 {
-    /**
-     * @throws SSHError
-     */
+    
     public function enable(Server $server, CronJob $cronJob): void
     {
+        
+        app(SyncCronJobs::class)->sync($server);
+
         $cronJob->status = CronjobStatus::ENABLING;
         $cronJob->save();
 

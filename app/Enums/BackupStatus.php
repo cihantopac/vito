@@ -2,13 +2,23 @@
 
 namespace App\Enums;
 
-final class BackupStatus
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+
+enum BackupStatus: string implements VitoEnum
 {
-    const string RUNNING = 'running';
+    use TextIsValue;
 
-    const string FAILED = 'failed';
+    case DELETING = 'deleting';
+    case INSTALLING = 'installing';
+    case FAILED = 'failed';
 
-    const string DELETING = 'deleting';
-
-    const string STOPPED = 'stopped';
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::DELETING,
+            self::INSTALLING => 'warning',
+            self::FAILED => 'danger',
+        };
+    }
 }

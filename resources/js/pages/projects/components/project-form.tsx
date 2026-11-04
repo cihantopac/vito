@@ -8,34 +8,34 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { FormEventHandler, ReactNode, useEffect, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
-import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Project } from '@/types/project';
-import FormSuccessful from '@/components/form-successful';
+import { Form, FormField, FormFields } from '@/components/ui/form';
 
 export default function ProjectForm({
   project,
+  open: controlledOpen,
   defaultOpen,
   onOpenChange,
   children,
 }: {
   project?: Project;
+  open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen || false);
+  const [localOpen, setOpen] = useState(defaultOpen || false);
+  const open = controlledOpen ?? localOpen;
   useEffect(() => {
-    if (defaultOpen) {
-      setOpen(defaultOpen);
-    }
-  }, [setOpen, defaultOpen]);
+    setOpen(defaultOpen || false);
+  }, [defaultOpen]);
 
   const handleOpenChange = (open: boolean) => {
     setOpen(open);
@@ -48,28 +48,32 @@ export default function ProjectForm({
     name: project?.name || '',
   });
 
-  const submit: FormEventHandler = (e) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault();
 
     if (project) {
-      form.patch(route('projects.update', project.id));
+      form.patch(`/settings/projects/${project.id}`, {
+        onSuccess() {
+          handleOpenChange(false);
+        },
+      });
       return;
     }
 
-    form.post(route('projects.store'), {
+    form.post('/settings/projects', {
       onSuccess() {
-        setOpen(false);
+        handleOpenChange(false);
       },
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{project ? 'Edit Project' : 'Create Project'}</DialogTitle>
-          <DialogDescription className="sr-only">{project ? 'Edit the project details.' : 'Create a new project.'}</DialogDescription>
+          <DialogDescription className="sr-only">{project ? 'Edit the project details.' : 'Here you can create a new project.'}</DialogDescription>
         </DialogHeader>
         <Form id="project-form" onSubmit={submit} className="p-4">
           <FormFields>
@@ -88,7 +92,6 @@ export default function ProjectForm({
           </DialogClose>
           <Button form="project-form" type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            <FormSuccessful successful={form.recentlySuccessful} />
             Save
           </Button>
         </DialogFooter>

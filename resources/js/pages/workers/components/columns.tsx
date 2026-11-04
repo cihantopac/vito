@@ -1,217 +1,175 @@
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { useForm } from '@inertiajs/react';
-import { LoaderCircleIcon, MoreVerticalIcon } from 'lucide-react';
-import FormSuccessful from '@/components/form-successful';
-import React, { useState } from 'react';
+import { TableActionTrigger } from '@/components/table-action-trigger';
 import { Worker } from '@/types/worker';
 import { Badge } from '@/components/ui/badge';
 import DateTime from '@/components/date-time';
-import WorkerForm from '@/pages/workers/components/form';
 import CopyableBadge from '@/components/copyable-badge';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import LogOutput from '@/components/log-output';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { WorkerAction, WorkerEnvironment, WorkerLogs } from '@/pages/workers/components/worker-row-actions';
+import ErrorIndicator from '@/components/error-indicator';
+import { useDialog } from '@/hooks/use-dialog';
 
 function Delete({ worker }: { worker: Worker }) {
-  const [open, setOpen] = useState(false);
-  const form = useForm();
+  const dialog = useDialog();
 
-  const submit = () => {
-    form.delete(route('workers.destroy', { server: worker.server_id, worker: worker }), {
-      onSuccess: () => {
-        setOpen(false);
-      },
-    });
-  };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>
-          Delete
-        </DropdownMenuItem>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete worker</DialogTitle>
-          <DialogDescription className="sr-only">Delete worker</DialogDescription>
-        </DialogHeader>
-        <p className="p-4">Are you sure you want to delete this worker? This action cannot be undone.</p>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button variant="destructive" disabled={form.processing} onClick={submit}>
-            {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            <FormSuccessful successful={form.recentlySuccessful} />
-            Delete
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DropdownMenuItem
+      variant="destructive"
+      onSelect={() =>
+        dialog.confirm.open({
+          title: 'Delete worker',
+          description: 'Are you sure you want to delete this worker? This action cannot be undone.',
+          variant: 'destructive',
+          confirmLabel: 'Delete',
+          method: 'delete',
+          url: `/servers/${worker.server_id}/${worker.id}`,
+        })
+      }
+    >
+      Delete
+    </DropdownMenuItem>
   );
 }
 
-function Action({ type, worker }: { type: 'start' | 'stop' | 'restart'; worker: Worker }) {
-  const [open, setOpen] = useState(false);
-  const form = useForm();
-
-  const submit = () => {
-    form.post(route(`workers.${type}`, { server: worker.server_id, worker: worker }), {
-      onSuccess: () => {
-        setOpen(false);
-      },
-    });
-  };
+function BootstrapLockedItem({ label, destructive }: { label: string; destructive?: boolean }) {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="capitalize">
-          {type}
-        </DropdownMenuItem>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            <span className="capitalize">{type}</span> worker
-          </DialogTitle>
-          <DialogDescription className="sr-only">{type} worker</DialogDescription>
-        </DialogHeader>
-        <p className="p-4">Are you sure you want to {type} the worker?</p>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button variant={['stop'].includes(type) ? 'destructive' : 'default'} disabled={form.processing} onClick={submit} className="capitalize">
-            {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            <FormSuccessful successful={form.recentlySuccessful} />
-            {type}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function Logs({ worker }: { worker: Worker }) {
-  const [open, setOpen] = useState(false);
-
-  const query = useQuery({
-    queryKey: ['workerLog', worker.id],
-    queryFn: async () => {
-      const response = await axios.get(route('workers.logs', { server: worker.server_id, worker: worker.id }));
-      return response.data.logs;
-    },
-    refetchInterval: 2500,
-    enabled: open,
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Logs</DropdownMenuItem>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-5xl">
-        <DialogHeader>
-          <DialogTitle>Worker logs</DialogTitle>
-          <DialogDescription className="sr-only">View worker logs</DialogDescription>
-        </DialogHeader>
-        <LogOutput>{query.isLoading ? 'Loading...' : query.data}</LogOutput>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-export const columns: ColumnDef<Worker>[] = [
-  {
-    accessorKey: 'name',
-    header: 'Name',
-    enableColumnFilter: true,
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'command',
-    header: 'Command',
-    enableColumnFilter: true,
-    enableSorting: true,
-    cell: ({ row }) => {
-      return <CopyableBadge text={row.original.command} />;
-    },
-  },
-  {
-    accessorKey: 'user',
-    header: 'User',
-    enableColumnFilter: true,
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'numprocs',
-    header: 'Numprocs',
-    enableColumnFilter: true,
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'created_at',
-    header: 'Created at',
-    enableColumnFilter: true,
-    enableSorting: true,
-    cell: ({ row }) => {
-      return <DateTime date={row.original.created_at} />;
-    },
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    enableColumnFilter: true,
-    enableSorting: true,
-    cell: ({ row }) => {
-      return <Badge variant={row.original.status_color}>{row.original.status}</Badge>;
-    },
-  },
-  {
-    id: 'actions',
-    enableColumnFilter: false,
-    enableSorting: false,
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center justify-end">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreVerticalIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <WorkerForm serverId={row.original.server_id} worker={row.original}>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit</DropdownMenuItem>
-              </WorkerForm>
-              <Action type="start" worker={row.original} />
-              <Action type="stop" worker={row.original} />
-              <Action type="restart" worker={row.original} />
-              <Logs worker={row.original} />
-              <DropdownMenuSeparator />
-              <Delete worker={row.original} />
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div>
+          <DropdownMenuItem disabled variant={destructive ? 'destructive' : undefined} onSelect={(e) => e.preventDefault()}>
+            {label}
+          </DropdownMenuItem>
         </div>
-      );
+      </TooltipTrigger>
+      <TooltipContent side="left">Site managed application worker</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function Actions({ worker }: { worker: Worker }) {
+  const dialog = useDialog();
+  const locked = worker.is_site_bootstrap;
+
+  return (
+    <div className="flex items-center gap-2">
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <TableActionTrigger />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {locked ? (
+            <BootstrapLockedItem label="Edit" />
+          ) : (
+            <DropdownMenuItem onSelect={() => dialog.workerForm.open({ serverId: worker.server_id, worker })}>Edit</DropdownMenuItem>
+          )}
+          <WorkerAction type="start" worker={worker} />
+          <WorkerAction type="stop" worker={worker} />
+          <WorkerAction type="restart" worker={worker} />
+          <WorkerLogs worker={worker} />
+          <WorkerEnvironment worker={worker} />
+          <DropdownMenuSeparator />
+          {locked ? <BootstrapLockedItem label="Delete" destructive /> : <Delete worker={worker} />}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+function getColumns(sites?: Array<{ id: number; domain: string }>): ColumnDef<Worker>[] {
+  return [
+    {
+      accessorKey: 'name',
+      header: 'Worker',
+      enableColumnFilter: true,
+      enableSorting: true,
+      cell: ({ row }) => {
+        const siteId = row.original.site_id;
+        const site = siteId ? sites?.find((s) => s.id === siteId) : null;
+        return (
+          <div className="flex flex-col min-w-0 max-w-[200px]">
+            <span className="font-semibold text-xs leading-tight text-foreground truncate" title={row.original.name}>
+              {row.original.name}
+            </span>
+            <span className="text-[11px] text-muted-foreground truncate" title={row.original.directory || undefined}>
+              {row.original.user}
+              {site ? ` • ${site.domain}` : ''}
+              {row.original.directory ? ` • ${row.original.directory}` : ''}
+            </span>
+          </div>
+        );
+      },
     },
-  },
-];
+    {
+      accessorKey: 'command',
+      header: 'Command',
+      enableColumnFilter: true,
+      enableSorting: true,
+      cell: ({ row }) => {
+        return <CopyableBadge text={row.original.command} />;
+      },
+    },
+    {
+      accessorKey: 'numprocs',
+      header: 'Procs',
+      enableColumnFilter: true,
+      enableSorting: true,
+      cell: ({ row }) => {
+        return <span className="font-mono text-xs text-muted-foreground">{row.original.numprocs}</span>;
+      },
+    },
+    {
+      accessorKey: 'created_by',
+      header: 'Added By',
+      enableColumnFilter: true,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const creator = row.original.creator;
+        const name = creator?.name ?? row.original.created_by ?? (row.original.is_site_bootstrap ? 'System' : null);
+
+        if (!name) {
+          return <span className="text-muted-foreground text-xs">—</span>;
+        }
+
+        return (
+          <div className="flex items-center gap-1.5" title={creator?.email ?? undefined}>
+            <span className="text-xs font-medium text-foreground">{name}</span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'created_at',
+      header: 'Created',
+      enableColumnFilter: true,
+      enableSorting: true,
+      cell: ({ row }) => {
+        return <DateTime date={row.original.created_at} />;
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      enableColumnFilter: true,
+      enableSorting: true,
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-1.5">
+            <Badge variant={row.original.status_color}>{row.original.status}</Badge>
+            <ErrorIndicator error={row.original.error} label={`Worker "${row.original.name}" error`} />
+          </div>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      enableColumnFilter: false,
+      enableSorting: false,
+      cell: ({ row }) => {
+        return <Actions worker={row.original} />;
+      },
+    },
+  ];
+}
+
+export { getColumns as columns };

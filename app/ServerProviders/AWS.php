@@ -2,22 +2,255 @@
 
 namespace App\ServerProviders;
 
+use App\DTOs\PrivateNetworkDTO;
+use App\DTOs\PrivateNetworkMemberDTO;
+use App\Enums\OperatingSystem;
 use App\Exceptions\CouldNotConnectToProvider;
 use App\Facades\Notifier;
 use App\Notifications\FailedToDeleteServerFromProvider;
 use Aws\Ec2\Ec2Client;
 use Exception;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-class AWS extends AbstractProvider
+class AWS extends AbstractProvider implements ProvidesPrivateNetworks
 {
     protected Ec2Client $ec2Client;
 
     public static function id(): string
     {
         return 'aws';
+    }
+
+    public function instanceIdKey(): string
+    {
+        return 'instance_id';
+    }
+
+    
+    public function canDiscoverPrivateNetworks(array $regions, int $serversWithoutRegion): bool
+    {
+        return $regions !== [] && $serversWithoutRegion === 0;
+    }
+
+    
+    public function privateNetworks(array $instanceIds, array $regions): array
+    {
+        $result = [];
+
+        foreach ($regions as $region) {
+            try {
+                $client = $this->networkClient($region);
+
+                $reservations = $this->paginate($client, 'DescribeInstances', [
+                    'Filters' => [
+                        ['Name' => 'instance-id', 'Values' => array_values($instanceIds)],
+                    ],
+                ], 'Reservations');
+
+                $vpcIds = $this->vpcIdsFrom($reservations);
+
+                $vpcs = $vpcIds === [] ? [] : $this->paginate($client, 'DescribeVpcs', [
+                    'Filters' => [
+                        ['Name' => 'vpc-id', 'Values' => $vpcIds],
+                    ],
+                ], 'Vpcs');
+            } catch (Throwable) {
+                throw $this->syncError(null, $region);
+            }
+
+            foreach ($this->mapPrivateNetworks($reservations, $vpcs, $instanceIds, $region) as $network) {
+                $result[] = $network;
+            }
+        }
+
+        return $result;
+    }
+
+    
+    public function mapPrivateNetworks(array $reservations, array $vpcs, array $instanceIds, ?string $region = null): array
+    {
+        $wanted = array_flip($instanceIds);
+        $members = [];
+
+        foreach ($this->instancesFrom($reservations) as $instance) {
+            $instanceId = (string) ($instance['InstanceId'] ?? '');
+
+            if ($instanceId === '' || ! isset($wanted[$instanceId])) {
+                continue;
+            }
+
+            [$vpcId, $ip] = $this->placementOf($instance);
+
+            if ($vpcId === null) {
+                continue;
+            }
+
+            $members[$vpcId][] = new PrivateNetworkMemberDTO(instanceId: $instanceId, ip: $ip);
+        }
+
+        $result = [];
+
+        foreach ($vpcs as $vpc) {
+            $vpcId = (string) ($vpc['VpcId'] ?? '');
+
+            if (! isset($members[$vpcId])) {
+                continue;
+            }
+
+            $result[] = new PrivateNetworkDTO(
+                externalId: $vpcId,
+                name: $this->nameOf($vpc, $vpcId),
+                cidr: $this->cidrOf($vpc),
+                region: $region,
+                members: $members[$vpcId],
+            );
+        }
+
+        return $result;
+    }
+
+    
+    private function placementOf(array $instance): array
+    {
+        $interfaces = $instance['NetworkInterfaces'] ?? [];
+
+        $primary = null;
+
+        foreach ($interfaces as $interface) {
+            if ((int) ($interface['Attachment']['DeviceIndex'] ?? -1) === 0) {
+                $primary = $interface;
+
+                break;
+            }
+        }
+
+        foreach ($primary !== null ? [$primary] : $interfaces as $interface) {
+            $vpcId = $interface['VpcId'] ?? null;
+
+            if (is_string($vpcId) && $vpcId !== '') {
+                return [$vpcId, $this->addressOf($interface)];
+            }
+        }
+
+        $vpcId = $instance['VpcId'] ?? null;
+
+        return [
+            is_string($vpcId) && $vpcId !== '' ? $vpcId : null,
+            $this->addressOf($instance),
+        ];
+    }
+
+    
+    private function cidrOf(array $vpc): ?string
+    {
+        $cidr = $vpc['CidrBlock'] ?? null;
+
+        if (is_string($cidr) && $cidr !== '') {
+            return $cidr;
+        }
+
+        foreach ($vpc['Ipv6CidrBlockAssociationSet'] ?? [] as $association) {
+            $cidr = $association['Ipv6CidrBlock'] ?? null;
+
+            if (is_string($cidr) && $cidr !== '') {
+                return $cidr;
+            }
+        }
+
+        return null;
+    }
+
+    
+    private function addressOf(array $source): ?string
+    {
+        $ip = $source['PrivateIpAddress'] ?? null;
+
+        if (is_string($ip) && $ip !== '') {
+            return $ip;
+        }
+
+        foreach ($source['Ipv6Addresses'] ?? [] as $address) {
+            $ipv6 = $address['Ipv6Address'] ?? null;
+
+            if (is_string($ipv6) && $ipv6 !== '') {
+                return $ipv6;
+            }
+        }
+
+        $ipv6 = $source['Ipv6Address'] ?? null;
+
+        return is_string($ipv6) && $ipv6 !== '' ? $ipv6 : null;
+    }
+
+    
+    private function instancesFrom(array $reservations): array
+    {
+        $instances = [];
+
+        foreach ($reservations as $reservation) {
+            
+            $batch = $reservation['Instances'] ?? [];
+            $instances = array_merge($instances, $batch);
+        }
+
+        return $instances;
+    }
+
+    
+    private function vpcIdsFrom(array $reservations): array
+    {
+        $ids = [];
+
+        foreach ($this->instancesFrom($reservations) as $instance) {
+            [$vpcId] = $this->placementOf($instance);
+
+            if ($vpcId !== null && ! in_array($vpcId, $ids, true)) {
+                $ids[] = $vpcId;
+            }
+        }
+
+        return $ids;
+    }
+
+    
+    private function nameOf(array $vpc, string $fallback): string
+    {
+        foreach ($vpc['Tags'] ?? [] as $tag) {
+            if (($tag['Key'] ?? null) === 'Name' && is_string($tag['Value'] ?? null) && $tag['Value'] !== '') {
+                return $tag['Value'];
+            }
+        }
+
+        return $fallback;
+    }
+
+    
+    private function paginate(Ec2Client $client, string $operation, array $args, string $key): array
+    {
+        $items = [];
+
+        foreach ($client->getPaginator($operation, $args) as $page) {
+            
+            $batch = $page->get($key) ?? [];
+            $items = array_merge($items, $batch);
+        }
+
+        return $items;
+    }
+
+    private function networkClient(string $region): Ec2Client
+    {
+        $credentials = $this->serverProvider->getCredentials();
+
+        return new Ec2Client([
+            'region' => $region,
+            'version' => '2016-11-15',
+            'credentials' => [
+                'key' => $credentials['key'],
+                'secret' => $credentials['secret'],
+            ],
+        ]);
     }
 
     public function createRules(array $input): array
@@ -52,9 +285,7 @@ class AWS extends AbstractProvider
         ];
     }
 
-    /**
-     * @throws CouldNotConnectToProvider
-     */
+    
     public function connect(?array $credentials = null): bool
     {
         try {
@@ -79,7 +310,7 @@ class AWS extends AbstractProvider
                 'Filters' => [
                     [
                         'Name' => 'processor-info.supported-architecture',
-                        'Values' => ['x86_64', 'arm64'], // Include both x86_64 and ARM64
+                        'Values' => ['x86_64', 'arm64'], 
                     ],
                     [
                         'Name' => 'current-generation',
@@ -87,11 +318,11 @@ class AWS extends AbstractProvider
                     ],
                     [
                         'Name' => 'supported-virtualization-type',
-                        'Values' => ['hvm'], // Ubuntu AMIs require HVM
+                        'Values' => ['hvm'], 
                     ],
                     [
                         'Name' => 'bare-metal',
-                        'Values' => ['false'], // Skip bare-metal unless explicitly needed
+                        'Values' => ['false'], 
                     ],
                 ],
             ];
@@ -125,7 +356,7 @@ class AWS extends AbstractProvider
 
         $regions = $this->ec2Client->describeRegions();
 
-        /** @var array<int, array{RegionName: string}> $regionsArray */
+        
         $regionsArray = $regions->toArray()['Regions'] ?? [];
 
         return collect($regionsArray)
@@ -133,9 +364,7 @@ class AWS extends AbstractProvider
             ->toArray();
     }
 
-    /**
-     * @throws Exception
-     */
+    
     public function create(): void
     {
         $this->connectToEc2Client();
@@ -204,9 +433,7 @@ class AWS extends AbstractProvider
         ]);
     }
 
-    /**
-     * @param  array<string, mixed>  $credentials
-     */
+    
     private function connectToEc2ClientTest(array $credentials): void
     {
         $this->ec2Client = new Ec2Client([
@@ -225,7 +452,7 @@ class AWS extends AbstractProvider
         $result = $this->ec2Client->createKeyPair([
             'KeyName' => $keyName,
         ]);
-        /** @var FilesystemAdapter $storageDisk */
+        
         $storageDisk = Storage::disk(config('core.key_pairs_disk'));
         $storageDisk->put((string) $this->server->id, $result['KeyMaterial']);
         generate_public_key(
@@ -259,9 +486,7 @@ class AWS extends AbstractProvider
         ]);
     }
 
-    /**
-     * @throws Exception
-     */
+    
     private function runInstance(): void
     {
         $keyName = $groupName = $this->server->name.'-'.$this->server->id;
@@ -281,14 +506,12 @@ class AWS extends AbstractProvider
         $this->server->save();
     }
 
-    /**
-     * @throws Exception
-     */
-    private function getImageId(string $os): string
+    
+    private function getImageId(OperatingSystem $os): string
     {
         $this->connectToEc2Client();
 
-        $version = config('core.operating_system_versions.'.$os);
+        $version = $os->getVersion();
 
         $result = $this->ec2Client->describeImages([
             'Filters' => [
@@ -308,11 +531,11 @@ class AWS extends AbstractProvider
             'Owners' => ['099720109477'],
         ]);
 
-        // Extract and display image information
+        
         $images = $result->get('Images');
 
         if (! empty($images)) {
-            // Sort images by creation date to get the latest one
+            
             usort($images, fn (array $a, array $b): int => strtotime((string) $b['CreationDate']) - strtotime((string) $a['CreationDate']));
 
             return $images[0]['ImageId'];

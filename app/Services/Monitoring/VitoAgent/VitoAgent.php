@@ -3,11 +3,9 @@
 namespace App\Services\Monitoring\VitoAgent;
 
 use App\Exceptions\ServiceInstallationFailed;
-use App\Exceptions\SSHError;
 use App\Models\Metric;
 use App\Services\AbstractService;
 use Closure;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Ramsey\Uuid\Uuid;
@@ -56,7 +54,7 @@ class VitoAgent extends AbstractService
         return [
             'url' => '',
             'secret' => Uuid::uuid4()->toString(),
-            'data_retention' => 10,
+            'data_retention' => 7,
         ];
     }
 
@@ -69,11 +67,7 @@ class VitoAgent extends AbstractService
         ];
     }
 
-    /**
-     * @throws SSHError
-     * @throws ServiceInstallationFailed
-     * @throws ConnectionException
-     */
+    
     public function install(): void
     {
         $tags = Http::get(self::TAGS_URL)->json();
@@ -90,22 +84,65 @@ class VitoAgent extends AbstractService
         $this->service->save();
         $this->service->refresh();
 
-        $this->service->server->ssh()->exec(
-            view('ssh.services.monitoring.vito-agent.install', [
-                'downloadUrl' => $downloadUrl,
-                'configUrl' => $this->data()['url'],
-                'configSecret' => $this->data()['secret'],
-            ]),
-            'install-vito-agent'
-        );
+        $this->service->server->ssh()
+            ->setLog($this->service->log)
+            ->exec(
+                view('ssh.services.monitoring.vito-agent.install', [
+                    'downloadUrl' => $downloadUrl,
+                    'configUrl' => $this->data()['url'],
+                    'configSecret' => $this->data()['secret'],
+                ]),
+                'install-vito-agent'
+            );
+        $this->updateConfig();
         $status = $this->service->server->systemd()->status($this->unit());
         event('service.installed', $this->service);
         $this->service->validateInstall($status);
     }
 
-    /**
-     * @throws SSHError
-     */
+    
+    public function updateConfig(): void
+    {
+        $config = [
+            'url' => $this->data()['url'],
+            'secret' => $this->data()['secret'],
+            'services' => $this->configServices(),
+        ];
+
+        $this->service->server->ssh()->write(
+            '/etc/vito-agent/config.json',
+            json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            'root'
+        );
+
+        $this->service->server->ssh()->exec(
+            'sudo chmod 600 /etc/vito-agent/config.json'."\n".
+            'echo '.escapeshellarg('vito-agent config updated. Monitoring services: '.json_encode($config['services'], JSON_THROW_ON_ERROR)),
+            'secure-vito-agent-config'
+        );
+
+        $this->service->server->systemd()->restart($this->unit());
+    }
+
+    
+    private function configServices(): array
+    {
+        $services = [];
+        foreach ($this->service->server->services()->get() as $service) {
+            if ($service->id === $this->service->id || ! $service->hasHandler()) {
+                continue;
+            }
+            $unit = $service->handler()->unit();
+            if ($unit === '') {
+                continue;
+            }
+            $services[] = ['id' => $service->id, 'unit' => $unit];
+        }
+
+        return $services;
+    }
+
+    
     public function uninstall(): void
     {
         $this->service->server->ssh()->exec(

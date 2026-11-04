@@ -15,7 +15,7 @@ class SyncDatabases
         if (! $service instanceof Service) {
             return;
         }
-        /** @var Database $handler */
+        
         $handler = $service->handler();
 
         $this->updateCharsets($service, $handler);
@@ -24,11 +24,11 @@ class SyncDatabases
 
     private function updateCharsets(Service $service, Database $handler): void
     {
-        $data = $service->type_data ?? [];
         $charsets = $handler->getCharsets();
-        $data['charsets'] = $charsets['charsets'] ?? [];
-        $data['defaultCharset'] = $charsets['defaultCharset'] ?? '';
-        $service->type_data = $data;
+
+        $service->refresh();
+        $service->jsonUpdate('type_data', 'charsets', $charsets['charsets'] ?? [], save: false);
+        $service->jsonUpdate('type_data', 'defaultCharset', $charsets['defaultCharset'] ?? '', save: false);
         $service->save();
     }
 
@@ -36,7 +36,7 @@ class SyncDatabases
     {
         $databases = $handler->getDatabases();
         foreach ($databases as $database) {
-            /** @var ?\App\Models\Database $db */
+            
             $db = $server->databases()
                 ->where('name', $database[0])
                 ->first();

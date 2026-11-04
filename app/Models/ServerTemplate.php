@@ -5,15 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @property int $user_id
- * @property string $name
- * @property array<string> $services
- * @property User $user
- */
 class ServerTemplate extends AbstractModel
 {
-    /** @use HasFactory<\Database\Factories\ServerTemplateFactory> */
+    
     use HasFactory;
 
     protected $fillable = [

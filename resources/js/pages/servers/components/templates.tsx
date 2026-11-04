@@ -29,7 +29,7 @@ function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onT
   const form = useForm({});
 
   const submit = () => {
-    form.delete(route('server-templates.destroy', { id: template.id }), {
+    form.delete(`/server-templates/${template.id}`, {
       onSuccess: () => {
         setOpen(false);
         onTemplateDeleted(template);
@@ -40,7 +40,7 @@ function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onT
   return (
     <Dialog modal={true} open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button type="button" variant="outline" size="icon">
           <TrashIcon />
         </Button>
       </DialogTrigger>
@@ -52,9 +52,9 @@ function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onT
         <p className="p-4">Are you sure you want to delete this template?</p>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
-          <Button variant="destructive" onClick={submit} disabled={form.processing}>
+          <Button type="button" variant="destructive" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             Delete
           </Button>
@@ -95,7 +95,7 @@ function Save({
 
   const save = () => {
     if (form.data.new) {
-      form.post(route('server-templates.store'), {
+      form.post("/server-templates", {
         onSuccess: () => {
           form.reset();
           setOpen(false);
@@ -114,7 +114,7 @@ function Save({
       return;
     }
 
-    form.put(route('server-templates.update', { id: form.data.id }), {
+    form.put(`/server-templates/${form.data.id}`, {
       onSuccess: () => {
         form.reset();
         setOpen(false);
@@ -130,13 +130,13 @@ function Save({
   return (
     <Dialog modal={true} open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button type="button" variant="outline" size="icon">
           <SaveIcon />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Save tempalte</DialogTitle>
+          <DialogTitle>Save template</DialogTitle>
           <DialogDescription className="sr-only">Save as template</DialogDescription>
         </DialogHeader>
         <Form className="p-4">
@@ -157,9 +157,9 @@ function Save({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
-          <Button onClick={save} disabled={form.processing}>
+          <Button type="button" onClick={save} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             Save
           </Button>
@@ -182,7 +182,7 @@ export default function ServerTemplates({
   const query = useQuery<ServerTemplate[]>({
     queryKey: ['server-templates'],
     queryFn: async () => {
-      return (await axios.get(route('server-templates.index'))).data?.templates || [];
+      return (await axios.get("/server-templates")).data?.templates || [];
     },
   });
 
@@ -214,13 +214,13 @@ export default function ServerTemplates({
     <div className="inline-flex items-center gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
+          <Button type="button" variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
             {query.isFetching && 'Loading...'}
             {!query.isFetching && (value ? value.name : 'Select template...')}
             <ChevronsUpDownIcon className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
           <Command>
             <CommandInput placeholder="Search template..." className="h-9" />
             <CommandList>

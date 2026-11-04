@@ -9,18 +9,29 @@ interface StorageProvider
 {
     public static function id(): string;
 
-    /**
-     * @return array<string, string>
-     */
+    
+    public static function editFields(): array;
+
+    
     public function validationRules(): array;
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     */
+    
     public function credentialData(array $input): array;
 
-    public function connect(): bool;
+    
+    public function editableData(): array;
+
+    
+    public function mergeEditData(array $input): array;
+
+    
+    public function editValidationRules(array $input): array;
+
+    
+    public function connect(array $credentials): bool;
+
+    
+    public function forgetCachedState(): void;
 
     public function ssh(Server $server): Storage;
 }

@@ -2,13 +2,32 @@
 
 namespace App\Enums;
 
-final class OperatingSystem
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+
+enum OperatingSystem: string implements VitoEnum
 {
-    const UBUNTU18 = 'ubuntu_18';
+    use TextIsValue;
 
-    const UBUNTU20 = 'ubuntu_20';
+    case UBUNTU18 = 'ubuntu_18';
+    case UBUNTU20 = 'ubuntu_20';
+    case UBUNTU22 = 'ubuntu_22';
+    case UBUNTU24 = 'ubuntu_24';
+    case UBUNTU26 = 'ubuntu_26';
 
-    const UBUNTU22 = 'ubuntu_22';
+    public function getColor(): string
+    {
+        return 'default';
+    }
 
-    const UBUNTU24 = 'ubuntu_24';
+    public function getVersion(): string
+    {
+        return match ($this) {
+            self::UBUNTU18 => '18.04',
+            self::UBUNTU20 => '20.04',
+            self::UBUNTU22 => '22.04',
+            self::UBUNTU24 => '24.04',
+            self::UBUNTU26 => '26.04',
+        };
+    }
 }

@@ -2,19 +2,12 @@
 
 namespace App\Models;
 
-use Database\Factories\DeploymentScriptFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @property int $site_id
- * @property string $name
- * @property string $content
- * @property Site $site
- */
 class DeploymentScript extends AbstractModel
 {
-    /** @use HasFactory<DeploymentScriptFactory> */
+    
     use HasFactory;
 
     protected static function boot(): void
@@ -38,9 +31,7 @@ class DeploymentScript extends AbstractModel
         'configs' => 'array',
     ];
 
-    /**
-     * @return BelongsTo<Site, covariant $this>
-     */
+    
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
@@ -48,13 +39,6 @@ class DeploymentScript extends AbstractModel
 
     public function shouldRestartWorkers(): bool
     {
-        $configs = $this->configs ?? [];
-        if (! isset($configs['restart_workers'])) {
-            $configs['restart_workers'] = false;
-            $this->configs = $configs;
-            $this->save();
-        }
-
-        return $configs['restart_workers'];
+        return (bool) ($this->configs['restart_workers'] ?? false);
     }
 }

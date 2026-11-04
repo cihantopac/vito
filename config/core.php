@@ -7,40 +7,56 @@ use App\Models\Server;
 use App\Models\Site;
 
 return [
-    /*
-     * SSH
-     */
+    
     'ssh_user' => env('SSH_USER', 'vito'),
+
+    
+    'reserved_user_names' => [
+        'root', 'daemon', 'bin', 'sys', 'sync', 'games', 'man', 'lp', 'mail',
+        'news', 'uucp', 'proxy', 'www-data', 'backup', 'list', 'irc', 'gnats',
+        'nobody', 'systemd-network', 'systemd-resolve', 'systemd-timesync',
+        'syslog', 'messagebus', '_apt', 'sshd', 'tcpdump', 'tss', 'landscape',
+        'pollinate', 'fwupd-refresh', 'mysql', 'postgres', 'redis', 'mongodb',
+        'memcached', 'rabbitmq', 'nginx', 'apache', 'caddy', 'ubuntu', 'debian',
+        'admin', 'administrator', 'vito',
+    ],
     'ssh_public_key_name' => env('SSH_PUBLIC_KEY_NAME', 'ssh-public.key'),
     'ssh_private_key_name' => env('SSH_PRIVATE_KEY_NAME', 'ssh-private.pem'),
-    'logs_disk' => env('SERVER_LOGS_DISK', 'server-logs'), // should be FilesystemAdapter storage
-    'key_pairs_disk' => env('KEY_PAIRS_DISK', 'key-pairs'), // should be FilesystemAdapter storage
+    'logs_disk' => env('SERVER_LOGS_DISK', 'server-logs'), 
+    'key_pairs_disk' => env('KEY_PAIRS_DISK', 'key-pairs'), 
 
-    /*
-     * General
-     */
+    
+    'backup_run_timeout' => (int) env('BACKUP_RUN_TIMEOUT', 3600),
+
+    'pgbackrest_strategies' => array_filter(explode(',', (string) env('PGBACKREST_STRATEGIES', 'standard'))),
+
+    'backup_overdue_grace_minutes' => (int) env('BACKUP_OVERDUE_GRACE_MINUTES', 60),
+
+    'backup_alert_reminder_hours' => (int) env('BACKUP_ALERT_REMINDER_HOURS', 24),
+
+    
+    'ws_host' => env('WS_HOST', '127.0.0.1'),
+    'ws_port' => env('WS_PORT', '8085'),
+    'ws_broadcast_secret' => env('WS_BROADCAST_SECRET', env('APP_KEY')),
+    'ws_broadcast_secret_set' => ! empty(env('WS_BROADCAST_SECRET')),
+    'ws_allowed_origins' => array_filter(array_map('trim', explode(',', env('WS_ALLOWED_ORIGINS', '')))),
+
+    
     'operating_systems' => [
-        OperatingSystem::UBUNTU20,
-        OperatingSystem::UBUNTU22,
-        OperatingSystem::UBUNTU24,
-    ],
-    'operating_system_versions' => [
-        OperatingSystem::UBUNTU20 => '20.04',
-        OperatingSystem::UBUNTU22 => '22.04',
-        OperatingSystem::UBUNTU24 => '24.04',
+        OperatingSystem::UBUNTU24->value,
+        OperatingSystem::UBUNTU26->value,
     ],
 
-    /*
-     * Disable these IPs for servers
-     */
+    
     'restricted_ip_addresses' => array_merge(
         ['127.0.0.1', 'localhost', '0.0.0.0'],
         explode(',', (string) env('RESTRICTED_IP_ADDRESSES', ''))
     ),
 
     'ssl_types' => [
-        SslType::LETSENCRYPT,
-        SslType::CUSTOM,
+        SslType::CSR->value,
+        SslType::CUSTOM->value,
+        SslType::LETSENCRYPT->value,
     ],
 
     'metrics_data_retention' => [

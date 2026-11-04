@@ -11,17 +11,25 @@ import { WifiIcon } from 'lucide-react';
 export default function StorageProviderSelect({
   value,
   onValueChange,
+  excludeId,
+  filter,
   ...props
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  excludeId?: string;
+  filter?: (storageProvider: StorageProvider) => boolean;
 } & SelectTriggerProps) {
   const query = useQuery<StorageProvider[]>({
     queryKey: ['storageProvider'],
     queryFn: async () => {
-      return (await axios.get(route('storage-providers.json'))).data;
+      return (await axios.get("/settings/storage-providers/json")).data;
     },
   });
+
+  const options = (query.data ?? [])
+    .filter((storageProvider) => storageProvider.id.toString() !== excludeId)
+    .filter((storageProvider) => (filter ? filter(storageProvider) : true));
 
   return (
     <div className="flex items-center gap-2">
@@ -32,7 +40,7 @@ export default function StorageProviderSelect({
         <SelectContent>
           <SelectGroup>
             {query.isSuccess &&
-              query.data.map((storageProvider: StorageProvider) => (
+              options.map((storageProvider: StorageProvider) => (
                 <SelectItem key={`db-${storageProvider.name}`} value={storageProvider.id.toString()}>
                   {storageProvider.name}
                 </SelectItem>

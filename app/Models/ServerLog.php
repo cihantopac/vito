@@ -2,36 +2,31 @@
 
 namespace App\Models;
 
-use Database\Factories\ServerLogFactory;
+use App\DTOs\SocketEventDTO;
+use App\Events\SocketEvent;
+use App\Http\Resources\ServerLogResource;
+use App\SSH\OS\OS;
+use Closure;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Throwable;
 
-/**
- * @property int $server_id
- * @property ?int $site_id
- * @property string $type
- * @property string $name
- * @property string $disk
- * @property bool $is_remote
- * @property Server $server
- * @property ?Site $site
- */
 class ServerLog extends AbstractModel
 {
-    /** @use HasFactory<ServerLogFactory> */
+    public const string PENDING_LOG_MESSAGE = "This job hasn't started yet. It's queued and will begin automatically.";
+
+
     use HasFactory;
+
+    private static ?int $networkContext = null;
 
     protected $fillable = [
         'server_id',
         'site_id',
+        'network_id',
         'type',
         'name',
         'disk',
@@ -41,12 +36,38 @@ class ServerLog extends AbstractModel
     protected $casts = [
         'server_id' => 'integer',
         'site_id' => 'integer',
+        'network_id' => 'integer',
         'is_remote' => 'boolean',
     ];
+
+    
+    public static function withNetwork(?int $networkId, Closure $callback): mixed
+    {
+        $previous = self::$networkContext;
+        self::$networkContext = $networkId;
+
+        try {
+            return $callback();
+        } finally {
+            self::$networkContext = $previous;
+        }
+    }
 
     public static function boot(): void
     {
         parent::boot();
+
+        self::created(function (ServerLog $log): void {
+            try {
+                SocketEvent::dispatch(new SocketEventDTO(
+                    projectId: $log->server->project_id,
+                    type: 'server-log.created',
+                    data: new ServerLogResource($log),
+                ));
+            } catch (Exception $e) {
+                Log::error($e->getMessage(), ['exception' => $e]);
+            }
+        });
 
         self::deleting(function (ServerLog $log): void {
             if ($log->is_remote) {
@@ -66,64 +87,22 @@ class ServerLog extends AbstractModel
         return 'log';
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
+    
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    /**
-     * @return BelongsTo<Site, $this>
-     */
+    
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function download(): StreamedResponse
+    
+    public function network(): BelongsTo
     {
-        if ($this->is_remote) {
-            $tmpName = $this->server->id.'-'.strtotime('now').'-'.$this->type.'.log';
-            $tmpPath = Storage::disk('local')->path($tmpName);
-
-            $this->server->ssh()->download($tmpPath, $this->name);
-
-            dispatch(function () use ($tmpPath): void {
-                if (File::exists($tmpPath)) {
-                    File::delete($tmpPath);
-                }
-            })
-                ->delay(now()->addMinutes(5))
-                ->onQueue('default');
-
-            return Storage::disk('local')->download($tmpName, str($this->name)->afterLast('/'));
-        }
-
-        if (! Storage::disk($this->disk)->exists($this->name)) {
-            abort(404, "Log file doesn't exist or is empty!");
-        }
-
-        return Storage::disk($this->disk)->download($this->name);
-    }
-
-    /**
-     * @param  Builder<ServerLog>  $query
-     * @return Builder<ServerLog>
-     */
-    public static function getRemote(Builder $query, bool $active = true, ?Site $site = null): Builder
-    {
-        $query->where('is_remote', $active);
-
-        if ($site instanceof Site) {
-            $query->where('name', 'like', $site->path.'%');
-        }
-
-        return $query;
+        return $this->belongsTo(Network::class);
     }
 
     public function write(string $buf): void
@@ -132,16 +111,35 @@ class ServerLog extends AbstractModel
             $buf = str_replace('VITO_SSH_ERROR', '', $buf);
         }
         if (Storage::disk($this->disk)->exists($this->name)) {
-            Storage::disk($this->disk)->append($this->name, $buf);
+            Storage::disk($this->disk)->append($this->name, $buf, '');
         } else {
             Storage::disk($this->disk)->put($this->name, $buf);
+        }
+
+        try {
+            SocketEvent::dispatch(new SocketEventDTO(
+                projectId: $this->server->project_id,
+                type: 'server-log.content',
+                data: [
+                    'id' => $this->id,
+                    'content' => $buf,
+                ],
+            ));
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['exception' => $e]);
         }
     }
 
     public function getContent(?int $lines = null): ?string
     {
         if ($this->is_remote) {
-            return $this->server->os()->tail($this->name, $lines ?? 150);
+            if (! $this->server->isReady()) {
+                return 'Live logs are unavailable while the server is offline.';
+            }
+
+            $content = $this->server->os()->tail($this->name, $lines ?? 150);
+
+            return trim($content) === OS::FILE_NOT_FOUND ? self::PENDING_LOG_MESSAGE : $content;
         }
 
         if (Storage::disk($this->disk)->exists($this->name)) {
@@ -151,10 +149,12 @@ class ServerLog extends AbstractModel
 
             $content = Storage::disk($this->disk)->get($this->name);
 
-            return $content ?? 'Empty log file!';
+            return $content ?: 'Empty log file!';
         }
 
-        return "Log file doesn't exist or is empty!";
+        return $this->type === 'write-file'
+            ? 'No output was recorded for this file write operation.'
+            : self::PENDING_LOG_MESSAGE;
     }
 
     public static function log(Server $server, string $type, string $content, ?Site $site = null): ServerLog
@@ -162,6 +162,7 @@ class ServerLog extends AbstractModel
         $log = new self([
             'server_id' => $server->id,
             'site_id' => $site?->id,
+            'network_id' => self::$networkContext,
             'name' => $server->id.'-'.strtotime('now').'-'.$type.'.log',
             'type' => $type,
             'disk' => config('core.logs_disk'),
@@ -176,6 +177,7 @@ class ServerLog extends AbstractModel
     {
         return new self([
             'server_id' => $server->id,
+            'network_id' => self::$networkContext,
             'name' => $server->id.'-'.strtotime('now').'-'.$type.'.log',
             'type' => $type,
             'disk' => config('core.logs_disk'),
@@ -184,14 +186,17 @@ class ServerLog extends AbstractModel
 
     public function forSite(Site|int $site): ServerLog
     {
-        if ($site instanceof Site) {
-            $site = $site->id;
-
-            return $this;
-        }
-
-        $this->site_id = $site;
+        $this->site_id = $site instanceof Site ? $site->id : $site;
 
         return $this;
+    }
+
+    
+    public function clear(): void
+    {
+        if ($this->is_remote) {
+            
+            $this->server->os()->clearFile($this->name);
+        }
     }
 }

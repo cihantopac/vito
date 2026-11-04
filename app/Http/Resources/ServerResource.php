@@ -2,41 +2,67 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Server;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Server */
 class ServerResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'project_id' => $this->project_id,
-            'services' => $this->services()->pluck('name', 'type'),
+            'services' => $this->relationLoaded('services') ? $this->services->pluck('name', 'type') : $this->services()->pluck('name', 'type'),
             'user_id' => $this->user_id,
             'provider_id' => $this->provider_id,
             'name' => $this->name,
+            'role' => $this->role->getText(),
+            'role_value' => $this->role->value,
+            'role_color' => $this->role->getColor(),
+            'stage' => $this->stage,
             'ssh_user' => $this->ssh_user,
             'ssh_users' => $this->getSshUsers(),
             'ip' => $this->ip,
             'local_ip' => $this->local_ip,
             'port' => $this->port,
-            'os' => $this->os,
+            'os' => $this->os->getText(),
             'provider' => $this->provider,
             'provider_data' => $this->provider_data,
             'public_key' => $this->public_key,
-            'status' => $this->status,
+            'status' => $this->status->getText(),
+            'is_self' => (bool) $this->is_self,
             'auto_update' => $this->auto_update,
+            'auto_update_schedule' => $this->auto_update_schedule,
             'progress' => $this->progress,
             'progress_step' => $this->progress_step,
             'updates' => $this->updates,
+            'kernel_updates' => $this->kernel_updates,
             'last_update_check' => $this->last_update_check,
-            'status_color' => $this->getStatusColor(),
+            'status_color' => $this->status->getColor(),
+            'can_power_manage' => $this->canPowerManage(),
+            'features' => $this->features(),
+            'warnings' => $this->getWarnings(),
+            'ssh_keys' => $this->sshKeys->map(fn ($key) => [
+                'id' => $key->id,
+                'name' => $key->name,
+                'user' => $key->pivot->user ?? $this->ssh_user ?? 'root',
+                'status' => $key->pivot->status ?? 'ready',
+            ])->values()->all(),
+            'counts' => [
+                'sites' => (int) ($this->sites_count ?? $this->sites()->count()),
+                'cronjobs' => (int) ($this->cron_jobs_count ?? $this->cronJobs()->count()),
+                'workers' => (int) ($this->workers_count ?? $this->workers()->count()),
+                'backups' => (int) ($this->backups_count ?? $this->backups()->count()),
+                'services' => (int) ($this->services_count ?? ($this->relationLoaded('services') ? $this->services->count() : $this->services()->count())),
+                'databases' => (int) ($this->databases_count ?? $this->databases()->count()),
+                'database_users' => (int) ($this->database_users_count ?? $this->databaseUsers()->count()),
+            ],
+            'metric' => ($latestMetric = $this->relationLoaded('latestMetric') ? $this->latestMetric : $this->latestMetric()->first()) ? [
+                'cpu_usage_percent' => $latestMetric->cpu_usage_percent !== null ? (float) $latestMetric->cpu_usage_percent : null,
+                'memory_used_percent' => $latestMetric->memory_total > 0 ? round($latestMetric->memory_used * 100.0 / $latestMetric->memory_total, 1) : null,
+                'disk_used_percent' => $latestMetric->disk_total > 0 ? round($latestMetric->disk_used * 100.0 / $latestMetric->disk_total, 1) : null,
+            ] : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

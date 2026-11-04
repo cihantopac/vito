@@ -5,7 +5,17 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// convert kb to gb
+
+export function rowId(): string {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+}
+
+
+export function currentPath(): string {
+  return window.location.pathname;
+}
+
+
 export function kbToGb(kb: number | string): number {
   if (typeof kb === 'string') {
     kb = parseFloat(kb);
@@ -13,12 +23,25 @@ export function kbToGb(kb: number | string): number {
   return Math.round((kb / 1024 / 1024) * 100) / 100;
 }
 
-// convert mb to gb
+
 export function mbToGb(mb: number | string): number {
   if (typeof mb === 'string') {
     mb = parseFloat(mb);
   }
   return Math.round((mb / 1024) * 100) / 100;
+}
+
+export function formatBytes(bytes: number, decimals = 1): string {
+  if (!bytes) {
+    return '0 B';
+  }
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / Math.pow(1024, i)).toFixed(i ? decimals : 0)} ${units[i]}`;
+}
+
+export function truncate(value: string, limit: number): string {
+  return value.length > limit ? `${value.slice(0, limit)}...` : value;
 }
 
 export function formatDateString(dateString: string | Date): string {
@@ -28,6 +51,52 @@ export function formatDateString(dateString: string | Date): string {
   const month = date.toLocaleString('default', { month: '2-digit' });
   const day = date.toLocaleString('default', { day: '2-digit' });
 
-  // Generate yyyy-mm-dd date string
+  
   return year + '-' + month + '-' + day;
+}
+
+export function humanizeSeconds(seconds: number | null | undefined): string {
+  if (seconds == null || !Number.isFinite(seconds) || seconds < 0) return 'N/A';
+  const total = Math.floor(seconds);
+  const days = Math.floor(total / 86400);
+  const hours = Math.floor((total % 86400) / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const parts: string[] = [];
+  if (days) parts.push(`${days}d`);
+  if (hours || days) parts.push(`${hours}h`);
+  parts.push(`${minutes}m`);
+  return parts.join(' ');
+}
+
+const STEP_ACRONYMS = new Set(['ssl', 'ssh', 'os', 'php', 'ufw', 'db', 'ip', 'url', 'dns', 'id', 'api', 'sftp', 'cpu', 'ram']);
+
+
+
+
+export function humanizeStep(step: string | null | undefined): string {
+  if (!step) return '';
+
+  const words = step
+    .replace(/[-_]+/g, ' ')
+    .trim()
+    .split(' ')
+    .map((word) => (STEP_ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word));
+
+  if (words.length === 0) return '';
+
+  words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+
+  return words.join(' ');
+}
+
+export function getInitials(fullName: string): string {
+  const names = fullName.trim().split(' ');
+
+  if (names.length === 0) return '';
+  if (names.length === 1) return names[0].charAt(0).toUpperCase();
+
+  const firstInitial = names[0].charAt(0);
+  const lastInitial = names[names.length - 1].charAt(0);
+
+  return `${firstInitial}${lastInitial}`.toUpperCase();
 }

@@ -3,17 +3,17 @@
 namespace App\Actions\Site;
 
 use App\Enums\DeploymentStatus;
-use App\Facades\Notifier;
+use App\Jobs\Site\RollbackJob;
 use App\Models\Deployment;
-use App\Notifications\DeploymentCompleted;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class Rollback
 {
-    public function run(Deployment $deployment): void
+    public function run(Deployment $deployment, ?User $user = null): void
     {
         $site = $deployment->site;
-        /** ?Deployment $current */
+        
         $current = $site->deployments()->where('active', 1)->whereNotNull('release')->first();
 
         if ($deployment->active) {
@@ -29,36 +29,10 @@ class Rollback
         }
 
         $deployment->status = DeploymentStatus::DEPLOYING;
+        $deployment->rolled_back_by_id = $user?->id;
+        $deployment->rolled_back_at = now();
         $deployment->save();
 
-        dispatch(function () use ($deployment, $site) {
-            $deployment->site->server->ssh($site->user)->exec(
-                view('ssh.modern-deployment.release', [
-                    'site' => $site,
-                    'releasePath' => $deployment->path(),
-                ]),
-                'release',
-                $site->id
-            );
-            $deployment->activate();
-            $deployment->status = DeploymentStatus::FINISHED;
-            $deployment->save();
-        })->catch(function () use ($deployment, $site, $current): void {
-            $deployment->status = DeploymentStatus::FAILED;
-            $deployment->save();
-            Notifier::send($site, new DeploymentCompleted($deployment, $site));
-            if ($current) {
-                $deployment->site->server->ssh($site->user)->exec(
-                    view('ssh.modern-deployment.release', [
-                        'site' => $site,
-                        'releasePath' => $current->path(),
-                    ]),
-                    'release',
-                    $site->id
-                );
-                $current->activate();
-
-            }
-        })->onQueue('ssh-unique');
+        dispatch(new RollbackJob($deployment));
     }
 }

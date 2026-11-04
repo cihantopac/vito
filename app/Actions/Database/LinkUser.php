@@ -2,25 +2,23 @@
 
 namespace App\Actions\Database;
 
+use App\Actions\SiteResource\GuardProvisionedDatabase;
 use App\Models\Database;
 use App\Models\DatabaseUser;
 use App\Models\Server;
-use App\Models\Service;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class LinkUser
 {
-    /**
-     * @param  array<string, mixed>  $input
-     * @return DatabaseUser $databaseUser
-     *
-     * @throws ValidationException
-     */
+    public function __construct(private GuardProvisionedDatabase $guard) {}
+
+    
     public function link(DatabaseUser $databaseUser, array $input): DatabaseUser
     {
-        Validator::make($input, self::rules($databaseUser->server))->validate();
+        $this->guard->user($databaseUser);
+        $this->validate($databaseUser->server, $input);
 
         if (! isset($input['databases']) || ! is_array($input['databases'])) {
             $input['databases'] = [];
@@ -34,44 +32,39 @@ class LinkUser
             throw ValidationException::withMessages(['databases' => __('Databases not found!')]);
         }
 
-        $databaseUser->databases = $input['databases'];
-
-        /** @var Service $service */
+        
         $service = $databaseUser->server->database();
 
-        /** @var \App\Services\Database\Database $handler */
+        
         $handler = $service->handler();
 
-        // Unlink the user from all databases
         $handler->unlink(
             $databaseUser->username,
             $databaseUser->host
         );
 
-        // Link the user to the selected databases
+        $databaseUser->databases = $input['databases'];
+        $databaseUser->save();
+
         $handler->link(
             $databaseUser->username,
             $databaseUser->host,
-            $databaseUser->databases
+            $databaseUser->databases,
+            $databaseUser->permission->value
         );
-
-        $databaseUser->save();
 
         $databaseUser->refresh();
 
         return $databaseUser;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(Server $server): array
+    private function validate(Server $server, array $input): void
     {
-        return [
+        Validator::make($input, [
             'databases.*' => [
                 'nullable',
                 Rule::exists('databases', 'name')->where('server_id', $server->id),
             ],
-        ];
+        ])->validate();
     }
 }

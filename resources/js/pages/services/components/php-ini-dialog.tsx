@@ -1,0 +1,98 @@
+import { withQuery } from '@/lib/url';
+import { Service } from '@/types/service';
+import { FormEvent, useEffect } from 'react';
+import { useForm } from '@inertiajs/react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { Editor, useMonaco } from '@monaco-editor/react';
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Form } from '@/components/ui/form';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { LoaderCircleIcon } from 'lucide-react';
+import { registerIniLanguage } from '@/lib/editor';
+
+export default function PhpIniDialog({
+  open,
+  onOpenChange,
+  service,
+  type,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  service: Service;
+  type: 'fpm' | 'cli';
+}) {
+  const form = useForm<{
+    ini: string;
+    type: 'fpm' | 'cli';
+    version: string;
+  }>({
+    ini: '',
+    type: type,
+    version: service.version,
+  });
+
+    const submit = (e: FormEvent) => {
+    e.preventDefault();
+    form.patch(`/servers/${service.server_id}/php/${service.id}/ini`, {
+      onSuccess: () => onOpenChange(false),
+    });
+  };
+
+  const query = useQuery({
+    queryKey: ['php.ini', service.server_id, service.id, type],
+    queryFn: async () => {
+      const response = await axios.get(
+        withQuery(`/servers/${service.server_id}/php/${service.id}/ini`, { version: service.version, type: type }),
+      );
+      if (typeof response.data?.ini === 'string') {
+        form.setData('ini', response.data.ini);
+      }
+      return response.data;
+    },
+    retry: false,
+    enabled: open,
+    refetchOnWindowFocus: false,
+  });
+
+  registerIniLanguage(useMonaco());
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-5xl" onCloseAutoFocus={(e) => e.preventDefault()}>
+        <SheetHeader>
+          <SheetTitle>Edit {type} ini</SheetTitle>
+          <SheetDescription className="sr-only">You can edit the {type} ini file for this service. Make sure to save your changes.</SheetDescription>
+        </SheetHeader>
+        <Form id="update-ini-form" className="h-full" onSubmit={submit}>
+          {query.isSuccess ? (
+            <Editor
+              defaultLanguage="ini"
+              value={form.data.ini}
+              theme="vs-dark"
+              className="h-full"
+              onChange={(value) => form.setData('ini', value ?? '')}
+              options={{
+                fontSize: 15,
+              }}
+            />
+          ) : (
+            <Skeleton className="h-full w-full rounded-none" />
+          )}
+        </Form>
+        <SheetFooter>
+          <div className="flex items-center gap-2">
+            <Button form="update-ini-form" type="submit" disabled={form.processing || query.isLoading} className="ml-2">
+              {(form.processing || query.isLoading) && <LoaderCircleIcon className="animate-spin" />}
+              Save
+            </Button>
+            <SheetClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </SheetClose>
+          </div>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}

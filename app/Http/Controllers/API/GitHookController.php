@@ -3,30 +3,26 @@
 namespace App\Http\Controllers\API;
 
 use App\Actions\Site\Deploy;
-use App\Exceptions\FailedToDestroyGitHook;
+use App\Enums\DeploymentTrigger;
 use App\Http\Controllers\Controller;
 use App\Models\GitHook;
 use App\Models\ServerLog;
-use App\Models\SourceControl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Spatie\RouteAttributes\Attributes\Any;
+use Spatie\RouteAttributes\Attributes\Post;
 use Throwable;
 
 class GitHookController extends Controller
 {
-    /**
-     * @throws FailedToDestroyGitHook
-     */
-    #[Any('api/git-hooks', name: 'api.git-hooks')]
+    #[Post('api/git-hooks', name: 'api.git-hooks')]
     public function __invoke(Request $request): JsonResponse
     {
         if (! $request->input('secret')) {
             abort(404);
         }
 
-        /** @var GitHook $gitHook */
+        
         $gitHook = GitHook::query()
             ->where('secret', $request->input('secret'))
             ->firstOrFail();
@@ -40,12 +36,12 @@ class GitHookController extends Controller
         }
 
         foreach ($gitHook->actions as $action) {
-            /** @var SourceControl $sourceControl */
+            
             $sourceControl = $gitHook->site->sourceControl;
             $webhookBranch = $sourceControl->provider()->getWebhookBranch($request->array());
             if ($action == 'deploy' && $gitHook->site->branch === $webhookBranch) {
                 try {
-                    app(Deploy::class)->run($gitHook->site);
+                    app(Deploy::class)->run($gitHook->site, trigger: DeploymentTrigger::WEBHOOK);
                 } catch (Throwable $e) {
                     ServerLog::log(
                         $gitHook->site->server,
@@ -53,7 +49,7 @@ class GitHookController extends Controller
                         $e->getMessage(),
                         $gitHook->site
                     );
-                    Log::error('git-hook-exception', (array) $e);
+                    Log::error('git-hook-exception', ['site_id' => $gitHook->site_id, 'error' => $e->getMessage()]);
                 }
             }
         }

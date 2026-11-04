@@ -7,6 +7,7 @@ use App\Actions\ServerProvider\DeleteServerProvider;
 use App\Actions\ServerProvider\EditServerProvider;
 use App\Http\Resources\ServerProviderResource;
 use App\Models\ServerProvider;
+use App\Tables\ServerProviderTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,8 +30,12 @@ class ServerProviderController extends Controller
     {
         $this->authorize('viewAny', ServerProvider::class);
 
+        $user = user();
+
         return Inertia::render('server-providers/index', [
-            'serverProviders' => ServerProviderResource::collection(ServerProvider::getByProjectId(user()->current_project_id)->simplePaginate(config('web.pagination_size'))),
+            'serverProviders' => ServerProviderTable::make(
+                ServerProvider::getByProjectId($user->current_project_id, $user)
+            )->simplePaginate(),
         ]);
     }
 
@@ -39,7 +44,9 @@ class ServerProviderController extends Controller
     {
         $this->authorize('viewAny', ServerProvider::class);
 
-        return ServerProviderResource::collection(ServerProvider::getByProjectId(user()->current_project_id)->get());
+        $user = user();
+
+        return ServerProviderResource::collection(ServerProvider::getByProjectId($user->current_project_id, $user)->get());
     }
 
     #[Post('/', name: 'server-providers.store')]
@@ -47,7 +54,11 @@ class ServerProviderController extends Controller
     {
         $this->authorize('create', ServerProvider::class);
 
-        app(CreateServerProvider::class)->create(user(), user()->currentProject, $request->all());
+        $projectId = $request->boolean('global') ? null : user()->currentProject?->id;
+
+        $this->authorize('assignToProject', [ServerProvider::class, $projectId]);
+
+        app(CreateServerProvider::class)->create(user(), $request->all(), $projectId);
 
         return back()->with('success', 'Server provider created.');
     }
@@ -57,7 +68,11 @@ class ServerProviderController extends Controller
     {
         $this->authorize('update', $serverProvider);
 
-        app(EditServerProvider::class)->edit($serverProvider, user()->currentProject, $request->all());
+        $projectId = $request->boolean('global') ? null : user()->currentProject?->id;
+
+        $this->authorize('assignToProject', [ServerProvider::class, $projectId]);
+
+        app(EditServerProvider::class)->edit($serverProvider, $request->all(), $projectId);
 
         return back()->with('success', 'Server provider updated.');
     }
@@ -67,7 +82,21 @@ class ServerProviderController extends Controller
     {
         $this->authorize('view', $serverProvider);
 
-        return response()->json($serverProvider->provider()->regions());
+        try {
+            $regions = $serverProvider->cachedRegions();
+
+            if (empty($regions)) {
+                return response()->json([
+                    'message' => 'No regions available for this provider. Please verify credentials.',
+                ], 422);
+            }
+
+            return response()->json($regions);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Could not fetch regions from provider.',
+            ], 422);
+        }
     }
 
     #[Get('{serverProvider}/regions/{region}/plans', name: 'server-providers.plans')]
@@ -75,7 +104,15 @@ class ServerProviderController extends Controller
     {
         $this->authorize('view', $serverProvider);
 
-        return response()->json($serverProvider->provider()->plans($region));
+        try {
+            $plans = $serverProvider->cachedPlans($region);
+
+            return response()->json($plans);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Could not fetch plans from provider.',
+            ], 422);
+        }
     }
 
     #[Delete('{serverProvider}', name: 'server-providers.destroy')]

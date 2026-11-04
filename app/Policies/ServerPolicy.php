@@ -2,59 +2,71 @@
 
 namespace App\Policies;
 
+use App\Enums\ServerStatus;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\User;
+use App\Traits\HasRolePolicies;
 
 class ServerPolicy
 {
-    public function viewAny(User $user, Project $project): bool
+    use HasRolePolicies;
+
+    public function viewAny(User $user, ?Project $project = null): bool
     {
-        if ($user->isAdmin()) {
-            return true;
+        if (! $project) {
+            return $user->allProjects()->exists();
         }
 
-        return $project->users->contains($user);
+        return $this->hasReadAccess($user, $project);
     }
 
     public function view(User $user, Server $server): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
+        return $this->hasReadAccess($user, $server->project);
+    }
 
-        return $server->project->users->contains($user);
+    public function checkPhpVersions(User $user): bool
+    {
+        return $this->viewAny($user);
     }
 
     public function create(User $user, Project $project): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        return $project->users->contains($user);
+        return $this->hasWriteAccess($user, $project);
     }
 
     public function update(User $user, Server $server): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
+        return $this->hasServerWriteAccess($user, $server) && $server->status !== ServerStatus::DISCONNECTED;
+    }
 
-        return $server->project->users->contains($user);
+    public function updateSettings(User $user, Server $server): bool
+    {
+        return $this->hasServerWriteAccess($user, $server);
+    }
+
+    public function start(User $user, Server $server): bool
+    {
+        return $this->hasServerWriteAccess($user, $server);
+    }
+
+    public function reboot(User $user, Server $server): bool
+    {
+        return $this->hasServerWriteAccess($user, $server);
     }
 
     public function delete(User $user, Server $server): bool
     {
-        if ($user->isAdmin()) {
-            return true;
+        if ($server->is_self) {
+            return false;
         }
 
-        return $server->project->users->contains($user);
+        return $this->hasOwnerAccess($user, $server->project);
     }
 
     public function manage(User $user, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) && $server->isReady();
+        return $this->hasServerWriteAccess($user, $server) && $server->isReady();
     }
 }

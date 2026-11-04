@@ -2,35 +2,44 @@
 
 namespace App\Actions\SourceControl;
 
-use App\Models\Project;
 use App\Models\SourceControl;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ConnectSourceControl
 {
-    /**
-     * @param  array<string, mixed>  $input
-     *
-     * @throws ValidationException
-     */
-    public function connect(Project $project, array $input): SourceControl
+    /** @param  array<string, mixed>  $input */
+    public function connect(User $user, array $input, ?int $projectId): SourceControl
     {
-        Validator::make($input, self::rules($input))->validate();
+        $this->validate($input);
 
         $sourceControl = new SourceControl([
             'provider' => $input['provider'],
             'profile' => $input['name'],
             'url' => isset($input['url']) && $input['url'] ? $input['url'] : null,
-            'project_id' => isset($input['global']) && $input['global'] ? null : $project->id,
+            'project_id' => $projectId,
+            'user_id' => $user->id,
         ]);
 
         $sourceControl->provider_data = $sourceControl->provider()->createData($input);
 
-        if (! $sourceControl->provider()->connect()) {
+        try {
+            if (! $sourceControl->provider()->connect()) {
+                throw ValidationException::withMessages([
+                    'provider' => __('Cannot connect to :provider or invalid credentials!', ['provider' => $sourceControl->provider]),
+                ]);
+            }
+        } catch (\Exception $e) {
+            
+            if ($e instanceof ValidationException) {
+                throw $e;
+            }
+
+            
             throw ValidationException::withMessages([
-                'token' => __('Cannot connect to :provider or invalid token!', ['provider' => $sourceControl->provider]),
+                'provider' => $e->getMessage(),
             ]);
         }
 
@@ -39,34 +48,30 @@ class ConnectSourceControl
         return $sourceControl;
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, array<int, mixed>>
-     */
-    public static function rules(array $input): array
+    private function validate(array $input): void
     {
+        $connectableProviders = collect(config('source-control.providers'))
+            ->filter(fn (array $config): bool => (bool) ($config['connectable'] ?? true))
+            ->keys()
+            ->all();
+
         $rules = [
             'name' => [
                 'required',
             ],
             'provider' => [
                 'required',
-                Rule::in(array_keys(config('source-control.providers'))),
+                Rule::in($connectableProviders),
             ],
         ];
 
-        return array_merge($rules, self::providerRules($input));
+        Validator::make($input, array_merge($rules, $this->providerRules($input)))->validate();
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, array<string>>
-     *
-     * @throws ValidationException
-     */
-    private static function providerRules(array $input): array
+    
+    private function providerRules(array $input): array
     {
-        if (! isset($input['provider'])) {
+        if (! isset($input['provider']) || ! config('source-control.providers.'.$input['provider'].'.handler')) {
             return [];
         }
 

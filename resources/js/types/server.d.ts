@@ -1,3 +1,6 @@
+import { DynamicFieldConfig } from '@/types/dynamic-field-config';
+import type { ServerRole } from '@/lib/server-roles';
+
 export interface Server {
   id: number;
   project_id: number;
@@ -6,27 +9,75 @@ export interface Server {
   };
   user_id: number;
   name: string;
+  role: string;
+  role_value: ServerRole;
+  role_color: 'gray' | 'success' | 'info' | 'warning' | 'danger' | 'default';
+  stage: 'prod' | 'beta' | 'alfa';
   ssh_user: string;
   ssh_users: string[];
   ip: string;
   local_ip?: string;
   port: number;
   os: string;
-  type: string;
-  type_data: string;
   provider: string;
   provider_id: number;
   provider_data: string;
-  authentication: string;
   public_key: string;
   status: string;
+  is_self?: boolean;
   auto_update: boolean;
+  auto_update_schedule?: string | null;
   progress?: string;
   progress_step?: string;
   updates: number;
+  kernel_updates: number;
   last_update_check?: string;
+  features: ServerFeature[];
   created_at: string;
   updated_at: string;
   status_color: 'gray' | 'success' | 'info' | 'warning' | 'danger';
+  can_power_manage?: boolean;
+  warnings?: ServerWarning[];
+  counts?: {
+    sites?: number;
+    cronjobs?: number;
+    workers?: number;
+    backups?: number;
+    services?: number;
+    databases?: number;
+    database_users?: number;
+  };
+  ssh_keys?: Array<{
+    id: number;
+    name: string;
+    user: string;
+    status: string;
+  }>;
+  metric?: {
+    cpu_usage_percent?: number | null;
+    memory_used_percent?: number | null;
+    disk_used_percent?: number | null;
+  } | null;
   [key: string]: unknown;
+}
+
+export type ServerWarning =
+  | { key: 'updates_available'; count: number }
+  | { key: 'reboot_required' }
+  | { key: 'kernel_update_available'; count: number }
+  | { key: 'backups_need_attention'; count: number };
+
+export interface ServerFeature {
+  label: string;
+  description?: string;
+  actions?: {
+    [key: string]: ServerFeatureAction;
+  };
+}
+
+export interface ServerFeatureAction {
+  label: string;
+  handler: string;
+  form?: DynamicFieldConfig[];
+  active?: boolean;
 }

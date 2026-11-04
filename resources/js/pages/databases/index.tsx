@@ -1,51 +1,90 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
-import type { Database } from '@/types/database';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
 import CreateDatabase from '@/pages/databases/components/create-database';
 import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
-import { DataTable } from '@/components/data-table';
-import { columns } from '@/pages/databases/components/columns';
-import { BookOpenIcon, PlusIcon } from 'lucide-react';
-import SyncDatabases from '@/pages/databases/components/sync-databases';
-import { PaginatedData } from '@/types';
+import { VitoTable } from '@/components/vito-table';
+import { InfoIcon, PlusIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { InertiaTableData } from '@forjedio/inertia-table-react';
+import { useDialog } from '@/hooks/use-dialog';
 
 type Page = {
   server: Server;
-  databases: PaginatedData<Database>;
+  databases: InertiaTableData;
+  replicaOf?: { server_id: number; name: string | null } | null;
 };
 
 export default function Databases() {
   const page = usePage<Page>();
+  const dialog = useDialog();
+
+  const dbType = page.props.server.services['database'];
+  const defaultCharset = dbType === 'postgresql' ? 'UTF8' : 'utf8mb4';
+  const defaultCollation = dbType === 'postgresql' ? 'C.utf8' : 'utf8mb4_0900_ai_ci';
 
   return (
     <ServerLayout>
       <Head title={`Databases - ${page.props.server.name}`} />
 
-      <Container className="max-w-5xl">
+      <Container>
         <HeaderContainer>
-          <Heading title="Databases" description="Here you can manage the databases" />
+          <Heading
+            title={
+              page.props.server.counts?.databases !== undefined
+                ? `Databases (${page.props.server.counts.databases})`
+                : 'Databases'
+            }
+          />
           <div className="flex items-center gap-2">
-            <a href="https://vitodeploy.com/docs/servers/database" target="_blank">
-              <Button variant="outline">
-                <BookOpenIcon />
-                <span className="hidden lg:block">Docs</span>
-              </Button>
-            </a>
-            <SyncDatabases server={page.props.server} />
-            <CreateDatabase server={page.props.server.id}>
-              <Button>
-                <PlusIcon />
-                <span className="hidden lg:block">Create</span>
-              </Button>
-            </CreateDatabase>
+            <Button
+              variant="outline"
+              onClick={() =>
+                dialog.confirm.open({
+                  title: 'Sync databases',
+                  description:
+                    'This action will connect to your server and perform a two-way synchronization of databases. Pure will fetch any databases created manually on the server, and verify the existence of databases managed by Pure. If a database tracked by Pure no longer exists on the server, it will be removed from Pure. Are you sure you want to proceed?',
+                  confirmLabel: 'Sync databases',
+                  url: `/servers/${page.props.server.id}/database/sync`,
+                  method: 'post',
+                })
+              }
+            >
+              Sync
+            </Button>
+            {!page.props.replicaOf && (
+              <CreateDatabase server={page.props.server.id} defaultCharset={defaultCharset} defaultCollation={defaultCollation}>
+                <Button>
+                  <PlusIcon />
+                  <span className="hidden lg:block">Create</span>
+                </Button>
+              </CreateDatabase>
+            )}
           </div>
         </HeaderContainer>
 
-        <DataTable columns={columns} paginatedData={page.props.databases} />
+        {page.props.replicaOf && (
+          <Alert>
+            <InfoIcon />
+            <AlertTitle>This server is a PostgreSQL replica of {page.props.replicaOf.name}</AlertTitle>
+            <AlertDescription>
+              <p>
+                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Pure imports the list when
+                the replica is built; use Sync to refresh it.
+              </p>
+              {page.props.replicaOf.server_id && (
+                <Link href={`/servers/${page.props.replicaOf.server_id}/database`} className="text-foreground underline">
+                  Open the primary
+                </Link>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <VitoTable tableData={page.props.databases} />
       </Container>
     </ServerLayout>
   );

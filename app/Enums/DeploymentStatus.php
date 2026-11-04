@@ -2,11 +2,24 @@
 
 namespace App\Enums;
 
-final class DeploymentStatus
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+use Forjed\InertiaTable\Contracts\HasTableDisplay;
+
+enum DeploymentStatus: string implements HasTableDisplay, VitoEnum
 {
-    const string DEPLOYING = 'deploying';
+    use TextIsValue;
 
-    const string FINISHED = 'finished';
+    case DEPLOYING = 'deploying';
+    case FINISHED = 'finished';
+    case FAILED = 'failed';
 
-    const string FAILED = 'failed';
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::DEPLOYING => 'warning',
+            self::FINISHED => 'success',
+            self::FAILED => 'danger',
+        };
+    }
 }

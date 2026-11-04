@@ -2,6 +2,7 @@
 
 namespace App\StorageProviders;
 
+use App\DTOs\DynamicField;
 use App\Models\Server;
 use App\SSH\Storage\Storage;
 use FTP\Connection;
@@ -13,9 +14,7 @@ class FTP extends AbstractStorageProvider
         return 'ftp';
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function validationRules(): array
     {
         return [
@@ -47,13 +46,51 @@ class FTP extends AbstractStorageProvider
         ];
     }
 
-    public function connect(): bool
+    public static function editFields(): array
     {
-        $connection = $this->connection();
+        return [
+            DynamicField::make('host')
+                ->text()
+                ->label('Host'),
+            DynamicField::make('port')
+                ->text()
+                ->label('Port'),
+            DynamicField::make('path')
+                ->text()
+                ->label('Path'),
+            DynamicField::make('username')
+                ->text()
+                ->label('Username'),
+            DynamicField::make('password')
+                ->passwordWithToggle()
+                ->label('Password')
+                ->description('Leave empty to keep the current password'),
+            DynamicField::make('ssl')
+                ->checkbox()
+                ->label('Use SSL'),
+            DynamicField::make('passive')
+                ->checkbox()
+                ->label('Use Passive Mode'),
+        ];
+    }
 
-        $isConnected = $connection && $this->login($connection);
+    protected function editableFields(): array
+    {
+        return ['host', 'port', 'path', 'username', 'ssl', 'passive'];
+    }
 
-        if ($isConnected) {
+    protected function secretFields(): array
+    {
+        return ['password'];
+    }
+
+    public function connect(array $credentials): bool
+    {
+        $connection = $this->connection($credentials);
+
+        $isConnected = $connection && $this->login($connection, $credentials);
+
+        if ($connection) {
             \App\Facades\FTP::close($connection);
         }
 
@@ -65,10 +102,9 @@ class FTP extends AbstractStorageProvider
         return new \App\SSH\Storage\FTP($server, $this->storageProvider);
     }
 
-    private function connection(): bool|Connection
+    
+    private function connection(array $credentials): bool|Connection
     {
-        $credentials = $this->storageProvider->credentials;
-
         return \App\Facades\FTP::connect(
             $credentials['host'],
             (int) $credentials['port'],
@@ -76,10 +112,9 @@ class FTP extends AbstractStorageProvider
         );
     }
 
-    private function login(bool|Connection $connection): bool
+    
+    private function login(bool|Connection $connection, array $credentials): bool
     {
-        $credentials = $this->storageProvider->credentials;
-
         return \App\Facades\FTP::login(
             $credentials['username'],
             $credentials['password'],

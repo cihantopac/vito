@@ -2,39 +2,22 @@
 
 namespace App\Models;
 
-use App\Traits\HasTimezoneTimestamps;
-use Carbon\Carbon;
-use Database\Factories\ProjectFactory;
-use Illuminate\Database\Eloquent\Collection;
+use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * @property int $id
- * @property int $user_id
- * @property string $name
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property User $user
- * @property Collection<int, Server> $servers
- * @property Collection<int, Site> $sites
- * @property Collection<int, User> $users
- * @property Collection<int, NotificationChannel> $notificationChannels
- * @property Collection<int, SourceControl> $sourceControls
- */
-class Project extends Model
+class Project extends AbstractModel
 {
-    /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+    use SoftDeletes;
 
-    use HasTimezoneTimestamps;
+
+    private array $resolvedUserRoles = [];
 
     protected $fillable = [
-        'user_id',
         'name',
     ];
 
@@ -43,66 +26,98 @@ class Project extends Model
         parent::boot();
 
         static::deleting(function (Project $project): void {
-            $project->servers()->each(function ($server): void {
-                /** @var Server $server */
-                $server->delete();
-            });
+            if ($project->isSelf()) {
+                throw new \RuntimeException('The Pure system project cannot be deleted.');
+            }
         });
     }
 
-    /**
-     * @return BelongsTo<User, covariant $this>
-     */
-    public function user(): BelongsTo
+    public function isSelf(): bool
     {
-        return $this->belongsTo(User::class);
+        return $this->name === 'Pure' || $this->servers()->where('is_self', true)->exists();
     }
 
+    
     /**
-     * @return HasMany<Server, covariant $this>
+     * Loads what ProjectResource reads for the given viewer: their membership row (for role) and server/site counts.
      */
+    public function scopeForResource(Builder $query, User $viewer): Builder
+    {
+        return $query
+            ->withCount(['servers', 'sites'])
+            ->with(['users' => fn ($users) => $users->where('user_id', $viewer->id)]);
+    }
+
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
     }
 
-    /**
-     * @return HasManyThrough<Site, Server, covariant $this>
-     */
+    
     public function sites(): HasManyThrough
     {
         return $this->hasManyThrough(Site::class, Server::class);
     }
 
-    /**
-     * @return HasMany<NotificationChannel, covariant $this>
-     */
+    
+    public function backups(): HasManyThrough
+    {
+        return $this->hasManyThrough(Backup::class, Server::class);
+    }
+
+    
     public function notificationChannels(): HasMany
     {
         return $this->hasMany(NotificationChannel::class);
     }
 
-    /**
-     * @return BelongsToMany<User, covariant $this>
-     */
-    public function users(): BelongsToMany
+    public function users(): HasMany
     {
-        return $this->belongsToMany(User::class, 'user_project')->withTimestamps();
+        return $this->hasMany(UserProject::class, 'project_id');
     }
 
-    /**
-     * @return HasMany<SourceControl, covariant $this>
-     */
+    
     public function sourceControls(): HasMany
     {
         return $this->hasMany(SourceControl::class);
     }
 
-    /**
-     * @return HasMany<Tag, covariant $this>
-     */
-    public function tags(): HasMany
+    public function hasRoles(User $user, array $roles): bool
     {
-        return $this->hasMany(Tag::class);
+        $role = $this->role($user);
+
+        return $role !== null && in_array($role, $roles, true);
+    }
+
+    public function role(User $user): ?UserRole
+    {
+        if ($this->relationLoaded('users')) {
+            return $this->users->firstWhere('user_id', $user->id)?->role;
+        }
+
+        if (! array_key_exists($user->id, $this->resolvedUserRoles)) {
+            $this->resolvedUserRoles[$user->id] = $this->users()
+                ->where('user_id', $user->id)
+                ->first()
+                ?->role;
+        }
+
+        return $this->resolvedUserRoles[$user->id];
+    }
+
+    public function domains(): HasMany
+    {
+        return $this->hasMany(Domain::class);
+    }
+
+
+    public function networks(): HasMany
+    {
+        return $this->hasMany(Network::class);
+    }
+
+    public function storageMigrations(): HasMany
+    {
+        return $this->hasMany(StorageMigration::class);
     }
 }

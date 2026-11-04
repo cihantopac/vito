@@ -3,16 +3,18 @@ import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import React from 'react';
 import ConnectServerProvider from '@/pages/server-providers/components/connect-server-provider';
-import { DataTable } from '@/components/data-table';
-import { columns } from '@/pages/server-providers/components/columns';
+import { VitoTable } from '@/components/vito-table';
 import { ServerProvider } from '@/types/server-provider';
-import { PaginatedData } from '@/types';
-import { BookOpenIcon } from 'lucide-react';
+import { TableActionTrigger } from '@/components/table-action-trigger';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Edit from '@/pages/server-providers/components/edit';
+import Delete from '@/pages/server-providers/components/delete';
+import type { InertiaTableData, Row } from '@forjedio/inertia-table-react';
+import { asRow } from '@/lib/inertia-table';
 
 type Page = {
-  serverProviders: PaginatedData<ServerProvider>;
+  serverProviders: InertiaTableData;
   configs: {
     server_providers: string[];
   };
@@ -24,23 +26,36 @@ export default function ServerProviders() {
   return (
     <SettingsLayout>
       <Head title="Server Providers" />
-      <Container className="max-w-5xl">
+      <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Server Providers" description="Here you can manage all of the server provider connections" />
+          <Heading title="Server Providers" />
           <div className="flex items-center gap-2">
-            <a href="https://vitodeploy.com/docs/settings/server-providers" target="_blank">
-              <Button variant="outline">
-                <BookOpenIcon />
-                <span className="hidden lg:block">Docs</span>
-              </Button>
-            </a>
             <ConnectServerProvider>
               <Button>Connect</Button>
             </ConnectServerProvider>
           </div>
         </div>
 
-        <DataTable columns={columns} paginatedData={page.props.serverProviders} />
+        <VitoTable
+          tableData={page.props.serverProviders}
+          actions={(row: Row) => {
+            const serverProvider = asRow<ServerProvider>(row, ['id', 'name', 'global']);
+            return (
+              <div className="flex items-center gap-2">
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <TableActionTrigger />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <Edit serverProvider={serverProvider} />
+                    <DropdownMenuSeparator />
+                    <Delete serverProvider={serverProvider} />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            );
+          }}
+        />
       </Container>
     </SettingsLayout>
   );

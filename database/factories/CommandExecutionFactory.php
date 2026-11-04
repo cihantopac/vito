@@ -7,9 +7,6 @@ use App\Models\Command;
 use App\Models\CommandExecution;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<CommandExecution>
- */
 class CommandExecutionFactory extends Factory
 {
     protected $model = CommandExecution::class;

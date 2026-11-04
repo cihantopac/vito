@@ -24,18 +24,16 @@ class SitesSeeder extends Seeder
 
         $sourceControls = SourceControl::all();
 
-        /** @var Server $server */
+        
         foreach ($servers as $server) {
-            /** @var Site $app */
+            
             $app = Site::factory()->create([
                 'server_id' => $server->id,
                 'domain' => $server->project->name.'.com',
                 'source_control_id' => $sourceControls->random()->id,
                 'type' => Laravel::id(),
                 'path' => '/home/vito/'.$server->project->name.'.com',
-                'aliases' => ['www.'.$server->project->name.'.com'],
             ]);
-            $app->tags()->attach($server->tags()->first());
             Worker::factory()->create([
                 'server_id' => $server->id,
                 'site_id' => $app->id,

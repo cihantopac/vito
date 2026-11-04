@@ -1,68 +1,114 @@
+import { withQuery } from '@/lib/url';
 import { type SharedData } from '@/types';
-import { useForm, usePage } from '@inertiajs/react';
-import { useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { type Project } from '@/types/project';
+import { router, useForm, usePage } from '@inertiajs/react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronsUpDownIcon, PlusIcon } from 'lucide-react';
-import { useInitials } from '@/hooks/use-initials';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { CheckIcon, ChevronsUpDownIcon, Layers3Icon, PlusIcon } from 'lucide-react';
 import ProjectForm from '@/pages/projects/components/project-form';
+import { ProjectSelect } from '@/components/project-select';
+import { CommandGroup, CommandItem } from '@/components/ui/command';
 
 export function ProjectSwitch() {
-  const page = usePage<SharedData>();
+  const page = usePage<SharedData & { siteScope?: string; serverScope?: string }>();
   const { auth } = page.props;
-  const [selectedProject, setSelectedProject] = useState(auth.currentProject?.id?.toString() ?? '');
-  const initials = useInitials();
+  const isAllProjects = page.props.siteScope === 'all' || page.props.serverScope === 'all';
+  const [open, setOpen] = useState(false);
+  const [projectFormOpen, setProjectFormOpen] = useState(false);
   const form = useForm();
 
-  const handleProjectChange = (projectId: string) => {
-    const selectedProject = auth.projects.find((project) => project.id.toString() === projectId);
-    if (selectedProject) {
-      setSelectedProject(selectedProject.id.toString());
-      form.patch(route('projects.switch', { project: projectId, currentPath: window.location.pathname }));
+  const currentProject = useMemo(() => {
+    if (isAllProjects) return null;
+    const serverProjectId = page.props.server?.project_id;
+    if (serverProjectId && auth.user?.projects) {
+      const found = auth.user.projects.find((p) => p.id === serverProjectId);
+      if (found) return found;
+    }
+    const networkProjectId = page.props.network?.project_id;
+    if (networkProjectId && auth.user?.projects) {
+      const found = auth.user.projects.find((p) => p.id === networkProjectId);
+      if (found) return found;
+    }
+    return auth.currentProject ?? null;
+  }, [isAllProjects, page.props.server?.project_id, page.props.network?.project_id, auth.user?.projects, auth.currentProject]);
+
+  const [selected, setSelected] = useState<string>(isAllProjects ? 'all' : (currentProject?.id?.toString() ?? ''));
+
+  useEffect(() => {
+    setSelected(isAllProjects ? 'all' : (currentProject?.id?.toString() ?? ''));
+  }, [currentProject?.id, isAllProjects]);
+
+  const handleProjectChange = (value: string, project: Project) => {
+    setSelected(value);
+    setOpen(false);
+    form.patch(`/settings/projects/switch/${project.id}`);
+  };
+
+  const handleAllProjects = () => {
+    setSelected('all');
+    setOpen(false);
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/servers')) {
+      router.get(withQuery("/servers", { project: 'all' }));
+    } else {
+      router.get(withQuery("/sites", { project: 'all' }));
     }
   };
 
+  const header = (
+    <CommandGroup>
+      <CommandItem value="all-projects" onSelect={handleAllProjects}>
+        <Layers3Icon />
+        All Projects
+        <CheckIcon className={selected === 'all' ? 'ml-auto opacity-100' : 'ml-auto opacity-0'} />
+      </CommandItem>
+    </CommandGroup>
+  );
+
+  const footer = (
+    <CommandGroup>
+      <ProjectForm defaultOpen={projectFormOpen} onOpenChange={setProjectFormOpen}>
+        <CommandItem
+          value="create-project"
+          onSelect={() => {
+            setProjectFormOpen(true);
+          }}
+          className="gap-0"
+        >
+          <div className="flex items-center">
+            <PlusIcon size={5} />
+            <span className="ml-2">Create new project</span>
+          </div>
+        </CommandItem>
+      </ProjectForm>
+    </CommandGroup>
+  );
+
+  const trigger = (
+    <Button
+      variant="ghost"
+      className="px-1!"
+      role="combobox"
+      aria-expanded={open}
+      aria-label={`Switch project. Current project: ${isAllProjects ? 'All Projects' : (currentProject?.name ?? 'none')}`}
+    >
+      <Layers3Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <span className="hidden max-w-36 truncate sm:flex">{isAllProjects ? 'All Projects' : currentProject?.name}</span>
+      <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+    </Button>
+  );
+
   return (
     <div className="flex items-center">
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="px-1!">
-            <Avatar className="size-6 rounded-sm">
-              <AvatarFallback className="rounded-sm">{initials(auth.currentProject?.name ?? '')}</AvatarFallback>
-            </Avatar>
-            <span className="hidden lg:flex">{auth.currentProject?.name}</span>
-            <ChevronsUpDownIcon size={5} />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="start">
-          {auth.projects.map((project) => (
-            <DropdownMenuCheckboxItem
-              key={project.id.toString()}
-              checked={selectedProject === project.id.toString()}
-              onCheckedChange={() => handleProjectChange(project.id.toString())}
-            >
-              {project.name}
-            </DropdownMenuCheckboxItem>
-          ))}
-          <DropdownMenuSeparator />
-          <ProjectForm>
-            <DropdownMenuItem className="gap-0" asChild onSelect={(e) => e.preventDefault()}>
-              <div className="flex items-center">
-                <PlusIcon size={5} />
-                <span className="ml-2">Create new project</span>
-              </div>
-            </DropdownMenuItem>
-          </ProjectForm>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ProjectSelect
+        value={selected}
+        onValueChange={handleProjectChange}
+        trigger={trigger}
+        open={open}
+        onOpenChange={setOpen}
+        prefetch
+        header={header}
+        footer={footer}
+      />
     </div>
   );
 }

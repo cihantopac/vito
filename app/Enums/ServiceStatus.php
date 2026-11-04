@@ -2,29 +2,44 @@
 
 namespace App\Enums;
 
-final class ServiceStatus
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+use Forjed\InertiaTable\Contracts\HasTableDisplay;
+
+enum ServiceStatus: string implements HasTableDisplay, VitoEnum
 {
-    const string READY = 'ready';
+    use TextIsValue;
 
-    const string INSTALLING = 'installing';
+    case READY = 'ready';
+    case INSTALLING = 'installing';
+    case INSTALLATION_FAILED = 'installation_failed';
+    case UNINSTALLING = 'uninstalling';
+    case FAILED = 'failed';
+    case STARTING = 'starting';
+    case STOPPING = 'stopping';
+    case RESTARTING = 'restarting';
+    case RELOADING = 'reloading';
+    case STOPPED = 'stopped';
+    case ENABLING = 'enabling';
+    case DISABLING = 'disabling';
+    case DISABLED = 'disabled';
 
-    const string INSTALLATION_FAILED = 'installation_failed';
-
-    const string UNINSTALLING = 'uninstalling';
-
-    const string FAILED = 'failed';
-
-    const string STARTING = 'starting';
-
-    const string STOPPING = 'stopping';
-
-    const string RESTARTING = 'restarting';
-
-    const string STOPPED = 'stopped';
-
-    const string ENABLING = 'enabling';
-
-    const string DISABLING = 'disabling';
-
-    const string DISABLED = 'disabled';
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::READY => 'success',
+            self::INSTALLING,
+            self::STARTING,
+            self::UNINSTALLING,
+            self::STOPPING,
+            self::RESTARTING,
+            self::RELOADING,
+            self::ENABLING,
+            self::DISABLING => 'warning',
+            self::INSTALLATION_FAILED,
+            self::FAILED,
+            self::STOPPED => 'danger',
+            self::DISABLED => 'gray',
+        };
+    }
 }

@@ -7,11 +7,12 @@ use Spatie\RouteAttributes\Attributes\Get;
 
 class HomeController extends Controller
 {
+
     #[Get('/', name: 'home')]
     public function __invoke(): RedirectResponse
     {
         if (auth()->check()) {
-            return redirect()->route('servers');
+            return redirect()->route('overview');
         }
 
         return redirect()->route('login');

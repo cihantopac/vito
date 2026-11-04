@@ -3,28 +3,18 @@
 namespace App\Models;
 
 use App\Enums\BackupStatus;
-use Database\Factories\BackupFactory;
+use App\Enums\BackupType;
+use App\SSH\PgBackRest;
+use Cron\CronExpression;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
-/**
- * @property string $type
- * @property int $server_id
- * @property int $storage_id
- * @property int $database_id
- * @property string $interval
- * @property int $keep_backups
- * @property string $status
- * @property Server $server
- * @property StorageProvider $storage
- * @property Database $database
- * @property BackupFile[] $files
- */
 class Backup extends AbstractModel
 {
-    /** @use HasFactory<BackupFactory> */
+    
     use HasFactory;
 
     protected $fillable = [
@@ -32,9 +22,12 @@ class Backup extends AbstractModel
         'server_id',
         'storage_id',
         'database_id',
+        'path',
         'interval',
         'keep_backups',
         'status',
+        'configuration',
+        'health',
     ];
 
     protected $casts = [
@@ -42,6 +35,15 @@ class Backup extends AbstractModel
         'storage_id' => 'integer',
         'database_id' => 'integer',
         'keep_backups' => 'integer',
+        'type' => BackupType::class,
+        'status' => BackupStatus::class,
+        'enabled' => 'boolean',
+        'configuration' => 'encrypted:json',
+        'health' => 'array',
+    ];
+
+    protected $hidden = [
+        'configuration',
     ];
 
     public static function boot(): void
@@ -49,67 +51,73 @@ class Backup extends AbstractModel
         parent::boot();
 
         static::deleting(function ($backup): void {
-            /** @var Backup $backup */
+            
             $backup->files()->each(function ($file): void {
-                /** @var BackupFile $file */
+                
                 $file->delete();
             });
+            $backup->restores()->delete();
         });
     }
 
-    /**
-     * @var array<string, string>
-     */
-    public static array $statusColors = [
-        BackupStatus::RUNNING => 'success',
-        BackupStatus::FAILED => 'danger',
-        BackupStatus::DELETING => 'warning',
-        BackupStatus::STOPPED => 'danger',
-    ];
-
-    public function isCustomInterval(): bool
+    public function restores(): HasMany
     {
-        $intervals = array_keys(config('core.cronjob_intervals'));
-        $intervals = array_filter($intervals, fn ($interval): bool => $interval !== 'custom');
-
-        return ! in_array($this->interval, $intervals);
+        return $this->hasMany(BackupRestore::class);
     }
 
-    /**
-     * @return BelongsTo<Server, covariant $this>
-     */
+    public function cluster(): HasOne
+    {
+        return $this->hasOne(PostgresCluster::class, 'backup_id');
+    }
+
+    public function pgBackRest(): PgBackRest
+    {
+        return new PgBackRest($this);
+    }
+
+    public static function lastDue(?string $expression, Carbon $at): ?Carbon
+    {
+        if ($expression === null || ! CronExpression::isValidExpression($expression)) {
+            return null;
+        }
+
+        return rescue(fn (): Carbon => Carbon::instance((new CronExpression($expression))->getPreviousRunDate($at, 0, true, config('app.timezone'))), null, false);
+    }
+
+    public function target(): ?string
+    {
+        return match ($this->type) {
+            BackupType::FILE => $this->path,
+            BackupType::DATABASE => $this->database?->name,
+            BackupType::PGBACKREST => __('PostgreSQL cluster'),
+        };
+    }
+
+    
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    /**
-     * @return BelongsTo<StorageProvider, covariant $this>
-     */
+    
     public function storage(): BelongsTo
     {
         return $this->belongsTo(StorageProvider::class, 'storage_id');
     }
 
-    /**
-     * @return BelongsTo<Database, covariant $this>
-     */
+    
     public function database(): BelongsTo
     {
         return $this->belongsTo(Database::class)->withTrashed();
     }
 
-    /**
-     * @return HasMany<BackupFile, covariant $this>
-     */
+    
     public function files(): HasMany
     {
         return $this->hasMany(BackupFile::class, 'backup_id');
     }
 
-    /**
-     * @return HasOne<BackupFile, covariant $this>
-     */
+    
     public function lastFile(): HasOne
     {
         return $this->hasOne(BackupFile::class, 'backup_id')->latest();

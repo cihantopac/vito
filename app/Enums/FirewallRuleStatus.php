@@ -2,15 +2,28 @@
 
 namespace App\Enums;
 
-final class FirewallRuleStatus
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+use Forjed\InertiaTable\Contracts\HasTableDisplay;
+
+enum FirewallRuleStatus: string implements HasTableDisplay, VitoEnum
 {
-    const string CREATING = 'creating';
+    use TextIsValue;
 
-    const string UPDATING = 'updating';
+    case CREATING = 'creating';
+    case UPDATING = 'updating';
+    case READY = 'ready';
+    case DELETING = 'deleting';
+    case FAILED = 'failed';
 
-    const string READY = 'ready';
-
-    const string DELETING = 'deleting';
-
-    const string FAILED = 'failed';
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::CREATING => 'info',
+            self::UPDATING => 'warning',
+            self::DELETING,
+            self::FAILED => 'danger',
+            self::READY => 'success',
+        };
+    }
 }

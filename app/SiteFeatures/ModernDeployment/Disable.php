@@ -4,7 +4,6 @@ namespace App\SiteFeatures\ModernDeployment;
 
 use App\DTOs\DynamicField;
 use App\DTOs\DynamicForm;
-use App\Exceptions\SSHError;
 use App\Helpers\SSH;
 use App\SiteFeatures\Action;
 use Illuminate\Http\Request;
@@ -33,9 +32,7 @@ class Disable extends Action
         ]);
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function handle(Request $request): void
     {
         $this->ssh = $this->site->server->ssh($this->site->user);
@@ -56,9 +53,9 @@ class Disable extends Action
         $this->site->path = $this->site->basePath();
         $this->site->save();
 
-        $this->site->webserver()->updateVHost($this->site, regenerate: ['core']);
+        $this->site->webserver()->updateVHost($this->site);
 
-        // set releases to null as they are already removed
+        
         $this->site->deployments()->update(['release' => null]);
 
         $request->session()->flash('success', 'Modern deployment disabled!');

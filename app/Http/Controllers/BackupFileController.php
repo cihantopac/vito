@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Database\RestoreBackup;
+use App\Actions\Backup\ManageBackupFile;
+use App\Actions\Backup\RestoreBackup;
 use App\Http\Resources\BackupFileResource;
+use App\Http\Resources\BackupRestoreResource;
 use App\Http\Resources\BackupResource;
 use App\Models\Backup;
 use App\Models\BackupFile;
+use App\Models\NotificationChannel;
 use App\Models\Server;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,27 +22,46 @@ use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
-#[Prefix('servers/{server}/database/backups/{backup}/files')]
+#[Prefix('servers/{server}/backups/{backup}/files')]
 #[Middleware(['auth', 'has-project'])]
 class BackupFileController extends Controller
 {
+
     #[Get('/', name: 'backup-files')]
     public function index(Server $server, Backup $backup): Response
     {
+        abort_unless($backup->server_id === $server->id, 404);
+
         $this->authorize('viewAny', [BackupFile::class, $backup]);
 
         return Inertia::render('backups/files', [
             'backup' => BackupResource::make($backup),
             'files' => BackupFileResource::collection(
-                $backup->files()->with('backup')->latest()->simplePaginate(config('web.pagination_size'))
+                $backup->files()->with(['server', 'backup.storage', 'backup.database', 'backup.cluster'])->latest()->simplePaginate(config('web.pagination_size'))
             ),
+            'hasNotificationChannels' => NotificationChannel::query()->exists(),
+            'restores' => BackupRestoreResource::collection($backup->restores()->with('server', 'file')->latest('id')->limit(10)->get()),
+        ]);
+    }
+
+    #[Get('/{backupFile}/download', name: 'backup-files.download')]
+    public function download(Server $server, Backup $backup, BackupFile $backupFile): JsonResponse
+    {
+        abort_unless($backup->server_id === $server->id && $backupFile->backup_id === $backup->id, 404);
+
+        $this->authorize('download', $backupFile);
+
+        return response()->json([
+            'url' => app(ManageBackupFile::class)->downloadUrl($backupFile),
         ]);
     }
 
     #[Post('/{backupFile}/restore', name: 'backup-files.restore')]
     public function restore(Request $request, Server $server, Backup $backup, BackupFile $backupFile): RedirectResponse
     {
-        $this->authorize('update', $backup);
+        abort_unless($backup->server_id === $server->id && $backupFile->backup_id === $backup->id, 404);
+
+        $this->authorize('update', $backupFile);
 
         app(RestoreBackup::class)->restore($backupFile, $request->input());
 
@@ -49,6 +72,8 @@ class BackupFileController extends Controller
     #[Delete('/{backupFile}', name: 'backup-files.destroy')]
     public function destroy(Server $server, Backup $backup, BackupFile $backupFile): RedirectResponse
     {
+        abort_unless($backup->server_id === $server->id && $backupFile->backup_id === $backup->id, 404);
+
         $this->authorize('delete', $backupFile);
 
         $backupFile->deleteFile();

@@ -6,38 +6,40 @@ use App\Models\Command;
 use App\Models\Server;
 use App\Models\Site;
 use App\Models\User;
+use App\Traits\HasRolePolicies;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CommandPolicy
 {
     use HandlesAuthorization;
+    use HasRolePolicies;
 
     public function viewAny(User $user, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
-            $server->isReady() &&
+        return $this->hasServerReadAccess($user, $server) &&
+            $site->server_id === $server->id &&
             $site->isReady();
     }
 
     public function view(User $user, Command $command, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerReadAccess($user, $server) &&
             $site->server_id === $server->id &&
-            $server->isReady() &&
             $site->isReady() &&
             $command->site_id === $site->id;
     }
 
     public function create(User $user, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
+            $site->server_id === $server->id &&
             $server->isReady() &&
             $site->isReady();
     }
 
     public function update(User $user, Command $command, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
            $site->server_id === $server->id &&
            $server->isReady() &&
            $site->isReady() &&
@@ -46,7 +48,7 @@ class CommandPolicy
 
     public function delete(User $user, Command $command, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
             $site->server_id === $server->id &&
             $server->isReady() &&
             $site->isReady() &&

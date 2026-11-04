@@ -5,37 +5,49 @@ namespace App\Policies;
 use App\Models\Backup;
 use App\Models\BackupFile;
 use App\Models\User;
+use App\Traits\HasRolePolicies;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BackupFilePolicy
 {
     use HandlesAuthorization;
+    use HasRolePolicies;
 
     public function viewAny(User $user, Backup $backup): bool
     {
-        return ($user->isAdmin() || $backup->server->project->users->contains($user)) && $backup->server->isReady();
+        return $this->hasServerReadAccess($user, $backup->server);
     }
 
     public function view(User $user, BackupFile $backupFile): bool
     {
-        return ($user->isAdmin() || $backupFile->backup->server->project->users->contains($user)) &&
-            $backupFile->backup->server->isReady();
+        $server = $backupFile->backup->server;
+
+        return $this->hasServerReadAccess($user, $server);
+    }
+
+    public function download(User $user, BackupFile $backupFile): bool
+    {
+        return $user->isAdmin() && $this->view($user, $backupFile);
     }
 
     public function create(User $user, Backup $backup): bool
     {
-        return ($user->isAdmin() || $backup->server->project->users->contains($user)) && $backup->server->isReady();
+        $server = $backup->server;
+
+        return $this->hasServerWriteAccess($user, $server) && $server->isReady();
     }
 
     public function update(User $user, BackupFile $backupFile): bool
     {
-        return ($user->isAdmin() || $backupFile->backup->server->project->users->contains($user)) &&
-            $backupFile->backup->server->isReady();
+        $server = $backupFile->backup->server;
+
+        return $this->hasServerWriteAccess($user, $server) && $server->isReady();
     }
 
     public function delete(User $user, BackupFile $backupFile): bool
     {
-        return ($user->isAdmin() || $backupFile->backup->server->project->users->contains($user)) &&
-            $backupFile->backup->server->isReady();
+        $server = $backupFile->backup->server;
+
+        return $this->hasServerWriteAccess($user, $server) && $server->isReady();
     }
 }

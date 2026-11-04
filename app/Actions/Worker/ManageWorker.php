@@ -2,55 +2,59 @@
 
 namespace App\Actions\Worker;
 
+use App\Enums\WorkerLogType;
 use App\Enums\WorkerStatus;
-use App\Models\Service;
+use App\Jobs\Worker\ManageJob;
+use App\Models\User;
 use App\Models\Worker;
-use App\Services\ProcessManager\ProcessManager;
 
 class ManageWorker
 {
-    public function start(Worker $worker): void
+    public function start(Worker $worker, ?User $user = null): void
     {
+        $user = $user ?? user();
         $worker->status = WorkerStatus::STARTING;
+        $worker->error = null;
         $worker->save();
-        dispatch(function () use ($worker): void {
-            /** @var Service $service */
-            $service = $worker->server->processManager();
-            /** @var ProcessManager $handler */
-            $handler = $service->handler();
-            $handler->start($worker->id, $worker->site_id);
-            $worker->status = WorkerStatus::RUNNING;
-            $worker->save();
-        })->onQueue('ssh');
+
+        $worker->recordLog(
+            WorkerLogType::STARTED,
+            $user ? "Worker started manually by {$user->name}" : 'Worker started manually',
+            $user?->id
+        );
+
+        dispatch(new ManageJob($worker, 'start', WorkerStatus::RUNNING, $user?->name))->onQueue('ssh');
     }
 
-    public function stop(Worker $worker): void
+    public function stop(Worker $worker, ?User $user = null): void
     {
+        $user = $user ?? user();
         $worker->status = WorkerStatus::STOPPING;
+        $worker->error = null;
         $worker->save();
-        dispatch(function () use ($worker): void {
-            /** @var Service $service */
-            $service = $worker->server->processManager();
-            /** @var ProcessManager $handler */
-            $handler = $service->handler();
-            $handler->stop($worker->id, $worker->site_id);
-            $worker->status = WorkerStatus::STOPPED;
-            $worker->save();
-        })->onQueue('ssh');
+
+        $worker->recordLog(
+            WorkerLogType::STOPPED,
+            $user ? "Worker stopped manually by {$user->name}" : 'Worker stopped manually',
+            $user?->id
+        );
+
+        dispatch(new ManageJob($worker, 'stop', WorkerStatus::STOPPED, $user?->name))->onQueue('ssh');
     }
 
-    public function restart(Worker $worker): void
+    public function restart(Worker $worker, ?User $user = null): void
     {
+        $user = $user ?? user();
         $worker->status = WorkerStatus::RESTARTING;
+        $worker->error = null;
         $worker->save();
-        dispatch(function () use ($worker): void {
-            /** @var Service $service */
-            $service = $worker->server->processManager();
-            /** @var ProcessManager $handler */
-            $handler = $service->handler();
-            $handler->restart($worker->id, $worker->site_id);
-            $worker->status = WorkerStatus::RUNNING;
-            $worker->save();
-        })->onQueue('ssh');
+
+        $worker->recordLog(
+            WorkerLogType::RESTARTED,
+            $user ? "Worker restarted manually by {$user->name}" : 'Worker restarted manually',
+            $user?->id
+        );
+
+        dispatch(new ManageJob($worker, 'restart', WorkerStatus::RUNNING, $user?->name))->onQueue('ssh');
     }
 }

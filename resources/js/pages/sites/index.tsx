@@ -1,51 +1,239 @@
-import { Head, usePage } from '@inertiajs/react';
+import { useMemo } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import { Site } from '@/types/site';
 import ServerLayout from '@/layouts/server/layout';
 import Layout from '@/layouts/app/layout';
 import Container from '@/components/container';
-import HeaderContainer from '@/components/header-container';
-import Heading from '@/components/heading';
+import { asRow } from '@/lib/inertia-table';
 import { Button } from '@/components/ui/button';
-import { BookOpenIcon, PlusIcon } from 'lucide-react';
-import { DataTable } from '@/components/data-table';
-import getColumns from '@/pages/sites/components/columns';
-import { PaginatedData } from '@/types';
-import CreateSite from '@/pages/sites/components/create-site';
+import { PlusIcon } from 'lucide-react';
+import { VitoTable } from '@/components/vito-table';
+import { Badge } from '@/components/ui/badge';
+import DateTime from '@/components/date-time';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { WarningsPopover } from '@/components/banners';
+import { getSiteWarningItems } from '@/components/site-banners';
+import type { CellRenderProps, InertiaTableData, Row } from '@forjedio/inertia-table-react';
+import { SharedData } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type ServerOption = {
+  id: number;
+  name: string;
+  project_id: number;
+  project_name?: string | null;
+};
 
 type Page = {
   server?: Server;
-  sites: PaginatedData<Site>;
+  sites: InertiaTableData;
+  siteScope?: string;
+  serverScope?: string;
+  groupBy?: 'none' | 'project' | 'server';
+  servers?: ServerOption[];
 };
 
+const siteCell = ({ row, value }: CellRenderProps) => (
+  <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+    <Link
+      href={`/servers/${row.server_id as number}/sites/${row.id as number}`}
+      className="text-foreground font-medium hover:underline"
+      prefetch
+    >
+      {String(value)}
+    </Link>
+    <Link
+      href={`/servers/${row.server_id as number}`}
+      className="text-muted-foreground text-xs hover:underline"
+    >
+      ({row.server_name as string})
+    </Link>
+    <SiteWarnings row={row} />
+  </div>
+);
+
+function SiteWarnings({ row }: { row: Row }) {
+  const warningItems = getSiteWarningItems(row as unknown as Site);
+
+  return (
+    <>
+      {row.status && row.status !== 'ready' && (
+        <Badge variant={(row.status_color as 'default') ?? 'default'}>{String(row.status)}</Badge>
+      )}
+      {warningItems.length > 0 && <WarningsPopover items={warningItems} />}
+    </>
+  );
+}
+
+function CreatedAtCell({ value }: CellRenderProps) {
+  if (typeof value !== 'string' || !value) {
+    return null;
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="text-muted-foreground hover:text-foreground cursor-pointer whitespace-nowrap text-xs" aria-label="Show exact creation date">
+          <DateTime date={value} relative />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto text-sm" align="end">
+        <DateTime date={value} />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function Sites() {
-  const page = usePage<Page>();
+  const page = usePage<Page & SharedData>();
 
   const Comp = page.props.server ? ServerLayout : Layout;
+
+  const filteredServers = useMemo(() => {
+    const all = page.props.servers ?? [];
+    const currentProject = page.props.siteScope;
+    if (!currentProject || currentProject === 'all') {
+      return all;
+    }
+    return all.filter((s) => s.project_id.toString() === currentProject);
+  }, [page.props.servers, page.props.siteScope]);
 
   return (
     <Comp>
       <Head title={`Sites ${page.props.server ? ' - ' + page.props.server.name : ''}`} />
-      <Container className="max-w-5xl">
-        <HeaderContainer>
-          <Heading title="Sites" description="Here you can manage websites" />
-          <div className="flex items-center gap-2">
-            <a href="https://vitodeploy.com/docs/sites/site-types" target="_blank">
-              <Button variant="outline">
-                <BookOpenIcon />
-                <span className="hidden lg:block">Docs</span>
-              </Button>
-            </a>
-            <CreateSite server={page.props.server}>
-              <Button>
-                <PlusIcon />
-                <span className="hidden lg:block">Create site</span>
-              </Button>
-            </CreateSite>
-          </div>
-        </HeaderContainer>
+      <Container className="py-3">
+        <VitoTable
+          fitContent
+          toolbarClassName="[&_input]:h-8 [&_input]:min-w-36 [&_input]:max-w-56 [&_input]:text-sm"
+          tableData={{ ...page.props.sites, columns: page.props.sites.columns.filter((column) => column.hidden || ['domain', 'server.project.name', 'created_at'].includes(column.name)).map((column) => ({ ...column, fit: false })) }}
+          columnWidths={{ 'server.project.name': '18%', created_at: '9rem' }}
+          rowClassName={() => '[&>td]:py-2'}
+          groupBy={page.props.groupBy}
+          toolbar={
+            <>
+              {!page.props.server && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
 
-        <DataTable columns={getColumns(page.props.server)} paginatedData={page.props.sites} searchable />
+                    <Select
+                      value={page.props.siteScope ?? page.props.auth.currentProject?.id.toString()}
+                      onValueChange={(project) => {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('project', project);
+                        if (project !== 'all') {
+                          const currentServerId = url.searchParams.get('server');
+                          if (currentServerId && currentServerId !== 'all') {
+                            const match = (page.props.servers ?? []).find(
+                              (s) => s.id.toString() === currentServerId && s.project_id.toString() === project,
+                            );
+                            if (!match) {
+                              url.searchParams.delete('server');
+                            }
+                          }
+                        }
+                        url.searchParams.delete('page');
+                        router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by project">
+                        <SelectValue placeholder="Select a project" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Projects</SelectItem>
+                        {(page.props.auth.user.projects ?? []).map((project) => (
+                          <SelectItem key={project.id} value={project.id.toString()}>
+                            {project.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+
+                    <Select
+                      value={page.props.serverScope ?? 'all'}
+                      onValueChange={(server) => {
+                        const url = new URL(window.location.href);
+                        if (server === 'all') {
+                          url.searchParams.delete('server');
+                        } else {
+                          url.searchParams.set('server', server);
+                        }
+                        url.searchParams.delete('page');
+                        router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by server">
+                        <SelectValue placeholder="All Servers" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Servers</SelectItem>
+                        {filteredServers.map((server) => (
+                          <SelectItem key={server.id} value={server.id.toString()}>
+                            {server.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+
+                    <Select
+                      value={page.props.groupBy ?? 'none'}
+                      onValueChange={(groupBy) => {
+                        const url = new URL(window.location.href);
+                        if (groupBy === 'none') {
+                          url.searchParams.delete('group_by');
+                        } else {
+                          url.searchParams.set('group_by', groupBy);
+                        }
+                        url.searchParams.delete('page');
+                        router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Group sites by">
+                        <SelectValue placeholder="No grouping" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No grouping</SelectItem>
+                        <SelectItem value="project">Group by Project</SelectItem>
+                        <SelectItem value="server">Group by Server</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+              {!page.props.server?.is_self && (
+                <div className="ml-auto shrink-0">
+                  <Button asChild>
+                    <Link
+                      href={
+                        page.props.server
+                          ? `/servers/${page.props.server.id}/sites/create`
+                          : "/sites/create"
+                      }
+                    >
+                      <PlusIcon />
+                      Create site
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </>
+          }
+          cellRenderers={{
+            domain: siteCell,
+            'server.project.name': ({ value }) => <span className="text-muted-foreground text-xs">{String(value ?? '')}</span>,
+            created_at: CreatedAtCell,
+          }}
+          onRowClick={(row: Row) => {
+            const site = asRow<{ id: number; server_id: number }>(row, ['id', 'server_id']);
+            router.visit(`/servers/${site.server_id}/sites/${site.id}`);
+          }}
+        />
       </Container>
     </Comp>
   );

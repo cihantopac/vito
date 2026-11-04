@@ -2,11 +2,8 @@
 
 namespace App\Providers;
 
-use App\Facades\SSH;
 use App\Models\FirewallRule;
 use App\Models\PersonalAccessToken;
-use App\Models\Script;
-use App\Models\ScriptExecution;
 use App\Models\ServerLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -16,36 +13,22 @@ class DemoServiceProvider extends ServiceProvider
 {
     protected string $error = 'Cannot modify on Demo!';
 
-    /**
-     * @var string[]
-     */
     protected array $canDelete = [
-        //
     ];
 
-    /**
-     * @var string[]
-     */
     protected array $canUpdate = [
         ServerLog::class,
-        Script::class,
-        ScriptExecution::class,
     ];
 
-    /**
-     * @var string[]
-     */
     protected array $canCreate = [
         ServerLog::class,
-        Script::class,
-        ScriptExecution::class,
         FirewallRule::class,
         PersonalAccessToken::class,
     ];
 
     public function register(): void
     {
-        //
+        
     }
 
     public function boot(): void
@@ -54,7 +37,7 @@ class DemoServiceProvider extends ServiceProvider
             return;
         }
 
-        // get all classes inside App\Models namespace
+        
         $files = scandir(app_path('Models')) ?: [];
         $models = collect($files)
             ->filter(fn ($file): bool => ! in_array($file, ['.', '..']))
@@ -72,7 +55,6 @@ class DemoServiceProvider extends ServiceProvider
             }
         }
 
-        SSH::fake('Demo SSH is enabled. No SSH commands will be executed.');
         Http::fake([
             '*' => Http::response([]),
         ]);

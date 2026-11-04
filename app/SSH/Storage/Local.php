@@ -2,13 +2,10 @@
 
 namespace App\SSH\Storage;
 
-use App\Exceptions\SSHError;
 
 class Local extends AbstractStorage
 {
-    /**
-     * @throws SSHError
-     */
+    
     public function upload(string $src, string $dest): array
     {
         $destDir = dirname($dest);
@@ -26,9 +23,7 @@ class Local extends AbstractStorage
         ];
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function download(string $src, string $dest): void
     {
         $this->server->ssh()->exec(
@@ -40,9 +35,7 @@ class Local extends AbstractStorage
         );
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function delete(string $src): void
     {
         $this->server->os()->deleteFile($src);

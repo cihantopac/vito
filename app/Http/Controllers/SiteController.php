@@ -3,37 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Site\CreateSite;
+use App\Actions\Site\DisableSsl;
+use App\Actions\Site\EnableSsl;
+use App\Actions\Site\GetAccessibleSites;
+use App\Actions\Site\GetSiteCreationDefaults;
+use App\Actions\Site\GetSites;
+use App\Actions\Site\RetrySite;
 use App\Helpers\QueryBuilder;
 use App\Http\Resources\ServerLogResource;
 use App\Http\Resources\SiteResource;
 use App\Models\Server;
 use App\Models\Site;
+use App\Tables\SiteTable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Post;
-use Throwable;
 
 #[Middleware(['auth', 'has-project'])]
 class SiteController extends Controller
 {
-    #[Get('/sites', name: 'sites.all')]
-    public function index(): Response
-    {
-        $sites = user()->currentProject->sites()->with('server')->latest();
 
-        $sites = QueryBuilder::for($sites)
-            ->searchableFields(['domain'])
-            ->query()
-            ->simplePaginate(config('web.pagination_size'), pageName: 'sitesPage');
+    #[Get('/sites', name: 'sites.all')]
+    public function index(Request $request): Response
+    {
+        $this->authorize('viewAny', user()->currentProject);
+        $result = app(GetAccessibleSites::class)->get(user(), $request->input());
+
+        $sites = SiteTable::make($result['query'])
+            ->withGrouping($result['groupBy'])
+            ->paginate();
 
         return Inertia::render('sites/index', [
-            'sites' => SiteResource::collection($sites),
+            'sites' => $sites,
+            'siteScope' => $result['scope'],
+            'serverScope' => $result['serverScope'],
+            'groupBy' => $result['groupBy'],
+            'servers' => $result['servers'],
         ]);
+    }
+
+    #[Get('/sites/create', name: 'sites.all.create')]
+    public function createGlobal(Request $request): Response
+    {
+        $this->authorize('viewAny', user()->currentProject);
+
+        return Inertia::render('sites/create');
     }
 
     #[Get('/servers/{server}/sites', name: 'sites')]
@@ -41,20 +62,50 @@ class SiteController extends Controller
     {
         $this->authorize('viewAny', [Site::class, $server]);
 
-        $sites = $server->sites()->latest();
-        $sites = QueryBuilder::for($sites)
-            ->searchableFields(['domain'])
-            ->query()
-            ->simplePaginate(config('web.pagination_size'), pageName: 'sitesPage');
-
         return Inertia::render('sites/index', [
-            'sites' => SiteResource::collection($sites),
+            'sites' => SiteTable::make($server->sites())->forServer($server)->simplePaginate(),
         ]);
     }
 
-    /**
-     * @throws Throwable
-     */
+    #[Get('/servers/{server}/sites/create', name: 'sites.create')]
+    public function create(Server $server): Response
+    {
+        $this->authorize('create', [Site::class, $server]);
+
+        return Inertia::render('sites/create');
+    }
+
+    #[Get('/sites/json', name: 'sites.json')]
+    public function json(Request $request): ResourceCollection
+    {
+        $this->authorize('viewAny', user()->currentProject);
+
+        $currentServerId = $request->integer('current_server_id') ?: null;
+        $sites = app(GetSites::class)->getGlobal(user(), $request->input(), $currentServerId, 10);
+
+        return SiteResource::collection($sites);
+    }
+
+    #[Get('/servers/{server}/sites-json', name: 'sites.server.json')]
+    public function serverJson(Request $request, Server $server): ResourceCollection
+    {
+        $this->authorize('viewAny', [Site::class, $server]);
+
+        $sites = app(GetSites::class)->get($server, $request->input(), 10);
+
+        return SiteResource::collection($sites);
+    }
+
+    #[Get('/servers/{server}/site-creation-defaults', name: 'sites.creation-defaults')]
+    public function creationDefaults(Server $server): JsonResponse
+    {
+        $this->authorize('viewAny', [Site::class, $server]);
+
+        return response()->json(app(GetSiteCreationDefaults::class)->get($server, user()));
+    }
+
+    
+
     #[Post('/servers/{server}/sites/', name: 'sites.store')]
     public function store(Request $request, Server $server): RedirectResponse
     {
@@ -71,19 +122,55 @@ class SiteController extends Controller
     {
         $this->authorize('view', [$site, $server]);
 
-        $previousUrl = URL::previous();
-        $previousRequest = Request::create($previousUrl);
-        $previousRoute = app('router')->getRoutes()->match($previousRequest);
+        try {
+            $previousUrl = URL::previous();
+            $previousRequest = Request::create($previousUrl);
+            $previousRoute = app('router')->getRoutes()->match($previousRequest);
 
-        if ($previousRoute->hasParameter('site')) {
-            if (count($previousRoute->parameters()) > 2) {
-                return redirect()->route('application', ['server' => $server->id, 'site' => $site->id]);
+            if ($previousRoute->hasParameter('site') && $previousRoute->getName()) {
+                if (count($previousRoute->parameters()) > 2) {
+                    return redirect()->route('application', ['server' => $server->id, 'site' => $site->id]);
+                }
+
+                return redirect()->route($previousRoute->getName(), ['server' => $server, 'site' => $site->id]);
             }
-
-            return redirect()->route($previousRoute->getName(), ['server' => $server, 'site' => $site->id]);
+        } catch (\Throwable) {
         }
 
         return redirect()->route('application', ['server' => $server->id, 'site' => $site->id]);
+    }
+
+    #[Post('/servers/{server}/sites/{site}/retry', name: 'sites.retry')]
+    public function retry(Request $request, Server $server, Site $site): RedirectResponse
+    {
+        $this->authorize('update', [$site, $server]);
+
+        app(RetrySite::class)->retry($site, $request->all());
+
+        return back()
+            ->with('info', 'Retrying site installation...');
+    }
+
+    #[Post('/servers/{server}/sites/{site}/enable-ssl', name: 'sites.enable-ssl')]
+    public function enableSsl(Server $server, Site $site): RedirectResponse
+    {
+        $this->authorize('update', [$site, $server]);
+
+        app(EnableSsl::class)->enable($site);
+
+        return back()
+            ->with('success', 'SSL enabled successfully.');
+    }
+
+    #[Post('/servers/{server}/sites/{site}/disable-ssl', name: 'sites.disable-ssl')]
+    public function disableSsl(Server $server, Site $site): RedirectResponse
+    {
+        $this->authorize('update', [$site, $server]);
+
+        app(DisableSsl::class)->disable($site);
+
+        return back()
+            ->with('success', 'SSL disabled successfully.');
     }
 
     #[Get('/servers/{server}/sites/{site}/logs', name: 'sites.logs')]

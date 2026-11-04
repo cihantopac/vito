@@ -2,7 +2,6 @@
 
 namespace App\NotificationChannels;
 
-use App\Models\NotificationChannel;
 use App\Notifications\NotificationInterface;
 use Illuminate\Support\Facades\Http;
 
@@ -69,11 +68,11 @@ class Slack extends AbstractNotificationChannel
 
     public function send(object $notifiable, NotificationInterface $notification): void
     {
-        /** @var NotificationChannel $notifiable */
+        
         $this->notificationChannel = $notifiable;
         $data = $this->notificationChannel->data;
         Http::post($data['webhook_url'], [
             'text' => $notification->toSlack($notifiable),
-        ]);
+        ])->throw();
     }
 }

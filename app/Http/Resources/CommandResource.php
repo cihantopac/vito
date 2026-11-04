@@ -2,16 +2,12 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Command;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Command */
 class CommandResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function toArray(Request $request): array
     {
         return [
@@ -20,6 +16,7 @@ class CommandResource extends JsonResource
             'site_id' => $this->site_id,
             'name' => $this->name,
             'command' => $this->command,
+            'is_raw' => $this->is_raw,
             'variables' => $this->getVariables(),
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,

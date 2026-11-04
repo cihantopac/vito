@@ -24,7 +24,7 @@ export default function ImportVito() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    form.post(route('vito-settings.import'));
+    form.post("/admin/vito/import");
   };
 
   return (
@@ -38,7 +38,7 @@ export default function ImportVito() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Import</DialogTitle>
-          <DialogDescription className="sr-only">Import settings to Vito</DialogDescription>
+          <DialogDescription className="sr-only">Import settings to Pure</DialogDescription>
         </DialogHeader>
         <Form id="import-vito-form" className="p-4" onSubmit={submit}>
           <FormFields>

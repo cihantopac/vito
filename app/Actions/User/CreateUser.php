@@ -6,41 +6,34 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class CreateUser
 {
-    /**
-     * @param  array<string, mixed>  $input
-     */
+    
     public function create(array $input): User
     {
-        Validator::make($input, self::rules())->validate();
-
-        /** @var User $user */
-        $user = User::query()->create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'role' => $input['role'],
-            'password' => bcrypt($input['password']),
-            'timezone' => 'UTC',
-        ]);
-
-        return $user;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
-    {
-        return [
+        Validator::make($input, [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => ['required', 'string', Password::defaults()],
             'role' => [
                 'required',
                 Rule::in([UserRole::ADMIN, UserRole::USER]),
             ],
-        ];
+            'must_change_password' => ['sometimes', 'boolean'],
+        ])->validate();
+
+
+        $user = User::query()->create([
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'password' => bcrypt($input['password']),
+            'timezone' => 'UTC',
+            'is_admin' => $input['role'] === UserRole::ADMIN->value,
+            'must_change_password' => (bool) ($input['must_change_password'] ?? true),
+        ]);
+
+        return $user;
     }
 }

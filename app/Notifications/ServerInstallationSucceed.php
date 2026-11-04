@@ -9,20 +9,13 @@ class ServerInstallationSucceed extends AbstractNotification
 {
     public function __construct(protected Server $server) {}
 
-    public function subject(): string
-    {
-        return __('Server installation succeed!');
-    }
-
     public function rawText(): string
     {
         $this->server->refresh();
 
-        return __("Installation succeed for server [:server] \nServer IP: :ip \nUser: :user\nPassword: :password\n:link", [
+        return __("Installation succeed for server [:server] \nServer IP: :ip \n:link", [
             'server' => $this->server->name,
             'ip' => $this->server->ip,
-            'user' => $this->server->authentication['user'],
-            'password' => $this->server->authentication['pass'],
             'link' => url('/servers/'.$this->server->id),
         ]);
     }
@@ -32,11 +25,10 @@ class ServerInstallationSucceed extends AbstractNotification
         $this->server->refresh();
 
         return (new MailMessage)
-            ->subject(__('Server installation succeed!'))
-            ->line('Your server ['.$this->server->name.'] has been installed successfully.')
-            ->line('Server IP: '.$this->server->ip)
-            ->line('User: '.$this->server->authentication['user'])
-            ->line('Password: '.$this->server->authentication['pass'])
-            ->action('Manage Your Server', url('/login'));
+            ->success()
+            ->subject(__('Your server is ready'))
+            ->line(__('Your server [:server] has been installed successfully and is ready to use.', ['server' => $this->server->name]))
+            ->line(__('Server IP: :ip', ['ip' => $this->server->ip]))
+            ->action(__('Manage your server'), url('/servers/'.$this->server->id));
     }
 }

@@ -2,39 +2,45 @@
 
 namespace App\Actions\Server;
 
-use App\Enums\ServerStatus;
-use App\Facades\Notifier;
+use Throwable;
+use App\Jobs\Server\InstallJob;
+use App\Enums\ServerRole;
 use App\Models\Project;
 use App\Models\Server;
+use App\Models\ServerProvider;
 use App\Models\User;
-use App\Notifications\ServerInstallationFailed;
 use App\ServerProviders\Custom;
+use App\ServerProviders\Existing;
 use App\ValidationRules\RestrictedIPAddressesRule;
-use Exception;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use Throwable;
 
 class CreateServer
 {
     protected Server $server;
 
-    /**
-     * @param  array<string, mixed>  $input
-     */
+    
     public function create(User $creator, Project $project, array $input): Server
     {
-        Validator::make($input, self::rules($project, $input))->validate();
+        $this->validate($project, $input);
+
+        if (! in_array($input['provider'], [Custom::id(), Existing::id()]) && isset($input['server_provider'])) {
+            $provider = ServerProvider::query()->findOrFail($input['server_provider']);
+            if ($creator->cannot('view', $provider)) {
+                abort(403, 'You do not have permission to use this server provider.');
+            }
+        }
 
         $this->server = new Server([
             'project_id' => $project->id,
             'user_id' => $creator->id,
             'name' => $input['name'],
-            'ssh_user' => data_get(config('server-provider.providers'), $input['provider'].'.default_user') ?? 'root',
+            'role' => $input['role'] ?? ($input['provider'] === Existing::id() ? ServerRole::CUSTOM->value : ServerRole::APP->value),
+            'stage' => $input['stage'] ?? 'prod',
+            'ssh_user' => $input['ssh_user'] ?? data_get(config('server-provider.providers'), $input['provider'].'.default_user') ?? 'root',
             'ip' => $input['ip'] ?? '',
             'port' => $input['port'] ?? 22,
             'os' => $input['os'],
@@ -49,38 +55,29 @@ class CreateServer
         ]);
 
         try {
-            if ($this->server->provider != 'custom') {
+            if (! in_array($this->server->provider, [Custom::id(), Existing::id()])) {
                 $this->server->provider_id = $input['server_provider'];
             }
 
             $this->server->provider_data = $this->server->provider()->data($input);
 
-            // save
+            
             $this->server->save();
 
-            // create instance
+            
             $this->server->provider()->create();
 
-            // create services
+            
             $this->createServices($input);
 
-            // install server
-            dispatch(function (): void {
-                app(InstallServer::class)->run($this->server);
-            })
-                ->catch(function (Throwable $e): void {
-                    $this->server->update([
-                        'status' => ServerStatus::INSTALLATION_FAILED,
-                    ]);
-                    Notifier::send($this->server, new ServerInstallationFailed($this->server));
-                    Log::error('server-installation-error', [
-                        'error' => (string) $e,
-                    ]);
-                })
-                ->onQueue('ssh');
+            
+            dispatch(new InstallJob($this->server))->onQueue('ssh');
+
+            
+            $this->server->refresh();
 
             return $this->server;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->server->delete();
 
             throw ValidationException::withMessages([
@@ -89,11 +86,7 @@ class CreateServer
         }
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     */
-    public static function rules(Project $project, array $input): array
+    private function validate(Project $project, array $input): void
     {
         $rules = [
             'provider' => [
@@ -103,12 +96,20 @@ class CreateServer
             'name' => [
                 'required',
             ],
+            'role' => [
+                'sometimes',
+                Rule::enum(ServerRole::class),
+            ],
+            'stage' => [
+                'sometimes',
+                Rule::in(['prod', 'beta', 'alfa']),
+            ],
             'os' => [
                 'required',
                 Rule::in(config('core.operating_systems')),
             ],
             'server_provider' => [
-                Rule::when(fn (): bool => isset($input['provider']) && $input['provider'] != Custom::id(), [
+                Rule::when(fn (): bool => isset($input['provider']) && ! in_array($input['provider'], [Custom::id(), Existing::id()]), [
                     'required',
                     Rule::exists('server_providers', 'id')->where(function (Builder $query) use ($project): void {
                         $query->where('project_id', $project->id)
@@ -117,18 +118,23 @@ class CreateServer
                 ]),
             ],
             'ip' => [
-                Rule::when(fn (): bool => isset($input['provider']) && $input['provider'] == Custom::id(), [
+                Rule::when(fn (): bool => isset($input['provider']) && in_array($input['provider'], [Custom::id(), Existing::id()]), [
                     'required',
+                    'ip',
                     new RestrictedIPAddressesRule,
                 ]),
             ],
             'port' => [
-                Rule::when(fn (): bool => isset($input['provider']) && $input['provider'] == Custom::id(), [
+                Rule::when(fn (): bool => isset($input['provider']) && in_array($input['provider'], [Custom::id(), Existing::id()]), [
                     'required',
                     'numeric',
                     'min:1',
                     'max:65535',
                 ]),
+            ],
+            'ssh_user' => [
+                'nullable',
+                'string',
             ],
             'services' => [
                 'array',
@@ -148,20 +154,32 @@ class CreateServer
             ],
         ];
 
-        return array_merge($rules, self::providerRules($input));
+        Validator::make($input, array_merge($rules, $this->providerRules($input)))
+            ->after(function ($validator) use ($input): void {
+                $defaultRole = ($input['provider'] ?? '') === Existing::id() ? ServerRole::CUSTOM->value : ServerRole::APP->value;
+                $role = ServerRole::tryFrom($input['role'] ?? $defaultRole);
+                if (! $role) {
+                    return;
+                }
+
+                $serviceTypes = collect($input['services'] ?? [])->pluck('type');
+                foreach ($role->requiredServiceTypes() as $type) {
+                    if (! $serviceTypes->contains($type)) {
+                        $validator->errors()->add('services', __('The selected server type requires a :service service.', ['service' => $type]));
+                    }
+                }
+            })
+            ->validate();
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, array<string>>
-     */
-    private static function providerRules(array $input): array
+    
+    private function providerRules(array $input): array
     {
         if (
             ! isset($input['provider']) ||
             ! isset($input['server_provider']) ||
             ! config('server-provider.providers.'.$input['provider']) ||
-            $input['provider'] == Custom::id()
+            in_array($input['provider'], [Custom::id(), Existing::id()])
         ) {
             return [];
         }
@@ -178,13 +196,26 @@ class CreateServer
     {
         $this->server->services()->forceDelete();
 
-        foreach ($input['services'] as $service) {
-            $this->server->services()->create([
+        $services = $input['services'] ?? [];
+
+        if ($this->server->provider === Existing::id()) {
+            $hasMonitoring = collect($services)->contains('type', 'monitoring');
+            if (! $hasMonitoring) {
+                $services[] = [
+                    'type' => 'monitoring',
+                    'name' => 'remote-monitor',
+                    'version' => 'latest',
+                ];
+            }
+        }
+
+        $this->server->services()->createMany(
+            collect($services)->map(fn ($service) => [
                 'type' => $service['type'],
                 'name' => $service['name'],
                 'version' => $service['version'],
-            ]);
-        }
+            ])->all()
+        );
 
         $this->server->services()->where('type', '=', 'php')->update(['is_default' => 0]);
         $this->server->services()

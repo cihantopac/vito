@@ -9,6 +9,7 @@ use App\StorageProviders\Dropbox;
 use App\StorageProviders\FTP;
 use App\StorageProviders\Local;
 use App\StorageProviders\S3;
+use App\StorageProviders\SFTP;
 use Illuminate\Support\ServiceProvider;
 
 class StorageProviderServiceProvider extends ServiceProvider
@@ -21,6 +22,7 @@ class StorageProviderServiceProvider extends ServiceProvider
         $this->aws();
         $this->dropbox();
         $this->ftp();
+        $this->sftp();
     }
 
     private function local(): void
@@ -47,22 +49,28 @@ class StorageProviderServiceProvider extends ServiceProvider
                 DynamicForm::make([
                     DynamicField::make('api_url')
                         ->text()
-                        ->label('API URL'),
+                        ->label('API URL')
+                        ->placeholder('e.g. https://fsn1.your-objectstorage.com (leave empty for AWS)'),
                     DynamicField::make('key')
                         ->text()
-                        ->label('Access Key'),
+                        ->label('Access Key')
+                        ->placeholder('e.g. AKIAIOSFODNN7EXAMPLE'),
                     DynamicField::make('secret')
-                        ->text()
-                        ->label('Secret Key'),
+                        ->passwordWithToggle()
+                        ->label('Secret Key')
+                        ->placeholder('e.g. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'),
                     DynamicField::make('region')
                         ->text()
-                        ->label('Region'),
+                        ->label('Region')
+                        ->placeholder('e.g. eu-central or us-east-1'),
                     DynamicField::make('bucket')
                         ->text()
-                        ->label('Bucket Name'),
+                        ->label('Bucket Name')
+                        ->placeholder('e.g. imgserver'),
                     DynamicField::make('path')
                         ->text()
-                        ->label('Path'),
+                        ->label('Path')
+                        ->placeholder('Optional subfolder, e.g. /backups'),
                 ])
             )
             ->register();
@@ -75,9 +83,12 @@ class StorageProviderServiceProvider extends ServiceProvider
             ->handler(Dropbox::class)
             ->form(
                 DynamicForm::make([
-                    DynamicField::make('token')
+                    DynamicField::make('app_key')
                         ->text()
-                        ->label('Token'),
+                        ->label('App key'),
+                    DynamicField::make('app_secret')
+                        ->password()
+                        ->label('App secret'),
                 ])
             )
             ->register();
@@ -114,6 +125,34 @@ class StorageProviderServiceProvider extends ServiceProvider
                         ->checkbox()
                         ->label('Use Passive Mode')
                         ->default(true),
+                ])
+            )
+            ->register();
+    }
+
+    private function sftp(): void
+    {
+        RegisterStorageProvider::make(SFTP::id())
+            ->label('SFTP')
+            ->handler(SFTP::class)
+            ->form(
+                DynamicForm::make([
+                    DynamicField::make('host')
+                        ->text()
+                        ->label('Host'),
+                    DynamicField::make('port')
+                        ->text()
+                        ->label('Port')
+                        ->default(22),
+                    DynamicField::make('path')
+                        ->text()
+                        ->label('Path'),
+                    DynamicField::make('username')
+                        ->text()
+                        ->label('Username'),
+                    DynamicField::make('password')
+                        ->password()
+                        ->label('Password'),
                 ])
             )
             ->register();

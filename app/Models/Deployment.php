@@ -3,27 +3,13 @@
 namespace App\Models;
 
 use App\Enums\DeploymentStatus;
-use Database\Factories\DeploymentFactory;
+use App\Enums\DeploymentTrigger;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @property int $site_id
- * @property int $deployment_script_id
- * @property int $log_id
- * @property string $commit_id
- * @property string $commit_id_short
- * @property array<string, mixed> $commit_data
- * @property string $status
- * @property ?string $release
- * @property bool $active
- * @property Site $site
- * @property DeploymentScript $deploymentScript
- * @property ?ServerLog $log
- */
 class Deployment extends AbstractModel
 {
-    /** @use HasFactory<DeploymentFactory> */
+    
     use HasFactory;
 
     protected $fillable = [
@@ -35,6 +21,11 @@ class Deployment extends AbstractModel
         'status',
         'release',
         'active',
+        'user_id',
+        'trigger',
+        'rolled_back_by_id',
+        'rolled_back_at',
+        'finished_at',
     ];
 
     protected $casts = [
@@ -43,60 +34,68 @@ class Deployment extends AbstractModel
         'log_id' => 'integer',
         'commit_data' => 'json',
         'active' => 'boolean',
-    ];
-
-    /**
-     * @var array<string, string>
-     */
-    public static array $statusColors = [
-        DeploymentStatus::DEPLOYING => 'warning',
-        DeploymentStatus::FINISHED => 'success',
-        DeploymentStatus::FAILED => 'danger',
+        'status' => DeploymentStatus::class,
+        'user_id' => 'integer',
+        'trigger' => DeploymentTrigger::class,
+        'rolled_back_by_id' => 'integer',
+        'rolled_back_at' => 'datetime',
+        'finished_at' => 'datetime',
     ];
 
     protected static function booted(): void
     {
+        static::saving(function (Deployment $deployment): void {
+            if ($deployment->finished_at === null && $deployment->isDirty('status') && $deployment->status !== DeploymentStatus::DEPLOYING) {
+                $deployment->finished_at = now();
+            }
+        });
+
         static::created(function (Deployment $deployment): void {
             $site = $deployment->site;
             $keep = $site->type_data['modern_deployment_history'] ?? 10;
             if ($site->deployments()->whereNotNull('release')->count() > $keep) {
-                /** @var ?Deployment $lastDeploymentToKeep */
                 $lastDeploymentToKeep = $site->deployments()->whereNotNull('release')->orderByDesc('id')->skip($keep)->first();
                 if ($lastDeploymentToKeep) {
-                    $deployments = $site->deployments()->whereNotNull('release')
+                    $deployments = $site->deployments()
+                        ->whereNotNull('release')
+                        ->where('active', false)
                         ->where('id', '<=', $lastDeploymentToKeep->id)
                         ->get();
-                    /** @var Deployment $deployment */
-                    foreach ($deployments as $deployment) {
-                        $deployment->remove(true);
+
+                    foreach ($deployments as $oldDeployment) {
+                        $oldDeployment->remove(true);
                     }
                 }
             }
         });
     }
 
-    /**
-     * @return BelongsTo<Site, covariant $this>
-     */
+    
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @return BelongsTo<DeploymentScript, covariant $this>
-     */
+    
     public function deploymentScript(): BelongsTo
     {
         return $this->belongsTo(DeploymentScript::class);
     }
 
-    /**
-     * @return BelongsTo<ServerLog, covariant $this>
-     */
+    
     public function log(): BelongsTo
     {
         return $this->belongsTo(ServerLog::class, 'log_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function rolledBackBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rolled_back_by_id');
     }
 
     public function path(): string
@@ -106,9 +105,9 @@ class Deployment extends AbstractModel
 
     public function remove(bool $onlyRelease = false): void
     {
-        if ($this->release) {
+        if ($this->release !== null && $this->release !== '') {
             $site = $this->site;
-            $site->server->ssh($site->user)->exec('rm -rf '.$this->path());
+            $site->server->ssh($site->user)->exec('rm -rf '.escapeshellarg($this->path()));
             $this->release = null;
         }
 
@@ -126,5 +125,27 @@ class Deployment extends AbstractModel
         $this->site->deployments()->update(['active' => false]);
         $this->active = true;
         $this->save();
+    }
+
+    public function duration(): ?int
+    {
+        if (! $this->finished_at) {
+            return null;
+        }
+
+        return (int) abs($this->finished_at->diffInSeconds($this->created_at));
+    }
+
+    public function formattedDuration(): ?string
+    {
+        $duration = $this->duration();
+        if ($duration === null) {
+            return null;
+        }
+
+        $minutes = intdiv($duration, 60);
+        $seconds = $duration % 60;
+
+        return $minutes > 0 ? sprintf('%dm %02ds', $minutes, $seconds) : sprintf('%ds', $seconds);
     }
 }

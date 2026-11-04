@@ -2,52 +2,77 @@
 
 namespace App\Actions\Server;
 
+use App\DTOs\SocketEventDTO;
 use App\Enums\ServerStatus;
 use App\Enums\ServiceStatus;
+use App\Events\SocketEvent;
 use App\Exceptions\SSHConnectionError;
-use App\Exceptions\SSHError;
 use App\Facades\Notifier;
+use App\Http\Resources\ServerResource;
+use App\Jobs\ServerIp\RefreshServerIpsJob;
 use App\Models\Server;
 use App\Notifications\ServerInstallationSucceed;
-use App\Services\PHP\PHP;
+use App\ServerProviders\Custom;
+use App\ServerProviders\Existing;
+use Illuminate\Support\Sleep;
 
 class InstallServer
 {
+    private const MAX_WAIT_SECONDS = 180;
+
     protected Server $server;
 
-    /**
-     * @throws SSHError
-     */
+    
     public function run(Server $server): void
     {
         $this->server = $server;
 
-        $maxWait = 180;
+        $maxWait = self::MAX_WAIT_SECONDS;
+        $connected = false;
+        $lastError = null;
+
         while ($maxWait > 0) {
-            if (! $this->server->provider()->isRunning()) {
-                continue;
+            if ($this->server->provider()->isRunning()) {
+                try {
+                    $this->server->ssh()->connect();
+                    $connected = true;
+
+                    break;
+                } catch (SSHConnectionError $e) {
+                    $lastError = $e;
+                }
             }
-            try {
-                $this->server->ssh()->connect();
-                break;
-            } catch (SSHConnectionError) {
-                // ignore
-            }
-            sleep(10);
+
+            Sleep::sleep(10);
             $maxWait -= 10;
         }
+
+        if (! $connected) {
+            throw new SSHConnectionError(
+                'The server did not become reachable within '.self::MAX_WAIT_SECONDS.' seconds.',
+                previous: $lastError,
+            );
+        }
+
         $this->install();
         $this->server->update([
             'status' => ServerStatus::READY,
         ]);
+        dispatch(new RefreshServerIpsJob($this->server))->onQueue('ssh');
         Notifier::send($this->server, new ServerInstallationSucceed($this->server));
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
+        if ($this->server->provider === Existing::id()) {
+            $this->connectExisting();
+
+            return;
+        }
+
+        $this->progress(5, 'preparing-system');
+        $this->server->os()->waitForBoot();
         $this->createUser();
         $this->progress(15, 'installing-updates');
         $this->server->os()->upgrade();
@@ -59,28 +84,49 @@ class InstallServer
         foreach ($services as $service) {
             $currentProgress += $progressPerService;
             $this->progress($currentProgress, 'installing- '.$service->name);
+
+            $service->newLog();
+
             $service->handler()->install();
             $service->update(['status' => ServiceStatus::READY]);
-            if ($service->type == 'php') {
-                $this->progress($currentProgress, 'installing-composer');
-                /** @var PHP $handler */
-                $handler = $service->handler();
-                $handler->installComposer();
-            }
         }
         $this->progress(100, 'finishing');
     }
 
-    /**
-     * @throws SSHError
-     */
+    protected function connectExisting(): void
+    {
+        $this->progress(15, 'connecting-server');
+        $this->createUser();
+        $this->progress(60, 'configuring-monitoring');
+
+        $services = $this->server->services;
+        $currentProgress = 60;
+        $progressPerService = count($services) ? (95 - $currentProgress) / count($services) : 0;
+        foreach ($services as $service) {
+            $currentProgress += $progressPerService;
+            $this->progress($currentProgress, 'configuring- '.$service->name);
+
+            $service->newLog();
+            $service->handler()->install();
+            $service->update(['status' => ServiceStatus::READY]);
+        }
+
+        $this->progress(100, 'finishing');
+    }
+
+    
     protected function createUser(): void
     {
+        
+        $clearKeys = $this->server->provider === Custom::id();
+
         $this->server->os()->createUser(
             $this->server->authentication['user'],
             $this->server->authentication['pass'],
-            $this->server->sshKey()['public_key']
+            $this->server->sshKey()['public_key'],
+            $clearKeys
         );
+
         $this->server->ssh_user = config('core.ssh_user');
         $this->server->save();
         $this->server->refresh();
@@ -93,5 +139,11 @@ class InstallServer
         $this->server->progress = $percentage;
         $this->server->progress_step = $step;
         $this->server->save();
+
+        SocketEvent::dispatch(new SocketEventDTO(
+            projectId: $this->server->project_id,
+            type: 'server.updated',
+            data: new ServerResource($this->server),
+        ));
     }
 }

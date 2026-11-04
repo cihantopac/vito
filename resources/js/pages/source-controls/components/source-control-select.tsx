@@ -11,29 +11,33 @@ import { WifiIcon } from 'lucide-react';
 export default function SourceControlSelect({
   value,
   onValueChange,
+  serverId,
   ...props
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  serverId?: number;
 } & SelectTriggerProps) {
   const query = useQuery<SourceControl[]>({
-    queryKey: ['sourceControl'],
+    queryKey: ['sourceControl', serverId],
     queryFn: async () => {
-      return (await axios.get(route('source-controls.json'))).data;
+      return (await axios.get("/settings/source-controls/json", { params: serverId ? { server: serverId } : {} })).data;
     },
   });
+
+  const selected = query.data?.find((sourceControl) => sourceControl.id.toString() === value);
 
   return (
     <div className="flex items-center gap-2">
       <Select value={value} onValueChange={onValueChange} disabled={query.isFetching}>
         <SelectTrigger {...props}>
-          <SelectValue placeholder={query.isFetching ? 'Loading...' : 'Select a provider'} />
+          <SelectValue placeholder={query.isFetching ? 'Loading...' : 'Select a provider'}>{selected?.name}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             {query.isSuccess &&
               query.data.map((sourceControl: SourceControl) => (
-                <SelectItem key={`db-${sourceControl.name}`} value={sourceControl.id.toString()}>
+                <SelectItem key={`db-${sourceControl.id}`} value={sourceControl.id.toString()}>
                   {sourceControl.name}
                 </SelectItem>
               ))}

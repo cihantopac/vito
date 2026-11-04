@@ -4,8 +4,6 @@ namespace App\Actions\PHP;
 
 use App\Enums\PHPIniType;
 use App\Models\Server;
-use App\Models\Service;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -15,21 +13,17 @@ use Throwable;
 
 class UpdatePHPIni
 {
-    /**
-     * @param  array<string, mixed>  $input
-     *
-     * @throws ValidationException
-     */
+    
     public function update(Server $server, array $input): void
     {
-        Validator::make($input, self::rules($server))->validate();
+        $this->validate($server, $input);
 
-        /** @var Service $service */
+        
         $service = $server->php($input['version']);
 
         $tmpName = Str::random(10).strtotime('now');
         try {
-            /** @var FilesystemAdapter $storageDisk */
+            
             $storageDisk = Storage::disk('local');
 
             $storageDisk->put($tmpName, $input['ini']);
@@ -55,12 +49,9 @@ class UpdatePHPIni
         }
     }
 
-    /**
-     * @return array<string, array<string>>
-     */
-    public static function rules(Server $server): array
+    private function validate(Server $server, array $input): void
     {
-        return [
+        $rules = [
             'ini' => [
                 'required',
                 'string',
@@ -76,5 +67,7 @@ class UpdatePHPIni
                 Rule::in([PHPIniType::CLI, PHPIniType::FPM]),
             ],
         ];
+
+        Validator::make($input, $rules)->validate();
     }
 }

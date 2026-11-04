@@ -3,7 +3,6 @@
 namespace App\Actions\Database;
 
 use App\Enums\DatabaseUserStatus;
-use App\Models\DatabaseUser;
 use App\Models\Server;
 use App\Models\Service;
 use App\Services\Database\Database;
@@ -16,7 +15,7 @@ class SyncDatabaseUsers
         if (! $service instanceof Service) {
             return;
         }
-        /** @var Database $handler */
+        
         $handler = $service->handler();
 
         $this->updateUsers($server, $handler);
@@ -28,10 +27,17 @@ class SyncDatabaseUsers
         foreach ($users as $user) {
             $databases = $user[2] != 'NULL' ? explode(',', $user[2]) : [];
 
-            /** @var ?DatabaseUser $databaseUser */
-            $databaseUser = $server->databaseUsers()
-                ->where('username', $user[0])
-                ->first();
+            $query = $server->databaseUsers()->where('username', $user[0]);
+
+            
+            
+            
+            if ($user[1] !== '') {
+                $query->where('host', $user[1]);
+            }
+
+            
+            $databaseUser = $query->first();
 
             if ($databaseUser === null) {
                 $server->databaseUsers()->create([

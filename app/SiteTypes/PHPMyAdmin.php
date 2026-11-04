@@ -2,7 +2,6 @@
 
 namespace App\SiteTypes;
 
-use App\Exceptions\SSHError;
 use App\Models\Site;
 use Illuminate\Validation\Rule;
 
@@ -16,6 +15,16 @@ class PHPMyAdmin extends PHPSite
     public static function make(): self
     {
         return new self(new Site(['type' => self::id()]));
+    }
+
+    public static function createTimeTools(): array
+    {
+        return [];
+    }
+
+    public static function requiredTooling(): array
+    {
+        return [];
     }
 
     public function createRules(array $input): array
@@ -43,23 +52,22 @@ class PHPMyAdmin extends PHPSite
         ];
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
-        $this->isolate();
-        $this->site->webserver()->createVHost($this->site);
-        $this->progress(30);
-        $this->site->server->ssh($this->site->user)->exec(
-            view('ssh.phpmyadmin.install', [
-                'version' => $this->site->type_data['version'],
-                'path' => $this->site->path,
-            ]),
-            'install-phpmyadmin',
-            $this->site->id
-        );
-        $this->progress(65);
-        $this->site->php()?->restart();
+        $this->step('isolating-user', 0, fn () => $this->isolate());
+        $this->step('creating-vhost', 10, fn () => $this->site->webserver()->createVHost($this->site));
+        $this->step('installing-phpmyadmin', 25, function () {
+            $this->site->server->ssh($this->site->user)->exec(
+                view('ssh.phpmyadmin.install', [
+                    'version' => $this->site->type_data['version'],
+                    'path' => $this->site->path,
+                ]),
+                'install-phpmyadmin',
+                $this->site->id
+            );
+        });
+        $this->step('restarting-php', 70, fn () => $this->site->php()?->restart());
+        $this->progress(90, 'finishing');
     }
 }

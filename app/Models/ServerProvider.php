@@ -2,28 +2,18 @@
 
 namespace App\Models;
 
-use Database\Factories\ServerProviderFactory;
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasProjectScopedQueries;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 
-/**
- * @property int $user_id
- * @property string $profile
- * @property string $provider
- * @property array<string, string> $credentials
- * @property bool $connected
- * @property User $user
- * @property ?int $project_id
- * @property Server[] $servers
- * @property ?Project $project
- */
 class ServerProvider extends AbstractModel
 {
-    /** @use HasFactory<ServerProviderFactory> */
+    use HasProjectScopedQueries;
+    
     use HasFactory;
+
 
     protected $fillable = [
         'user_id',
@@ -41,25 +31,19 @@ class ServerProvider extends AbstractModel
         'project_id' => 'integer',
     ];
 
-    /**
-     * @return BelongsTo<User, covariant $this>
-     */
+    
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return array<string, string>
-     */
+    
     public function getCredentials(): array
     {
         return $this->credentials;
     }
 
-    /**
-     * @return HasMany<Server, covariant $this>
-     */
+    
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class, 'provider_id');
@@ -69,71 +53,47 @@ class ServerProvider extends AbstractModel
     {
         $providerClass = config('server-provider.providers.'.$this->provider.'.handler');
 
-        /** @var \App\ServerProviders\ServerProvider $provider */
+        
         $provider = new $providerClass($this, new Server);
 
         return $provider;
     }
 
-    /**
-     * @return BelongsTo<Project, covariant $this>
-     */
+    
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
     /**
-     * @return Builder<ServerProvider>
+     * Provider catalogues change rarely, so they are cached per provider and dropped by forgetCatalogue() when credentials change.
+     *
+     * @return array<string, mixed>
      */
-    public static function getByProjectId(int $projectId): Builder
+    public function cachedRegions(): array
     {
-        /** @var Builder<ServerProvider> $query */
-        $query = static::query();
-
-        return $query
-            ->where(function (Builder $query) use ($projectId): void {
-                $query->where('project_id', $projectId)->orWhereNull('project_id');
-            });
+        return Cache::remember($this->catalogueKey('regions'), now()->addMinutes(10), fn (): array => $this->provider()->regions());
     }
 
     /**
-     * @return array<string>
+     * @return array<string, mixed>
      */
-    public static function regions(?int $id): array
+    public function cachedPlans(string $region, bool $available = false): array
     {
-        if ($id === null || $id === 0) {
-            return [];
-        }
-        /** @var ?ServerProvider $profile */
-        $profile = self::find($id);
-        if (! $profile) {
-            return [];
-        }
-
-        if (Cache::get('regions-'.$id)) {
-            return Cache::get('regions-'.$id);
-        }
-
-        $regions = $profile->provider()->regions();
-        Cache::put('regions-'.$id, $regions, 600);
-
-        return $regions;
+        return Cache::remember($this->catalogueKey('plans:'.($available ? 'available:' : '').$region), now()->addMinutes(10), fn (): array => $available ? $this->provider()->availablePlans($region) : $this->provider()->plans($region));
     }
 
-    /**
-     * @return array<string>
-     */
-    public static function plans(?int $id, ?string $region): array
+    public function forgetCatalogue(): void
     {
-        if ($id === null || $id === 0) {
-            return [];
-        }
-        $profile = self::find($id);
-        if (! $profile) {
-            return [];
-        }
-
-        return $profile->provider()->plans($region);
+        Cache::forever("server-provider:{$this->id}:catalogue-version", (string) now()->getTimestampMs());
     }
+
+    private function catalogueKey(string $suffix): string
+    {
+        $version = Cache::get("server-provider:{$this->id}:catalogue-version", '0');
+
+        return "server-provider:{$this->id}:{$version}:{$suffix}";
+    }
+
+
 }

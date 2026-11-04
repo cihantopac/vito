@@ -2,13 +2,10 @@
 
 namespace App\SSH\Storage;
 
-use App\Exceptions\SSHError;
 
 class FTP extends AbstractStorage
 {
-    /**
-     * @throws SSHError
-     */
+    
     public function upload(string $src, string $dest): array
     {
         $this->server->ssh()->exec(
@@ -30,9 +27,7 @@ class FTP extends AbstractStorage
         ];
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function download(string $src, string $dest): void
     {
         $this->server->ssh()->exec(
@@ -50,9 +45,7 @@ class FTP extends AbstractStorage
         );
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function delete(string $src): void
     {
         $this->server->ssh()->exec(

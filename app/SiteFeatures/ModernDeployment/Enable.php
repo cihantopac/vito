@@ -2,9 +2,9 @@
 
 namespace App\SiteFeatures\ModernDeployment;
 
+use Illuminate\Validation\ValidationException;
 use App\DTOs\DynamicField;
 use App\DTOs\DynamicForm;
-use App\Exceptions\SSHError;
 use App\Helpers\SSH;
 use App\SiteFeatures\Action;
 use Illuminate\Http\Request;
@@ -53,16 +53,20 @@ class Enable extends Action
         ]);
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function handle(Request $request): void
     {
         $this->validate($request);
 
         $this->ssh = $this->site->server->ssh($this->site->user);
 
-        $sharedResources = explode(',', trim($request->input('shared_resources')));
+        $sharedResources = array_values(array_filter(array_map('trim', explode(',', (string) $request->input('shared_resources')))));
+
+        foreach ($sharedResources as $resource) {
+            if (preg_match('/^[A-Za-z0-9._\-\/]+$/', $resource) !== 1 || str_contains($resource, '..') || str_starts_with($resource, '/')) {
+                throw ValidationException::withMessages(['shared_resources' => __('Shared resource :resource must be a relative path without special characters.', ['resource' => $resource])]);
+            }
+        }
 
         $this->ssh->exec(view('ssh.modern-deployment.enable', [
             'site' => $this->site,
@@ -80,7 +84,7 @@ class Enable extends Action
 
         $this->site->ensureDeploymentScriptsExist();
 
-        $this->site->webserver()->updateVHost($this->site, regenerate: ['core']);
+        $this->site->webserver()->updateVHost($this->site);
 
         $request->session()->flash('success', 'Modern deployment enabled!');
     }

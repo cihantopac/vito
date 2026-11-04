@@ -2,7 +2,6 @@
 
 namespace App\Services\NodeJS;
 
-use App\Exceptions\SSHError;
 use App\Services\AbstractService;
 use Closure;
 use Illuminate\Validation\Rule;
@@ -50,10 +49,10 @@ class NodeJS extends AbstractService
         return [
             'service' => [
                 function (string $attribute, mixed $value, Closure $fail): void {
-                    $hasSite = $this->service->server->sites()
-                        ->where('nodejs_version', $this->service->version)
+                    $inUse = $this->service->server->isolatedUsers()
+                        ->where('installed_tooling->node->version', (string) $this->service->version)
                         ->exists();
-                    if ($hasSite) {
+                    if ($inUse) {
                         $fail('Some sites are using this NodeJS version.');
                     }
                 },
@@ -61,9 +60,7 @@ class NodeJS extends AbstractService
         ];
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
         $server = $this->service->server;
@@ -77,33 +74,29 @@ class NodeJS extends AbstractService
         $this->service->server->os()->cleanup();
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function uninstall(): void
     {
-        // skip uninstalling if there are other NodeJS services installed
-        // to keep it compatible with the previous approach with nvm
+        
+        
         if ($this->service->server->services()->where('type', 'nodejs')->count() > 1) {
             return;
         }
-        $this->service->server->ssh()->exec(
-            view('ssh.services.nodejs.uninstall-nodejs', [
-                'version' => $this->service->version,
-                'default' => $this->service->is_default,
-            ]),
-            'uninstall-nodejs-'.$this->service->version
-        );
+        $this->service->server->ssh()
+            ->setLog($this->service->log)
+            ->exec(
+                view('ssh.services.nodejs.uninstall-nodejs', [
+                    'version' => $this->service->version,
+                    'default' => $this->service->is_default,
+                ]),
+                'uninstall-nodejs-'.$this->service->version
+            );
         event('service.uninstalled', $this->service);
         $this->service->server->os()->cleanup();
     }
 
-    public function version(): string
+    public function versionCommand(): ?string
     {
-        $version = $this->service->server->ssh()->exec(
-            'node -v | tr -d \'v\''
-        );
-
-        return trim($version);
+        return 'node -v | tr -d \'v\'';
     }
 }

@@ -10,14 +10,19 @@ use Illuminate\Validation\Rule;
 
 class UpdateLoadBalancer
 {
-    /**
-     * @param  array<string, mixed>  $input
-     */
+    
     public function update(Site $site, array $input): void
     {
-        Validator::make($input, self::rules($site))->validate();
+        $this->validate($site, $input);
 
         $site->loadBalancerServers()->delete();
+
+        
+        $typeData = $site->type_data ?? [];
+        $typeData['method'] = $input['method'];
+        $site->update([
+            'type_data' => $typeData,
+        ]);
 
         foreach ($input['servers'] as $server) {
             $loadBalancerServer = new LoadBalancerServer([
@@ -30,18 +35,12 @@ class UpdateLoadBalancer
             $loadBalancerServer->save();
         }
 
-        $site->webserver()->updateVHost($site, regenerate: [
-            'load-balancer-upstream',
-            'load-balancer',
-        ]);
+        $site->webserver()->updateVHost($site);
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public static function rules(Site $site): array
+    private function validate(Site $site, array $input): void
     {
-        return [
+        $rules = [
             'servers' => [
                 'required',
                 'array',
@@ -71,5 +70,7 @@ class UpdateLoadBalancer
                 Rule::in(LoadBalancerMethod::all()),
             ],
         ];
+
+        Validator::make($input, $rules)->validate();
     }
 }

@@ -2,9 +2,19 @@
 
 namespace App\Enums;
 
-final class UserRole
-{
-    const string USER = 'user';
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
 
-    const string ADMIN = 'admin';
+enum UserRole: string implements VitoEnum
+{
+    use TextIsValue;
+
+    case USER = 'user';
+    case ADMIN = 'admin';
+    case OWNER = 'owner';
+
+    public function getColor(): string
+    {
+        return 'default';
+    }
 }

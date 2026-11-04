@@ -1,11 +1,23 @@
 import { ServerLog } from '@/types/server-log';
 
+export interface DeploymentStep {
+  group: string;
+  line: number;
+  command: string;
+}
+
+export interface DeploymentProgress {
+  steps: DeploymentStep[];
+  estimated_duration: number | null;
+  samples: number;
+}
+
 export interface Deployment {
   id: number;
   site_id: number;
   deployment_script_id: number;
   log_id: number;
-  log: ServerLog;
+  log: ServerLog | null;
   commit_id: string;
   commit_id_short: string;
   commit_data: {
@@ -18,6 +30,15 @@ export interface Deployment {
   status_color: 'gray' | 'success' | 'info' | 'warning' | 'danger';
   release?: string;
   active: boolean;
+  deployed_by: string | null;
+  trigger: string | null;
+  trigger_color: 'gray' | 'info' | 'warning' | null;
+  rolled_back_by: string | null;
+  rolled_back_at: string | null;
+  finished_at: string | null;
+  duration?: number | null;
+  formatted_duration?: string | null;
+  progress?: DeploymentProgress;
   created_at: string;
   updated_at: string;
 

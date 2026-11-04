@@ -1,15 +1,15 @@
 import { LucideIcon } from 'lucide-react';
-import type { Config } from 'ziggy-js';
 import type { Server } from '@/types/server';
 import { Project } from '@/types/project';
 import { User } from '@/types/user';
 import { Site, SiteType } from '@/types/site';
 import { DynamicFieldConfig } from './dynamic-field-config';
+import type { ServerRole } from '@/lib/server-roles';
 
 export interface Auth {
   user: User;
-  projects: Project[];
   currentProject?: Project;
+  pendingInvitationsCount: number;
 }
 
 export interface BreadcrumbItem {
@@ -32,6 +32,8 @@ export interface NavItem {
   children?: NavItem[];
   hidden?: boolean;
   external?: boolean;
+  badge?: string | number;
+  flyoutContent?: React.ReactNode;
 }
 
 export interface Configs {
@@ -42,6 +44,7 @@ export interface Configs {
     [key: string]: string;
   };
   metrics_periods: string[];
+  server_roles: Array<{ value: ServerRole; label: string }>;
 
   server_provider: {
     providers: {
@@ -58,6 +61,7 @@ export interface Configs {
         label: string;
         handler: string;
         form?: DynamicFieldConfig[];
+        edit_form?: DynamicFieldConfig[];
       };
     };
   };
@@ -67,6 +71,21 @@ export interface Configs {
         label: string;
         handler: string;
         form?: DynamicFieldConfig[];
+        connectable?: boolean;
+        usable_for_sites?: boolean;
+        editable_fields?: string[];
+      };
+    };
+  };
+  dns_provider: {
+    providers: {
+      [provider: string]: {
+        label: string;
+        handler: string;
+        form?: DynamicFieldConfig[];
+        edit_form?: DynamicFieldConfig[];
+        proxy_types?: string[];
+        supports_created_at?: boolean;
       };
     };
   };
@@ -97,24 +116,36 @@ export interface Configs {
     types: {
       [type: string]: SiteType;
     };
+    reserved_user_names: string[];
   };
+  github_app: {
+    installed: boolean;
+  };
+  tooling: ToolingDescriptor[];
 
   [key: string]: unknown;
+}
+
+export interface ToolingDescriptor {
+  id: string;
+  label: string;
+  description: string;
+  supported_versions: string[];
+  commands: string[];
 }
 
 export interface SharedData {
   name: string;
   version: string;
+  env: string;
   demo: boolean;
   quote: { message: string; author: string };
   auth: Auth;
-  ziggy: Config & { location: string };
-  configs: Configs;
-  project_servers: Server[];
-  server_sites?: Site[];
   server?: Server;
   site?: Site;
-  public_key_text: string;
+  network?: { id: number; project_id: number; [key: string]: unknown };
+  csrf_token: string;
+  bootstrap_version: string;
   flash?: {
     status: string;
     success: string;

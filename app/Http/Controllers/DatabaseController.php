@@ -3,18 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Database\CreateDatabase;
-use App\Actions\Database\DeleteDatabase;
 use App\Actions\Database\SyncDatabases;
 use App\Http\Resources\DatabaseResource;
 use App\Models\Database;
 use App\Models\Server;
+use App\Tables\Servers\DatabaseTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\RouteAttributes\Attributes\Delete;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Patch;
@@ -25,13 +24,14 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth', 'has-project'])]
 class DatabaseController extends Controller
 {
+
     #[Get('/', name: 'databases')]
     public function index(Server $server): Response
     {
         $this->authorize('viewAny', [Database::class, $server]);
 
         return Inertia::render('databases/index', [
-            'databases' => DatabaseResource::collection($server->databases()->simplePaginate(config('web.pagination_size'))),
+            'databases' => DatabaseTable::make($server->databases())->simplePaginate(),
         ]);
     }
 
@@ -46,28 +46,26 @@ class DatabaseController extends Controller
     #[Get('/charsets', name: 'databases.charsets')]
     public function charsets(Server $server): JsonResponse
     {
-        $this->authorize('view', $server);
+        $this->authorize('viewAny', [Database::class, $server]);
 
-        $charsets = [];
-        foreach ($server->database()->type_data['charsets'] as $charset => $value) {
-            $charsets[] = $charset;
-        }
-
-        return response()->json($charsets);
+        return response()->json(array_keys($server->database()?->type_data['charsets'] ?? []));
     }
 
     #[Get('/collations/{charset?}', name: 'databases.collations')]
     public function collations(Server $server, ?string $charset = null): JsonResponse
     {
-        $this->authorize('view', $server);
+        $this->authorize('viewAny', [Database::class, $server]);
 
         if (! $charset) {
-            $charset = $server->database()->type_data['defaultCharset'] ?? null;
+            $charset = $server->database()?->type_data['defaultCharset'] ?? null;
         }
 
-        $charsets = $server->database()->type_data['charsets'] ?? [];
+        $charsets = $server->database()?->type_data['charsets'] ?? [];
 
-        return response()->json(data_get($charsets, $charset.'.list', data_get($charsets, $charset.'.default', [])));
+        return response()->json([
+            'default' => data_get($charsets, $charset.'.default'),
+            'list' => data_get($charsets, $charset.'.list', []),
+        ]);
     }
 
     #[Post('/', name: 'databases.store')]
@@ -92,14 +90,4 @@ class DatabaseController extends Controller
             ->with('success', 'Databases synced successfully.');
     }
 
-    #[Delete('/{database}', name: 'databases.destroy')]
-    public function destroy(Server $server, Database $database): RedirectResponse
-    {
-        $this->authorize('delete', [$database, $server]);
-
-        app(DeleteDatabase::class)->delete($server, $database);
-
-        return back()
-            ->with('success', 'Database deleted successfully.');
-    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\ServerProviders;
 
+use App\DTOs\PrivateNetworkDTO;
+use App\DTOs\PrivateNetworkMemberDTO;
 use App\Exceptions\CouldNotConnectToProvider;
 use App\Exceptions\ServerProviderError;
 use App\Facades\Notifier;
@@ -10,13 +12,138 @@ use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class Linode extends AbstractProvider
+class Linode extends AbstractProvider implements ProvidesPrivateNetworks
 {
     protected string $apiUrl = 'https://api.linode.com/v4';
+
+    private const MAX_PAGES = 100;
 
     public static function id(): string
     {
         return 'linode';
+    }
+
+    public function instanceIdKey(): string
+    {
+        return 'linode_id';
+    }
+
+    public function privateNetworks(array $instanceIds, array $regions): array
+    {
+        return $this->mapPrivateNetworks(
+            $this->fetchAll('/vpcs'),
+            $this->fetchAll('/vpcs/ips'),
+            $instanceIds,
+        );
+    }
+
+    
+    private function mapPrivateNetworks(array $vpcs, array $addresses, array $instanceIds): array
+    {
+        $wanted = array_flip($instanceIds);
+        $ips = [];
+
+        foreach ($addresses as $entry) {
+            $linodeId = (string) ($entry['linode_id'] ?? '');
+            $vpcId = (string) ($entry['vpc_id'] ?? '');
+            $address = $entry['address'] ?? null;
+
+            if ($linodeId === '' || $vpcId === '' || ! is_string($address) || $address === '') {
+                continue;
+            }
+
+            if (($entry['active'] ?? true) === false) {
+                continue;
+            }
+
+            $ips[$vpcId][$linodeId] ??= $address;
+        }
+
+        $result = [];
+
+        foreach ($vpcs as $vpc) {
+            $vpcId = (string) ($vpc['id'] ?? '');
+            $members = [];
+            $cidrs = [];
+
+            foreach ($vpc['subnets'] ?? [] as $subnet) {
+                if (isset($subnet['ipv4'])) {
+                    $cidrs[] = (string) $subnet['ipv4'];
+                }
+
+                foreach ($subnet['linodes'] ?? [] as $linode) {
+                    $linodeId = (string) ($linode['id'] ?? '');
+
+                    if ($linodeId === '' || ! isset($wanted[$linodeId])) {
+                        continue;
+                    }
+
+                    $members[] = new PrivateNetworkMemberDTO(
+                        instanceId: $linodeId,
+                        ip: $ips[$vpcId][$linodeId] ?? null,
+                    );
+                }
+            }
+
+            if ($members === []) {
+                continue;
+            }
+
+            $result[] = new PrivateNetworkDTO(
+                externalId: $vpcId,
+                name: (string) ($vpc['label'] ?? $vpcId),
+                cidr: count($cidrs) === 1 ? $cidrs[0] : null,
+                region: isset($vpc['region']) ? (string) $vpc['region'] : null,
+                members: $members,
+            );
+        }
+
+        return $result;
+    }
+
+    
+    private function fetchAll(string $path): array
+    {
+        $token = $this->serverProvider->getCredentials()['token'];
+        $items = [];
+        $page = 1;
+
+        do {
+            try {
+                $response = Http::withToken($token)->get($this->apiUrl.$path, [
+                    'page_size' => 500,
+                    'page' => $page,
+                ]);
+            } catch (Exception) {
+                throw $this->syncError();
+            }
+
+            if (! $response->ok()) {
+                throw $this->syncError($response->status());
+            }
+
+            $body = $response->json();
+
+            if (! is_array($body) || ! is_array($body['data'] ?? null)) {
+                throw $this->syncError($response->status());
+            }
+
+            
+            $batch = $body['data'];
+            $items = array_merge($items, $batch);
+
+            if ($page >= (int) ($body['pages'] ?? 1)) {
+                break;
+            }
+
+            if ($page >= self::MAX_PAGES) {
+                throw $this->syncError();
+            }
+
+            $page++;
+        } while (true);
+
+        return $items;
     }
 
     public function createRules(array $input): array
@@ -49,9 +176,7 @@ class Linode extends AbstractProvider
         ];
     }
 
-    /**
-     * @throws CouldNotConnectToProvider
-     */
+    
     public function connect(array $credentials): bool
     {
         try {
@@ -67,25 +192,51 @@ class Linode extends AbstractProvider
         return true;
     }
 
+    
     public function plans(?string $region): array
     {
         try {
-            /** @var array<string, mixed> $plans */
-            $plans = Http::withToken($this->serverProvider->credentials['token'])
+            
+            $response = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/linode/types')
                 ->json();
 
-            /** @var array<int, array<string, mixed>> $plansData */
-            $plansData = $plans['data'];
+            
+            $types = $response['data'] ?? [];
 
-            return collect($plansData)
-                ->mapWithKeys(fn (array $value) => [
-                    $value['id'] => __('server_providers.plan', [
-                        'name' => $value['label'],
-                        'cpu' => $value['vcpus'],
-                        'memory' => $value['memory'],
-                        'disk' => $value['disk'],
-                    ]),
+            $capabilities = $this->regionCapabilities($region);
+
+            return collect($types)
+                ->map(function (array $type) use ($region, $capabilities): array {
+                    $available = $this->planIsAvailable($type['class'] ?? '', $capabilities);
+
+                    $label = __('server_providers.plan', [
+                        'name' => $type['label'],
+                        'cpu' => $type['vcpus'],
+                        'memory' => $type['memory'],
+                        'disk' => intdiv((int) $type['disk'], 1024),
+                    ]);
+
+                    if ($available) {
+                        $price = $this->planMonthlyPrice($type, $region);
+
+                        if ($price !== null) {
+                            $label .= ' ('.number_format($price, 2).'/mo)';
+                        }
+                    }
+
+                    return [
+                        'id' => $type['id'],
+                        'label' => $label,
+                        'available' => $available,
+                    ];
+                })
+                ->sortByDesc('available')
+                ->mapWithKeys(fn (array $plan): array => [
+                    $plan['id'] => [
+                        'label' => $plan['label'],
+                        'available' => $plan['available'],
+                    ],
                 ])
                 ->toArray();
         } catch (Exception) {
@@ -93,15 +244,58 @@ class Linode extends AbstractProvider
         }
     }
 
+    
+    private function planIsAvailable(string $class, array $capabilities): bool
+    {
+        if ($capabilities === []) {
+            return true;
+        }
+
+        return match ($class) {
+            'gpu' => in_array('GPU Linodes', $capabilities, true),
+            'premium' => in_array('Premium Plans', $capabilities, true),
+            default => in_array('Linodes', $capabilities, true),
+        };
+    }
+
+    
+    private function regionCapabilities(?string $region): array
+    {
+        
+        $response = Http::withToken($this->serverProvider->credentials['token'])
+            ->get($this->apiUrl.'/regions')
+            ->json();
+
+        
+        $match = collect($response['data'] ?? [])->firstWhere('id', $region);
+
+        return $match['capabilities'] ?? [];
+    }
+
+    
+    private function planMonthlyPrice(array $type, ?string $region): ?float
+    {
+        
+        $regionPrice = collect($type['region_prices'] ?? [])->firstWhere('id', $region);
+
+        if ($regionPrice !== null) {
+            return (float) $regionPrice['monthly'];
+        }
+
+        $monthly = $type['price']['monthly'] ?? null;
+
+        return $monthly !== null ? (float) $monthly : null;
+    }
+
     public function regions(): array
     {
         try {
-            /** @var array<string, mixed> $regions */
+            
             $regions = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/regions')
                 ->json();
 
-            /** @var array<int, array<string, mixed>> $regionsData */
+            
             $regionsData = $regions['data'];
 
             return collect($regionsData)
@@ -112,9 +306,7 @@ class Linode extends AbstractProvider
         }
     }
 
-    /**
-     * @throws ServerProviderError
-     */
+    
     public function create(): void
     {
         $this->generateKeyPair();
@@ -123,7 +315,7 @@ class Linode extends AbstractProvider
             $create = Http::withToken($this->server->serverProvider->credentials['token'])
                 ->post($this->apiUrl.'/linode/instances', [
                     'backups_enabled' => false,
-                    'image' => config('serverproviders.linode.images')[$this->server->os],
+                    'image' => config('serverproviders.linode.images')[$this->server->os->value],
                     'root_pass' => $this->server->authentication['root_pass'],
                     'authorized_keys' => [
                         $this->server->sshKey()['public_key'],
@@ -139,7 +331,7 @@ class Linode extends AbstractProvider
 
         if (! $create->ok()) {
             $msg = __('Failed to create server on Linode');
-            $errors = $create->json('errors');
+            $errors = $create->json('errors') ?? [];
             if (count($errors) > 0) {
                 $msg = $errors[0]['reason'];
             }
@@ -181,7 +373,7 @@ class Linode extends AbstractProvider
                 return;
             }
 
-            if (! $delete->ok()) {
+            if (! $delete->successful()) {
                 Notifier::send($this->server, new FailedToDeleteServerFromProvider($this->server));
             }
         }

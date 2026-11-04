@@ -2,6 +2,9 @@
 
 namespace App\Actions\Plugins;
 
+use App\Actions\Bootstrap\GetBootstrap;
+use App\DTOs\SocketEventDTO;
+use App\Events\SocketEvent;
 use App\Models\Plugin;
 use App\Models\PluginError;
 use Exception;
@@ -14,9 +17,7 @@ final readonly class DisablePlugin
         private PluginCache $cache,
     ) {}
 
-    /**
-     * @throws Exception
-     */
+    
     public function handle(Plugin $plugin): void
     {
         if (! $plugin->is_enabled) {
@@ -39,5 +40,9 @@ final readonly class DisablePlugin
         $plugin->save();
 
         $this->cache->clear();
+
+        GetBootstrap::forgetVersion();
+        $newVersion = app(GetBootstrap::class)->computeVersion();
+        SocketEvent::dispatch(new SocketEventDTO(0, 'bootstrap.invalidated', ['version' => $newVersion]));
     }
 }

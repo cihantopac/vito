@@ -1,6 +1,8 @@
-import { Head, usePage } from '@inertiajs/react';
+import { withQuery } from '@/lib/url';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Site } from '@/types/site';
 import ServerLayout from '@/layouts/server/layout';
+import SiteBanners from '@/components/site-banners';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -9,6 +11,8 @@ import { PaginatedData } from '@/types';
 import { ServerLog } from '@/types/server-log';
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/pages/server-logs/components/columns';
+import { useRealtime } from '@/hooks/use-socket-events';
+import { Button } from '@/components/ui/button';
 
 type Page = {
   server: Server;
@@ -18,17 +22,29 @@ type Page = {
 
 export default function ShowSite() {
   const page = usePage<Page>();
+  const [logs] = useRealtime<ServerLog>(page.props.logs, 'server-log', { site_id: page.props.site.id });
 
   return (
     <ServerLayout>
       <Head title={`${page.props.site.domain} - ${page.props.server.name}`} />
 
-      <Container className="max-w-5xl">
+      <Container>
         <HeaderContainer>
           <Heading title="Logs" description="Here you can see your site's logs" />
+          {page.props.site.php_version && (
+            <Button variant="outline" asChild>
+              <Link
+                href={withQuery(`/servers/${page.props.server.id}/logs/services`, { key: `site:${page.props.site.id}:laravel` })}
+              >
+                Laravel Log
+              </Link>
+            </Button>
+          )}
         </HeaderContainer>
 
-        <DataTable columns={columns} paginatedData={page.props.logs} searchable />
+        <SiteBanners site={page.props.site} />
+
+        <DataTable columns={columns} paginatedData={logs} searchable />
       </Container>
     </ServerLayout>
   );

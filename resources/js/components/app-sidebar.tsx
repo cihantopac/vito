@@ -1,116 +1,219 @@
+import { withQuery } from '@/lib/url';
 import { NavUser } from '@/components/nav-user';
+import { cn, currentPath } from '@/lib/utils';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { type NavItem, SharedData } from '@/types';
+import { type NavGroup, type NavItem, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, ChevronRightIcon, CogIcon, Folder, ListEndIcon, LogsIcon, MousePointerClickIcon, ServerIcon, ZapIcon } from 'lucide-react';
+import {
+  ChevronRightIcon,
+  CogIcon,
+  LayoutDashboardIcon,
+  ListIcon,
+  LogsIcon,
+  MousePointerClickIcon,
+  NetworkIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+  ServerIcon,
+  UsersIcon,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 import { Icon } from '@/components/icon';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
+import React, { useRef, useState } from 'react';
+import RecentServersFlyout from '@/components/recent-servers-flyout';
+import RecentSitesNavFlyout from '@/components/recent-sites-nav-flyout';
 
-const mainNavItems: NavItem[] = [
-  {
-    title: 'Servers',
-    href: route('servers'),
-    icon: ServerIcon,
-  },
-  {
-    title: 'Sites',
-    href: route('sites.all'),
-    icon: MousePointerClickIcon,
-  },
-  {
-    title: 'Scripts',
-    href: route('scripts'),
-    icon: ZapIcon,
-  },
-  {
-    title: 'Settings',
-    href: route('settings'),
-    icon: CogIcon,
-  },
-];
+function NavFlyout({ children, content }: { children: React.ReactNode; content: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-const footerNavItems: NavItem[] = [
-  {
-    title: 'Horizon Dashboard',
-    href: route('horizon.index'),
-    icon: ListEndIcon,
-  },
-  {
-    title: 'Vito Logs',
-    href: route('log-viewer.index'),
-    icon: LogsIcon,
-  },
-  {
-    title: 'Repository',
-    href: 'https://github.com/vitodeploy/vito',
-    icon: Folder,
-  },
-  {
-    title: 'Documentation',
-    href: 'https://vitodeploy.com',
-    icon: BookOpen,
-  },
-];
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setOpen(true), 120);
+  };
 
-export function AppSidebar({ secondNavItems, secondNavTitle }: { secondNavItems?: NavItem[]; secondNavTitle?: string }) {
-  const page = usePage<SharedData>();
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setOpen(false), 200);
+  };
 
   return (
-    <Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row">
-      {/* This is the first sidebar */}
-      {/* We disable collapsible and adjust width to icon. */}
-      {/* This will make the sidebar appear as icons. */}
-      <Sidebar collapsible="none" className="h-auto !w-[calc(var(--sidebar-width-icon)_+_1px)] border-r">
-        <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <Link href={route('servers')} prefetch>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <AppLogo />
-                    </TooltipTrigger>
-                    <TooltipContent side="right">{page.props.version}</TooltipContent>
-                  </Tooltip>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+    <Popover open={open} onOpenChange={setOpen}>
+      <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="w-full">
+        <PopoverAnchor asChild>
+          <div className="w-full">{children}</div>
+        </PopoverAnchor>
+      </div>
+      <PopoverContent
+        side="right"
+        align="start"
+        sideOffset={8}
+        className="w-72 p-2 shadow-xl border bg-popover text-popover-foreground z-50 rounded-xl"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div onClick={() => setOpen(false)}>{content}</div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+export function AppSidebar({
+  secondNavItems,
+  secondNavGroups,
+  secondNavTitle,
+  secondNavSubtitle,
+  secondNavOpen = true,
+  onSecondNavOpenChange,
+}: {
+  secondNavItems?: NavItem[];
+  secondNavGroups?: NavGroup[];
+  secondNavTitle?: string;
+  secondNavSubtitle?: string;
+  secondNavOpen?: boolean;
+  onSecondNavOpenChange?: (open: boolean) => void;
+}) {
+  const page = usePage<SharedData>();
+  const navGroups = secondNavGroups ?? [{ title: '', items: secondNavItems ?? [] }];
+  const hasSecondNav = navGroups.some((group) => group.items.length > 0);
+
+  const currentProject = page.props.auth?.currentProject;
+  const serversCount = currentProject?.servers_count;
+  const sitesCount = currentProject?.sites_count;
+
+  const mainNavItems: NavItem[] = [
+    {
+      title: 'Overview',
+      href: "/overview",
+      onlyActivePath: "/overview",
+      icon: LayoutDashboardIcon,
+    },
+    {
+      title: 'Servers',
+      href: "/servers",
+      icon: ServerIcon,
+      badge: serversCount,
+      flyoutContent: <RecentServersFlyout />,
+    },
+    {
+      title: 'Sites',
+      href: withQuery("/sites", { project: 'all' }),
+      onlyActivePath: "/sites",
+      icon: MousePointerClickIcon,
+      badge: sitesCount,
+      flyoutContent: <RecentSitesNavFlyout />,
+    },
+    {
+      title: 'Users',
+      href: "/admin/users",
+      onlyActivePath: "/admin/users",
+      icon: UsersIcon,
+      hidden: !page.props.auth.user?.is_admin,
+    },
+    {
+      title: 'Projects',
+      href: "/settings/projects",
+      onlyActivePath: "/settings/projects",
+      icon: ListIcon,
+    },
+    {
+      title: 'Settings',
+      href: "/settings",
+      icon: CogIcon,
+    },
+  ];
+
+  const pathname = page.url.split('?')[0];
+  const activePrimaryHref = mainNavItems
+    .filter((item) => {
+      const path = item.href.split('?')[0];
+      return !item.hidden && (pathname === path || pathname.startsWith(`${path}/`));
+    })
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
+  return (
+    <Sidebar
+      id="app-navigation"
+      collapsible={hasSecondNav ? 'primary' : 'icon'}
+      className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+    >
+      <Sidebar
+        collapsible="none"
+        className={cn(
+          'h-auto border-r transition-[width] duration-200 ease-linear md:w-(--primary-sidebar-width)! md:group-data-[state=collapsed]:w-[calc(var(--sidebar-width-icon)_+_1px)]!',
+          secondNavOpen ? 'w-[calc(var(--sidebar-width-icon)_+_1px)]!' : 'w-full!',
+        )}
+      >
+        <SidebarHeader className="min-h-10 justify-center border-b px-2.5 group-data-[state=collapsed]:px-1.5">
+          <div className="flex items-center justify-between gap-2 group-data-[state=collapsed]:justify-center">
+            <Link
+              href={"/overview"}
+              prefetch
+              className="flex min-w-0 items-center gap-2 group-data-[state=collapsed]:hidden"
+              aria-label={`Pure ${page.props.version}`}
+            >
+              <AppLogo />
+            </Link>
+            <div className="flex shrink-0 items-center gap-1">
+              {hasSecondNav && !secondNavOpen && onSecondNavOpenChange && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 group-data-[state=collapsed]:hidden"
+                  aria-label="Show contextual navigation"
+                  aria-controls="context-navigation"
+                  aria-expanded={false}
+                  onClick={() => onSecondNavOpenChange(true)}
+                >
+                  <PanelLeftOpenIcon />
+                </Button>
+              )}
+              <SidebarTrigger aria-label="Toggle main navigation" aria-controls="app-navigation" />
+            </div>
+          </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent className="md:px-0">
-              <SidebarMenu>
+              <SidebarMenu className="group-data-[state=collapsed]:items-center">
                 {mainNavItems.map((item) => (
-                  <SidebarMenuItem key={`${item.title}-${item.href}`}>
+                  <SidebarMenuItem
+                    key={`${item.title}-${item.href}`}
+                    className="group-data-[state=collapsed]:flex group-data-[state=collapsed]:justify-center"
+                  >
                     <SidebarMenuButton
                       asChild
-                      isActive={item.onlyActivePath ? window.location.href === item.href : window.location.href.startsWith(item.href)}
-                      tooltip={{ children: item.title, hidden: false }}
+                      isActive={item.href === activePrimaryHref}
+                      tooltip={item.title}
+                      hidden={item.hidden}
+                      className="group-data-[state=collapsed]:size-8! group-data-[state=collapsed]:p-2! group-data-[state=collapsed]:justify-center"
                     >
                       {item.external ? (
                         <a href={item.href} target="_blank">
                           {item.icon && <item.icon />}
-                          <span>{item.title}</span>
+                          <span className="group-data-[state=collapsed]:hidden">{item.title}</span>
                         </a>
                       ) : (
-                        <Link href={item.href} prefetch>
+                        <Link href={item.href}>
                           {item.icon && <item.icon />}
-                          <span>{item.title}</span>
+                          <span className="group-data-[state=collapsed]:hidden">{item.title}</span>
                         </Link>
                       )}
                     </SidebarMenuButton>
@@ -121,48 +224,75 @@ export function AppSidebar({ secondNavItems, secondNavTitle }: { secondNavItems?
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="hidden md:flex">
-          <SidebarMenu>
-            {footerNavItems.map((item) => (
-              <SidebarMenuItem key={`${item.title}-${item.href}`}>
-                <SidebarMenuButton asChild tooltip={{ children: item.title, hidden: false }}>
-                  <a href={item.href} target="_blank" rel="noopener noreferrer">
-                    {item.icon && <Icon iconNode={item.icon} />}
-                    <span className="sr-only">{item.title}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
           <NavUser />
         </SidebarFooter>
       </Sidebar>
 
-      {/* This is the second sidebar */}
-      {/* We enable collapsible and adjust width to icon. */}
-      {/* This will make the sidebar appear as icons. */}
-      {secondNavItems && secondNavItems.length > 0 && (
-        <Sidebar collapsible="none" className="flex flex-1">
-          <SidebarHeader className="hidden h-12 border-b p-0 md:flex">
-            <div className="flex h-full items-center p-2">
-              <span className="max-w-[200px] truncate overflow-ellipsis">{secondNavTitle}</span>
+      {}
+      {}
+      {}
+      {hasSecondNav && (
+        <Sidebar
+          id="context-navigation"
+          collapsible="none"
+          aria-hidden={!secondNavOpen}
+          className={cn('w-auto flex-1 min-w-0', !secondNavOpen && 'hidden')}
+        >
+          <SidebarHeader className="min-h-10 justify-center border-b px-2.5 py-1.5">
+            <div className="flex min-w-0 items-center justify-between gap-2">
+              {secondNavTitle && (
+                <div className="min-w-0">
+                  {secondNavSubtitle && (
+                    <span className="text-muted-foreground block text-[9px] font-medium tracking-wider uppercase">{secondNavSubtitle}</span>
+                  )}
+                  <span className="truncate text-xs font-semibold" title={secondNavTitle}>
+                    {secondNavTitle}
+                  </span>
+                </div>
+              )}
+              {onSecondNavOpenChange && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0"
+                  aria-label="Hide contextual navigation"
+                  aria-controls="context-navigation"
+                  aria-expanded={secondNavOpen}
+                  onClick={() => onSecondNavOpenChange(false)}
+                >
+                  <PanelLeftCloseIcon />
+                </Button>
+              )}
             </div>
           </SidebarHeader>
           <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {secondNavItems.map((item) => {
-                    const isActive = item.onlyActivePath ? window.location.href === item.href : window.location.href.startsWith(item.href);
+            {navGroups.map((navGroup) => (
+              <SidebarGroup key={navGroup.title || 'navigation'}>
+                {navGroup.title && <SidebarGroupLabel>{navGroup.title}</SidebarGroupLabel>}
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {navGroup.items.map((item) => {
+                    const isActive = item.onlyActivePath ? currentPath() === item.onlyActivePath : (window.location.pathname + window.location.search).startsWith(item.href);
 
                     if (item.children && item.children.length > 0) {
+                      const groupActive =
+                        isActive ||
+                        item.children.some((childItem) =>
+                          childItem.hidden
+                            ? false
+                            : childItem.onlyActivePath
+                              ? currentPath() === childItem.onlyActivePath
+                              : (window.location.pathname + window.location.search).startsWith(childItem.href),
+                        );
+
                       return (
-                        <Collapsible key={`${item.title}-${item.href}`} defaultOpen={isActive} className="group/collapsible">
+                        <Collapsible key={`${item.title}-${item.href}-${groupActive}`} defaultOpen={groupActive} className="group/collapsible">
                           <SidebarMenuItem>
                             <CollapsibleTrigger asChild>
-                              <SidebarMenuButton disabled={item.isDisabled || false} hidden={item.hidden}>
+                              <SidebarMenuButton isActive={groupActive} disabled={item.isDisabled || false} hidden={item.hidden}>
                                 {item.icon && <item.icon />}
-                                <span>{item.title}</span>
-                                <ChevronRightIcon className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                                <span className="truncate">{item.title}</span>
+                                <ChevronRightIcon className="ml-auto size-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                               </SidebarMenuButton>
                             </CollapsibleTrigger>
                             <CollapsibleContent>
@@ -173,19 +303,19 @@ export function AppSidebar({ secondNavItems, secondNavTitle }: { secondNavItems?
                                       asChild
                                       isActive={
                                         childItem.onlyActivePath
-                                          ? window.location.href === childItem.href
-                                          : window.location.href.startsWith(childItem.href)
+                                          ? currentPath() === childItem.onlyActivePath
+                                          : (window.location.pathname + window.location.search).startsWith(childItem.href)
                                       }
                                     >
                                       {childItem.external ? (
                                         <a href={childItem.href} target="_blank">
                                           {childItem.icon && <childItem.icon />}
-                                          <span>{childItem.title}</span>
+                                          <span className="truncate">{childItem.title}</span>
                                         </a>
                                       ) : (
-                                        <Link href={childItem.href} prefetch>
+                                        <Link href={childItem.href}>
                                           {childItem.icon && <childItem.icon />}
-                                          <span>{childItem.title}</span>
+                                          <span className="truncate">{childItem.title}</span>
                                         </Link>
                                       )}
                                     </SidebarMenuButton>
@@ -198,27 +328,78 @@ export function AppSidebar({ secondNavItems, secondNavTitle }: { secondNavItems?
                       );
                     }
 
+                    if (item.flyoutContent) {
+                      return (
+                        <SidebarMenuItem key={`${item.title}-${item.href}`} hidden={item.hidden}>
+                          <NavFlyout content={item.flyoutContent}>
+                            <SidebarMenuButton isActive={isActive} asChild>
+                              {item.external ? (
+                                <a href={item.href} target="_blank" className="flex items-center w-full">
+                                  {item.icon && <item.icon />}
+                                  <span className="truncate">{item.title}</span>
+                                  {item.badge !== undefined && (
+                                    <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </a>
+                              ) : (
+                                <Link
+                                  href={item.isDisabled ? '#' : item.href}
+                                  disabled={item.isDisabled || false}
+                                  className={cn('flex items-center w-full', item.isDisabled && 'pointer-events-none opacity-50')}
+                                >
+                                  {item.icon && <item.icon />}
+                                  <span className="truncate">{item.title}</span>
+                                  {item.badge !== undefined && (
+                                    <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </Link>
+                              )}
+                            </SidebarMenuButton>
+                          </NavFlyout>
+                        </SidebarMenuItem>
+                      );
+                    }
+
                     return (
                       <SidebarMenuItem key={`${item.title}-${item.href}`} hidden={item.hidden}>
-                        <SidebarMenuButton isActive={isActive} disabled={item.isDisabled || false} asChild>
+                        <SidebarMenuButton isActive={isActive} asChild>
                           {item.external ? (
-                            <a href={item.href} target="_blank">
+                            <a href={item.href} target="_blank" className="flex items-center w-full">
                               {item.icon && <item.icon />}
-                              <span>{item.title}</span>
+                              <span className="truncate">{item.title}</span>
+                              {item.badge !== undefined && (
+                                <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
+                                  {item.badge}
+                                </span>
+                              )}
                             </a>
                           ) : (
-                            <Link href={item.href} disabled={item.isDisabled || false}>
+                            <Link
+                              href={item.isDisabled ? '#' : item.href}
+                              disabled={item.isDisabled || false}
+                              className={cn('flex items-center w-full', item.isDisabled && 'pointer-events-none opacity-50')}
+                            >
                               {item.icon && <item.icon />}
-                              <span>{item.title}</span>
+                              <span className="truncate">{item.title}</span>
+                              {item.badge !== undefined && (
+                                <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
+                                  {item.badge}
+                                </span>
+                              )}
                             </Link>
                           )}
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
           </SidebarContent>
         </Sidebar>
       )}

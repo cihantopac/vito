@@ -3,14 +3,18 @@ import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { DataTable } from '@/components/data-table';
+import { VitoTable } from '@/components/vito-table';
 import { SshKey } from '@/types/ssh-key';
-import { columns } from '@/pages/ssh-keys/components/columns';
 import AddSshKey from '@/pages/ssh-keys/components/add-ssh-key';
-import { PaginatedData } from '@/types';
+import Delete from '@/pages/ssh-keys/components/delete';
+import { TableActionTrigger } from '@/components/table-action-trigger';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PlusIcon } from 'lucide-react';
+import type { InertiaTableData, Row } from '@forjedio/inertia-table-react';
+import { asRow } from '@/lib/inertia-table';
 
 type Page = {
-  sshKeys: PaginatedData<SshKey>;
+  sshKeys: InertiaTableData;
 };
 
 export default function SshKeys() {
@@ -19,17 +23,34 @@ export default function SshKeys() {
   return (
     <SettingsLayout>
       <Head title="SSH Keys" />
-      <Container className="max-w-5xl">
+      <Container>
         <div className="flex items-start justify-between">
-          <Heading title="SSH Keys" description="Here you can manage all of your ssh keys" />
+          <Heading title="SSH Keys" />
           <div className="flex items-center gap-2">
             <AddSshKey>
-              <Button>Add</Button>
+              <Button>
+                <PlusIcon />
+                Add
+              </Button>
             </AddSshKey>
           </div>
         </div>
 
-        <DataTable columns={columns} paginatedData={page.props.sshKeys} />
+        <VitoTable
+          tableData={page.props.sshKeys}
+          actions={(row: Row) => (
+            <div className="flex items-center gap-2">
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <TableActionTrigger />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <Delete sshKey={asRow<SshKey>(row, ['id', 'name'])} />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        />
       </Container>
     </SettingsLayout>
   );

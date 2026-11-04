@@ -2,16 +2,12 @@
 
 namespace App\Http\Resources;
 
-use App\Models\BackupFile;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin BackupFile */
 class BackupFileResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function toArray(Request $request): array
     {
         return [
@@ -21,10 +17,17 @@ class BackupFileResource extends JsonResource
             'server_id' => $this->backup->server_id,
             'name' => $this->name,
             'size' => $this->size,
+            'progress' => $this->progress,
+            'type' => $this->type,
+            'host_server_id' => $this->getAttribute('server_id'),
+            'host_server_name' => $this->server?->name,
+            'database_engine' => $this->database_engine,
+            'database_version' => $this->database_version,
             'restored_to' => $this->restored_to,
             'restored_at' => $this->restored_at,
-            'status' => $this->status,
-            'status_color' => BackupFile::$statusColors[$this->status] ?? 'outline',
+            'status' => $this->status->getText(),
+            'status_color' => $this->status->getColor(),
+            'message' => $this->message,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

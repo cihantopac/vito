@@ -2,13 +2,17 @@
 
 namespace App\Services\Redis;
 
-use App\Exceptions\ServiceInstallationFailed;
-use App\Exceptions\SSHError;
+use App\DTOs\ServiceLog;
 use App\Services\AbstractService;
+use App\Services\HasLogs;
+use App\Services\ManagesMemoryDatabaseNetworking;
+use App\Services\SupportsNetworkingSecret;
 use Closure;
 
-class Redis extends AbstractService
+class Redis extends AbstractService implements HasLogs, SupportsNetworkingSecret
 {
+    use ManagesMemoryDatabaseNetworking;
+
     public static function id(): string
     {
         return 'redis';
@@ -21,7 +25,7 @@ class Redis extends AbstractService
 
     public function unit(): string
     {
-        return 'redis';
+        return 'redis-server';
     }
 
     public function creationRules(array $input): array
@@ -39,25 +43,22 @@ class Redis extends AbstractService
         ];
     }
 
-    /**
-     * @throws ServiceInstallationFailed
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
-        $this->service->server->ssh()->exec(
-            view('ssh.services.redis.install'),
-            'install-redis'
-        );
+        $this->service->server->ssh()
+            ->setLog($this->service->log)
+            ->exec(
+                view('ssh.services.redis.install'),
+                'install-redis'
+            );
         $status = $this->service->server->systemd()->status($this->unit());
         $this->service->validateInstall($status);
         event('service.installed', $this->service);
         $this->service->server->os()->cleanup();
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function uninstall(): void
     {
         $this->service->server->ssh()->exec(
@@ -68,8 +69,21 @@ class Redis extends AbstractService
         $this->service->server->os()->cleanup();
     }
 
-    public function version(): string
+    public function versionCommand(): ?string
     {
-        return $this->service->server->ssh()->exec('redis-server --version | awk \'{print $3}\' | cut -d= -f2');
+        return 'redis-server --version | awk \'{print $3}\' | cut -d= -f2';
+    }
+
+    public function logs(): array
+    {
+        return [
+            new ServiceLog(
+                key: 'redis:journal',
+                serviceLabel: 'Redis',
+                label: 'Service journal',
+                source: ServiceLog::SOURCE_JOURNAL,
+                target: 'redis-server.service',
+            ),
+        ];
     }
 }

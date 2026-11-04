@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\SshKey\CreateSshKey;
 use App\Http\Resources\SshKeyResource;
 use App\Models\SshKey;
+use App\Tables\SshKeyTable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -20,13 +21,14 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth'])]
 class SshKeyController extends Controller
 {
+
     #[Get('/', name: 'ssh-keys')]
     public function index(): Response
     {
         $this->authorize('viewAny', SshKey::class);
 
         return Inertia::render('ssh-keys/index', [
-            'sshKeys' => SshKeyResource::collection(user()->sshKeys()->simplePaginate(config('web.pagination_size'))),
+            'sshKeys' => SshKeyTable::make(user()->sshKeys())->simplePaginate(),
         ]);
     }
 

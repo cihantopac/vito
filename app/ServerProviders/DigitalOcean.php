@@ -2,6 +2,9 @@
 
 namespace App\ServerProviders;
 
+use App\DTOs\PrivateNetworkDTO;
+use App\DTOs\PrivateNetworkMemberDTO;
+use App\Enums\OperatingSystem;
 use App\Exceptions\CouldNotConnectToProvider;
 use App\Exceptions\ServerProviderError;
 use App\Facades\Notifier;
@@ -10,13 +13,122 @@ use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class DigitalOcean extends AbstractProvider
+class DigitalOcean extends AbstractProvider implements ProvidesPrivateNetworks
 {
     protected string $apiUrl = 'https://api.digitalocean.com/v2';
+
+    private const MAX_PAGES = 100;
 
     public static function id(): string
     {
         return 'digitalocean';
+    }
+
+    public function instanceIdKey(): string
+    {
+        return 'droplet_id';
+    }
+
+    public function privateNetworks(array $instanceIds, array $regions): array
+    {
+        return $this->mapPrivateNetworks(
+            $this->fetchAll('/vpcs', 'vpcs'),
+            $this->fetchAll('/droplets', 'droplets'),
+            $instanceIds,
+        );
+    }
+
+    
+    private function mapPrivateNetworks(array $vpcs, array $droplets, array $instanceIds): array
+    {
+        $wanted = array_flip($instanceIds);
+        $members = [];
+
+        foreach ($droplets as $droplet) {
+            $dropletId = (string) ($droplet['id'] ?? '');
+            $vpcId = $droplet['vpc_uuid'] ?? null;
+
+            if (! isset($wanted[$dropletId]) || ! is_string($vpcId) || $vpcId === '') {
+                continue;
+            }
+
+            $ip = null;
+
+            foreach ($droplet['networks']['v4'] ?? [] as $address) {
+                if (($address['type'] ?? null) === 'private' && isset($address['ip_address'])) {
+                    $ip = (string) $address['ip_address'];
+
+                    break;
+                }
+            }
+
+            $members[$vpcId][] = new PrivateNetworkMemberDTO(instanceId: $dropletId, ip: $ip);
+        }
+
+        $result = [];
+
+        foreach ($vpcs as $vpc) {
+            $vpcId = (string) ($vpc['id'] ?? '');
+
+            if (! isset($members[$vpcId])) {
+                continue;
+            }
+
+            $result[] = new PrivateNetworkDTO(
+                externalId: $vpcId,
+                name: (string) ($vpc['name'] ?? $vpcId),
+                cidr: isset($vpc['ip_range']) ? (string) $vpc['ip_range'] : null,
+                region: isset($vpc['region']) ? (string) $vpc['region'] : null,
+                members: $members[$vpcId],
+            );
+        }
+
+        return $result;
+    }
+
+    
+    private function fetchAll(string $path, string $key): array
+    {
+        $token = $this->serverProvider->getCredentials()['token'];
+        $items = [];
+        $page = 1;
+
+        do {
+            try {
+                $response = Http::withToken($token)->get($this->apiUrl.$path, [
+                    'per_page' => 200,
+                    'page' => $page,
+                ]);
+            } catch (Exception) {
+                throw $this->syncError();
+            }
+
+            if (! $response->ok()) {
+                throw $this->syncError($response->status());
+            }
+
+            $body = $response->json();
+
+            if (! is_array($body) || ! is_array($body[$key] ?? null)) {
+                throw $this->syncError($response->status());
+            }
+
+            
+            $batch = $body[$key];
+            $items = array_merge($items, $batch);
+
+            if (! isset($body['links']['pages']['next'])) {
+                break;
+            }
+
+            if ($page >= self::MAX_PAGES) {
+                throw $this->syncError();
+            }
+
+            $page++;
+        } while (true);
+
+        return $items;
     }
 
     public function createRules(array $input): array
@@ -49,9 +161,7 @@ class DigitalOcean extends AbstractProvider
         ];
     }
 
-    /**
-     * @throws CouldNotConnectToProvider
-     */
+    
     public function connect(array $credentials): bool
     {
         try {
@@ -67,26 +177,45 @@ class DigitalOcean extends AbstractProvider
         return true;
     }
 
+    
     public function plans(?string $region): array
     {
         try {
-            /** @var array<string, mixed> $plans */
+            
             $plans = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/sizes', ['per_page' => 200])
                 ->json();
 
-            /** @var array<int, array{slug: string, description: string, vcpus: int, memory: int, disk: int, regions: array<string>}> $sizes */
+            
             $sizes = $plans['sizes'] ?? [];
 
             return collect($sizes)
-                ->filter(fn (array $size): bool => in_array($region, $size['regions']))
-                ->mapWithKeys(fn (array $value): array => [
-                    $value['slug'] => __('server_providers.plan', [
-                        'name' => $value['description'],
-                        'cpu' => $value['vcpus'],
-                        'memory' => $value['memory'],
-                        'disk' => $value['disk'],
-                    ]),
+                ->map(function (array $size) use ($region): array {
+                    $available = (bool) $size['available'] && in_array($region, $size['regions'], true);
+
+                    $label = __('server_providers.plan', [
+                        'name' => $size['description'],
+                        'cpu' => $size['vcpus'],
+                        'memory' => $size['memory'],
+                        'disk' => $size['disk'],
+                    ]);
+
+                    if ($available) {
+                        $label .= ' ('.number_format((float) $size['price_monthly'], 2).'/mo)';
+                    }
+
+                    return [
+                        'slug' => $size['slug'],
+                        'label' => $label,
+                        'available' => $available,
+                    ];
+                })
+                ->sortByDesc('available')
+                ->mapWithKeys(fn (array $plan): array => [
+                    $plan['slug'] => [
+                        'label' => $plan['label'],
+                        'available' => $plan['available'],
+                    ],
                 ])
                 ->toArray();
         } catch (Exception) {
@@ -97,12 +226,12 @@ class DigitalOcean extends AbstractProvider
     public function regions(): array
     {
         try {
-            /** @var array{regions?: array<int, array{slug: string, name: string, available: bool}>} $regions */
+            
             $regions = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/regions', ['per_page' => 200])
                 ->json();
 
-            $regionsList = $regions['regions'] ?? []; // Ensure it's always an array
+            $regionsList = $regions['regions'] ?? []; 
 
             return collect($regionsList)
                 ->where('available', true)
@@ -113,9 +242,7 @@ class DigitalOcean extends AbstractProvider
         }
     }
 
-    /**
-     * @throws ServerProviderError
-     */
+    
     public function create(): void
     {
         $this->generateKeyPair();
@@ -192,27 +319,57 @@ class DigitalOcean extends AbstractProvider
         return $status->json()['droplet']['status'] == 'active';
     }
 
-    /**
-     * @throws Exception
-     */
+    public function canPowerManage(): bool
+    {
+        return ! empty($this->server->provider_data['droplet_id']) && ! empty($this->server->serverProvider?->credentials['token']);
+    }
+
+    
+    public function stop(): void
+    {
+        $this->powerAction('power_off');
+    }
+
+    
+    public function start(): void
+    {
+        $this->powerAction('power_on');
+    }
+
+    
+    private function powerAction(string $type): void
+    {
+        if (! isset($this->server->provider_data['droplet_id'])) {
+            return;
+        }
+
+        $response = Http::withToken($this->server->serverProvider->credentials['token'])
+            ->post($this->apiUrl.'/droplets/'.$this->server->provider_data['droplet_id'].'/actions', [
+                'type' => $type,
+            ]);
+
+        if (! $response->successful()) {
+            throw new ServerProviderError($response->json('message') ?? __('DigitalOcean request failed with status :status', ['status' => $response->status()]));
+        }
+    }
+
+    
     public function delete(): void
     {
         if (isset($this->server->provider_data['droplet_id'])) {
             $delete = Http::withToken($this->server->serverProvider->credentials['token'])
                 ->delete($this->apiUrl.'/droplets/'.$this->server->provider_data['droplet_id']);
 
-            if (! $delete->ok()) {
+            if (! $delete->successful()) {
                 Notifier::send($this->server, new FailedToDeleteServerFromProvider($this->server));
             }
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    private function getImageId(string $os, string $region): int
+    
+    private function getImageId(OperatingSystem $os, string $region): int
     {
-        $version = config('core.operating_system_versions.'.$os);
+        $version = $os->getVersion();
 
         try {
             $result = Http::withToken($this->serverProvider->credentials['token'])
@@ -222,17 +379,17 @@ class DigitalOcean extends AbstractProvider
                 ])
                 ->json();
 
-            /** @var array<int, array{ id: int, name: string, distribution: string, status: string, regions: array<string> }> $images */
-            $images = $result['images'] ?? []; // Ensure $images is an array
+            
+            $images = $result['images'] ?? []; 
 
             $image = collect($images)
-                ->filter(fn (array $image): bool => in_array($region, $image['regions']) && str_contains($image['name'], (string) $version)
+                ->filter(fn (array $image): bool => in_array($region, $image['regions']) && str_contains($image['name'], $version)
                 )
                 ->where('distribution', 'Ubuntu')
                 ->where('status', 'available')
                 ->first();
 
-            return $image['id'] ?? 0; // Handle the case where first() returns null
+            return $image['id'] ?? 0; 
         } catch (Exception) {
             throw new Exception('Could not find image ID');
         }

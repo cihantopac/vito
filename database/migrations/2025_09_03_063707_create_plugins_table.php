@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
         Schema::create('plugins', function (Blueprint $table) {
@@ -25,13 +23,11 @@ return new class extends Migration
             $table->boolean('updates_available')->default(false);
             $table->timestamps();
 
-            $table->index(['is_enabled', 'priority']);
+            $table->index(['is_enabled']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('plugins');

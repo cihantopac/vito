@@ -7,10 +7,7 @@ use InvalidArgumentException;
 
 class RegisterServiceType
 {
-    /**
-     * @param  array<string>  $versions
-     * @param  array<string, mixed>  $data
-     */
+    
     public function __construct(
         private string $name,
         private string $type = '',
@@ -19,7 +16,8 @@ class RegisterServiceType
         private string $handler = '',
         private ?DynamicForm $form = null,
         private array $versions = ['latest'],
-        private array $data = []
+        private array $data = [],
+        private array $configPaths = []
     ) {}
 
     public static function make(string $name): self
@@ -69,9 +67,7 @@ class RegisterServiceType
         return $this;
     }
 
-    /**
-     * @param  array<string>  $versions
-     */
+    
     public function versions(array $versions): self
     {
         $this->versions = $versions;
@@ -79,12 +75,18 @@ class RegisterServiceType
         return $this;
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
+    
     public function data(array $data): self
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    
+    public function configPaths(array $configPaths): self
+    {
+        $this->configPaths = $configPaths;
 
         return $this;
     }
@@ -105,6 +107,7 @@ class RegisterServiceType
             'form' => $this->form ? $this->form->toArray() : [],
             'versions' => $this->versions,
             'data' => $this->data,
+            'config_paths' => $this->configPaths,
         ];
 
         config(['service.services' => $types]);

@@ -2,19 +2,31 @@
 
 namespace App\Enums;
 
-final class CronjobStatus
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+
+enum CronjobStatus: string implements VitoEnum
 {
-    const string CREATING = 'creating';
+    use TextIsValue;
 
-    const string READY = 'ready';
+    case CREATING = 'creating';
+    case READY = 'ready';
+    case DELETING = 'deleting';
+    case ENABLING = 'enabling';
+    case DISABLING = 'disabling';
+    case UPDATING = 'updating';
+    case DISABLED = 'disabled';
 
-    const string DELETING = 'deleting';
-
-    const string ENABLING = 'enabling';
-
-    const string DISABLING = 'disabling';
-
-    const string UPDATING = 'updating';
-
-    const string DISABLED = 'disabled';
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::CREATING,
+            self::ENABLING,
+            self::UPDATING,
+            self::DISABLING => 'warning',
+            self::READY => 'success',
+            self::DELETING => 'danger',
+            self::DISABLED => 'gray',
+        };
+    }
 }

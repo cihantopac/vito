@@ -3,25 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Site\Deploy;
+use App\Actions\Site\GenerateAppKey;
+use App\Actions\Site\GetEnv;
+use App\Actions\Site\GetSiteOverview;
+use App\Actions\Site\ParseEnv;
 use App\Actions\Site\Rollback;
+use App\Actions\Site\StringifyEnv;
 use App\Actions\Site\UpdateDeploymentScript;
 use App\Actions\Site\UpdateEnv;
 use App\Actions\Site\UpdateLoadBalancer;
-use App\Exceptions\DeploymentScriptIsEmptyException;
-use App\Exceptions\FailedToDestroyGitHook;
-use App\Exceptions\SourceControlIsNotConnected;
-use App\Exceptions\SSHError;
-use App\Http\Resources\DeploymentResource;
+use App\Enums\DeploymentStatus;
+use App\Enums\EnvVersionSource;
 use App\Http\Resources\DeploymentScriptResource;
+use App\Http\Resources\EnvVersionResource;
+use App\Http\Resources\DeploymentResource;
+use App\Http\Resources\CronJobResource;
 use App\Http\Resources\LoadBalancerServerResource;
-use App\Http\Resources\ServerLogResource;
+use App\Http\Resources\WorkerResource;
+use App\Actions\Domain\ToggleDomainProxy;
 use App\Models\Deployment;
 use App\Models\DeploymentScript;
+use App\Models\EnvVersion;
 use App\Models\Server;
 use App\Models\Site;
+use App\SiteTypes\AbstractProxiedSiteType;
+use App\Tables\DeploymentTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Delete;
@@ -30,29 +40,139 @@ use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 use Spatie\RouteAttributes\Attributes\Put;
+use Spatie\RouteAttributes\Attributes\Where;
 
 #[Prefix('/servers/{server}/sites/{site}')]
 #[Middleware(['auth', 'has-project'])]
+#[Where('site', '[0-9]+')]
 class ApplicationController extends Controller
 {
+
     #[Get('/', name: 'application')]
     public function index(Server $server, Site $site): Response
     {
         $this->authorize('view', [$site, $server]);
 
-        $site->ensureDeploymentScriptsExist();
+        $scriptsEnsured = false;
+        $ensureScripts = function () use ($server, $site, &$scriptsEnsured): void {
+            if (! $scriptsEnsured && $server->isReady()) {
+                $site->ensureDeploymentScriptsExist();
+                $scriptsEnsured = true;
+            }
+        };
 
-        $deploymentScript = $site->deploymentScript;
-        $buildScript = $site->buildScript;
-        $preFlightScript = $site->preFlightScript;
+        $overview = null;
+        $getOverview = function () use ($site, &$overview): array {
+            return $overview ??= app(GetSiteOverview::class)->get($site);
+        };
 
         return Inertia::render('application/index', [
-            'logs' => ServerLogResource::collection($site->logs()->latest()->simplePaginate(config('web.pagination_size'))),
-            'deployments' => DeploymentResource::collection($site->deployments()->latest()->simplePaginate(config('web.pagination_size'))),
-            'deploymentScript' => new DeploymentScriptResource($deploymentScript),
-            'buildScript' => $buildScript ? new DeploymentScriptResource($buildScript) : null,
-            'preFlightScript' => $preFlightScript ? new DeploymentScriptResource($preFlightScript) : null,
-            'loadBalancerServers' => LoadBalancerServerResource::collection($site->loadBalancerServers),
+            'activeDeployment' => function () use ($site, $ensureScripts): ?DeploymentResource {
+                $activeDeployment = $site->deployments()
+                    ->where('status', DeploymentStatus::DEPLOYING)
+                    ->with('log', 'user', 'deploymentScript')
+                    ->latest('id')
+                    ->first();
+
+                if (! $activeDeployment) {
+                    return null;
+                }
+
+                $ensureScripts();
+                $activeDeployment->setRelation('site', $site);
+
+                return new DeploymentResource($activeDeployment);
+            },
+            'deployments' => Inertia::defer(fn () => DeploymentTable::make($site->deployments())->overview(), 'deployments'),
+            'deploymentScript' => Inertia::defer(function () use ($site, $ensureScripts): ?DeploymentScriptResource {
+                $ensureScripts();
+
+                return $site->deploymentScript ? new DeploymentScriptResource($site->deploymentScript) : null;
+            }, 'deployments'),
+            'buildScript' => Inertia::defer(function () use ($site, $ensureScripts): ?DeploymentScriptResource {
+                $ensureScripts();
+
+                return $site->buildScript ? new DeploymentScriptResource($site->buildScript) : null;
+            }, 'deployments'),
+            'preFlightScript' => Inertia::defer(function () use ($site, $ensureScripts): ?DeploymentScriptResource {
+                $ensureScripts();
+
+                return $site->preFlightScript ? new DeploymentScriptResource($site->preFlightScript) : null;
+            }, 'deployments'),
+            'loadBalancerServers' => fn () => $site->type === 'load-balancer'
+                ? LoadBalancerServerResource::collection($site->loadBalancerServers)
+                : [],
+            'worker' => Inertia::defer(function () use ($site) {
+                $type = $site->typeOrNull();
+                return $type instanceof AbstractProxiedSiteType && $type->bootstrapWorker()
+                    ? new WorkerResource($type->bootstrapWorker())
+                    : null;
+            }, 'deployments'),
+            'overviewWorkers' => Inertia::defer(fn () => WorkerResource::collection($getOverview()['workers']), 'overview'),
+            'overviewWorkersCount' => Inertia::defer(fn () => $getOverview()['workers_count'], 'overview'),
+            'overviewCronJobs' => Inertia::defer(fn () => CronJobResource::collection($getOverview()['cron_jobs']), 'overview'),
+            'overviewCronJobsCount' => Inertia::defer(fn () => $getOverview()['cron_jobs_count'], 'overview'),
+        ]);
+    }
+
+    #[Post('/toggle-domain-proxy', name: 'sites.toggle-domain-proxy')]
+    public function toggleDomainProxy(Request $request, Server $server, Site $site): RedirectResponse
+    {
+        $this->authorize('update', [$site, $server]);
+
+        $request->validate([
+            'domain' => ['required', 'string'],
+            'proxied' => ['nullable', 'boolean'],
+        ]);
+
+        app(ToggleDomainProxy::class)->toggle(
+            $site,
+            $request->input('domain'),
+            $request->has('proxied') ? $request->boolean('proxied') : null
+        );
+
+        return back()->with('success', 'Domain Cloudflare proxy status updated.');
+    }
+
+    #[Get('/deployments', name: 'application.deployments.index')]
+    public function deployments(Server $server, Site $site): Response
+    {
+        $this->authorize('view', [$site, $server]);
+
+        return Inertia::render('application/deployments/index', [
+            'deployments' => DeploymentTable::make($site->deployments())->paginate(),
+            'activeDeployment' => function () use ($site): ?DeploymentResource {
+                $activeDeployment = $site->deployments()
+                    ->where('status', DeploymentStatus::DEPLOYING)
+                    ->with('log', 'user', 'deploymentScript')
+                    ->latest('id')
+                    ->first();
+
+                if (! $activeDeployment) {
+                    return null;
+                }
+
+                $activeDeployment->setRelation('site', $site);
+
+                return new DeploymentResource($activeDeployment);
+            },
+        ]);
+    }
+
+    #[Get('/deployments/{deployment}', name: 'application.deployments.show')]
+    public function showDeployment(Server $server, Site $site, Deployment $deployment): Response
+    {
+        $this->authorize('view', [$site, $server]);
+
+        if ($deployment->site_id !== $site->id) {
+            abort(404);
+        }
+
+        $deployment->load('log', 'user', 'rolledBackBy', 'deploymentScript');
+        $deployment->setRelation('site', $site);
+
+        return Inertia::render('application/deployments/show', [
+            'deployment' => new DeploymentResource($deployment),
         ]);
     }
 
@@ -61,26 +181,31 @@ class ApplicationController extends Controller
     {
         $this->authorize('update', [$site, $server]);
 
+        $deploymentScript = $site->deploymentScripts()->findOrFail($deploymentScript->id);
+
         app(UpdateDeploymentScript::class)->update($deploymentScript, $request->input());
 
         return back()->with('success', 'Deployment script updated successfully.');
     }
 
-    /**
-     * @throws DeploymentScriptIsEmptyException
-     */
+    
+
     #[Post('/deploy', name: 'application.deploy')]
-    public function deploy(Server $server, Site $site): RedirectResponse
+    public function deploy(Request $request, Server $server, Site $site): RedirectResponse
     {
         $this->authorize('update', [$site, $server]);
 
-        app(Deploy::class)->run($site);
+        $deployment = app(Deploy::class)->run($site, user: $request->user());
 
-        return back()->with('info', 'Deployment started, please wait...');
+        return redirect()->route('application.deployments.show', [
+            'server' => $server,
+            'site' => $site,
+            'deployment' => $deployment,
+        ])->with('info', 'Deployment started, please wait...');
     }
 
     #[Post('/rollback/{deployment}', name: 'application.rollback')]
-    public function rollback(Server $server, Site $site, Deployment $deployment): RedirectResponse
+    public function rollback(Request $request, Server $server, Site $site, Deployment $deployment): RedirectResponse
     {
         $this->authorize('update', [$site, $server]);
 
@@ -88,7 +213,7 @@ class ApplicationController extends Controller
             return back()->with('error', 'Invalid deployment selected for rollback.');
         }
 
-        app(Rollback::class)->run($deployment);
+        app(Rollback::class)->run($deployment, $request->user());
 
         return back()->with('info', 'Rollback started, please wait...');
     }
@@ -107,38 +232,123 @@ class ApplicationController extends Controller
         return back()->with('success', 'Deployment removed successfully.');
     }
 
+    
+
+    #[Get('/environment', name: 'application.environment')]
+    public function environment(Server $server, Site $site): Response
+    {
+        $this->authorize('view', [$site, $server]);
+
+        return Inertia::render('application/environment/index', [
+            'defaultPath' => $site->type_data['env_path'] ?? ($site->path ? "{$site->path}/.env" : null),
+        ]);
+    }
+
     #[Get('/env', name: 'application.env')]
     public function env(Request $request, Server $server, Site $site): JsonResponse
     {
         $this->authorize('view', [$site, $server]);
 
-        if ($request->input('env')) {
-            $site->jsonUpdate('type_data', 'env_path', $request->input('env'), false);
+        $input = $request->input('env');
+        $path = is_string($input) && $input !== '' ? $input : null;
+        $canReveal = $request->user()->can('revealEnv', [$site, $server]);
+
+        if ($path !== null && $path !== $site->resolveEnvPath()) {
+            $this->authorize('update', [$site, $server]);
         }
 
-        $env = $site->getEnv();
+        $data = app(GetEnv::class)->get($site, $path, $canReveal);
 
-        return response()->json([
-            'env' => $env,
-        ]);
+        return response()->json([...$data, 'can_edit' => $canReveal]);
     }
 
-    /**
-     * @throws SSHError
-     */
+    
+
+    #[Post('/env/parse', name: 'application.parse-env')]
+    public function parseEnv(Request $request, Server $server, Site $site): JsonResponse
+    {
+        $this->authorize('view', [$site, $server]);
+
+        return response()->json(app(ParseEnv::class)->parse($request->all()));
+    }
+
+    
+
+    #[Post('/env/stringify', name: 'application.stringify-env')]
+    public function stringifyEnv(Request $request, Server $server, Site $site): JsonResponse
+    {
+        $this->authorize('view', [$site, $server]);
+
+        return response()->json(app(StringifyEnv::class)->stringify($request->all()));
+    }
+
+    
+
     #[Put('/env', name: 'application.update-env')]
     public function updateEnv(Request $request, Server $server, Site $site): RedirectResponse
     {
         $this->authorize('update', [$site, $server]);
 
-        app(UpdateEnv::class)->update($site, $request->input());
+        app(UpdateEnv::class)->update($site, $request->input(), $request->user());
 
         return back()->with('success', '.env file updated successfully.');
     }
 
-    /**
-     * @throws SourceControlIsNotConnected
-     */
+    #[Post('/env/generate-key', name: 'application.env.generate-key')]
+    public function generateAppKey(Request $request, Server $server, Site $site): RedirectResponse
+    {
+        $this->authorize('update', [$site, $server]);
+
+        app(GenerateAppKey::class)->generate($site, user(), $request->boolean('only_if_missing'));
+
+        return back()->with('success', 'Application key generated successfully.');
+    }
+
+    #[Get('/env/versions', name: 'application.env-versions')]
+    public function envVersions(Request $request, Server $server, Site $site): ResourceCollection
+    {
+        $this->authorize('revealEnv', [$site, $server]);
+
+        $versions = $site->envVersions()
+            ->with('user')
+            ->where('path', $site->resolveEnvPath($request->string('path')->toString() ?: null))
+            ->latest('id')
+            ->get();
+
+        return EnvVersionResource::collection($versions);
+    }
+
+    #[Get('/env/versions/{envVersion}', name: 'application.env-versions.show')]
+    public function envVersion(Server $server, Site $site, EnvVersion $envVersion): JsonResponse
+    {
+        $this->authorize('revealEnv', [$site, $server]);
+
+        abort_if($envVersion->site_id !== $site->id, 404);
+
+        return response()->json(['content' => $envVersion->content]);
+    }
+
+    #[Post('/env/versions/{envVersion}/restore', name: 'application.env-versions.restore')]
+    public function restoreEnvVersion(Request $request, Server $server, Site $site, EnvVersion $envVersion): RedirectResponse
+    {
+        $this->authorize('update', [$site, $server]);
+        $this->authorize('revealEnv', [$site, $server]);
+
+        abort_if($envVersion->site_id !== $site->id, 404);
+
+        app(UpdateEnv::class)->update(
+            $site,
+            ['env' => $envVersion->content, 'path' => $envVersion->path],
+            $request->user(),
+            EnvVersionSource::RESTORE,
+            $envVersion,
+        );
+
+        return back()->with('success', '.env version restored successfully.');
+    }
+
+    
+
     #[Post('/enable-auto-deployment', name: 'application.enable-auto-deployment')]
     public function enableAutoDeployment(Server $server, Site $site): RedirectResponse
     {
@@ -153,10 +363,8 @@ class ApplicationController extends Controller
         return back()->with('success', 'Auto deployment enabled successfully.');
     }
 
-    /**
-     * @throws SourceControlIsNotConnected
-     * @throws FailedToDestroyGitHook
-     */
+    
+
     #[Post('/disable-auto-deployment', name: 'application.disable-auto-deployment')]
     public function disableAutoDeployment(Server $server, Site $site): RedirectResponse
     {

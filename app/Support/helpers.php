@@ -3,6 +3,8 @@
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ProcessUtils;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -11,19 +13,32 @@ use function Illuminate\Support\php_binary;
 
 function generate_public_key(string $privateKeyPath, string $publicKeyPath): void
 {
-    chmod($privateKeyPath, 0400);
-    exec("ssh-keygen -y -f {$privateKeyPath} > {$publicKeyPath}");
+    if (file_exists($privateKeyPath)) {
+        chmod($privateKeyPath, 0400);
+        exec("ssh-keygen -y -f {$privateKeyPath} > {$publicKeyPath}");
+    }
 }
 
 function generate_key_pair(string $path): void
 {
-    exec("ssh-keygen -t ed25519 -m PEM -N '' -f {$path}");
+    File::ensureDirectoryExists(dirname($path));
+
+    if (file_exists($path)) {
+        @unlink($path);
+    }
+    if (file_exists("{$path}.pub")) {
+        @unlink("{$path}.pub");
+    }
+
+    exec("ssh-keygen -t ed25519 -N '' -f {$path} -q");
+
+    if (! file_exists($path)) {
+        throw new RuntimeException('Failed to generate SSH key pair.');
+    }
+
     chmod($path, 0400);
 }
 
-/**
- * @throws Exception
- */
 function date_with_timezone(mixed $date, string $timezone): string
 {
     $dt = new DateTime('now', new DateTimeZone($timezone));
@@ -81,64 +96,61 @@ function get_public_key_content(): string
     return $content;
 }
 
-/**
- * Credit: https://gist.github.com/lorenzos/1711e81a9162320fde20
- */
 function tail(string $filepath, int $lines = 1, bool $adaptive = true): string
 {
-    // Open file
+    
     $f = @fopen($filepath, 'rb');
     if ($f === false) {
         return '';
     }
 
-    // Sets buffer size, according to the number of lines to retrieve.
-    // This gives a performance boost when reading a few lines from the file.
+    
+    
     if (! $adaptive) {
         $buffer = 4096;
     } else {
         $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
     }
 
-    // Jump to last character
+    
     fseek($f, -1, SEEK_END);
 
-    // Read it and adjust line number if necessary
-    // (Otherwise the result would be wrong if file doesn't end with a blank line)
+    
+    
     if (fread($f, 1) != "\n") {
         $lines -= 1;
     }
 
-    // Start reading
+    
     $output = '';
     $chunk = '';
 
-    // While we would like more
+    
     while (ftell($f) > 0 && $lines >= 0) {
-        // Figure out how far back we should jump
+        
         $seek = min(ftell($f), $buffer);
 
-        // Do the jump (backwards, relative to where we are)
+        
         fseek($f, -$seek, SEEK_CUR);
 
-        // Read a chunk and prepend it to our output
+        
         $output = ($chunk = fread($f, $seek)).$output;
 
-        // Jump back to where we started reading
+        
         fseek($f, -mb_strlen($chunk !== false ? $chunk : '', '8bit'), SEEK_CUR);
 
-        // Decrease our line counter
+        
         $lines -= substr_count($chunk !== false ? $chunk : '', "\n");
     }
 
-    // While we have too many lines
-    // (Because of buffer size we might have read too many)
+    
+    
     while ($lines++ < 0) {
-        // Find first newline and remove all text before that
+        
         $output = substr($output, strpos($output, "\n") + 1);
     }
 
-    // Close file and return
+    
     fclose($f);
 
     return trim($output);
@@ -170,12 +182,12 @@ function absolute_path(string $path): string
 
     foreach ($parts as $part) {
         if ($part === '' || $part === '.') {
-            continue; // Skip empty and current directory parts
+            continue; 
         }
         if ($part === '..') {
-            array_pop($absoluteParts); // Move up one directory
+            array_pop($absoluteParts); 
         } else {
-            $absoluteParts[] = $part; // Add valid directory parts
+            $absoluteParts[] = $part; 
         }
     }
 
@@ -191,45 +203,54 @@ function home_path(string $user): string
     return '/home/'.$user;
 }
 
-function format_nginx_config(string $config): string
+function format_webserver_config(string $config): string
 {
     $lines = explode("\n", trim($config));
     $indent = 0;
     $formattedLines = [];
+    $lastWasEmpty = false;
 
     foreach ($lines as $line) {
         $trimmed = trim($line);
 
-        // Preserve empty lines exactly as they are
         if ($trimmed === '') {
-            $formattedLines[] = '';
+            if (! $lastWasEmpty) {
+                $formattedLines[] = '';
+                $lastWasEmpty = true;
+            }
 
             continue;
         }
 
-        // If line is a closing brace, decrease indentation first
+        $lastWasEmpty = false;
+
         if ($trimmed === '}') {
             $indent--;
+            if (end($formattedLines) === '') {
+                array_pop($formattedLines);
+            }
         }
 
-        // Apply indentation
         $formattedLines[] = str_repeat('    ', max(0, $indent)).$trimmed;
 
-        // If line contains an opening brace, increase indentation
         if (str_ends_with($trimmed, '{')) {
             $indent++;
         }
     }
 
+    while (! empty($formattedLines) && $formattedLines[0] === '') {
+        array_shift($formattedLines);
+    }
+    while (! empty($formattedLines) && end($formattedLines) === '') {
+        array_pop($formattedLines);
+    }
+
     return implode("\n", $formattedLines)."\n";
 }
 
-function user(): User
+function user(): ?User
 {
-    /** @var User $user */
-    $user = auth()->user();
-
-    return $user;
+    return Auth::user();
 }
 
 function plugins_path(?string $path = null): string
@@ -283,18 +304,23 @@ function git_path(): ?string
 
 function move_directory(string $from, string $to): void
 {
-    // Remove any stale destination
+    
     if (File::exists($to)) {
         File::deleteDirectory($to);
     }
 
-    // Ensure parent of $to exists
+    
     File::ensureDirectoryExists(dirname($to));
 
-    // Copy + delete (works across mounts / volumes)
+    
     if (! File::copyDirectory($from, $to)) {
         throw new RuntimeException("Could not copy [$from] to [$to]");
     }
 
     File::deleteDirectory($from);
+}
+
+function is_self_hosted(): bool
+{
+    return config('app.self_hosted', true);
 }

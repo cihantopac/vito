@@ -2,15 +2,28 @@
 
 namespace App\Enums;
 
-final class ServerStatus
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+use Forjed\InertiaTable\Contracts\HasTableDisplay;
+
+enum ServerStatus: string implements HasTableDisplay, VitoEnum
 {
-    const string READY = 'ready';
+    use TextIsValue;
 
-    const string INSTALLING = 'installing';
+    case READY = 'ready';
+    case INSTALLING = 'installing';
+    case INSTALLATION_FAILED = 'installation_failed';
+    case DISCONNECTED = 'disconnected';
+    case UPDATING = 'updating';
 
-    const string INSTALLATION_FAILED = 'installation_failed';
-
-    const string DISCONNECTED = 'disconnected';
-
-    const string UPDATING = 'updating';
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::READY => 'success',
+            self::INSTALLING,
+            self::UPDATING => 'warning',
+            self::DISCONNECTED => 'gray',
+            self::INSTALLATION_FAILED => 'danger',
+        };
+    }
 }

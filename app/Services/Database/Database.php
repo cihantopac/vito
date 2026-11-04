@@ -3,22 +3,26 @@
 namespace App\Services\Database;
 
 use App\Models\BackupFile;
+use App\Models\DatabaseUser;
+use App\Models\Server;
 use App\Services\ServiceInterface;
 
 interface Database extends ServiceInterface
 {
-    public function create(string $name, string $charset, string $collation): void;
+    public function usesHost(): bool;
 
-    public function delete(string $name): void;
+    public function databaseUserExists(Server $server, string $username, string $host, ?DatabaseUser $ignore = null): bool;
+
+    public function create(string $name, string $charset, string $collation): void;
 
     public function createUser(string $username, string $password, string $host): void;
 
+    public function updateUser(string $username, string $host, ?string $newPassword = null, ?string $newHost = null): void;
+
     public function deleteUser(string $username, string $host): void;
 
-    /**
-     * @param  array<string>  $databases
-     */
-    public function link(string $username, string $host, array $databases): void;
+    
+    public function link(string $username, string $host, array $databases, string $permission = 'admin'): void;
 
     public function unlink(string $username, string $host): void;
 
@@ -26,18 +30,12 @@ interface Database extends ServiceInterface
 
     public function restoreBackup(BackupFile $backupFile, string $database): void;
 
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function getCharsets(): array;
 
-    /**
-     * @return array<int, array<string>>
-     */
+    
     public function getDatabases(): array;
 
-    /**
-     * @return array<int, array<string>>
-     */
+    
     public function getUsers(): array;
 }

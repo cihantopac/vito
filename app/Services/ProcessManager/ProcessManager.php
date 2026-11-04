@@ -2,25 +2,21 @@
 
 namespace App\Services\ProcessManager;
 
+use App\Models\Worker;
 use App\Services\ServiceInterface;
 
 interface ProcessManager extends ServiceInterface
 {
-    public function create(
-        int $id,
-        string $command,
-        string $user,
-        bool $autoStart,
-        bool $autoRestart,
-        int $numprocs,
-        string $logFile,
-        ?string $directory = null,
-        ?int $siteId = null,
-    ): void;
+    public function create(Worker $worker): void;
+
+    public function writeConfig(Worker $worker): void;
 
     public function delete(int $id, ?int $siteId = null): void;
 
     public function restart(int $id, ?int $siteId = null): void;
+
+    
+    public function restartMany(array $ids, ?int $siteId = null): string;
 
     public function stop(int $id, ?int $siteId = null): void;
 
@@ -28,5 +24,10 @@ interface ProcessManager extends ServiceInterface
 
     public function restartAll(?int $siteId = null): void;
 
-    public function getLogs(string $user, string $logPath): string;
+    
+    public function statuses(): array;
+
+    public function getLogs(string $user, string $logPath, int $lines = 100): string;
+
+    public function clearLogs(string $user, string $logPath): void;
 }

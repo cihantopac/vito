@@ -4,18 +4,13 @@ namespace App\Actions\ServerLog;
 
 use App\Models\Server;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class CreateLog
 {
-    /**
-     * @param  array<string, mixed>  $input
-     *
-     * @throws ValidationException
-     */
+    
     public function create(Server $server, array $input): void
     {
-        Validator::make($input, self::rules())->validate();
+        $this->validate($input);
 
         $server->logs()->create([
             'is_remote' => true,
@@ -25,13 +20,10 @@ class CreateLog
         ]);
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public static function rules(): array
+    private function validate(array $input): void
     {
-        return [
-            'path' => 'required',
-        ];
+        Validator::make($input, [
+            'path' => ['required', 'string', 'max:500', 'regex:/^\/[A-Za-z0-9._\/@+-]+$/'],
+        ])->validate();
     }
 }

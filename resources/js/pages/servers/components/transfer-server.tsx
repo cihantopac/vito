@@ -11,17 +11,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/ui/input-error';
 import { LoaderCircleIcon } from 'lucide-react';
-import type { SharedData } from '@/types';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ProjectSelect } from '@/components/project-select';
 
 export default function TransferServer({ server, children }: { server: Server; children: ReactNode }) {
   const [open, setOpen] = useState(false);
-  const page = usePage<SharedData>();
 
   const form = useForm({
     project_id: server.project_id.toString(),
@@ -29,12 +27,16 @@ export default function TransferServer({ server, children }: { server: Server; c
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    form.post(route('servers.transfer', { server: server.id }), {
+    form.post(`/servers/${server.id}/transfer`, {
       preserveScroll: true,
       onSuccess: () => {
         setOpen(false);
       },
     });
+  };
+
+  const handleProjectChange = (value: string) => {
+    form.setData('project_id', value);
   };
 
   return (
@@ -50,18 +52,7 @@ export default function TransferServer({ server, children }: { server: Server; c
           <FormFields>
             <FormField>
               <Label htmlFor="project_id">Project</Label>
-              <Select value={form.data.project_id} onValueChange={(value) => form.setData('project_id', value)}>
-                <SelectTrigger id="project_id">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {page.props.auth.projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id.toString()}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <ProjectSelect value={form.data.project_id} onValueChange={handleProjectChange} placeholder="Select project..." className="w-full" />
               <InputError message={form.errors.project_id} />
             </FormField>
           </FormFields>

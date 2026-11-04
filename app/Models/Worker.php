@@ -2,69 +2,47 @@
 
 namespace App\Models;
 
+use App\Enums\WorkerLogType;
 use App\Enums\WorkerStatus;
-use App\Services\ProcessManager\ProcessManager;
-use Database\Factories\WorkerFactory;
+use App\Helpers\SiteShellEnvironment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-/**
- * @property int $server_id
- * @property int $site_id
- * @property string $command
- * @property string $user
- * @property bool $auto_start
- * @property bool $auto_restart
- * @property int $numprocs
- * @property int $redirect_stderr
- * @property string $stdout_logfile
- * @property string $status
- * @property string $name
- * @property Server $server
- * @property ?Site $site
- */
 class Worker extends AbstractModel
 {
-    /** @use HasFactory<WorkerFactory> */
+    
     use HasFactory;
 
     protected $fillable = [
         'server_id',
         'site_id',
+        'user_id',
+        'name',
         'command',
+        'directory',
         'user',
         'auto_start',
         'auto_restart',
         'numprocs',
+        'environment',
         'redirect_stderr',
         'stdout_logfile',
         'status',
-        'name',
     ];
 
     protected $casts = [
         'server_id' => 'integer',
         'site_id' => 'integer',
+        'user_id' => 'integer',
         'auto_start' => 'boolean',
         'auto_restart' => 'boolean',
         'numprocs' => 'integer',
+        'environment' => 'encrypted:array',
         'redirect_stderr' => 'boolean',
-    ];
-
-    /**
-     * @var array<string, string>
-     */
-    public static array $statusColors = [
-        WorkerStatus::RUNNING => 'success',
-        WorkerStatus::CREATING => 'warning',
-        WorkerStatus::DELETING => 'warning',
-        WorkerStatus::FAILED => 'danger',
-        WorkerStatus::STARTING => 'warning',
-        WorkerStatus::STOPPING => 'warning',
-        WorkerStatus::RESTARTING => 'warning',
-        WorkerStatus::STOPPED => 'gray',
+        'status' => WorkerStatus::class,
     ];
 
     public static function boot(): void
@@ -73,9 +51,9 @@ class Worker extends AbstractModel
 
         static::deleting(function (Worker $worker): void {
             try {
-                /** @var Service $service */
+                
                 $service = $worker->server->processManager();
-                /** @var ProcessManager $handler */
+                
                 $handler = $service->handler();
 
                 $handler->delete($worker->id, $worker->site_id);
@@ -87,7 +65,7 @@ class Worker extends AbstractModel
 
     public function getServerIdAttribute(?int $value): ?int
     {
-        if ($value === 0) {
+        if ($value === 0 && $this->site) {
             $value = $this->site->server_id;
             $this->fill(['server_id' => $this->site->server_id]);
             $this->save();
@@ -96,20 +74,37 @@ class Worker extends AbstractModel
         return $value;
     }
 
-    /**
-     * @return BelongsTo<Server, covariant $this>
-     */
+    
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    /**
-     * @return BelongsTo<Site, covariant $this>
-     */
+    
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(WorkerLog::class);
+    }
+
+    public function recordLog(string|WorkerLogType $type, ?string $description = null, ?int $userId = null): WorkerLog
+    {
+        $typeEnum = is_string($type) ? WorkerLogType::from($type) : $type;
+
+        return $this->logs()->create([
+            'user_id' => $userId ?? user()?->id,
+            'type' => $typeEnum,
+            'description' => $description,
+        ]);
     }
 
     public function getLogDirectory(): string
@@ -124,5 +119,51 @@ class Worker extends AbstractModel
     public function getLogFile(): string
     {
         return $this->getLogDirectory().'/'.$this->id.'.log';
+    }
+
+    
+    public function environmentMap(): array
+    {
+        $map = [];
+
+        foreach ($this->environment ?? [] as $variable) {
+            $map[$variable['key']] = $variable['value'];
+        }
+
+        return $map;
+    }
+
+    
+    public function effectiveEnvironment(): array
+    {
+        $base = $this->environmentMap();
+
+        if ($this->site_id && $this->site) {
+            return array_merge($base, SiteShellEnvironment::collect($this->site));
+        }
+
+        return $base;
+    }
+
+    public function isSiteBootstrap(): bool
+    {
+        if (! $this->site_id || ! $this->site) {
+            return false;
+        }
+
+        return $this->site->bootstrapWorkerId() === $this->id;
+    }
+
+    public function workingDirectory(): ?string
+    {
+        if (! empty($this->directory)) {
+            if ($this->site && ! str_starts_with($this->directory, '/')) {
+                return rtrim($this->site->path, '/').'/'.ltrim($this->directory, '/');
+            }
+
+            return $this->directory;
+        }
+
+        return $this->site?->path;
     }
 }

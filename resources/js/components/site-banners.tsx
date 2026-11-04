@@ -1,0 +1,396 @@
+import { Link, router, useForm } from '@inertiajs/react';
+import { OctagonAlertIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { humanizeStep } from '@/lib/utils';
+import { Site, SiteWarning } from '@/types/site';
+import { useState } from 'react';
+import { BannerItem, WarningsBlock, WarningsPopover } from '@/components/banners';
+
+function GenerateAppKeyButton({ site }: { site: Site }) {
+  const form = useForm<{ only_if_missing: boolean; env?: string }>({ only_if_missing: true });
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={form.processing}
+        onClick={() => form.post(`/servers/${site.server_id}/sites/${site.id}/env/generate-key`, { preserveScroll: true })}
+      >
+        {form.processing ? 'Generating...' : 'Generate Key'}
+      </Button>
+      {form.errors.env && <p role="alert" className="text-destructive max-w-64 text-sm">{form.errors.env}</p>}
+    </div>
+  );
+}
+
+function InstallationFailedBanner({ site }: { site: Site }) {
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const step = humanizeStep(site.progress_step);
+
+  
+  
+  
+  
+  const canEditComposerCommand = site.progress_step === 'installing-composer-dependencies' && !!site.default_composer_install_command;
+  const [composerCommand, setComposerCommand] = useState(
+    () => site.type_data.composer_install_command || site.default_composer_install_command || '',
+  );
+
+  return (
+    <div className="border-destructive/40 bg-destructive/5 flex flex-col gap-4 rounded-lg border p-5">
+      <div className="flex items-start gap-3">
+        <div className="bg-destructive/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+          <OctagonAlertIcon className="text-destructive h-4 w-4" />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <p className="text-sm leading-tight font-medium">Site installation failed{step ? ` while ${step.toLowerCase()}` : ''}</p>
+          <p className="text-muted-foreground text-sm">You can retry the installation; steps that have already completed will be skipped.</p>
+        </div>
+      </div>
+
+      {site.last_error && (
+        <pre className="text-muted-foreground bg-muted/40 ml-11 max-h-40 overflow-auto rounded-md p-3 font-mono text-xs whitespace-pre-wrap">
+          {site.last_error}
+        </pre>
+      )}
+
+      <div className="ml-11">
+        <Dialog
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next);
+            if (!next) setSubmitError(null);
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button variant="destructive" size="sm">
+              Retry installation
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Retry site installation?</DialogTitle>
+              <DialogDescription>
+                This will re-run the installation for <strong>{site.domain}</strong>. Steps that already completed (isolated user, vhost, cloned
+                repository, deployed key) will be detected and skipped.
+              </DialogDescription>
+            </DialogHeader>
+
+            {canEditComposerCommand && (
+              <div className="space-y-1.5">
+                <Label htmlFor="composer-install-command">Composer install command</Label>
+                <Textarea
+                  id="composer-install-command"
+                  value={composerCommand}
+                  onChange={(e) => setComposerCommand(e.target.value)}
+                  className="font-mono text-xs"
+                  rows={2}
+                />
+                <p className="text-muted-foreground text-xs">
+                  This is what failed above. Edit it (e.g. add a flag, drop a package) and retry, or leave it as-is.
+                </p>
+              </div>
+            )}
+
+            {submitError && <p className="text-destructive text-sm">{submitError}</p>}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={submitting}
+                onClick={() => {
+                  setSubmitting(true);
+                  setSubmitError(null);
+                  setOpen(false);
+                  router.post(
+                    `/servers/${site.server_id}/sites/${site.id}/retry`,
+                    canEditComposerCommand ? { composer_install_command: composerCommand } : {},
+                    {
+                      preserveScroll: true,
+                      onError: (errors) => {
+                        const first = errors && typeof errors === 'object' ? Object.values(errors)[0] : null;
+                        const message =
+                          typeof first === 'string'
+                            ? first
+                            : Array.isArray(first) && typeof first[0] === 'string'
+                              ? first[0]
+                              : 'Could not retry installation. Check the site logs.';
+                        setSubmitError(message);
+                        setOpen(true);
+                      },
+                      onFinish: () => {
+                        setSubmitting(false);
+                      },
+                    },
+                  );
+                }}
+              >
+                {submitting ? 'Retrying...' : 'Retry installation'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}
+
+export function getSiteWarningItems(site: Site, includeAppDebug = false): BannerItem[] {
+  if (site.status !== 'ready') {
+    return [];
+  }
+
+  const warnings: SiteWarning[] = site.warnings ?? [];
+
+  const pendingDomainsWarning = warnings.find((w) => w.key === 'pending_domains');
+  const sslDisabledWarning = warnings.find((w) => w.key === 'ssl_disabled');
+  const vhostWarning = warnings.find((w) => w.key === 'vhost_generation_disabled');
+  const phpSettingsIgnoredWarning = warnings.find((w) => w.key === 'php_settings_ignored');
+  const sslExpiringWarning = warnings.find((w) => w.key === 'ssl_expiring');
+  const needsFirstDeployWarning = warnings.find((w) => w.key === 'needs_first_deploy');
+  const composerInstallFailedWarning = warnings.find((w) => w.key === 'composer_install_failed');
+  const appDebugEnabledWarning = warnings.find((w) => w.key === 'app_debug_enabled');
+  const appKeyMissingWarning = warnings.find((w) => w.key === 'app_key_missing');
+  const workerWarnings = warnings.filter((w): w is Extract<SiteWarning, { key: 'worker_not_running' }> => w.key === 'worker_not_running');
+
+  const items: BannerItem[] = [];
+
+  if (sslDisabledWarning) {
+    items.push({
+      key: 'ssl-disabled',
+      title: 'SSL is disabled',
+      description: 'This site will not be served over HTTPS even if valid certificates exist. Enable SSL to serve the site securely.',
+      action: (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            router.post(`/servers/${site.server_id}/sites/${site.id}/enable-ssl`, {}, { preserveScroll: true });
+          }}
+        >
+          Enable SSL
+        </Button>
+      ),
+    });
+  }
+
+  if (pendingDomainsWarning && pendingDomainsWarning.key === 'pending_domains') {
+    items.push({
+      key: 'pending-domains',
+      title: `${pendingDomainsWarning.count} pending ${pendingDomainsWarning.count === 1 ? 'domain' : 'domains'}`,
+      description: (
+        <>
+          We could not confirm that <strong>{pendingDomainsWarning.domains.join(', ')}</strong> {pendingDomainsWarning.count === 1 ? 'is' : 'are'}{' '}
+          pointing to this server. Update your DNS records or activate by force via the Manage Domains page.
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}/domains`}>
+          <Button variant="outline" size="sm">
+            Manage Domains
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  if (sslExpiringWarning && sslExpiringWarning.key === 'ssl_expiring') {
+    const daysLeft = Math.max(0, Math.ceil((new Date(sslExpiringWarning.earliest_expiry).getTime() - Date.now()) / 86400000));
+    items.push({
+      key: 'ssl-expiring',
+      title: `${sslExpiringWarning.count} SSL ${sslExpiringWarning.count === 1 ? 'certificate' : 'certificates'} expiring in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}`,
+      description: (
+        <>
+          SSL certificates for <strong>{sslExpiringWarning.domains.join(', ')}</strong>{' '}
+          {daysLeft === 0 ? 'expire today.' : `will expire in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.`}
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}/domains`}>
+          <Button variant="outline" size="sm">
+            Manage Domains
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  if (vhostWarning) {
+    items.push({
+      key: 'vhost-disabled',
+      title: 'VHost generation is disabled',
+      description: (
+        <>
+          Automatic VHost generation has been disabled. Changes to SSL, domains, or redirects will not update the VHost config. Review your template
+          on the{' '}
+          <Link href={`/servers/${site.server_id}/sites/${site.id}/settings`} className="underline">
+            Settings page
+          </Link>{' '}
+          before re-enabling.
+        </>
+      ),
+      action: (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            router.patch(
+              `/servers/${site.server_id}/sites/${site.id}/settings/vhost-generation`,
+              { vhost_generation_enabled: true },
+              { preserveScroll: true },
+            );
+          }}
+        >
+          Re-enable
+        </Button>
+      ),
+    });
+  }
+
+  if (phpSettingsIgnoredWarning) {
+    items.push({
+      key: 'php-settings-ignored',
+      title: 'PHP settings are not applied',
+      description: (
+        <>
+          This site has custom PHP settings, but a custom VHost template is in use so they are not written to the server. Add the directives to your
+          template manually, or reset the template to apply them automatically.
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}/settings`}>
+          <Button variant="outline" size="sm">
+            Go to Settings
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  if (needsFirstDeployWarning) {
+    items.push({
+      key: 'needs-first-deploy',
+      title: 'Site needs first deploy',
+      description: (
+        <>
+          Customise your deploy script if needed, then deploy this site to bring it online. The application worker is created on the first successful
+          deploy.
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}`}>
+          <Button variant="outline" size="sm">
+            Go to Application
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  if (composerInstallFailedWarning) {
+    items.push({
+      key: 'composer-install-failed',
+      title: 'Composer dependencies were not installed',
+      description: (
+        <>
+          The site was set up, but installing Composer dependencies failed (often a PHP version mismatch with a locked package). Fix your deploy
+          script if needed, then deploy — this also installs dependencies.
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}`}>
+          <Button variant="outline" size="sm">
+            Go to Application
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  if (appKeyMissingWarning) {
+    items.push({
+      key: 'app-key-missing',
+      title: 'Laravel application key is missing',
+      description: 'APP_KEY is empty in this site’s .env file. Generate an application key to enable Laravel encryption.',
+      action: <GenerateAppKeyButton site={site} />,
+    });
+  }
+
+  if (includeAppDebug && appDebugEnabledWarning) {
+    items.push({
+      key: 'app-debug-enabled',
+      title: 'APP_DEBUG is not disabled on this production server',
+      description: (
+        <>
+          This server's environment stage is <strong>Production</strong>, but <code>APP_DEBUG</code> is missing or not set to <code>false</code> in
+          this site's <code>.env</code>. Leaving debug mode on in production can leak sensitive data in error pages.
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}/environment`}>
+          <Button variant="outline" size="sm">
+            Review .env
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  for (const workerWarning of workerWarnings) {
+    const workerLabel = workerWarning.name ?? `#${workerWarning.worker_id}`;
+    items.push({
+      key: `worker-not-running-${workerWarning.worker_id}`,
+      title: `Worker "${workerLabel}" needs attention`,
+      description: (
+        <>
+          <span className="inline-flex flex-wrap items-center gap-1.5">
+            <Badge variant={workerWarning.status_color} className="text-xs">
+              {workerWarning.status}
+            </Badge>
+            Restart the worker to bring it back online.
+          </span>
+          {workerWarning.error && (
+            <pre className="text-muted-foreground bg-muted/40 mt-2 max-h-40 overflow-auto rounded-md p-3 font-mono text-xs whitespace-pre-wrap">
+              {workerWarning.error}
+            </pre>
+          )}
+        </>
+      ),
+      action: (
+        <Link href={`/servers/${site.server_id}/sites/${site.id}/workers`}>
+          <Button variant="outline" size="sm">
+            Manage Workers
+          </Button>
+        </Link>
+      ),
+    });
+  }
+
+  return items;
+}
+
+export default function SiteBanners({ site, compact = false, includeAppDebug = false }: { site: Site; compact?: boolean; includeAppDebug?: boolean }) {
+  const installationFailed = site.status === 'installation_failed';
+  const items = getSiteWarningItems(site, includeAppDebug);
+
+  if (!installationFailed && items.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {installationFailed && <InstallationFailedBanner site={site} />}
+      {compact ? <WarningsPopover items={items} /> : <WarningsBlock items={items} />}
+    </div>
+  );
+}

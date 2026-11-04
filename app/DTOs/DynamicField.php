@@ -2,6 +2,7 @@
 
 namespace App\DTOs;
 
+
 class DynamicField
 {
     public function __construct(
@@ -12,7 +13,10 @@ class DynamicField
         private ?string $placeholder = null,
         private ?string $description = null,
         private ?array $options = null,
-        private ?array $link = null
+        private ?array $optionLabels = null,
+        private ?array $link = null,
+        private ?string $className = null,
+        private ?array $componentProps = null,
     ) {}
 
     public static function make(string $name): self
@@ -34,6 +38,27 @@ class DynamicField
         return $this;
     }
 
+    public function password(): self
+    {
+        $this->type = 'password';
+
+        return $this;
+    }
+
+    public function passwordWithToggle(): self
+    {
+        $this->type = 'password-with-toggle';
+
+        return $this;
+    }
+
+    public function textarea(): self
+    {
+        $this->type = 'textarea';
+
+        return $this;
+    }
+
     public function select(): self
     {
         $this->type = 'select';
@@ -51,6 +76,60 @@ class DynamicField
     public function alert(): self
     {
         $this->type = 'alert';
+
+        return $this;
+    }
+
+    public function tooling(): self
+    {
+        $this->type = 'tooling';
+
+        return $this;
+    }
+
+    
+    public function toolingPicker(string $toolClass): self
+    {
+        $this->type = 'tooling-picker';
+        $this->options = [$toolClass::id()];
+
+        if ($this->label === '') {
+            $this->label = $toolClass::label().' Version';
+        }
+
+        $versions = $toolClass::supportedVersions();
+        if ($versions !== []) {
+            $this->default = $versions[0];
+        }
+
+        return $this;
+    }
+
+    
+    public function toolingSelector(array $toolClasses, array $labelOverrides = [], ?string $default = null, bool $allowNone = false): self
+    {
+        $this->type = 'tooling-selector';
+        $this->options = array_map(fn (string $cls) => $cls::id(), $toolClasses);
+
+        $labels = [];
+        foreach ($labelOverrides as $cls => $label) {
+            $labels[$cls::id()] = $label;
+        }
+
+        if ($allowNone) {
+            array_unshift($this->options, 'none');
+            $labels['none'] = 'None';
+        }
+
+        $this->optionLabels = $labels === [] ? null : $labels;
+
+        if ($default !== null) {
+            $this->default = $default::id();
+        } elseif ($allowNone) {
+            $this->default = 'none';
+        } elseif ($this->default === null && $this->options !== []) {
+            $this->default = $this->options[0];
+        }
 
         return $this;
     }
@@ -107,9 +186,22 @@ class DynamicField
         return $this;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    public function className(?string $className): self
+    {
+        $this->className = $className;
+
+        return $this;
+    }
+
+    
+    public function componentProps(array $props): self
+    {
+        $this->componentProps = $props;
+
+        return $this;
+    }
+
+    
     public function toArray(): array
     {
         return [
@@ -120,7 +212,10 @@ class DynamicField
             'placeholder' => $this->placeholder,
             'description' => $this->description,
             'options' => $this->options,
+            'optionLabels' => $this->optionLabels,
             'link' => $this->link,
+            'className' => $this->className,
+            'componentProps' => $this->componentProps,
         ];
     }
 }

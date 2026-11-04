@@ -2,16 +2,13 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Deployment;
+use App\Actions\Site\GetDeploymentProgress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Deployment */
 class DeploymentResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function toArray(Request $request): array
     {
         return [
@@ -19,14 +16,23 @@ class DeploymentResource extends JsonResource
             'site_id' => $this->site_id,
             'deployment_script_id' => $this->deployment_script_id,
             'log_id' => $this->log_id,
-            'log' => new ServerLogResource($this->log),
+            'log' => $this->log ? new ServerLogResource($this->log) : null,
             'commit_id' => $this->commit_id,
             'commit_id_short' => $this->commit_id_short,
-            'commit_data' => $this->commit_data,
-            'status' => $this->status,
-            'status_color' => Deployment::$statusColors[$this->status] ?? 'gray',
+            'commit_data' => $this->commit_data ?? [],
+            'status' => $this->status->getText(),
+            'status_color' => $this->status->getColor(),
             'release' => $this->release,
             'active' => $this->active,
+            'deployed_by' => $this->user?->name,
+            'trigger' => $this->trigger?->getText(),
+            'trigger_color' => $this->trigger?->getColor(),
+            'rolled_back_by' => $this->rolledBackBy?->name,
+            'rolled_back_at' => $this->rolled_back_at,
+            'finished_at' => $this->finished_at,
+            'duration' => $this->duration(),
+            'formatted_duration' => $this->formattedDuration(),
+            'progress' => app(GetDeploymentProgress::class)->get($this->resource),
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
         ];

@@ -21,7 +21,7 @@ sudo mv ./$executable /usr/local/bin/vito-agent
 # create service
 export VITO_AGENT_SERVICE="
 [Unit]
-Description=Vito Agent
+Description=Pure Agent
 After=network.target
 
 [Service]
@@ -44,10 +44,11 @@ export VITO_AGENT_CONFIG="
 }
 "
 
-echo "${VITO_AGENT_CONFIG}" | sudo tee /etc/vito-agent/config.json
+sudo install -m 600 /dev/null /etc/vito-agent/config.json
+echo "${VITO_AGENT_CONFIG}" | sudo tee /etc/vito-agent/config.json > /dev/null
 
 sudo systemctl daemon-reload
 sudo systemctl enable vito-agent
 sudo systemctl start vito-agent
 
-echo "Vito Agent installed successfully"
+echo "Pure Agent installed successfully"

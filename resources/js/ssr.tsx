@@ -1,30 +1,16 @@
 import { createInertiaApp } from '@inertiajs/react';
-import createServer from '@inertiajs/react/server';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import ReactDOMServer from 'react-dom/server';
-import { type RouteName, route } from 'ziggy-js';
+import { resolvePage } from '@/lib/resolve-page';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Vito';
 
-createServer((page) =>
-  createInertiaApp({
-    page,
-    render: ReactDOMServer.renderToString,
-    title: (title) => `${title} - ${appName}`,
-    resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
-    setup: ({ App, props }) => {
-      /* eslint-disable */
-      // @ts-expect-error
-      global.route<RouteName> = (name, params, absolute) =>
-        route(name, params as any, absolute, {
-          // @ts-expect-error
-          ...page.props.ziggy,
-          // @ts-expect-error
-          location: new URL(page.props.ziggy.location),
-        });
-      /* eslint-enable */
 
-      return <App {...props} />;
-    },
-  }),
-);
+
+
+const appName = import.meta.env.VITE_APP_NAME || 'Pure';
+
+const pages = import.meta.glob(['./pages/**/*.tsx', '!./pages/**/components/**']);
+
+createInertiaApp({
+  resolve: (name) => resolvePage(pages, name),
+  title: (title) => `${title} - ${appName}`,
+  setup: ({ App, props }) => <App {...props} />,
+});

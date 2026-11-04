@@ -5,40 +5,45 @@ namespace App\Policies;
 use App\Models\Metric;
 use App\Models\Server;
 use App\Models\User;
+use App\Traits\HasRolePolicies;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MetricPolicy
 {
     use HandlesAuthorization;
+    use HasRolePolicies;
 
     public function viewAny(User $user, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
-            $server->isReady();
+        return $this->hasServerReadAccess($user, $server);
     }
 
     public function view(User $user, Metric $metric): bool
     {
+        $server = $metric->server;
 
-        return ($user->isAdmin() || $metric->server->project->users->contains($user)) &&
-            $metric->server->isReady();
+        return $this->hasServerReadAccess($user, $server);
     }
 
     public function create(User $user, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
             $server->isReady();
     }
 
     public function update(User $user, Metric $metric): bool
     {
-        return ($user->isAdmin() || $metric->server->project->users->contains($user)) &&
-            $metric->server->isReady();
+        $server = $metric->server;
+
+        return $this->hasServerWriteAccess($user, $server) &&
+            $server->isReady();
     }
 
     public function delete(User $user, Metric $metric): bool
     {
-        return ($user->isAdmin() || $metric->server->project->users->contains($user)) &&
-            $metric->server->isReady();
+        $server = $metric->server;
+
+        return $this->hasServerWriteAccess($user, $server) &&
+            $server->isReady();
     }
 }

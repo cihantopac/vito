@@ -3,93 +3,116 @@
 namespace App\Models;
 
 use App\Enums\CronjobStatus;
-use Database\Factories\CronJobFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
- * @property int $server_id
- * @property string $command
- * @property string $user
- * @property string $frequency
- * @property bool $hidden
- * @property string $status
- * @property string $crontab
- * @property Server $server
- */
 class CronJob extends AbstractModel
 {
-    /** @use HasFactory<CronJobFactory> */
+    
     use HasFactory;
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(function (CronJob $cronJob): void {
+            $cronJob->executions()->delete();
+        });
+    }
 
     protected $fillable = [
         'server_id',
+        'site_id',
         'command',
         'user',
         'frequency',
-        'hidden',
         'status',
+        'name',
     ];
 
     protected $casts = [
         'server_id' => 'integer',
+        'site_id' => 'integer',
         'hidden' => 'boolean',
+        'status' => CronjobStatus::class,
     ];
 
-    /**
-     * @var array<string, string>
-     */
-    public static array $statusColors = [
-        CronjobStatus::CREATING => 'warning',
-        CronjobStatus::READY => 'success',
-        CronjobStatus::DELETING => 'danger',
-        CronjobStatus::ENABLING => 'warning',
-        CronjobStatus::DISABLING => 'warning',
-        CronjobStatus::DISABLED => 'gray',
-    ];
-
-    /**
-     * @return BelongsTo<Server, covariant $this>
-     */
+    
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
+    
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    public function executions(): HasMany
+    {
+        return $this->hasMany(CommandExecution::class);
+    }
+
+    public function lastExecution(): HasOne
+    {
+        return $this->hasOne(CommandExecution::class)->latestOfMany();
+    }
+
+    public function getServerIdAttribute(?int $value): ?int
+    {
+        if ($value === 0 && $this->site) {
+            $value = $this->site->server_id;
+            $this->fill(['server_id' => $this->site->server_id]);
+            $this->save();
+        }
+
+        return $value;
+    }
+
     public static function crontab(Server $server, string $user): string
     {
-        $data = '';
-        $cronJobs = $server->cronJobs()
+        return $server->cronJobs()
             ->where('user', $user)
+            ->with('site')
             ->whereIn('status', [
                 CronjobStatus::READY,
                 CronjobStatus::CREATING,
                 CronjobStatus::UPDATING,
                 CronjobStatus::ENABLING,
             ])
-            ->get();
-        /** @var CronJob $cronJob */
-        foreach ($cronJobs as $key => $cronJob) {
-            $data .= $cronJob->frequency.' '.$cronJob->command;
-            if ($key != count($cronJobs) - 1) {
-                $data .= "\n";
-            }
-        }
-
-        return $data;
+            ->get()
+            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
+            ->implode("\n");
     }
 
-    public function frequencyLabel(): string
+    public function executionCommand(): string
     {
-        $labels = [
-            '* * * * *' => 'Every minute',
-            '0 * * * *' => 'Hourly',
-            '0 0 * * *' => 'Daily',
-            '0 0 * * 0' => 'Weekly',
-            '0 0 1 * *' => 'Monthly',
-        ];
+        return $this->site
+            ? 'cd '.escapeshellarg($this->site->path).' && ('.$this->command.')'
+            : $this->command;
+    }
 
-        return $labels[$this->frequency] ?? $this->frequency;
+    public static function wrapCommand(string $command): string
+    {
+        return 'bash -lc '.escapeshellarg($command);
+    }
+
+    public static function unwrapCommand(string $command): ?string
+    {
+        $prefix = 'bash -lc ';
+        if (! str_starts_with($command, $prefix)) {
+            return null;
+        }
+
+        $argument = trim(substr($command, strlen($prefix)));
+        if (strlen($argument) < 2 || ! str_starts_with($argument, "'") || ! str_ends_with($argument, "'")) {
+            return null;
+        }
+
+        return str_replace("'\\''", "'", substr($argument, 1, -1));
     }
 
     public function isEnabled(): bool

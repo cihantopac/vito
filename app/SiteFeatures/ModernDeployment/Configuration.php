@@ -4,7 +4,6 @@ namespace App\SiteFeatures\ModernDeployment;
 
 use App\DTOs\DynamicField;
 use App\DTOs\DynamicForm;
-use App\Exceptions\SSHError;
 use App\SiteFeatures\Action;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -37,9 +36,7 @@ class Configuration extends Action
         ]);
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function handle(Request $request): void
     {
         $this->validate($request);

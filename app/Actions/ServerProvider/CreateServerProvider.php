@@ -2,7 +2,9 @@
 
 namespace App\Actions\ServerProvider;
 
-use App\Models\Project;
+use App\DTOs\SocketEventDTO;
+use App\Events\SocketEvent;
+use App\Http\Resources\ServerProviderResource;
 use App\Models\Server;
 use App\Models\ServerProvider;
 use App\Models\User;
@@ -14,14 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 class CreateServerProvider
 {
-    /**
-     * @param  array<string, mixed>  $input
-     *
-     * @throws ValidationException
-     */
-    public function create(User $user, Project $project, array $input): ServerProvider
+    /** @param  array<string, mixed>  $input */
+    public function create(User $user, array $input, ?int $projectId): ServerProvider
     {
-        Validator::make($input, self::rules($input))->validate();
+        $this->validate($input);
 
         $provider = self::getProvider($input['provider']);
 
@@ -40,8 +38,14 @@ class CreateServerProvider
         $serverProvider->profile = $input['name'];
         $serverProvider->provider = $input['provider'];
         $serverProvider->credentials = $provider->credentialData($input);
-        $serverProvider->project_id = isset($input['global']) && $input['global'] ? null : $project->id;
+        $serverProvider->project_id = $projectId;
         $serverProvider->save();
+
+        SocketEvent::dispatch(new SocketEventDTO(
+            $serverProvider->project_id ?? 0,
+            'server-provider.created',
+            new ServerProviderResource($serverProvider),
+        ));
 
         return $serverProvider;
     }
@@ -49,17 +53,13 @@ class CreateServerProvider
     private static function getProvider(string $name): ServerProviderContract
     {
         $providerClass = config('server-provider.providers.'.$name.'.handler');
-        /** @var ServerProviderContract $provider */
+        
         $provider = new $providerClass(new ServerProvider, new Server);
 
         return $provider;
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     */
-    public static function rules(array $input): array
+    private function validate(array $input): void
     {
         $rules = [
             'name' => [
@@ -68,18 +68,15 @@ class CreateServerProvider
             'provider' => [
                 'required',
                 Rule::in(array_keys(config('server-provider.providers'))),
-                Rule::notIn('custom'),
+                Rule::notIn(['custom', 'existing']),
             ],
         ];
 
-        return array_merge($rules, self::providerRules($input));
+        Validator::make($input, array_merge($rules, $this->providerRules($input)))->validate();
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, array<string>>
-     */
-    private static function providerRules(array $input): array
+    
+    private function providerRules(array $input): array
     {
         if (! isset($input['provider'])) {
             return [];

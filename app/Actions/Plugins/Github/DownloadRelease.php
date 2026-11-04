@@ -6,13 +6,11 @@ use App\DTOs\GitHub\ReleaseDto;
 use Exception;
 use Illuminate\Support\Facades\File;
 
-final readonly class DownloadRelease
+class DownloadRelease
 {
     public function __construct() {}
 
-    /**
-     * @throws Exception
-     */
+    
     public function handle(ReleaseDto $release, string $location): void
     {
         $context = stream_context_create([

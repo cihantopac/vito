@@ -1,6 +1,8 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Site } from '@/types/site';
 import ServerLayout from '@/layouts/server/layout';
+import SiteBanners from '@/components/site-banners';
+import { useRealtimeRecord } from '@/hooks/use-socket-events';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -21,23 +23,20 @@ type Page = {
 
 export default function ShowSite() {
   const page = usePage<Page>();
+  const site = useRealtimeRecord<Site>(page.props.site, 'site')!;
 
   return (
     <ServerLayout>
-      <Head title={`${page.props.site.domain} - ${page.props.server.name}`} />
+      <Head title={`${site.domain} - ${page.props.server.name}`} />
 
-      <Container className="max-w-5xl">
+      <Container>
         <HeaderContainer>
           <Heading title="Application" description="Here you can manage the deployed application" />
           <div className="flex items-center gap-2">
-            <a href="https://vitodeploy.com/docs/sites/application" target="_blank">
-              <Button variant="outline">
-                <BookOpenIcon />
-                <span className="hidden lg:block">Docs</span>
-              </Button>
-            </a>
           </div>
         </HeaderContainer>
+
+        <SiteBanners site={site} />
 
         <DataTable columns={columns} paginatedData={page.props.logs} />
       </Container>

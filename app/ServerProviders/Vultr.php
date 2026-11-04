@@ -2,23 +2,142 @@
 
 namespace App\ServerProviders;
 
+use App\DTOs\PrivateNetworkDTO;
+use App\DTOs\PrivateNetworkMemberDTO;
+use App\Enums\OperatingSystem;
 use App\Exceptions\CouldNotConnectToProvider;
+use App\Exceptions\PrivateNetworkSyncError;
 use App\Exceptions\ServerProviderError;
 use App\Facades\Notifier;
 use App\Notifications\FailedToDeleteServerFromProvider;
 use Exception;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class Vultr extends AbstractProvider
+class Vultr extends AbstractProvider implements ProvidesPrivateNetworks
 {
     protected string $apiUrl = 'https://api.vultr.com/v2';
 
     public static function id(): string
     {
         return 'vultr';
+    }
+
+    public function instanceIdKey(): string
+    {
+        return 'instance_id';
+    }
+
+    
+    public function privateNetworks(array $instanceIds, array $regions): array
+    {
+        $attachments = [];
+
+        foreach ($instanceIds as $instanceId) {
+            try {
+                $attached = $this->fetchAll('/instances/'.$instanceId.'/vpcs', 'vpcs');
+            } catch (PrivateNetworkSyncError $e) {
+                if ($e->status === 404) {
+                    continue;
+                }
+
+                throw $e;
+            }
+
+            foreach ($attached as $attachment) {
+                $vpcId = (string) ($attachment['id'] ?? '');
+
+                if ($vpcId === '') {
+                    continue;
+                }
+
+                $attachments[$vpcId][] = new PrivateNetworkMemberDTO(
+                    instanceId: (string) $instanceId,
+                    ip: isset($attachment['ip_address']) ? (string) $attachment['ip_address'] : null,
+                );
+            }
+        }
+
+        if ($attachments === []) {
+            return [];
+        }
+
+        return $this->mapPrivateNetworks($this->fetchAll('/vpcs', 'vpcs'), $attachments);
+    }
+
+    
+    private function mapPrivateNetworks(array $vpcs, array $attachments): array
+    {
+        $result = [];
+
+        foreach ($vpcs as $vpc) {
+            $vpcId = (string) ($vpc['id'] ?? '');
+
+            if (! isset($attachments[$vpcId])) {
+                continue;
+            }
+
+            $subnet = $vpc['v4_subnet'] ?? null;
+            $mask = $vpc['v4_subnet_mask'] ?? null;
+
+            $result[] = new PrivateNetworkDTO(
+                externalId: $vpcId,
+                name: (string) ($vpc['description'] ?? $vpcId),
+                cidr: is_string($subnet) && $subnet !== '' && is_numeric($mask) ? $subnet.'/'.(int) $mask : null,
+                region: isset($vpc['region']) ? (string) $vpc['region'] : null,
+                members: $attachments[$vpcId],
+            );
+        }
+
+        return $result;
+    }
+
+    
+    private function fetchAll(string $path, string $key): array
+    {
+        $token = $this->serverProvider->getCredentials()['token'];
+        $items = [];
+        $cursor = null;
+
+        do {
+            try {
+                $response = Http::withToken($token)->get($this->apiUrl.$path, array_filter([
+                    'per_page' => 500,
+                    'cursor' => $cursor,
+                ]));
+            } catch (Exception) {
+                throw $this->syncError();
+            }
+
+            if (! $response->ok()) {
+                throw $this->syncError($response->status());
+            }
+
+            $body = $response->json();
+
+            if (! is_array($body) || ! is_array($body[$key] ?? null)) {
+                throw $this->syncError($response->status());
+            }
+
+            
+            $batch = $body[$key];
+            $items = array_merge($items, $batch);
+
+            $next = $body['meta']['links']['next'] ?? null;
+
+            if (! is_string($next) || $next === '') {
+                break;
+            }
+
+            if ($next === $cursor) {
+                throw $this->syncError();
+            }
+
+            $cursor = $next;
+        } while (true);
+
+        return $items;
     }
 
     public function createRules(array $input): array
@@ -51,9 +170,7 @@ class Vultr extends AbstractProvider
         ];
     }
 
-    /**
-     * @throws CouldNotConnectToProvider
-     */
+    
     public function connect(array $credentials): bool
     {
         try {
@@ -69,25 +186,45 @@ class Vultr extends AbstractProvider
         return true;
     }
 
+    
     public function plans(?string $region): array
     {
         try {
-            /** @var array<string, mixed> $plans */
-            $plans = Http::withToken($this->serverProvider->credentials['token'])
+            
+            $response = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/plans', ['per_page' => 500])
                 ->json();
 
-            /** @var array<string, mixed> $plans */
-            $plans = $plans['plans'] ?? [];
+            
+            $plans = $response['plans'] ?? [];
 
-            return collect($plans)->filter(fn (array $plan): bool => in_array($region, $plan['locations']))
-                ->mapWithKeys(fn (array $value) => [
-                    $value['id'] => __('server_providers.plan', [
-                        'name' => $value['type'],
-                        'cpu' => $value['vcpu_count'],
-                        'memory' => $value['ram'],
-                        'disk' => $value['disk'],
-                    ]),
+            return collect($plans)
+                ->map(function (array $plan) use ($region): array {
+                    $available = in_array($region, $plan['locations'], true);
+
+                    $label = __('server_providers.plan', [
+                        'name' => $plan['type'],
+                        'cpu' => $plan['vcpu_count'],
+                        'memory' => $plan['ram'],
+                        'disk' => $plan['disk'],
+                    ]);
+
+                    if ($available) {
+                        $label .= ' ('.number_format((float) $plan['monthly_cost'], 2).'/mo)';
+                    }
+
+                    return [
+                        'id' => $plan['id'],
+                        'label' => $label,
+                        'available' => $available,
+                    ];
+                })
+                ->sortByDesc('available')
+                ->mapWithKeys(fn (array $value): array => [
+                    $value['id'] => [
+                        'label' => $value['label'],
+                        'available' => $value['available'],
+                    ],
                 ])
                 ->toArray();
         } catch (Exception) {
@@ -98,12 +235,12 @@ class Vultr extends AbstractProvider
     public function regions(): array
     {
         try {
-            /** @var array<string, mixed> $regions */
+            
             $regions = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/regions', ['per_page' => 500])
                 ->json();
 
-            /** @var array<string, mixed> $regions */
+            
             $regions = $regions['regions'] ?? [];
 
             return collect($regions)
@@ -114,13 +251,11 @@ class Vultr extends AbstractProvider
         }
     }
 
-    /**
-     * @throws ServerProviderError
-     */
+    
     public function create(): void
     {
-        // generate key pair
-        /** @var FilesystemAdapter $storageDisk */
+        
+        
         $storageDisk = Storage::disk(config('core.key_pairs_disk'));
         generate_key_pair($storageDisk->path((string) $this->server->id));
 
@@ -187,9 +322,7 @@ class Vultr extends AbstractProvider
         return $status->json()['instance']['status'] == 'active';
     }
 
-    /**
-     * @throws Exception
-     */
+    
     public function delete(): void
     {
         if (isset($this->server->provider_data['instance_id'])) {
@@ -202,30 +335,28 @@ class Vultr extends AbstractProvider
                 return;
             }
 
-            if (! $delete->ok()) {
+            if (! $delete->successful()) {
                 Notifier::send($this->server, new FailedToDeleteServerFromProvider($this->server));
             }
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    private function getImageId(string $os): int
+    
+    private function getImageId(OperatingSystem $os): int
     {
-        $version = config('core.operating_system_versions.'.$os);
+        $version = $os->getVersion();
 
         try {
-            /** @var array<string, mixed> $result */
+            
             $result = Http::withToken($this->serverProvider->credentials['token'])
                 ->get($this->apiUrl.'/os', ['per_page' => 500])
                 ->json();
 
-            /** @var array<string, mixed> $os */
+            
             $os = $result['os'] ?? [];
 
             $image = collect($os)
-                ->filter(fn (array $os): bool => str_contains((string) $os['name'], (string) $version))
+                ->filter(fn (array $os): bool => str_contains((string) $os['name'], $version))
                 ->where('family', 'ubuntu')
                 ->where('arch', 'x64')
                 ->first();

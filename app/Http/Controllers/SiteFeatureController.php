@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Server;
 use App\Models\Site;
-use App\SiteFeatures\ActionInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,6 +17,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth', 'has-project'])]
 class SiteFeatureController extends Controller
 {
+
     #[Get('/', name: 'site-features')]
     public function index(Server $server, Site $site): Response
     {
@@ -35,7 +35,7 @@ class SiteFeatureController extends Controller
 
         $handler = config('site.types.'.$site->type.'.features.'.$feature.'.actions.'.$action.'.handler');
         if ($handler && class_exists($handler)) {
-            /** @var ActionInterface $actionHandler */
+            
             $actionHandler = new $handler($site);
             $actionHandler->handle($request);
         }

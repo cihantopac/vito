@@ -2,50 +2,93 @@
 
 namespace App\Policies;
 
+use App\Enums\ServerRole;
 use App\Models\Server;
 use App\Models\Site;
 use App\Models\User;
+use App\Traits\HasRolePolicies;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SitePolicy
 {
     use HandlesAuthorization;
+    use HasRolePolicies;
 
     public function viewAny(User $user, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user))
-            && $server->isReady()
+        return $this->hasServerReadAccess($user, $server)
+            && $server->role === ServerRole::APP
             && $server->webserver();
     }
 
     public function view(User $user, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $site->server->project->users->contains($user))
-            && $site->server_id === $server->id
-            && $site->server->isReady()
-            && $site->server->webserver();
+        if ($site->server_id !== $server->id) {
+            return false;
+        }
+
+        if (! $site->relationLoaded('server')) {
+            $site->setRelation('server', $server);
+        }
+
+        return $this->hasServerReadAccess($user, $server)
+            && $server->role === ServerRole::APP
+            && $server->webserver();
     }
 
     public function create(User $user, Server $server): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user))
+        return $this->hasServerWriteAccess($user, $server)
+            && ! $server->is_self
             && $server->isReady()
+            && $server->role === ServerRole::APP
             && $server->webserver();
     }
 
     public function update(User $user, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $site->server->project->users->contains($user))
-            && $site->server_id === $server->id
-            && $site->server->isReady()
-            && $site->server->webserver();
+        if ($site->server_id !== $server->id) {
+            return false;
+        }
+
+        if (! $site->relationLoaded('server')) {
+            $site->setRelation('server', $server);
+        }
+
+        return $this->hasServerWriteAccess($user, $server)
+            && $server->isReady()
+            && $server->webserver();
+    }
+
+    
+    public function revealEnv(User $user, Site $site, Server $server): bool
+    {
+        
+        $token = $user->currentAccessToken();
+
+        if ($token !== null && ! $token->can('write')) {
+            return false;
+        }
+
+        return $this->update($user, $site, $server);
     }
 
     public function delete(User $user, Site $site, Server $server): bool
     {
-        return ($user->isAdmin() || $site->server->project->users->contains($user))
-            && $site->server_id === $server->id
-            && $site->server->isReady()
-            && $site->server->webserver();
+        if ($site->isSelf()) {
+            return false;
+        }
+
+        return $this->update($user, $site, $server);
+    }
+
+    public function viewTooling(User $user, Site $site, Server $server): bool
+    {
+        return $this->view($user, $site, $server) && $site->isReady() && $site->isIsolated();
+    }
+
+    public function manageTooling(User $user, Site $site, Server $server): bool
+    {
+        return $this->update($user, $site, $server) && $site->isReady() && $site->isIsolated();
     }
 }

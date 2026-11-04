@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Actions\Network;
+
+use App\Enums\NetworkServerStatus;
+use App\Models\NetworkPeer;
+use App\Models\NetworkServer;
+use App\Support\Cidr;
+
+class GetNetworkPeerConfig
+{
+    private const PRIVATE_KEY_PLACEHOLDER = 'REPLACE_WITH_YOUR_PRIVATE_KEY';
+
+    
+    public function config(NetworkPeer $peer): array
+    {
+        $hasKey = $peer->hasPrivateKey();
+
+        $config = view('wireguard.peer-conf', [
+            'address' => $peer->ip,
+            'prefix' => Cidr::hostPrefix($peer->ip),
+            'privateKey' => $hasKey ? $peer->private_key : self::PRIVATE_KEY_PLACEHOLDER,
+            'peers' => $this->peers($peer),
+        ])->render();
+
+        return [
+            'config' => $config,
+            'private_key' => $hasKey ? $peer->private_key : null,
+        ];
+    }
+
+    
+    private function peers(NetworkPeer $peer): array
+    {
+        $network = $peer->network;
+
+        $members = $network->servers()
+            ->where('status', '!=', NetworkServerStatus::LEAVING)
+            ->whereNotNull('public_key')
+            ->whereNotNull('ip')
+            ->with('server')
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (NetworkServer $member): bool => Cidr::isValidAddress((string) $member->server->ip))
+            ->values();
+
+        return $members
+            ->map(fn (NetworkServer $member, int $index): array => [
+                'public_key' => (string) $member->public_key,
+                'allowed_ips' => $index === 0
+                    ? (string) $network->cidr
+                    : $member->ip.'/'.Cidr::hostPrefix((string) $member->ip),
+                'endpoint' => Cidr::endpoint((string) $member->server->ip, (int) $network->port),
+            ])
+            ->all();
+    }
+}

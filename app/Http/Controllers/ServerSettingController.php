@@ -17,6 +17,7 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth', 'has-project'])]
 class ServerSettingController extends Controller
 {
+
     #[Get('/', name: 'server-settings')]
     public function index(Server $server): Response
     {
@@ -28,7 +29,7 @@ class ServerSettingController extends Controller
     #[Patch('update', name: 'server-settings.update')]
     public function update(Request $request, Server $server): RedirectResponse
     {
-        $this->authorize('update', $server);
+        $this->authorize('updateSettings', $server);
 
         app(EditServer::class)->edit($server, $request->input());
 

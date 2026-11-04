@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Actions\SiteResource;
+
+use App\Actions\Site\RecordEnvVersion;
+use App\Enums\EnvVersionSource;
+use App\Helpers\EnvParser;
+use App\Models\Site;
+use App\Models\SiteResource;
+use App\Enums\SiteResourceStatus;
+
+class SyncManagedEnvironment
+{
+    public function __construct(private RecordEnvVersion $recordEnvVersion) {}
+    
+    public function managed(Site $site): array
+    {
+        $managed = [];
+
+        foreach ($site->resources as $resource) {
+            if ($resource->status !== SiteResourceStatus::READY) {
+                continue;
+            }
+
+            foreach ($resource->environment as $key => $value) {
+                $managed[$key] = [
+                    'value' => $value,
+                    'resource' => $resource->type->getText(),
+                ];
+            }
+        }
+
+        return $managed;
+    }
+
+    public function sync(Site $site, ?SiteResource $removed = null): void
+    {
+        $path = $site->resolveEnvPath();
+        $raw = $site->server->os()->readFile($path);
+        $changes = [];
+
+        if ($removed) {
+            foreach (array_keys($removed->environment) as $key) {
+                if (array_key_exists($key, $removed->original_environment ?? [])) {
+                    $changes[$key] = $removed->original_environment[$key];
+                }
+            }
+        }
+
+        $site->unsetRelation('resources');
+        foreach ($this->managed($site->load('resources')) as $key => $managed) {
+            $changes[$key] = $managed['value'];
+        }
+
+        $content = EnvParser::patch($raw, $changes);
+        $site->server->os()->write($path, $content, $site->user);
+        $this->recordEnvVersion->record($site, $path, $raw, $content, EnvVersionSource::RESOURCE);
+
+        $secretKeys = array_values(array_diff(
+            EnvParser::secretKeys($site->env_variables),
+            array_keys($removed->environment ?? []),
+        ));
+        $secretKeys = array_merge(
+            $secretKeys,
+            $removed?->configuration['original_secret_keys'] ?? [],
+        );
+        foreach (array_keys($this->managed($site)) as $key) {
+            if (EnvParser::isSecretKey($key)) {
+                $secretKeys[] = $key;
+            }
+        }
+
+        $site->env_variables = array_values(array_unique($secretKeys));
+        $site->save();
+    }
+
+    
+    public function enforce(Site $site, array $variables): array
+    {
+        $managed = $this->managed($site->loadMissing('resources'));
+        $result = [];
+        $seenManaged = [];
+
+        foreach ($variables as $variable) {
+            $key = $variable['key'];
+            if (! isset($managed[$key])) {
+                $result[] = $variable;
+
+                continue;
+            }
+
+            if (! isset($seenManaged[$key])) {
+                $result[] = [
+                    'key' => $key,
+                    'value' => $managed[$key]['value'],
+                    'is_secret' => EnvParser::isSecretKey($key),
+                ];
+                $seenManaged[$key] = true;
+            }
+        }
+
+        foreach ($managed as $key => $item) {
+            if (! isset($seenManaged[$key])) {
+                $result[] = [
+                    'key' => $key,
+                    'value' => $item['value'],
+                    'is_secret' => EnvParser::isSecretKey($key),
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    public function enforceRaw(Site $site, string $raw): string
+    {
+        $values = collect($this->managed($site->loadMissing('resources')))
+            ->mapWithKeys(fn (array $item, string $key): array => [$key => $item['value']])
+            ->all();
+
+        return EnvParser::patch($raw, $values);
+    }
+}

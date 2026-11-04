@@ -7,10 +7,14 @@ use App\Actions\CronJob\DeleteCronJob;
 use App\Actions\CronJob\DisableCronJob;
 use App\Actions\CronJob\EditCronJob;
 use App\Actions\CronJob\EnableCronJob;
-use App\Exceptions\SSHError;
+use App\Actions\CronJob\ExecuteCronJob;
+use App\Actions\CronJob\SyncCronJobs;
+use App\Helpers\QueryBuilder;
+use App\Http\Resources\CommandExecutionResource;
 use App\Http\Resources\CronJobResource;
 use App\Models\CronJob;
 use App\Models\Server;
+use App\Models\Site;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,56 +25,70 @@ use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 use Spatie\RouteAttributes\Attributes\Put;
+use Spatie\RouteAttributes\Attributes\WhereNumber;
 
-#[Prefix('servers/{server}/cronjobs')]
+#[Prefix('servers/{server}')]
 #[Middleware(['auth', 'has-project'])]
 class CronJobController extends Controller
 {
-    #[Get('/', name: 'cronjobs')]
+
+    #[Get('/cronjobs', name: 'cronjobs')]
     public function index(Server $server): Response
     {
         $this->authorize('viewAny', [CronJob::class, $server]);
 
+        $cronjobs = QueryBuilder::for($server->cronJobs()->where('hidden', false)->with('lastExecution.serverLog'))
+            ->sortable('created_at', 'desc')
+            ->simplePaginate();
+
         return Inertia::render('cronjobs/index', [
-            'cronjobs' => CronJobResource::collection($server->cronJobs()->latest()->simplePaginate(config('web.pagination_size'))),
+            'cronjobs' => CronJobResource::collection($cronjobs),
+            'sites' => $server->sites()->select('id', 'domain')->get(),
         ]);
     }
 
-    /**
-     * @throws SSHError
-     */
-    #[Post('/', name: 'cronjobs.store')]
-    public function store(Request $request, Server $server): RedirectResponse
+    #[Post('/cronjobs/{site?}', name: 'cronjobs.store')]
+    #[WhereNumber('site')]
+    public function store(Request $request, Server $server, ?Site $site = null): RedirectResponse
     {
-        $this->authorize('create', [CronJob::class, $server]);
+        $this->authorize('create', [CronJob::class, $server, $site]);
 
-        app(CreateCronJob::class)->create($server, $request->all());
+        app(CreateCronJob::class)->create($server, $request->all(), $site);
 
         return back()
             ->with('success', 'Cron job has been created.');
     }
 
-    /**
-     * @throws SSHError
-     */
-    #[Put('/{cronJob}', name: 'cronjobs.update')]
-    public function update(Request $request, Server $server, CronJob $cronJob): RedirectResponse
+    #[Put('/cronjobs/{cronJob}/{site?}', name: 'cronjobs.update')]
+    #[WhereNumber('site')]
+    public function update(Request $request, Server $server, CronJob $cronJob, ?Site $site = null): RedirectResponse
     {
-        $this->authorize('update', $cronJob);
+        $this->authorize('update', [$cronJob, $server, $site]);
 
-        app(EditCronJob::class)->edit($server, $cronJob, $request->all());
+        app(EditCronJob::class)->edit($server, $cronJob, $request->all(), $site);
 
         return back()
             ->with('success', 'Cron job has been updated.');
     }
 
-    /**
-     * @throws SSHError
-     */
-    #[Post('/{cronJob}/enable', name: 'cronjobs.enable')]
+    #[Post('/sites/{site}/cronjobs', name: 'cronjobs.site.store')]
+    public function siteStore(Request $request, Server $server, Site $site): RedirectResponse
+    {
+        return $this->store($request, $server, $site);
+    }
+
+    #[Put('/sites/{site}/cronjobs/{cronJob}', name: 'cronjobs.site.update')]
+    public function siteUpdate(Request $request, Server $server, Site $site, CronJob $cronJob): RedirectResponse
+    {
+        return $this->update($request, $server, $cronJob, $site);
+    }
+
+    
+
+    #[Post('/cronjobs/{cronJob}/enable', name: 'cronjobs.enable')]
     public function enable(Server $server, CronJob $cronJob): RedirectResponse
     {
-        $this->authorize('update', $cronJob);
+        $this->authorize('update', [$cronJob, $server]);
 
         app(EnableCronJob::class)->enable($server, $cronJob);
 
@@ -78,13 +96,12 @@ class CronJobController extends Controller
             ->with('success', 'Cron job has been enabled.');
     }
 
-    /**
-     * @throws SSHError
-     */
-    #[Post('/{cronJob}/disable', name: 'cronjobs.disable')]
+    
+
+    #[Post('/cronjobs/{cronJob}/disable', name: 'cronjobs.disable')]
     public function disable(Server $server, CronJob $cronJob): RedirectResponse
     {
-        $this->authorize('update', $cronJob);
+        $this->authorize('update', [$cronJob, $server]);
 
         app(DisableCronJob::class)->disable($server, $cronJob);
 
@@ -92,17 +109,108 @@ class CronJobController extends Controller
             ->with('success', 'Cron job has been disabled.');
     }
 
-    /**
-     * @throws SSHError
-     */
-    #[Delete('/{cronJob}', name: 'cronjobs.destroy')]
+    
+
+    #[Delete('/cronjobs/{cronJob}', name: 'cronjobs.destroy')]
     public function destroy(Server $server, CronJob $cronJob): RedirectResponse
     {
-        $this->authorize('delete', $cronJob);
+        $this->authorize('delete', [$cronJob, $server]);
 
         app(DeleteCronJob::class)->delete($server, $cronJob);
 
         return back()
             ->with('success', 'Cron job has been deleted.');
+    }
+
+    #[Get('/sites/{site}/cronjobs', name: 'cronjobs.site')]
+    public function site(Server $server, Site $site): Response
+    {
+        $this->authorize('viewAny', [CronJob::class, $server, $site]);
+
+        return Inertia::render('cronjobs/index', [
+            'cronjobs' => CronJobResource::collection(
+                $site->cronJobs()->with('lastExecution.serverLog')->latest()->simplePaginate(config('web.pagination_size'))
+            ),
+            'sites' => $server->sites()->select('id', 'domain')->get(),
+            'ssh_users' => $site->getSshUsers(),
+        ]);
+    }
+
+    #[Get('/cronjobs/{cronJob}', name: 'cronjobs.show')]
+    #[WhereNumber('cronJob')]
+    public function show(Server $server, CronJob $cronJob, ?Site $site = null): Response
+    {
+        $this->authorize('view', [$cronJob, $server, $site]);
+
+        return Inertia::render('cronjobs/show', [
+            'cronjob' => new CronJobResource($cronJob),
+            'executions' => CommandExecutionResource::collection(
+                $cronJob->executions()->with('serverLog')->latest()->simplePaginate(config('web.pagination_size'))
+            ),
+        ]);
+    }
+
+    #[Get('/sites/{site}/cronjobs/{cronJob}', name: 'cronjobs.site.show')]
+    #[WhereNumber('cronJob')]
+    public function siteShow(Server $server, Site $site, CronJob $cronJob): Response
+    {
+        return $this->show($server, $cronJob, $site);
+    }
+
+    #[Post('/cronjobs/{cronJob}/execute', name: 'cronjobs.execute')]
+    #[WhereNumber('cronJob')]
+    public function execute(Server $server, CronJob $cronJob, ?Site $site = null): RedirectResponse
+    {
+        $this->authorize('update', [$cronJob, $server, $site]);
+
+        app(ExecuteCronJob::class)->execute($server, $cronJob, user());
+
+        if ($site) {
+            return redirect()->route('cronjobs.site.show', [
+                'server' => $server,
+                'site' => $site,
+                'cronJob' => $cronJob,
+            ])->with('info', 'Cron job is being executed.');
+        }
+
+        return redirect()->route('cronjobs.show', [
+            'server' => $server,
+            'cronJob' => $cronJob,
+        ])->with('info', 'Cron job is being executed.');
+    }
+
+    #[Post('/sites/{site}/cronjobs/{cronJob}/execute', name: 'cronjobs.site.execute')]
+    #[WhereNumber('cronJob')]
+    public function siteExecute(Server $server, Site $site, CronJob $cronJob): RedirectResponse
+    {
+        return $this->execute($server, $cronJob, $site);
+    }
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+
+    #[Post('/cronjobs/sync', name: 'cronjobs.sync')]
+    public function sync(Server $server): RedirectResponse
+    {
+        $this->authorize('create', [CronJob::class, $server]);
+
+        app(SyncCronJobs::class)->sync($server);
+
+        return back()
+            ->with('success', 'Cron jobs synced successfully.');
     }
 }

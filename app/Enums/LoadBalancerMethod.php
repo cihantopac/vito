@@ -2,15 +2,22 @@
 
 namespace App\Enums;
 
-use App\Traits\Enum;
+use App\Enums\Concerns\TextIsValue;
+use App\Contracts\VitoEnum;
+use App\Traits\HasEnumHelpers;
 
-final class LoadBalancerMethod
+enum LoadBalancerMethod: string implements VitoEnum
 {
-    use Enum;
+    use TextIsValue;
 
-    const ROUND_ROBIN = 'round-robin';
+    use HasEnumHelpers;
 
-    const LEAST_CONNECTIONS = 'least-connections';
+    case ROUND_ROBIN = 'round-robin';
+    case LEAST_CONNECTIONS = 'least-connections';
+    case IP_HASH = 'ip-hash';
 
-    const IP_HASH = 'ip-hash';
+    public function getColor(): string
+    {
+        return 'default';
+    }
 }

@@ -2,15 +2,27 @@
 
 namespace App\SourceControlProviders;
 
+use App\Exceptions\AppError;
 use App\Exceptions\RepositoryNotFound;
 use App\Exceptions\RepositoryPermissionDenied;
 use App\Exceptions\SourceControlIsNotConnected;
 use App\Models\SourceControl;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Throwable;
 
 abstract class AbstractSourceControlProvider implements SourceControlProvider
 {
     public function __construct(protected SourceControl $sourceControl) {}
+
+    protected function friendlyFetchError(Throwable $e, string $providerLabel, string $action): AppError
+    {
+        if ($e instanceof RequestException && in_array($e->response->status(), [401, 403], true)) {
+            return new AppError("Your {$providerLabel} connection has expired or is no longer valid. Please reconnect it from Source Control settings.");
+        }
+
+        return new AppError("Unable to {$action} from {$providerLabel} right now. Please try again in a moment.");
+    }
 
     public function createRules(array $input): array
     {
@@ -28,7 +40,7 @@ abstract class AbstractSourceControlProvider implements SourceControlProvider
 
     public function data(): array
     {
-        // support for older data
+        
         $token = $this->sourceControl->access_token ?? '';
 
         return [
@@ -36,11 +48,7 @@ abstract class AbstractSourceControlProvider implements SourceControlProvider
         ];
     }
 
-    /**
-     * @throws SourceControlIsNotConnected
-     * @throws RepositoryNotFound
-     * @throws RepositoryPermissionDenied
-     */
+    
     protected function handleResponseErrors(Response $res, string $repo): void
     {
         if ($res->status() == 401) {
@@ -59,5 +67,58 @@ abstract class AbstractSourceControlProvider implements SourceControlProvider
     public function getWebhookBranch(array $payload): string
     {
         return str($payload['ref'] ?? '')->after('refs/heads/')->toString();
+    }
+
+    public function getSshPort(): int
+    {
+        return 22;
+    }
+
+    
+    public static function editableFields(): array
+    {
+        return [];
+    }
+
+    
+    public function editRules(array $input): array
+    {
+        return [];
+    }
+
+    
+    public function editData(array $input): array
+    {
+        return $this->sourceControl->provider_data ?? [];
+    }
+
+    
+    protected function sshPortRules(): array
+    {
+        return ['sometimes', 'nullable', 'integer', 'min:1', 'max:65535'];
+    }
+
+    protected function normalizeSshPort(mixed $value): int
+    {
+        if ($value === null || $value === '') {
+            return 22;
+        }
+
+        return (int) $value;
+    }
+
+    public function getRepos(bool $useCache = true): array
+    {
+        return [];
+    }
+
+    public function getBranches(string $repo, bool $useCache = true): array
+    {
+        return [];
+    }
+
+    public function getFile(string $repo, string $path, ?string $branch = null): ?string
+    {
+        return null;
     }
 }

@@ -1,0 +1,268 @@
+<?php
+
+namespace App\Actions\Webserver;
+
+use App\Enums\HostedDomainStatus;
+use App\Enums\HostedDomainType;
+use App\Models\HostedDomain;
+use App\Models\Redirect;
+use App\Models\Site;
+use Illuminate\Support\Collection;
+use Mustache\Engine;
+
+abstract class AbstractGenerateConfig
+{
+    protected const PHP_VALUE_TOKEN = '@@VITO_PHP_VALUE@@';
+
+    
+    public function generate(Site $site, ?string $template = null): string
+    {
+        $site->load(['hostedDomains.ssl', 'activeRedirects', 'loadBalancerServers']);
+
+        $template = $template ?? $this->getTemplate($site);
+        $data = $this->buildData($site);
+
+        $engine = new Engine([
+            'escape' => fn ($value) => $value,
+        ]);
+
+        $rendered = format_webserver_config($engine->render($template, $data));
+
+        return str_replace(self::PHP_VALUE_TOKEN, $data['php_value_string'], $rendered);
+    }
+
+    
+    abstract public function defaultTemplate(): string;
+
+    
+    abstract protected function buildServerBlockKeys(bool $hasSsl, string $sslCertPath, string $sslKeyPath, Site $site): array;
+
+    
+    abstract protected function buildPhpSocket(Site $site): string;
+
+    
+    abstract protected function buildLoadBalancerData(Site $site): array;
+
+    
+    abstract protected function buildRedirectEntry(object $redirect, bool $isProxy): array;
+
+    
+    abstract protected function transformDomains(array $domains, bool $httpOnly): array;
+
+    
+    abstract protected function enrichServerBlock(array $block, array $data): array;
+
+    
+    abstract protected function buildRedirectBlock(HostedDomain $hd, string $primaryDomain, Site $site): array;
+
+    
+    protected function finalizeData(array $data, Site $site): array
+    {
+        return $data;
+    }
+
+    protected function getTemplate(Site $site): string
+    {
+        if ($site->vhost_template) {
+            return $site->vhost_template;
+        }
+
+        $siteTypeTemplate = $site->type()->vhostTemplate($site->server->webserver()->name);
+        if ($siteTypeTemplate !== null) {
+            return $siteTypeTemplate;
+        }
+
+        return $this->defaultTemplate();
+    }
+
+    
+    protected function buildData(Site $site): array
+    {
+        $primary = $site->hostedDomains
+            ->first(fn (HostedDomain $hd) => $hd->type === HostedDomainType::PRIMARY);
+
+        $activeOthers = $site->hostedDomains
+            ->filter(fn (HostedDomain $hd) => $hd->type !== HostedDomainType::PRIMARY && $hd->status === HostedDomainStatus::ACTIVE);
+
+        $domains = $activeOthers;
+        if ($primary) {
+            $domains = $domains->prepend($primary);
+        }
+
+        return $this->buildFromHostedDomains($site, $domains);
+    }
+
+    
+    protected function buildFromHostedDomains(Site $site, Collection $activeDomains): array
+    {
+        $primaryAndAlias = $activeDomains->filter(
+            fn (HostedDomain $hd) => in_array($hd->type, [HostedDomainType::PRIMARY, HostedDomainType::ALIAS])
+        );
+        $redirectDomains = $activeDomains->filter(
+            fn (HostedDomain $hd) => $hd->type === HostedDomainType::REDIRECT
+        );
+
+        $primaryDomain = $site->domain;
+        $data = $this->buildCommonData($site, $primaryDomain);
+
+        $serverBlocks = [];
+
+        if ($site->ssl_enabled) {
+            $grouped = $primaryAndAlias->groupBy(fn (HostedDomain $hd) => $hd->ssl_id ?? 'http');
+
+            foreach ($grouped as $sslId => $domains) {
+                $domainNames = $domains->map(fn (HostedDomain $hd) => ['name' => $hd->domain])->values()->all();
+
+                if ($sslId === 'http') {
+                    $serverBlocks[] = [
+                        ...$this->buildServerBlockKeys(false, '', '', $site),
+                        'domains' => $domainNames,
+                    ];
+                } else {
+                    
+                    $ssl = $domains->first()->ssl;
+                    $serverBlocks[] = [
+                        ...$this->buildServerBlockKeys(true, $ssl->certificate_path, $ssl->pk_path, $site),
+                        'domains' => $domainNames,
+                    ];
+                }
+            }
+        } else {
+            $allDomainNames = $primaryAndAlias->map(fn (HostedDomain $hd) => ['name' => $hd->domain])->values()->all();
+            if (! empty($allDomainNames)) {
+                $serverBlocks[] = [
+                    ...$this->buildServerBlockKeys(false, '', '', $site),
+                    'domains' => $allDomainNames,
+                ];
+            }
+        }
+
+        $data['server_blocks'] = $this->enrichServerBlocks($serverBlocks, $data);
+
+        $data['redirect_blocks'] = [];
+        foreach ($redirectDomains as $hd) {
+            $block = $this->buildRedirectBlock($hd, $primaryDomain, $site);
+            $block['verification_key'] = $data['verification_key'];
+            $data['redirect_blocks'][] = $block;
+        }
+
+        return $this->finalizeData($data, $site);
+    }
+
+    
+    protected function buildCommonData(Site $site, string $primaryDomain): array
+    {
+        $siteTypeData = $site->type()->vhostData();
+        $isOctane = (bool) data_get($site->type_data, 'octane', false);
+        $isPhp = ($siteTypeData['is_php'] ?? false) && ! $isOctane;
+
+        $phpEnabled = $isPhp && $site->vhost_template === null;
+        $phpValueString = $phpEnabled ? $this->phpValueDirectives($site) : '';
+
+        $basicAuth = data_get($site->type_data, 'basic_auth', []);
+        $basicAuthEnabled = ! empty($basicAuth['enabled']) && ! empty($basicAuth['users']);
+
+        return [
+            ...$siteTypeData,
+            ...$this->buildLoadBalancerData($site),
+            'primary_domain' => $primaryDomain,
+            'root' => $site->getWebDirectoryPath(),
+            'is_php' => $isPhp,
+            'is_reverse_proxy' => $siteTypeData['is_reverse_proxy'] ?? false,
+            'is_load_balancer' => $siteTypeData['is_load_balancer'] ?? false,
+            'is_octane' => $isOctane,
+            'octane_port' => data_get($site->type_data, 'octane_port', 8000),
+            'php_socket' => $isPhp ? $this->buildPhpSocket($site) : '',
+            'php_value' => $phpValueString !== '',
+            'php_value_string' => $phpValueString,
+            'php_max_upload_size' => $phpEnabled ? ($this->phpSetting($site, 'client_max_body_size') ?? $this->phpSetting($site, 'upload_max_filesize') ?? $this->phpSetting($site, 'max_upload_size')) : null,
+            'php_max_execution_time' => $phpEnabled ? $this->phpSetting($site, 'max_execution_time') : null,
+            'port' => $site->port,
+            'redirects' => $this->buildRedirects($site),
+            'type_data' => $site->type_data ?? [],
+            'basic_auth_enabled' => $basicAuthEnabled,
+            'basic_auth_realm' => $site->domain,
+            'basic_auth_file' => $site->htpasswdPath(),
+            'basic_auth_users' => $basicAuthEnabled ? array_values($basicAuth['users']) : [],
+            'verification_key' => $site->verification_key,
+        ];
+    }
+
+    
+    protected function enrichServerBlocks(array $blocks, array $data): array
+    {
+        foreach ($blocks as &$block) {
+            $httpOnly = $block['http_only'] ?? (! ($block['listen_443'] ?? false));
+            $block['domains'] = $this->transformDomains($block['domains'], $httpOnly);
+            $block['root'] = $data['root'];
+            $block['primary_domain'] = $data['primary_domain'];
+            $block['is_php'] = $data['is_php'];
+            $block['is_reverse_proxy'] = $data['is_reverse_proxy'];
+            $block['is_load_balancer'] = $data['is_load_balancer'];
+            $block['is_octane'] = $data['is_octane'];
+            $block['octane_port'] = $data['octane_port'];
+            $block['php_socket'] = $data['php_socket'];
+            $block['php_value'] = $data['php_value'];
+            $block['port'] = $data['port'];
+            $block['redirects'] = $data['redirects'];
+            $block['basic_auth_enabled'] = $data['basic_auth_enabled'];
+            $block['basic_auth_realm'] = $data['basic_auth_realm'];
+            $block['basic_auth_file'] = $data['basic_auth_file'];
+            $block['basic_auth_users'] = $data['basic_auth_users'];
+            $block['verification_key'] = $data['verification_key'];
+            $block = $this->enrichServerBlock($block, $data);
+        }
+
+        return $blocks;
+    }
+
+    
+    protected function buildRedirects(Site $site): array
+    {
+        $redirects = [];
+        foreach ($site->activeRedirects as $redirect) {
+            $isProxy = (int) $redirect->mode === Redirect::MODE_PROXY;
+            $redirects[] = $this->buildRedirectEntry($redirect, $isProxy);
+        }
+
+        return $redirects;
+    }
+
+    
+    protected function phpValueDirectives(Site $site): string
+    {
+        $directives = [];
+
+        $upload = $this->phpSetting($site, 'upload_max_filesize') ?? $this->phpSetting($site, 'max_upload_size');
+        $post = $this->phpSetting($site, 'post_max_size') ?? $upload;
+        if ($upload !== null) {
+            $directives[] = "upload_max_filesize={$upload}M";
+            $directives[] = "post_max_size={$post}M";
+        }
+
+        $execution = $this->phpSetting($site, 'max_execution_time');
+        if ($execution !== null) {
+            $directives[] = "max_execution_time={$execution}";
+            $directives[] = "max_input_time={$execution}";
+        }
+
+        $memory = $this->phpSetting($site, 'memory_limit');
+        if ($memory !== null) {
+            $directives[] = "memory_limit={$memory}M";
+        }
+
+        $inputVars = $this->phpSetting($site, 'max_input_vars');
+        if ($inputVars !== null) {
+            $directives[] = "max_input_vars={$inputVars}";
+        }
+
+        return implode("\n", $directives);
+    }
+
+    protected function phpSetting(Site $site, string $key): ?int
+    {
+        $value = data_get($site->type_data, "php.{$key}");
+
+        return is_numeric($value) ? (int) $value : null;
+    }
+}

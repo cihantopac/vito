@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Jobs\Server;
+
+use App\DTOs\SocketEventDTO;
+use App\Events\SocketEvent;
+use App\Facades\Notifier;
+use App\Http\Resources\ServerResource;
+use App\Models\Server;
+use App\Models\ServerLog;
+use App\Notifications\ServerAutoUpdateCompleted;
+use App\Notifications\ServerUpdateFailed;
+use App\Traits\UniqueQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Throwable;
+
+class UpdateJob implements ShouldQueue
+{
+    use Queueable;
+    use UniqueQueue;
+
+    public function __construct(
+        protected Server $server,
+        protected bool $notify = false,
+        protected ?ServerLog $log = null
+    ) {}
+
+    public function handle(): void
+    {
+        $this->run("server-{$this->server->id}", function () {
+            if ($this->log) {
+                $this->server->ssh()->setLog($this->log);
+            }
+
+            $result = $this->server->os()->upgrade($this->log);
+            $this->server->checkConnection();
+            $this->server->checkForUpdates();
+            $this->server->status = \App\Enums\ServerStatus::READY;
+            $this->server->save();
+            $kernelUpdatesRemaining = $this->server->kernel_updates;
+            $this->broadcastServerUpdate();
+
+            if ($this->notify && ($result['upgraded'] > 0 || $result['reboot_required'])) {
+                Notifier::send($this->server, new ServerAutoUpdateCompleted(
+                    $this->server,
+                    $result['upgraded'],
+                    $kernelUpdatesRemaining,
+                    $result['reboot_required'],
+                ));
+            }
+        });
+    }
+
+    public function failed(Throwable $e): void
+    {
+        Notifier::send($this->server, new ServerUpdateFailed($this->server));
+        $this->server->checkConnection();
+        $this->broadcastServerUpdate();
+
+        if ($this->log) {
+            $this->log->write("\n[ERROR] Update failed: {$e->getMessage()}\n");
+        }
+
+        ServerLog::log(
+            $this->server,
+            'update-server-failed',
+            $e->getMessage()
+        );
+    }
+
+    private function broadcastServerUpdate(): void
+    {
+        $this->server->refresh();
+
+        SocketEvent::dispatch(new SocketEventDTO(
+            projectId: $this->server->project_id,
+            type: 'server.updated',
+            data: new ServerResource($this->server),
+        ));
+    }
+}

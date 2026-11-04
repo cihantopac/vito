@@ -6,10 +6,14 @@ use App\Actions\Database\CreateDatabaseUser;
 use App\Actions\Database\DeleteDatabaseUser;
 use App\Actions\Database\LinkUser;
 use App\Actions\Database\SyncDatabaseUsers;
+use App\Actions\Database\UpdateDatabaseUser;
 use App\Http\Resources\DatabaseResource;
 use App\Http\Resources\DatabaseUserResource;
 use App\Models\DatabaseUser;
+use App\Models\PostgresCluster;
 use App\Models\Server;
+use App\Services\Database\Database;
+use App\Tables\Servers\DatabaseUserTable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -27,14 +31,22 @@ use Spatie\RouteAttributes\Attributes\Put;
 #[Middleware(['auth', 'has-project'])]
 class DatabaseUserController extends Controller
 {
+
     #[Get('/', name: 'database-users')]
     public function index(Server $server): Response
     {
         $this->authorize('viewAny', [DatabaseUser::class, $server]);
 
+        
+        $handler = $server->database()->handler();
+
         return Inertia::render('database-users/index', [
+            'replicaOf' => $this->replicaOf($server),
             'databases' => DatabaseResource::collection($server->databases()->get()),
-            'databaseUsers' => DatabaseUserResource::collection($server->databaseUsers()->simplePaginate(config('web.pagination_size'))),
+            'usesHost' => $handler->usesHost(),
+            'databaseUsers' => DatabaseUserTable::make($server->databaseUsers())
+                ->withHost($handler->usesHost())
+                ->paginate(),
         ]);
     }
 
@@ -68,6 +80,17 @@ class DatabaseUserController extends Controller
             ->with('success', 'Database users synced successfully.');
     }
 
+    #[Put('/{databaseUser}', name: 'database-users.update')]
+    public function update(Request $request, Server $server, DatabaseUser $databaseUser): RedirectResponse
+    {
+        $this->authorize('update', [$databaseUser, $server]);
+
+        app(UpdateDatabaseUser::class)->update($databaseUser, $request->all());
+
+        return back()
+            ->with('success', 'Database user updated successfully.');
+    }
+
     #[Put('/link/{databaseUser}', name: 'database-users.link')]
     public function link(Request $request, Server $server, DatabaseUser $databaseUser): RedirectResponse
     {
@@ -88,5 +111,14 @@ class DatabaseUserController extends Controller
 
         return back()
             ->with('success', 'Database user deleted successfully.');
+    }
+    /** @return array{server_id: int, name: ?string}|null */
+    private function replicaOf(Server $server): ?array
+    {
+        $cluster = PostgresCluster::forServer($server);
+
+        return $cluster !== null && $cluster->primary_server_id !== $server->id
+            ? ['server_id' => $cluster->primary_server_id, 'name' => $cluster->primary?->name]
+            : null;
     }
 }

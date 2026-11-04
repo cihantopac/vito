@@ -2,10 +2,12 @@
 
 namespace App\Services\ProcessManager;
 
-use App\Exceptions\SSHError;
-use Throwable;
+use App\DTOs\ServiceLog;
+use App\Enums\WorkerStatus;
+use App\Models\Worker;
+use App\Services\HasLogs;
 
-class Supervisor extends AbstractProcessManager
+class Supervisor extends AbstractProcessManager implements HasLogs
 {
     public static function id(): string
     {
@@ -22,22 +24,20 @@ class Supervisor extends AbstractProcessManager
         return 'supervisor';
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
-        $this->service->server->ssh()->exec(
-            view('ssh.services.process-manager.supervisor.install-supervisor'),
-            'install-supervisor'
-        );
+        $this->service->server->ssh()
+            ->setLog($this->service->log)
+            ->exec(
+                view('ssh.services.process-manager.supervisor.install-supervisor'),
+                'install-supervisor'
+            );
         event('service.installed', $this->service);
         $this->service->server->os()->cleanup();
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function uninstall(): void
     {
         $this->service->server->ssh()->exec(
@@ -48,127 +48,224 @@ class Supervisor extends AbstractProcessManager
         $this->service->server->os()->cleanup();
     }
 
-    /**
-     * @throws SSHError
-     */
-    public function create(
-        int $id,
-        string $command,
-        string $user,
-        bool $autoStart,
-        bool $autoRestart,
-        int $numprocs,
-        string $logFile,
-        ?string $directory = null,
-        ?int $siteId = null
-    ): void {
+    
+    public static function formatEnvironment(array $environment): string
+    {
+        return collect($environment)
+            ->filter(fn (string $value, string $key): bool => preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $key) === 1)
+            ->map(function (string $value, string $key): string {
+                $sanitized = str_replace(["\r", "\n", '"'], '', $value);
+
+                return $key.'="'.str_replace('%', '%%', $sanitized).'"';
+            })
+            ->implode(',');
+    }
+
+    
+    public function writeConfig(Worker $worker): void
+    {
         $this->service->server->ssh()->write(
-            "/etc/supervisor/conf.d/$id.conf",
+            "/etc/supervisor/conf.d/{$worker->id}.conf",
             view('ssh.services.process-manager.supervisor.worker', [
-                'name' => (string) $id,
-                'directory' => $directory,
-                'command' => $command,
-                'user' => $user,
-                'autoStart' => var_export($autoStart, true),
-                'autoRestart' => var_export($autoRestart, true),
-                'numprocs' => (string) $numprocs,
-                'logFile' => $logFile,
+                'name' => (string) $worker->id,
+                'directory' => $worker->workingDirectory(),
+                'command' => $worker->command,
+                'user' => $worker->user,
+                'autoStart' => var_export($worker->auto_start, true),
+                'autoRestart' => var_export($worker->auto_restart, true),
+                'numprocs' => (string) $worker->numprocs,
+                'logFile' => $worker->getLogFile(),
+                'environment' => self::formatEnvironment($worker->effectiveEnvironment()),
             ]),
             'root'
         );
+    }
+
+    
+    public function create(Worker $worker): void
+    {
+        $this->writeConfig($worker);
 
         $this->service->server->ssh()->exec(
             view('ssh.services.process-manager.supervisor.create-worker', [
-                'id' => $id,
-                'logFile' => $logFile,
-                'user' => $user,
+                'id' => $worker->id,
+                'logFile' => $worker->getLogFile(),
+                'user' => $worker->user,
+                'initiatedBy' => $worker->creator?->name ?? user()?->name,
             ]),
             'create-worker',
-            $siteId
+            $worker->site_id
         );
     }
 
-    /**
-     * @throws Throwable
-     */
+    
     public function delete(int $id, ?int $siteId = null): void
     {
         $this->service->server->ssh()->exec(
             view('ssh.services.process-manager.supervisor.delete-worker', [
                 'id' => $id,
+                'logFile' => Worker::query()->find($id)?->getLogFile() ?? "/home/{$this->service->server->getSshUser()}/.logs/workers/{$id}.log",
             ]),
             'delete-worker',
             $siteId
         );
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function restart(int $id, ?int $siteId = null): void
+    
+    public function restart(int $id, ?int $siteId = null, ?string $initiatedBy = null): void
     {
+        $worker = $this->service->server->workers()->find($id) ?? Worker::find($id);
+
         $this->service->server->ssh()->exec(
             view('ssh.services.process-manager.supervisor.restart-worker', [
                 'id' => $id,
+                'logFile' => $worker?->getLogFile(),
+                'user' => $worker?->user,
+                'initiatedBy' => $initiatedBy,
             ]),
             'restart-worker',
             $siteId
         );
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function stop(int $id, ?int $siteId = null): void
+    
+    public function stop(int $id, ?int $siteId = null, ?string $initiatedBy = null): void
     {
+        $worker = $this->service->server->workers()->find($id) ?? Worker::find($id);
+
         $this->service->server->ssh()->exec(
             view('ssh.services.process-manager.supervisor.stop-worker', [
                 'id' => $id,
+                'logFile' => $worker?->getLogFile(),
+                'user' => $worker?->user,
+                'initiatedBy' => $initiatedBy,
             ]),
             'stop-worker',
             $siteId
         );
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function start(int $id, ?int $siteId = null): void
+    
+    public function start(int $id, ?int $siteId = null, ?string $initiatedBy = null): void
     {
+        $worker = $this->service->server->workers()->find($id) ?? Worker::find($id);
+
         $this->service->server->ssh()->exec(
             view('ssh.services.process-manager.supervisor.start-worker', [
                 'id' => $id,
+                'logFile' => $worker?->getLogFile(),
+                'user' => $worker?->user,
+                'initiatedBy' => $initiatedBy,
             ]),
             'start-worker',
             $siteId
         );
     }
 
-    public function restartAll(?int $siteId = null): void
+    
+    public function restartMany(array $ids, ?int $siteId = null): string
     {
-        $this->service->server->ssh()->exec(
-            view('ssh.services.process-manager.supervisor.restart-all-workers'),
-            'restart-all-workers',
+        
+        if ($ids === []) {
+            return '';
+        }
+
+        return $this->service->server->ssh()->exec(
+            view('ssh.services.process-manager.supervisor.restart-workers', [
+                'ids' => $ids,
+            ]),
+            'restart-workers',
             $siteId
         );
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function getLogs(string $user, string $logPath): string
+    
+    public function restartAll(?int $siteId = null): void
     {
-        return $this->service->server->ssh($user)->exec(
-            "tail -100 $logPath"
+        if ($siteId !== null) {
+            $ids = $this->service->server->workers()
+                ->where('site_id', $siteId)
+                ->whereNotIn('status', [WorkerStatus::CREATING, WorkerStatus::DELETING])
+                ->pluck('id')
+                ->all();
+
+            if ($ids !== []) {
+                $this->restartMany($ids, $siteId);
+            }
+
+            return;
+        }
+
+        $this->service->server->ssh()->exec(
+            view('ssh.services.process-manager.supervisor.restart-all-workers'),
+            'restart-all-workers'
         );
     }
 
-    public function version(): string
+    
+    public function statuses(): array
     {
-        $version = $this->service->server->ssh()->exec(
-            'supervisord --version'
+        $output = $this->service->server->ssh()->exec(
+            view('ssh.services.process-manager.supervisor.worker-statuses'),
+            'worker-statuses'
         );
 
-        return trim($version);
+        $statuses = [];
+
+        foreach (explode("\n", $output) as $line) {
+            $parts = preg_split('/\s+/', trim($line), 3) ?: [];
+
+            if (count($parts) < 2) {
+                continue;
+            }
+
+            $group = explode(':', $parts[0], 2)[0];
+
+            if (! ctype_digit($group)) {
+                continue;
+            }
+
+            $statuses[(int) $group][$parts[0]] = [
+                'state' => strtoupper($parts[1]),
+                'description' => $parts[2] ?? '',
+            ];
+        }
+
+        return $statuses;
+    }
+
+    
+    public function getLogs(string $user, string $logPath, int $lines = 100): string
+    {
+        $lines = max(1, min($lines, 10000));
+
+        return $this->service->server->ssh($user)->exec(
+            "tail -n {$lines} {$logPath}"
+        );
+    }
+
+    public function clearLogs(string $user, string $logPath): void
+    {
+        $this->service->server->ssh()->exec(
+            "sudo truncate -s 0 {$logPath}"
+        );
+    }
+
+    public function versionCommand(): ?string
+    {
+        return 'supervisord --version';
+    }
+
+    public function logs(): array
+    {
+        return [
+            new ServiceLog(
+                key: 'supervisor:general',
+                serviceLabel: 'Supervisor',
+                label: 'General log',
+                source: ServiceLog::SOURCE_FILE,
+                target: '/var/log/supervisor/supervisord.log',
+            ),
+        ];
     }
 }

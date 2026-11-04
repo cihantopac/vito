@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Actions\Site;
+
+use App\Models\Site;
+use App\Traits\NormalizesWebDirectory;
+use Illuminate\Support\Facades\Validator;
+
+class UpdateWebDirectory
+{
+    use NormalizesWebDirectory;
+
+    
+    public function update(Site $site, array $input): void
+    {
+        $this->validate($input);
+
+        $site->web_directory = $this->normalizeWebDirectory($input['web_directory'] ?? null);
+
+        
+        $service = $site->server->webserver();
+
+        
+        $webserver = $service->handler();
+        $webserver->updateVHost($site);
+
+        $site->save();
+    }
+
+    protected function validate(array $input): void
+    {
+        Validator::make($input, [
+            'web_directory' => [
+                'nullable',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z0-9._\-\/]+$/',
+                'not_regex:/\.\./',
+            ],
+        ])->validate();
+    }
+}

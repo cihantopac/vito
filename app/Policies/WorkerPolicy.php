@@ -6,47 +6,61 @@ use App\Models\Server;
 use App\Models\Site;
 use App\Models\User;
 use App\Models\Worker;
+use App\Traits\HasRolePolicies;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class WorkerPolicy
 {
     use HandlesAuthorization;
+    use HasRolePolicies;
 
     public function viewAny(User $user, Server $server, ?Site $site = null): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
-            $server->isReady() &&
+        return $this->hasServerReadAccess($user, $server) &&
+            (! $site || $site->server_id === $server->id) &&
             $server->processManager();
     }
 
     public function view(User $user, Worker $worker, Server $server, ?Site $site = null): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
-            $server->isReady() &&
+        return $this->hasServerReadAccess($user, $server) &&
             $worker->server_id === $server->id &&
+            (! $site || ($site->server_id === $server->id && $worker->site_id === $site->id)) &&
             $server->processManager();
     }
 
     public function create(User $user, Server $server, ?Site $site = null): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
             $server->isReady() &&
+            (! $site || $site->server_id === $server->id) &&
+            $server->processManager();
+    }
+
+    public function manage(User $user, Server $server, ?Site $site = null): bool
+    {
+        return $this->hasServerWriteAccess($user, $server) &&
+            $server->isReady() &&
+            (! $site || $site->server_id === $server->id) &&
             $server->processManager();
     }
 
     public function update(User $user, Worker $worker, Server $server, ?Site $site = null): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
             $server->isReady() &&
             $worker->server_id === $server->id &&
+            (! $site || ($site->server_id === $server->id && $worker->site_id === $site->id)) &&
             $server->processManager();
     }
 
     public function delete(User $user, Worker $worker, Server $server, ?Site $site = null): bool
     {
-        return ($user->isAdmin() || $server->project->users->contains($user)) &&
+        return $this->hasServerWriteAccess($user, $server) &&
             $server->isReady() &&
             $worker->server_id === $server->id &&
-            $server->processManager();
+            (! $site || ($site->server_id === $server->id && $worker->site_id === $site->id)) &&
+            $server->processManager() &&
+            ! $worker->isSiteBootstrap();
     }
 }

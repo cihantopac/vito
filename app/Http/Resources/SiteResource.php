@@ -2,45 +2,96 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Site;
+use App\SiteTypes\AbstractProxiedSiteType;
+use App\SSH\OS\Composer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Site */
 class SiteResource extends JsonResource
 {
-    /**
-     * @return array<string, mixed>
-     */
+    
     public function toArray(Request $request): array
     {
+        $webserver = $this->webserver();
+
         return [
             'id' => $this->id,
             'server_id' => $this->server_id,
             'server' => new ServerResource($this->whenLoaded('server')),
             'source_control_id' => $this->source_control_id,
             'type' => $this->type,
-            'type_data' => $this->type_data,
+            'type_data' => $this->sanitisedTypeData(),
+            'basic_auth' => [
+                'enabled' => (bool) data_get($this->type_data, 'basic_auth.enabled', false),
+                'users' => array_map(
+                    fn (array $u) => ['username' => $u['username'] ?? ''],
+                    array_values(data_get($this->type_data, 'basic_auth.users', []))
+                ),
+            ],
             'domain' => $this->domain,
-            'aliases' => $this->aliases,
             'web_directory' => $this->web_directory,
-            'webserver' => $this->webserver()->id(),
+            'webserver' => $webserver->id(),
+            'webserver_creates_site_ssls' => $webserver->createsSiteSSLs(),
             'path' => $this->path,
             'php_version' => $this->php_version,
+            'php_settings' => $this->phpSettings(),
+            'supports_php_settings' => $this->supportsPhpSettings(),
             'repository' => $this->repository,
             'branch' => $this->branch,
-            'status' => $this->status,
-            'status_color' => Site::$statusColors[$this->status] ?? 'default',
+            'status' => $this->status->getText(),
+            'status_color' => $this->status->getColor(),
             'auto_deploy' => $this->isAutoDeployment(),
             'port' => $this->port,
             'user' => $this->user,
+            'isolated_user_id' => $this->isolated_user_id,
             'url' => $this->getUrl(),
             'force_ssl' => $this->force_ssl,
+            'ssl_enabled' => $this->ssl_enabled,
             'progress' => $this->progress,
+            'progress_step' => $this->progress_step,
+            'installation_steps' => $this->installationSteps(),
+            'last_error' => $this->last_error,
             'features' => $this->features(),
+            'can_configure_ssl' => $webserver->canConfigureSSL(),
+            'webserver_allowed_ssl_methods' => $webserver->allowedSslMethods(),
+            'webserver_default_ssl_method' => $webserver->defaultSslMethod()->value,
+            'vhost_generation_enabled' => $this->vhost_generation_enabled,
+            'has_custom_vhost_template' => $this->vhost_template !== null,
             'modern_deployment' => $this->modernDeploymentEnabled(),
+            'stats_enabled' => $this->statsEnabled(),
+            'is_proxied_site_type' => $this->typeOrNull() instanceof AbstractProxiedSiteType,
+            'available_tooling_commands' => $this->availableToolingCommands(),
+            'start_command' => $this->type_data['start_command'] ?? null,
+            'bootstrap_worker_id' => isset($this->type_data['bootstrap_worker_id'])
+                ? (int) $this->type_data['bootstrap_worker_id']
+                : null,
+            'default_composer_install_command' => $this->typeOrNull()?->language() === 'php' ? Composer::DEFAULT_INSTALL_COMMAND : null,
+            'counts' => [
+                'domains' => (int) ($this->hosted_domains_count ?? $this->hostedDomains_count ?? ($this->relationLoaded('hostedDomains') ? $this->hostedDomains->count() : $this->hostedDomains()->count())),
+                'workers' => (int) ($this->workers_count ?? ($this->relationLoaded('workers') ? $this->workers->count() : $this->workers()->count())),
+                'resources' => (int) ($this->resources_count ?? ($this->relationLoaded('resources') ? $this->resources->count() : $this->resources()->count())),
+                'commands' => (int) ($this->commands_count ?? ($this->relationLoaded('commands') ? $this->commands->count() : $this->commands()->count())),
+            ],
+            'warnings' => $this->getWarnings(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    
+    private function sanitisedTypeData(): array
+    {
+        $typeData = $this->type_data ?? [];
+
+        unset($typeData['php'], $typeData['password'], $typeData['database_password']);
+
+        if (isset($typeData['basic_auth']['users']) && is_array($typeData['basic_auth']['users'])) {
+            $typeData['basic_auth']['users'] = array_map(
+                fn (array $u) => ['username' => $u['username'] ?? ''],
+                $typeData['basic_auth']['users']
+            );
+        }
+
+        return $typeData;
     }
 }

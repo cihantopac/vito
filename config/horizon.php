@@ -1,105 +1,45 @@
 <?php
 
+use App\Http\Middleware\MustBeAdminMiddleware;
 use Illuminate\Support\Str;
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Horizon Domain
-    |--------------------------------------------------------------------------
-    |
-    | This is the subdomain where Horizon will be accessible from. If this
-    | setting is null, Horizon will reside under the same domain as the
-    | application. Otherwise, this value will serve as the subdomain.
-    |
-    */
+    
 
     'domain' => env('HORIZON_DOMAIN'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Horizon Path
-    |--------------------------------------------------------------------------
-    |
-    | This is the URI path where Horizon will be accessible from. Feel free
-    | to change this path to anything you like. Note that the URI will not
-    | affect the paths of its internal API that aren't exposed to users.
-    |
-    */
+    
 
     'path' => env('HORIZON_PATH', 'horizon'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Horizon Redis Connection
-    |--------------------------------------------------------------------------
-    |
-    | This is the name of the Redis connection where Horizon will store the
-    | meta information required for it to function. It includes the list
-    | of supervisors, failed jobs, job metrics, and other information.
-    |
-    */
+    
 
     'use' => 'default',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Horizon Redis Prefix
-    |--------------------------------------------------------------------------
-    |
-    | This prefix will be used when storing all Horizon data in Redis. You
-    | may modify the prefix when you are running multiple installations
-    | of Horizon on the same server so that they don't have problems.
-    |
-    */
+    
 
     'prefix' => env(
         'HORIZON_PREFIX',
         Str::slug(env('APP_NAME', 'laravel'), '_').'_horizon:'
     ),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Horizon Route Middleware
-    |--------------------------------------------------------------------------
-    |
-    | These middleware will get attached onto each Horizon route, giving you
-    | the chance to add your own middleware to this list or change any of
-    | the existing middleware. Or, you can simply stick with this list.
-    |
-    */
+    
 
     'middleware' => [
         'web',
-        \App\Http\Middleware\MustBeAdminMiddleware::class,
+        MustBeAdminMiddleware::class,
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Queue Wait Time Thresholds
-    |--------------------------------------------------------------------------
-    |
-    | This option allows you to configure when the LongWaitDetected event
-    | will be fired. Every connection / queue combination may have its
-    | own, unique threshold (in seconds) before this event is fired.
-    |
-    */
+    
 
     'waits' => [
         'redis:default' => 60,
+        'ssh:ssh' => 60,
+        'ssh:ssh-checks' => 120,
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Job Trimming Times
-    |--------------------------------------------------------------------------
-    |
-    | Here you can configure for how long (in minutes) you desire Horizon to
-    | persist the recent and failed jobs. Typically, recent jobs are kept
-    | for one hour while all failed jobs are stored for an entire week.
-    |
-    */
+    
 
     'trim' => [
         'recent' => 60,
@@ -110,31 +50,13 @@ return [
         'monitored' => 10080,
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Silenced Jobs
-    |--------------------------------------------------------------------------
-    |
-    | Silencing a job will instruct Horizon to not place the job in the list
-    | of completed jobs within the Horizon dashboard. This setting may be
-    | used to fully remove any noisy jobs from the completed jobs list.
-    |
-    */
+    
 
     'silenced' => [
-        // App\Jobs\ExampleJob::class,
+        
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Metrics
-    |--------------------------------------------------------------------------
-    |
-    | Here you can configure how many snapshots should be kept to display in
-    | the metrics graph. This will get used in combination with Horizon's
-    | `horizon:snapshot` schedule to define how long to retain metrics.
-    |
-    */
+    
 
     'metrics' => [
         'trim_snapshots' => [
@@ -143,44 +65,15 @@ return [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Fast Termination
-    |--------------------------------------------------------------------------
-    |
-    | When this option is enabled, Horizon's "terminate" command will not
-    | wait on all of the workers to terminate unless the --wait option
-    | is provided. Fast termination can shorten deployment delay by
-    | allowing a new instance of Horizon to start while the last
-    | instance will continue to terminate each of its workers.
-    |
-    */
+    
 
     'fast_termination' => false,
 
-    /*
-    |--------------------------------------------------------------------------
-    | Memory Limit (MB)
-    |--------------------------------------------------------------------------
-    |
-    | This value describes the maximum amount of memory the Horizon master
-    | supervisor may consume before it is terminated and restarted. For
-    | configuring these limits on your workers, see the next section.
-    |
-    */
+    
 
-    'memory_limit' => 64,
+    'memory_limit' => env('HORIZON_MEMORY_LIMIT', 64),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Queue Worker Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define the queue worker settings used by your application
-    | in all environments. These supervisors and settings handle all your
-    | queued jobs and will be provisioned by Horizon during deployment.
-    |
-    */
+    
 
     'defaults' => [
         'default' => [
@@ -188,54 +81,100 @@ return [
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 90,
-            'nice' => 0,
+            'maxProcesses' => env('HORIZON_DEFAULT_MAX_PROCESSES', 1),
+            'maxTime' => env('HORIZON_DEFAULT_MAX_TIME', 0),
+            'maxJobs' => env('HORIZON_DEFAULT_MAX_JOBS', 0),
+            'memory' => env('HORIZON_DEFAULT_MEMORY', 128),
+            'tries' => env('HORIZON_DEFAULT_TRIES', 1),
+            'timeout' => env('HORIZON_DEFAULT_TIMEOUT', 90),
+            'nice' => env('HORIZON_DEFAULT_NICE', 0),
         ],
 
         'ssh' => [
-            'connection' => 'redis',
+            'connection' => 'ssh',
             'queue' => ['ssh'],
-            'balance' => 'auto',
+            'balance' => 'simple',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 600,
-            'nice' => 0,
+            'maxProcesses' => env('HORIZON_SSH_MAX_PROCESSES', 2),
+            'maxTime' => env('HORIZON_SSH_MAX_TIME', 0),
+            'maxJobs' => env('HORIZON_SSH_MAX_JOBS', 0),
+            'memory' => env('HORIZON_SSH_MEMORY', 128),
+            'tries' => env('HORIZON_SSH_TRIES', 1),
+            'timeout' => env('HORIZON_SSH_TIMEOUT', 1200),
+            'nice' => env('HORIZON_SSH_NICE', 0),
         ],
 
-        'ssh-unique' => [
-            'connection' => 'redis',
-            'queue' => ['ssh-unique'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
+        'ssh-checks' => [
+            'connection' => 'ssh',
+            'queue' => ['ssh-checks'],
+            'balance' => 'simple',
+            'maxProcesses' => env('HORIZON_SSH_CHECKS_MAX_PROCESSES', 1),
             'memory' => 128,
             'tries' => 1,
-            'timeout' => 600,
-            'nice' => 0,
+            'timeout' => env('HORIZON_SSH_TIMEOUT', 1200),
+            'nice' => 5,
+            'maxJobs' => 100,
+        ],
+
+        'ssh-certbot' => [
+            'connection' => 'redis',
+            'queue' => ['ssh-certbot'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => env('HORIZON_SSH_CERTBOT_MAX_PROCESSES', 1),
+            'maxTime' => env('HORIZON_SSH_CERTBOT_MAX_TIME', 0),
+            'maxJobs' => env('HORIZON_SSH_CERTBOT_MAX_JOBS', 0),
+            'memory' => env('HORIZON_SSH_CERTBOT_MEMORY', 128),
+            'tries' => env('HORIZON_SSH_CERTBOT_TRIES', 1),
+            'timeout' => env('HORIZON_SSH_CERTBOT_TIMEOUT', 600),
+            'nice' => env('HORIZON_SSH_CERTBOT_NICE', 0),
+        ],
+
+        'storage-migration' => [
+            'connection' => 'storage-migration',
+            'queue' => ['storage-migration'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => env('HORIZON_STORAGE_MIGRATION_MAX_PROCESSES', 1),
+            'maxTime' => env('HORIZON_STORAGE_MIGRATION_MAX_TIME', 0),
+            'maxJobs' => env('HORIZON_STORAGE_MIGRATION_MAX_JOBS', 0),
+            'memory' => env('HORIZON_STORAGE_MIGRATION_MEMORY', 128),
+            'tries' => env('HORIZON_STORAGE_MIGRATION_TRIES', 1),
+            'timeout' => env('HORIZON_STORAGE_MIGRATION_TIMEOUT', 1800),
+            'nice' => env('HORIZON_STORAGE_MIGRATION_NICE', 0),
+        ],
+
+        'storage-migration-scan' => [
+            'connection' => 'storage-migration-scan',
+            'queue' => ['storage-migration-scan'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => env('HORIZON_STORAGE_MIGRATION_SCAN_MAX_PROCESSES', 1),
+            'maxTime' => env('HORIZON_STORAGE_MIGRATION_SCAN_MAX_TIME', 0),
+            'maxJobs' => env('HORIZON_STORAGE_MIGRATION_SCAN_MAX_JOBS', 0),
+            'memory' => env('HORIZON_STORAGE_MIGRATION_SCAN_MEMORY', 128),
+            'tries' => env('HORIZON_STORAGE_MIGRATION_SCAN_TRIES', 1),
+            'timeout' => env('HORIZON_STORAGE_MIGRATION_SCAN_TIMEOUT', 21600),
+            'nice' => env('HORIZON_STORAGE_MIGRATION_SCAN_NICE', 0),
         ],
     ],
 
     'environments' => [
         '*' => [
             'default' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => env('HORIZON_DEFAULT_MAX_PROCESSES', 1),
             ],
             'ssh' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => env('HORIZON_SSH_MAX_PROCESSES', 2),
             ],
-            'ssh-unique' => [
-                'maxProcesses' => 1,
+            'ssh-certbot' => [
+                'maxProcesses' => env('HORIZON_SSH_CERTBOT_MAX_PROCESSES', 1),
+            ],
+            'storage-migration' => [
+                'maxProcesses' => env('HORIZON_STORAGE_MIGRATION_MAX_PROCESSES', 1),
+            ],
+            'storage-migration-scan' => [
+                'maxProcesses' => env('HORIZON_STORAGE_MIGRATION_SCAN_MAX_PROCESSES', 1),
             ],
         ],
     ],

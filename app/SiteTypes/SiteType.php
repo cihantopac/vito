@@ -2,7 +2,7 @@
 
 namespace App\SiteTypes;
 
-use Illuminate\Contracts\View\View;
+use App\Models\Deployment;
 
 interface SiteType
 {
@@ -12,34 +12,43 @@ interface SiteType
 
     public function requiredServices(): array;
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     */
+    
     public function createRules(array $input): array;
 
-    /**
-     * The fields here will be replaced in the Site model
-     *
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     */
+    
     public function createFields(array $input): array;
 
-    /**
-     * The fields here will be replaced in the type_data column as json
-     *
-     * @param  array<string, mixed>  $input
-     * @return array<string, mixed>
-     */
+    
     public function data(array $input): array;
 
     public function install(): void;
 
-    /**
-     * @return array<array<string, string>>
-     */
+    /** @return array<int, array{key: string, label: string, percentage: number}> */
+    public function installationSteps(): array;
+
+    public function attachSourceControl(): void;
+
+    public function assertReadyToDeploy(): void;
+
+    
     public function baseCommands(): array;
 
-    public function vhost(string $webserver): string|View;
+    
+    public function vhostData(): array;
+
+    
+    public function supportedWebservers(): ?array;
+
+    public function vhostTemplate(string $webserver): ?string;
+
+    
+    public function deploymentEnvironment(): array;
+
+    public function afterDeploy(Deployment $deployment): void;
+
+    public function defaultDeploymentScript(): string;
+
+    public function defaultBuildScript(): string;
+
+    public function defaultPreFlightScript(): string;
 }

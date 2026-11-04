@@ -2,23 +2,31 @@
 
 namespace App\Actions\Site;
 
+use App\DTOs\SocketEventDTO;
 use App\Enums\DeploymentStatus;
+use App\Enums\DeploymentTrigger;
+use App\Events\SocketEvent;
 use App\Exceptions\DeploymentScriptIsEmptyException;
-use App\Facades\Notifier;
+use App\Http\Resources\DeploymentResource;
+use App\Jobs\Site\DeployJob;
 use App\Models\Deployment;
 use App\Models\ServerLog;
 use App\Models\Site;
-use App\Notifications\DeploymentCompleted;
-use App\Services\ProcessManager\ProcessManager;
-use App\SSH\OS\Git;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class Deploy
 {
-    /**
-     * @throws DeploymentScriptIsEmptyException
-     */
-    public function run(Site $site, bool $modern = true): Deployment
+    public function run(
+        Site $site,
+        bool $modern = true,
+        ?User $user = null,
+        DeploymentTrigger $trigger = DeploymentTrigger::MANUAL,
+    ): Deployment
     {
+        $site->type()->assertReadyToDeploy();
+
         if ($site->sourceControl) {
             $site->sourceControl->getRepo($site->repository);
         }
@@ -27,142 +35,70 @@ class Deploy
             throw new DeploymentScriptIsEmptyException;
         }
 
-        $deployment = new Deployment([
-            'site_id' => $site->id,
-            'deployment_script_id' => $site->deploymentScript->id,
-            'status' => DeploymentStatus::DEPLOYING,
-        ]);
+        if ($site->isSelf()) {
+            $this->recoverSelfWorker($site);
+        }
+
         $log = ServerLog::newLog($site->server, 'deploy-'.strtotime('now'))
             ->forSite($site);
         $log->save();
-        $deployment->log_id = $log->id;
-        $deployment->save();
+
         $lastCommit = $site->sourceControl?->provider()?->getLastCommit($site->repository, $site->branch);
-        if ($lastCommit) {
-            $deployment->commit_id = $lastCommit['commit_id'];
-            $deployment->commit_data = $lastCommit['commit_data'];
+        $isModern = $modern && ($site->type_data['modern_deployment'] ?? false);
+
+        $deployment = new Deployment([
+            'site_id' => $site->id,
+            'deployment_script_id' => $site->deploymentScript->id,
+            'log_id' => $log->id,
+            'status' => DeploymentStatus::DEPLOYING,
+            'user_id' => $user?->id,
+            'trigger' => $trigger,
+            'commit_id' => $lastCommit['commit_id'] ?? null,
+            'commit_data' => $lastCommit['commit_data'] ?? null,
+            'release' => $isModern ? now()->format('YmdHis') : null,
+        ]);
+        $deployment->setRelation('site', $site);
+        $deployment->setRelation('log', $log);
+        $deployment->setRelation('deploymentScript', $site->deploymentScript);
+        if ($user) {
+            $deployment->setRelation('user', $user);
         }
         $deployment->save();
 
-        $typeData = $site->type_data;
+        dispatch(new DeployJob($deployment, $isModern));
 
-        if (! $modern || ! isset($typeData['modern_deployment']) || ! $typeData['modern_deployment']) {
-            return $this->deployClassic($site, $deployment, $log);
-        }
-
-        return $this->deployModern($site, $deployment, $log);
-    }
-
-    private function deployClassic(Site $site, Deployment $deployment, ServerLog $log): Deployment
-    {
-        dispatch(function () use ($site, $deployment, $log): void {
-            $site->server->os()->runScript(
-                path: $site->path,
-                script: $site->deploymentScript->content,
-                serverLog: $log,
-                user: $site->user,
-                variables: $site->environmentVariables($deployment),
-                aliases: $site->environmentAliases(),
-            );
-
-            if ($site->deploymentScript->shouldRestartWorkers()) {
-                /** @var ProcessManager $processManager */
-                $processManager = $site->server->processManager()->handler();
-                $processManager->restartAll($site->id);
-            }
-
-            $deployment->status = DeploymentStatus::FINISHED;
-            $deployment->save();
-            $deployment->activate();
-            Notifier::send($site, new DeploymentCompleted($deployment, $site));
-        })->catch(function () use ($deployment, $site): void {
-            $deployment->status = DeploymentStatus::FAILED;
-            $deployment->save();
-            $deployment->activate();
-            Notifier::send($site, new DeploymentCompleted($deployment, $site));
-        })->onQueue('ssh-unique');
+        $this->broadcastDeploymentCreated($site, $deployment);
 
         return $deployment;
     }
 
-    private function deployModern(Site $site, Deployment $deployment, ServerLog $log): Deployment
+    private function recoverSelfWorker(Site $site): void
     {
-        $deployment->release = now()->format('YmdHis');
-        $deployment->save();
-        /** @var ?Deployment $current */
-        $current = $site->deployments()->where('active', 1)->whereNotNull('release')->first();
+        $site->deployments()
+            ->where('status', DeploymentStatus::DEPLOYING)
+            ->update([
+                'status' => DeploymentStatus::FAILED,
+                'finished_at' => now(),
+            ]);
 
-        dispatch(function () use ($site, $deployment, $log): void {
-            app(Git::class)->clone($site, $deployment->path());
+        Cache::lock("unique-queue:site-{$site->id}")->forceRelease();
 
-            // build
-            $site->server->os()->runScript(
-                path: $deployment->path(),
-                script: $site->buildScript->content ?? '',
-                serverLog: $log,
-                user: $site->user,
-                variables: $site->environmentVariables($deployment),
-                aliases: $site->environmentAliases(),
+        try {
+            $site->server->ssh()->exec(
+                'sudo -n pkill -f "supervisorctl restart worker" 2>/dev/null || true; '
+                .'if sudo -n supervisorctl status worker:* 2>/dev/null | grep -q STOPPING; then sudo -n pkill -9 -f "artisan horizon" 2>/dev/null || true; fi; '
+                .'sudo -n supervisorctl start worker:* 2>/dev/null || true'
             );
+        } catch (Throwable) {
+        }
+    }
 
-            // link resources
-            $site->server->ssh($site->user)->exec(
-                view('ssh.modern-deployment.link-resources', [
-                    'site' => $site,
-                    'releasePath' => $deployment->path(),
-                ]),
-                'link-resources',
-                $site->id
-            );
-
-            // pre-flight
-            $site->server->os()->runScript(
-                path: $deployment->path(),
-                script: $site->preFlightScript->content ?? '',
-                serverLog: $log,
-                user: $site->user,
-                variables: $site->environmentVariables($deployment),
-                aliases: $site->environmentAliases(),
-            );
-
-            // release
-            $site->server->ssh($site->user)->exec(
-                view('ssh.modern-deployment.release', [
-                    'site' => $site,
-                    'releasePath' => $deployment->path(),
-                ]),
-                'release',
-                $site->id
-            );
-
-            if ($site->preFlightScript?->shouldRestartWorkers()) {
-                /** @var ProcessManager $processManager */
-                $processManager = $site->server->processManager()->handler();
-                $processManager->restartAll($site->id);
-            }
-
-            $deployment->status = DeploymentStatus::FINISHED;
-            $deployment->save();
-            $deployment->activate();
-            Notifier::send($site, new DeploymentCompleted($deployment, $site));
-        })->catch(function () use ($deployment, $site, $current): void {
-            $deployment->status = DeploymentStatus::FAILED;
-            $deployment->save();
-            Notifier::send($site, new DeploymentCompleted($deployment, $site));
-            if ($current) {
-                $deployment->site->server->ssh($site->user)->exec(
-                    view('ssh.modern-deployment.release', [
-                        'site' => $site,
-                        'releasePath' => $current->path(),
-                    ]),
-                    'release',
-                    $site->id
-                );
-                $current->activate();
-
-            }
-        })->onQueue('ssh-unique');
-
-        return $deployment;
+    private function broadcastDeploymentCreated(Site $site, Deployment $deployment): void
+    {
+        SocketEvent::dispatch(new SocketEventDTO(
+            projectId: $site->server->project_id,
+            type: 'deployment.created',
+            data: new DeploymentResource($deployment),
+        ));
     }
 }

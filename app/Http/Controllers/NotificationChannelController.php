@@ -6,6 +6,7 @@ use App\Actions\NotificationChannels\AddChannel;
 use App\Actions\NotificationChannels\EditChannel;
 use App\Http\Resources\NotificationChannelResource;
 use App\Models\NotificationChannel;
+use App\Tables\NotificationChannelTable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -22,13 +23,18 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth'])]
 class NotificationChannelController extends Controller
 {
+
     #[Get('/', name: 'notification-channels')]
     public function index(): Response
     {
         $this->authorize('viewAny', NotificationChannel::class);
 
+        $user = user();
+
         return Inertia::render('notification-channels/index', [
-            'notificationChannels' => NotificationChannelResource::collection(NotificationChannel::getByProjectId(user()->current_project_id)->simplePaginate(config('web.pagination_size'))),
+            'notificationChannels' => NotificationChannelTable::make(
+                NotificationChannel::getByProjectId($user->current_project_id, $user)
+            )->simplePaginate(),
         ]);
     }
 
@@ -37,7 +43,10 @@ class NotificationChannelController extends Controller
     {
         $this->authorize('viewAny', NotificationChannel::class);
 
-        return NotificationChannelResource::collection(NotificationChannel::getByProjectId(user()->current_project_id)->get());
+        $user = user();
+        $notificationChannels = NotificationChannel::getByProjectId($user->current_project_id, $user)->get();
+
+        return NotificationChannelResource::collection($notificationChannels);
     }
 
     #[Post('/', name: 'notification-channels.store')]

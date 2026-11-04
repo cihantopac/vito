@@ -2,11 +2,12 @@
 
 namespace App\ServerProviders;
 
+use App\Exceptions\ServerProviderError;
 use App\ValidationRules\RestrictedIPAddressesRule;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 class Custom extends AbstractProvider
 {
@@ -20,6 +21,7 @@ class Custom extends AbstractProvider
         return [
             'ip' => [
                 'required',
+                'ip',
                 Rule::unique('servers', 'ip'),
                 new RestrictedIPAddressesRule,
             ],
@@ -64,7 +66,7 @@ class Custom extends AbstractProvider
 
     public function create(): void
     {
-        /** @var FilesystemAdapter $storageDisk */
+        
         $storageDisk = Storage::disk(config('core.key_pairs_disk'));
         File::copy(
             storage_path(config('core.ssh_private_key_name')),
@@ -74,6 +76,17 @@ class Custom extends AbstractProvider
             storage_path(config('core.ssh_public_key_name')),
             $storageDisk->path($this->server->id.'.pub')
         );
+
+        try {
+            $this->server->ssh('root')->connect();
+        } catch (Throwable) {
+            throw new ServerProviderError('Cannot connect to server, make sure you have copied the public key.');
+        }
+
+        $output = $this->server->ssh('root')->exec('id -u vito >/dev/null 2>&1 && test -f /home/vito/vito/artisan && echo "vito_managed_host" || echo "ok"');
+        if (str_contains($output, 'vito_managed_host')) {
+            throw new ServerProviderError('You cannot perform this action on Vito\'s server itself.');
+        }
     }
 
     public function isRunning(): bool
@@ -83,6 +96,6 @@ class Custom extends AbstractProvider
 
     public function delete(): void
     {
-        //
+        
     }
 }

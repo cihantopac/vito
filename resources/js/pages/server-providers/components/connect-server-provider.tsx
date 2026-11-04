@@ -10,22 +10,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { FormEventHandler, ReactNode, useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import InputError from '@/components/ui/input-error';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { SharedData } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DynamicFieldConfig } from '@/types/dynamic-field-config';
 import DynamicField from '@/components/ui/dynamic-field';
+import { useConfigs } from '@/stores/bootstrap-store';
 
 type ServerProviderForm = {
   provider: string;
   name: string;
   global: boolean;
+  [key: string]: any;
 };
 
 export default function ConnectServerProvider({
@@ -39,7 +40,7 @@ export default function ConnectServerProvider({
 }) {
   const [open, setOpen] = useState(false);
 
-  const page = usePage<SharedData>();
+  const configs = useConfigs()!;
 
   const form = useForm<Required<ServerProviderForm>>({
     provider: defaultProvider || 'aws',
@@ -49,7 +50,7 @@ export default function ConnectServerProvider({
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    form.post(route('server-providers.store'), {
+    form.post("/settings/server-providers", {
       onSuccess: () => {
         setOpen(false);
         if (onProviderAdded) {
@@ -60,17 +61,17 @@ export default function ConnectServerProvider({
   };
 
   useEffect(() => {
-    const providerConfig = page.props.configs.server_provider.providers[form.data.provider];
+    const providerConfig = configs.server_provider.providers[form.data.provider];
     if (providerConfig?.form) {
       providerConfig.form.forEach((field: DynamicFieldConfig) => {
-        /* @ts-expect-error dynamic types */
+        
         if (field.default !== undefined && (form.data[field.name] === '' || form.data[field.name] === undefined)) {
-          /* @ts-expect-error dynamic types */
+          
           form.setData(field.name, field.default);
         }
       });
     }
-  }, [form.data.provider]);
+  }, [form.data.provider, configs]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -96,7 +97,7 @@ export default function ConnectServerProvider({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {Object.entries(page.props.configs.server_provider.providers).map(
+                    {Object.entries(configs.server_provider.providers).map(
                       ([key, provider]) =>
                         key !== 'custom' && (
                           <SelectItem key={key} value={key}>
@@ -114,15 +115,15 @@ export default function ConnectServerProvider({
               <Input type="text" name="name" id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
-            {page.props.configs.server_provider.providers[form.data.provider]?.form?.map((field: DynamicFieldConfig) => (
+            {configs.server_provider.providers[form.data.provider]?.form?.map((field: DynamicFieldConfig) => (
               <DynamicField
                 key={`field-${field.name}`}
-                /*@ts-expect-error dynamic types*/
+                
                 value={form.data[field.name]}
-                /*@ts-expect-error dynamic types*/
+                
                 onChange={(value) => form.setData(field.name, value)}
                 config={field}
-                /*@ts-expect-error dynamic types*/
+                
                 error={form.errors[field.name]}
               />
             ))}

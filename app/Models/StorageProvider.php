@@ -2,24 +2,17 @@
 
 namespace App\Models;
 
-use Database\Factories\StorageProviderFactory;
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasProjectScopedQueries;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @property int $user_id
- * @property string $profile
- * @property string $provider
- * @property array<string, string> $credentials
- * @property User $user
- * @property ?int $project_id
- */
 class StorageProvider extends AbstractModel
 {
-    /** @use HasFactory<StorageProviderFactory> */
+    use HasProjectScopedQueries;
+    
     use HasFactory;
+
 
     protected $fillable = [
         'user_id',
@@ -35,9 +28,7 @@ class StorageProvider extends AbstractModel
         'project_id' => 'integer',
     ];
 
-    /**
-     * @return BelongsTo<User, covariant $this>
-     */
+    
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -47,39 +38,40 @@ class StorageProvider extends AbstractModel
     {
         $providerClass = config('storage-provider.providers.'.$this->provider.'.handler');
 
-        /** @var \App\StorageProviders\StorageProvider $provider */
+        
         $provider = new $providerClass($this, new Server);
 
         return $provider;
     }
 
-    /**
-     * @return HasMany<Backup, covariant $this>
-     */
+    public function hasProviderHandler(): bool
+    {
+        $providerClass = config('storage-provider.providers.'.$this->provider.'.handler');
+
+        return is_string($providerClass) && is_a($providerClass, \App\StorageProviders\StorageProvider::class, true);
+    }
+
+    public function editableDataFor(?User $user): object
+    {
+        if (! $this->hasProviderHandler() || ! $user?->can('revealCredentials', $this)) {
+            return (object) [];
+        }
+
+        return (object) $this->provider()->editableData();
+    }
+
     public function backups(): HasMany
     {
         return $this->hasMany(Backup::class, 'storage_id');
     }
 
-    /**
-     * @return BelongsTo<Project, covariant $this>
-     */
+    public function siteResources(): HasMany
+    {
+        return $this->hasMany(SiteResource::class, 'storage_provider_id');
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
-    }
-
-    /**
-     * @return Builder<StorageProvider>
-     */
-    public static function getByProjectId(int $projectId): Builder
-    {
-        /** @var Builder<StorageProvider> $query */
-        $query = static::query();
-
-        return $query
-            ->where(function (Builder $query) use ($projectId): void {
-                $query->where('project_id', $projectId)->orWhereNull('project_id');
-            });
     }
 }

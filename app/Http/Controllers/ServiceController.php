@@ -2,36 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Service\GetConfigFile;
+use App\Actions\Service\GetNetworking;
 use App\Actions\Service\Install;
 use App\Actions\Service\Manage;
+use App\Actions\Service\ManageNetworkingSecret;
+use App\Actions\Service\RefreshServices;
+use App\Actions\Service\ToggleNetworking;
 use App\Actions\Service\Uninstall;
-use App\Http\Resources\ServiceResource;
+use App\Actions\Service\UpdateConfigFile;
 use App\Models\Server;
 use App\Models\Service;
+use App\Tables\ServiceTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Delete;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Middleware;
+use Spatie\RouteAttributes\Attributes\Patch;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
+use Spatie\RouteAttributes\Attributes\WhereNumber;
 
 #[Prefix('servers/{server}/services')]
 #[Middleware(['auth', 'has-project'])]
 class ServiceController extends Controller
 {
+
     #[Get('/', name: 'services')]
-    public function index(Server $server): Response
+    public function index(Request $request, Server $server): Response
     {
         $this->authorize('viewAny', [Service::class, $server]);
 
-        $services = $server->services()->simplePaginate(config('web.pagination_size'));
+        if ($server->isReady() && ! $request->hasHeader('X-Inertia-Partial-Component')) {
+            app(RefreshServices::class)->refresh($server);
+        }
 
         return Inertia::render('services/index', [
-            'services' => ServiceResource::collection($services),
+            'services' => ServiceTable::make($server->services())->simplePaginate(),
+            'refreshing' => RefreshServices::refreshing($server),
         ]);
     }
 
@@ -40,14 +53,55 @@ class ServiceController extends Controller
     {
         $this->authorize('viewAny', [Service::class, $server]);
 
-        $versions = [];
-        $services = $server->services()->where('type', $service)->get(['version']);
-        /** @var Service $service */
-        foreach ($services as $service) {
-            $versions[] = $service->version;
+        return response()->json(
+            $server->services()->where('type', $service)->latest('version')->pluck('version')
+        );
+    }
+
+    #[Get('/live-statuses', name: 'services.live-statuses')]
+    public function liveStatuses(Server $server): JsonResponse
+    {
+        $this->authorize('viewAny', [Service::class, $server]);
+
+        if (! $server->isReady()) {
+            return response()->json([]);
         }
 
-        return response()->json($versions);
+        $services = $server->services()->whereIn('status', ['ready', 'stopped', 'failed', 'disabled'])->get();
+
+        $result = [];
+        $checkable = [];
+        $units = [];
+
+        foreach ($services as $service) {
+            if (! $service->hasHandler()) {
+                continue;
+            }
+            $unit = $service->handler()->unit();
+            if ($unit === '') {
+                continue;
+            }
+            $checkable[] = $service;
+            $units[] = $unit;
+        }
+
+        if ($units !== []) {
+            $states = $server->systemd()->activeStates($units);
+            foreach ($checkable as $index => $service) {
+                $state = $states[$index] ?? 'unknown';
+                $result[$service->id] = [
+                    'state' => $state,
+                    'color' => match ($state) {
+                        'active' => 'success',
+                        'inactive', 'failed' => 'danger',
+                        'activating', 'deactivating', 'reloading' => 'warning',
+                        default => 'gray',
+                    },
+                ];
+            }
+        }
+
+        return response()->json($result);
     }
 
     #[Post('/', name: 'services.store')]
@@ -62,64 +116,86 @@ class ServiceController extends Controller
         ]));
     }
 
-    #[Post('/{service}/start', name: 'services.start')]
-    public function start(Server $server, Service $service): RedirectResponse
+    #[Post('/{service}', name: 'services.manage')]
+    #[WhereNumber('service')]
+    public function manage(Request $request, Server $server, Service $service): RedirectResponse
     {
-        $this->authorize('start', $service);
+        $action = $request->input('action');
+        abort_unless(in_array($action, ['start', 'stop', 'restart', 'reload', 'enable', 'disable']), 404);
+        $this->authorize($action, $service);
 
-        app(Manage::class)->start($service);
+        app(Manage::class)->$action($service);
 
-        return back()->with('success', __(':service is being started.', [
+        if (in_array($action, ['start', 'restart'])) {
+            return redirect()->route('logs.services', [
+                'server' => $server->id,
+                'service' => $service->type,
+            ])->with('success', __(":service is being {$action}ed.", [
+                'service' => $service->name,
+            ]));
+        }
+
+        return back()->with('success', __(":service is being {$action}ed.", [
             'service' => $service->name,
         ]));
     }
 
-    #[Post('/{service}/restart', name: 'services.restart')]
-    public function restart(Server $server, Service $service): RedirectResponse
+    #[Post('/refresh', name: 'services.refresh')]
+    public function refresh(Server $server): RedirectResponse
     {
-        $this->authorize('restart', $service);
+        $this->authorize('refresh', [Service::class, $server]);
 
-        app(Manage::class)->restart($service);
-
-        return back()->with('success', __(':service is being restarted.', [
-            'service' => $service->name,
-        ]));
+        return back()->with('info', app(RefreshServices::class)->refresh($server)
+            ? __('Refreshing services…')
+            : __('A services refresh is already running.'));
     }
 
-    #[Post('/{service}/stop', name: 'services.stop')]
-    public function stop(Server $server, Service $service): RedirectResponse
+    #[Get('/{service}/networking', name: 'services.networking')]
+    public function networking(Server $server, Service $service): JsonResponse
     {
-        $this->authorize('stop', $service);
+        $this->authorize('manageNetworking', $service);
 
-        app(Manage::class)->stop($service);
-
-        return back()->with('success', __(':service is being stopped.', [
-            'service' => $service->name,
-        ]));
+        return response()->json(app(GetNetworking::class)->get($service));
     }
 
-    #[Post('/{service}/enable', name: 'services.enable')]
-    public function enable(Server $server, Service $service): RedirectResponse
+    #[Post('/{service}/networking/enable', name: 'services.networking.enable')]
+    public function enableNetworking(Server $server, Service $service): RedirectResponse
     {
-        $this->authorize('enable', $service);
+        $this->authorize('manageNetworking', $service);
 
-        app(Manage::class)->enable($service);
+        app(ToggleNetworking::class)->enable($service);
 
-        return back()->with('success', __(':service is being enabled.', [
-            'service' => $service->name,
-        ]));
+        return back()->with('info', __('Enabling remote networking for :service…', ['service' => $service->name]));
     }
 
-    #[Post('/{service}/disable', name: 'services.disable')]
-    public function disable(Server $server, Service $service): RedirectResponse
+    #[Post('/{service}/networking/disable', name: 'services.networking.disable')]
+    public function disableNetworking(Server $server, Service $service): RedirectResponse
     {
-        $this->authorize('disable', $service);
+        $this->authorize('manageNetworking', $service);
 
-        app(Manage::class)->disable($service);
+        app(ToggleNetworking::class)->disable($service);
 
-        return back()->with('success', __(':service is being disabled.', [
-            'service' => $service->name,
-        ]));
+        return back()->with('info', __('Disabling remote networking for :service…', ['service' => $service->name]));
+    }
+
+    #[Post('/{service}/networking/secret', name: 'services.networking.secret.regenerate')]
+    public function regenerateNetworkingSecret(Server $server, Service $service): HttpResponse
+    {
+        $this->authorize('manageNetworking', $service);
+
+        app(ManageNetworkingSecret::class)->regenerate($service);
+
+        return response()->noContent();
+    }
+
+    #[Delete('/{service}/networking/secret', name: 'services.networking.secret.destroy')]
+    public function removeNetworkingSecret(Server $server, Service $service): HttpResponse
+    {
+        $this->authorize('manageNetworking', $service);
+
+        app(ManageNetworkingSecret::class)->remove($service);
+
+        return response()->noContent();
     }
 
     #[Delete('/{service}', name: 'services.destroy')]
@@ -134,16 +210,25 @@ class ServiceController extends Controller
         ]));
     }
 
-    #[Get('/{service}/version', name: 'services.version')]
-    public function version(Server $server, Service $service): RedirectResponse
+    #[Get('/{service}/config', name: 'services.config')]
+    public function getConfig(Request $request, Server $server, Service $service): JsonResponse
     {
         $this->authorize('view', $service);
 
-        $service->installed_version = $service->handler()->version();
-        $service->save();
+        $content = app(GetConfigFile::class)->get($service, $request->input());
 
-        return back()->with('success', __('Fetched instaled version for :service', [
-            'service' => $service->name,
-        ]));
+        return response()->json([
+            'content' => $content,
+        ]);
+    }
+
+    #[Patch('/{service}/config', name: 'services.config.update')]
+    public function updateConfig(Request $request, Server $server, Service $service): RedirectResponse
+    {
+        $this->authorize('update', $service);
+
+        app(UpdateConfigFile::class)->update($service, $request->input());
+
+        return back()->with('success', __('Config file updated successfully.'));
     }
 }

@@ -1,123 +1,92 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Button } from '@/components/ui/button';
-import { LoaderCircleIcon, MoreVerticalIcon } from 'lucide-react';
 import type { ServerLog } from '@/types/server-log';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { ReactNode, useState } from 'react';
-import axios from 'axios';
+import { ReactNode } from 'react';
 import DateTime from '@/components/date-time';
-import LogOutput from '@/components/log-output';
-import { useQuery } from '@tanstack/react-query';
+import { TableActionTrigger } from '@/components/table-action-trigger';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useForm } from '@inertiajs/react';
-import FormSuccessful from '@/components/form-successful';
+import { useDialog } from '@/hooks/use-dialog';
+import { humanizeStep } from '@/lib/utils';
 
-export function View({ serverLog, children }: { serverLog: ServerLog; children?: ReactNode }) {
-  const [open, setOpen] = useState(false);
-
-  const query = useQuery({
-    queryKey: ['server-log', serverLog.id],
-    queryFn: async () => {
-      try {
-        const response = await axios.get(route('logs.show', { server: serverLog.server_id, log: serverLog.id }));
-        return response.data;
-      } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-          throw new Error(error.response?.data?.error || 'An error occurred while fetching the log');
-        }
-        throw new Error('Unknown error occurred');
-      }
-    },
-    enabled: open,
-    retry: false,
-    refetchInterval: (query) => {
-      if (query.state.status === 'error') return false;
-      return 2500;
-    },
-  });
+export function View({ serverLog, label = 'View' }: { serverLog: ServerLog; label?: string }) {
+  const dialog = useDialog();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children ? children : <DropdownMenuItem onSelect={(e) => e.preventDefault()}>View</DropdownMenuItem>}</DialogTrigger>
-      <DialogContent className="sm:max-w-5xl">
-        <DialogHeader>
-          <DialogTitle>View Log</DialogTitle>
-          <DialogDescription className="sr-only">This is all content of the log</DialogDescription>
-        </DialogHeader>
-        <LogOutput>
-          <>
-            {query.isLoading && 'Loading...'}
-            {query.isError && <div className="text-red-500">Error: {query.error.message}</div>}
-            {query.data && !query.isError && query.data}
-          </>
-        </LogOutput>
-        <DialogFooter>
-          <Download serverLog={serverLog}>
-            <Button variant="outline">Download</Button>
-          </Download>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DropdownMenuItem onSelect={() => dialog.logViewer.open({ serverId: serverLog.server_id, logId: serverLog.id, title: label })}>
+      {label}
+    </DropdownMenuItem>
   );
 }
 
 export function Download({ serverLog, children }: { serverLog: ServerLog; children: ReactNode }) {
   return (
-    <a href={route('logs.download', { server: serverLog.server_id, log: serverLog.id })} target="_blank">
+    <a href={`/servers/${serverLog.server_id}/logs/${serverLog.id}/download`} target="_blank">
       {children}
     </a>
   );
 }
 
-function Delete({ serverLog }: { serverLog: ServerLog }) {
-  const [open, setOpen] = useState(false);
-  const form = useForm();
+function Clear({ serverLog }: { serverLog: ServerLog }) {
+  const dialog = useDialog();
 
-  const submit = () => {
-    form.delete(route('logs.destroy', { server: serverLog.server_id, log: serverLog.id }), {
-      onSuccess: () => {
-        setOpen(false);
-      },
-    });
-  };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>
-          Delete
-        </DropdownMenuItem>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete {serverLog.name}</DialogTitle>
-          <DialogDescription className="sr-only">Delete log</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-2 p-4">
-          <p>
-            Are you sure you want to delete <strong>{serverLog.name}</strong>?
-          </p>
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button variant="destructive" disabled={form.processing} onClick={submit}>
-            {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            <FormSuccessful successful={form.recentlySuccessful} />
-            Delete
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DropdownMenuItem
+      onSelect={() =>
+        dialog.confirm.open({
+          title: `Clear ${serverLog.name}`,
+          description: `Are you sure you want to clear the contents of ${serverLog.name}? This will remove all content from the log file but keep the file itself.`,
+          confirmLabel: 'Clear',
+          method: 'post',
+          url: `/servers/${serverLog.server_id}/logs/${serverLog.id}/clear`,
+        })
+      }
+    >
+      Clear
+    </DropdownMenuItem>
+  );
+}
+
+function Delete({ serverLog }: { serverLog: ServerLog }) {
+  const dialog = useDialog();
+
+  return (
+    <DropdownMenuItem
+      variant="destructive"
+      onSelect={() =>
+        dialog.confirm.open({
+          title: `Delete ${serverLog.name}`,
+          description: `Are you sure you want to delete ${serverLog.name}?`,
+          variant: 'destructive',
+          confirmLabel: 'Delete',
+          method: 'delete',
+          url: `/servers/${serverLog.server_id}/logs/${serverLog.id}`,
+        })
+      }
+    >
+      Delete
+    </DropdownMenuItem>
+  );
+}
+
+function EventCell({ serverLog }: { serverLog: ServerLog }) {
+  const dialog = useDialog();
+
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        dialog.logViewer.open({
+          serverId: serverLog.server_id,
+          logId: serverLog.id,
+          title: humanizeStep(serverLog.type) || serverLog.name,
+        })
+      }
+      className="flex flex-col text-left cursor-pointer group"
+    >
+      <span className="font-medium text-foreground group-hover:text-primary transition-colors underline-offset-4 group-hover:underline">
+        {humanizeStep(serverLog.type) || serverLog.name}
+      </span>
+      <span className="text-muted-foreground font-mono text-xs">{serverLog.name}</span>
+    </button>
   );
 }
 
@@ -126,13 +95,14 @@ export const columns: ColumnDef<ServerLog>[] = [
     accessorKey: 'name',
     header: 'Event',
     enableColumnFilter: true,
+    cell: ({ row }) => <EventCell serverLog={row.original} />,
   },
   {
     accessorKey: 'created_at',
     header: 'Created At',
     enableSorting: true,
     cell: ({ row }) => {
-      return <DateTime date={row.original.created_at} />;
+      return <DateTime date={row.original.created_at} relative />;
     },
   },
   {
@@ -141,20 +111,18 @@ export const columns: ColumnDef<ServerLog>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       return (
-        <div className="flex items-center justify-end">
+        <div className="flex items-center gap-2">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreVerticalIcon />
-              </Button>
+              <TableActionTrigger />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="start">
               <View serverLog={row.original} />
               <Download serverLog={row.original}>
                 <DropdownMenuItem>Download</DropdownMenuItem>
               </Download>
               <DropdownMenuSeparator />
+              {row.original.is_remote && <Clear serverLog={row.original} />}
               <Delete serverLog={row.original} />
             </DropdownMenuContent>
           </DropdownMenu>

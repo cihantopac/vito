@@ -12,26 +12,29 @@ class NotificationChannelPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     public function view(User $user, NotificationChannel $notificationChannel): bool
     {
-        return $user->isAdmin();
+        return $user->id === $notificationChannel->user_id
+            && $user->tokenAllowsProject($notificationChannel->project_id);
     }
 
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     public function update(User $user, NotificationChannel $notificationChannel): bool
     {
-        return $user->isAdmin();
+        return $user->id === $notificationChannel->user_id
+            && $user->tokenAllowsProject($notificationChannel->project_id, write: true);
     }
 
     public function delete(User $user, NotificationChannel $notificationChannel): bool
     {
-        return $user->isAdmin();
+        return $user->id === $notificationChannel->user_id
+            && $user->tokenAllowsProject($notificationChannel->project_id, write: true);
     }
 }

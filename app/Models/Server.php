@@ -2,77 +2,50 @@
 
 namespace App\Models;
 
+use App\Traits\HasFeatures;
+
+use App\Actions\Network\ResyncNetworkSiblings;
 use App\Actions\Server\CheckConnection;
+use App\Actions\SiteResource\CleanupSiteResources;
+use App\Actions\SiteResource\DisconnectSiteResource;
+use App\Enums\OperatingSystem;
+use App\Enums\SecurityControlStatus;
+use App\Enums\ServerRole;
 use App\Enums\ServerStatus;
 use App\Enums\ServiceStatus;
-use App\Exceptions\SSHError;
 use App\Facades\SSH;
 use App\SSH\OS\Cron;
 use App\SSH\OS\OS;
+use App\SSH\OS\Security;
 use App\SSH\OS\Systemd;
-use App\Support\Testing\SSHFake;
-use Carbon\Carbon;
-use Database\Factories\ServerFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 
-/**
- * @property int $project_id
- * @property int $user_id
- * @property string $name
- * @property string $ssh_user
- * @property string $ip
- * @property ?string $local_ip
- * @property int $port
- * @property string $os
- * @property string $type
- * @property array<string, mixed> $type_data
- * @property string $provider
- * @property int $provider_id
- * @property array<string, mixed> $provider_data
- * @property array<string, mixed> $authentication
- * @property string $public_key
- * @property string $status
- * @property bool $auto_update
- * @property int|float $progress
- * @property ?string $progress_step
- * @property Project $project
- * @property User $creator
- * @property ServerProvider $serverProvider
- * @property Collection<int, ServerLog> $logs
- * @property Collection<int, Site> $sites
- * @property Collection<int, Service> $services
- * @property Collection<int, Database> $databases
- * @property Collection<int, DatabaseUser> $databaseUsers
- * @property Collection<int, FirewallRule> $firewallRules
- * @property Collection<int, CronJob> $cronJobs
- * @property Collection<int, Worker> $queues
- * @property Collection<int, Backup> $backups
- * @property Collection<int, SshKey> $sshKeys
- * @property Collection<int, Tag> $tags
- * @property string $hostname
- * @property int $updates
- * @property ?Carbon $last_update_check
- */
 class Server extends AbstractModel
 {
-    /** @use HasFactory<ServerFactory> */
+    use HasFeatures;
+    
     use HasFactory;
+
+    protected $attributes = [
+        'role' => ServerRole::APP->value,
+    ];
 
     protected $fillable = [
         'project_id',
         'user_id',
         'name',
+        'role',
+        'stage',
         'ssh_user',
         'ip',
         'local_ip',
@@ -85,47 +58,95 @@ class Server extends AbstractModel
         'public_key',
         'status',
         'auto_update',
+        'auto_update_schedule',
         'progress',
         'progress_step',
         'updates',
+        'kernel_updates',
         'last_update_check',
+        'feature_data',
+        'is_self',
     ];
 
     protected $casts = [
         'project_id' => 'integer',
+        'role' => ServerRole::class,
         'user_id' => 'integer',
         'port' => 'integer',
         'provider_data' => 'json',
         'authentication' => 'encrypted:json',
         'auto_update' => 'boolean',
+        'is_self' => 'boolean',
         'progress' => 'float',
         'updates' => 'integer',
+        'kernel_updates' => 'integer',
         'last_update_check' => 'datetime',
+        'feature_data' => 'json',
+        'os' => OperatingSystem::class,
+        'status' => ServerStatus::class,
     ];
 
     protected $hidden = [
         'authentication',
     ];
 
+    protected array $networkDeparture = ['members' => [], 'networks' => []];
+
     public static function boot(): void
     {
         parent::boot();
 
         static::deleting(function (Server $server): void {
+            if ($server->is_self) {
+                throw new \RuntimeException('The server hosting Vito cannot be deleted.');
+            }
+
+            $server->networkDeparture = app(ResyncNetworkSiblings::class)->capture($server);
+        });
+
+        static::deleted(function (Server $server): void {
+            app(ResyncNetworkSiblings::class)->handle($server->networkDeparture);
+        });
+
+        static::deleting(function (Server $server): void {
             DB::beginTransaction();
             try {
+                $server->siteResources()
+                    ->with('site.server')
+                    ->get()
+                    ->each(function (SiteResource $resource): void {
+                        app(DisconnectSiteResource::class)->disconnect(
+                            $resource,
+                            removeFirewall: false,
+                        );
+                    });
                 $server->sites()->each(function ($site): void {
-                    /** @var Site $site */
+                    app(CleanupSiteResources::class)->cleanup($site);
                     $site->workers()->delete();
                     $site->ssls()->delete();
                     $site->deployments()->delete();
-                    $site->deploymentScript()->delete();
+                    $site->deploymentScripts()->delete();
+                    $site->redirects()->delete();
+                    $site->commands()->delete();
+                    $site->gitHook?->destroyHook();
                 });
                 $server->sites()->delete();
-                $server->logs()->each(function ($log): void {
-                    /** @var ServerLog $log */
+                $server->logs()->where('is_remote', false)->delete();
+                $server->logs()->where('is_remote', true)->each(function ($log): void {
                     $log->delete();
                 });
+                $server->backups()->each(function ($backup): void {
+                    $backup->delete();
+                });
+                $server->metrics()->delete();
+                PostgresCluster::query()
+                    ->where('primary_server_id', $server->id)
+                    ->each(fn (PostgresCluster $cluster) => $cluster->delete());
+                DatabaseReplica::query()
+                    ->where('replica_server_id', $server->id)
+                    ->each(fn (DatabaseReplica $replica) => $replica->delete());
+                \App\Models\CommandExecution::where('server_id', $server->id)->delete();
+                \App\Models\File::where('server_id', $server->id)->delete();
                 $server->services()->delete();
                 $server->databases()->delete();
                 $server->databaseUsers()->delete();
@@ -140,7 +161,6 @@ class Server extends AbstractModel
                 if (File::exists($server->sshKey()['private_key_path'])) {
                     File::delete($server->sshKey()['private_key_path']);
                 }
-                $server->provider()->delete();
                 DB::commit();
             } catch (Throwable $e) {
                 DB::rollBack();
@@ -149,20 +169,15 @@ class Server extends AbstractModel
         });
     }
 
-    /**
-     * @var array<string, string>
-     */
-    public static array $statusColors = [
-        ServerStatus::READY => 'success',
-        ServerStatus::INSTALLING => 'warning',
-        ServerStatus::DISCONNECTED => 'gray',
-        ServerStatus::INSTALLATION_FAILED => 'danger',
-        ServerStatus::UPDATING => 'warning',
-    ];
-
     public function isReady(): bool
     {
         return in_array($this->status, [ServerStatus::READY, ServerStatus::UPDATING]);
+    }
+
+    
+    public function siteResources(): HasMany
+    {
+        return $this->hasMany(SiteResource::class);
     }
 
     public function isInstalling(): bool
@@ -175,134 +190,125 @@ class Server extends AbstractModel
         return $this->status === ServerStatus::INSTALLATION_FAILED;
     }
 
-    /**
-     * @return BelongsTo<Project, covariant $this>
-     */
+    
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
 
-    /**
-     * @return BelongsTo<User, covariant $this>
-     */
+    
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * @return BelongsTo<ServerProvider, covariant $this>
-     */
+    
     public function serverProvider(): BelongsTo
     {
         return $this->belongsTo(ServerProvider::class, 'provider_id');
     }
 
-    /**
-     * @return HasMany<ServerLog, covariant $this>
-     */
+    
     public function logs(): HasMany
     {
         return $this->hasMany(ServerLog::class);
     }
 
-    /**
-     * @return HasMany<Site, covariant $this>
-     */
+    
     public function sites(): HasMany
     {
         return $this->hasMany(Site::class);
     }
 
-    /**
-     * @return HasMany<Service, covariant $this>
-     */
+    
+    public function isolatedUsers(): HasMany
+    {
+        return $this->hasMany(IsolatedUser::class);
+    }
+
+    
     public function services(): HasMany
     {
         return $this->hasMany(Service::class);
     }
 
-    /**
-     * @return HasMany<Database, covariant $this>
-     */
+    
     public function databases(): HasMany
     {
         return $this->hasMany(Database::class);
     }
 
-    /**
-     * @return HasMany<DatabaseUser, covariant $this>
-     */
+    
     public function databaseUsers(): HasMany
     {
         return $this->hasMany(DatabaseUser::class);
     }
 
-    /**
-     * @return HasMany<FirewallRule, covariant $this>
-     */
+    
+    public function ssls(): HasMany
+    {
+        return $this->hasMany(Ssl::class);
+    }
+
+    
     public function firewallRules(): HasMany
     {
         return $this->hasMany(FirewallRule::class);
     }
 
-    /**
-     * @return HasMany<CronJob, covariant $this>
-     */
+    
+    public function networkRules(): HasMany
+    {
+        return $this->hasMany(ServerNetworkRule::class);
+    }
+
+    
+    public function ipAddresses(): HasMany
+    {
+        return $this->hasMany(ServerIpAddress::class);
+    }
+
+    
     public function cronJobs(): HasMany
     {
         return $this->hasMany(CronJob::class);
     }
 
-    /**
-     * @return HasMany<Worker, covariant $this>
-     */
+    
     public function workers(): HasMany
     {
         return $this->hasMany(Worker::class);
     }
 
-    /**
-     * @return HasMany<Backup, covariant $this>
-     */
+    
     public function backups(): HasMany
     {
         return $this->hasMany(Backup::class);
     }
 
-    /**
-     * @return HasMany<Worker, covariant $this>
-     */
+    
     public function daemons(): HasMany
     {
         return $this->workers()->whereNull('site_id');
     }
 
-    /**
-     * @return HasMany<Metric, covariant $this>
-     */
+    
     public function metrics(): HasMany
     {
         return $this->hasMany(Metric::class);
     }
 
-    /**
-     * @return BelongsToMany<SshKey, covariant $this>
-     */
+    public function latestMetric(): HasOne
+    {
+        return $this->hasOne(Metric::class)->latestOfMany();
+    }
+
+    
     public function sshKeys(): BelongsToMany
     {
         return $this->belongsToMany(SshKey::class, 'server_ssh_keys')
-            ->withPivot('status')
+            ->withPivot('status', 'user')
             ->withTimestamps();
-    }
-
-    /**
-     * @return MorphToMany<Tag, covariant $this>
-     */
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     public function getSshUser(): string
@@ -314,22 +320,64 @@ class Server extends AbstractModel
         return config('core.ssh_user');
     }
 
-    /**
-     * @return array<string>
-     */
+    
     public function getSshUsers(): array
     {
-        $users = ['root', $this->getSshUser()];
-        $isolatedSites = $this->sites()->pluck('user')->toArray();
-        $users = array_merge($users, $isolatedSites);
+        $users = ['root'];
 
-        return array_unique($users);
+        if ($sshUser = $this->getSshUser()) {
+            $users[] = $sshUser;
+        }
+
+        $isolatedUsernames = $this->relationLoaded('isolatedUsers')
+            ? $this->isolatedUsers->pluck('username')->all()
+            : $this->isolatedUsers()->pluck('username')->all();
+
+        $siteUsernames = $this->relationLoaded('sites')
+            ? $this->sites->pluck('user')->all()
+            : $this->sites()->whereNotNull('user')->pluck('user')->all();
+
+        $users = array_merge($users, $isolatedUsernames, $siteUsernames);
+
+        return array_values(array_unique(array_filter($users, fn ($u) => is_string($u) && $u !== '')));
+    }
+
+    /**
+     * Relations and counts ServerResource reads, so lists and broadcasts load them in one go instead of per row.
+     */
+    public function scopeForResource(Builder $query): Builder
+    {
+        return $query->with(self::resourceRelations())->withCount(self::resourceCounts());
+    }
+
+    public function loadForResource(): static
+    {
+        return $this->load(self::resourceRelations())->loadCount(self::resourceCounts());
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function resourceRelations(): array
+    {
+        return ['latestMetric', 'sshKeys', 'serverProvider', 'services', 'isolatedUsers'];
+    }
+
+    /**
+     * @return array<int|string, string|\Closure>
+     */
+    public static function resourceCounts(): array
+    {
+        return ['sites', 'cronJobs', 'workers', 'backups', 'services', 'databases', 'databaseUsers', 'backups as backups_with_health_count' => fn (Builder $query) => $query->whereNotNull('health')];
     }
 
     public function service(string $type, mixed $version = null): ?Service
     {
-        /** @var ?Service $service */
-        $service = $this->services()
+        if ($this->relationLoaded('services')) {
+            return $this->services->first(fn (Service $service): bool => $service->type === $type && (! $version || (string) $service->version === (string) $version));
+        }
+
+        return $this->services()
             ->where(function ($query) use ($type, $version): void {
                 $query->where('type', $type);
                 if ($version) {
@@ -337,163 +385,135 @@ class Server extends AbstractModel
                 }
             })
             ->first();
-
-        return $service;
     }
 
     public function defaultService(string $type): ?Service
     {
-        /** @var ?Service $service */
-        $service = $this->services()
-            ->where('type', $type)
-            ->where('is_default', 1)
-            ->first();
+        if ($this->relationLoaded('services')) {
+            $ofType = $this->services->where('type', $type);
 
-        // If no default service found, get the first service with status ready or stopped
-        if (! $service) {
-            /** @var ?Service $service */
-            $service = $this->services()
-                ->where('type', $type)
-                ->whereIn('status', [ServiceStatus::READY, ServiceStatus::STOPPED])
-                ->first();
-            if ($service) {
-                $service->is_default = true;
-                $service->save();
-            }
+            return $ofType->first(fn (Service $service): bool => $service->is_default && $service->status !== ServiceStatus::INSTALLATION_FAILED)
+                ?? $ofType->first(fn (Service $service): bool => in_array($service->status, [ServiceStatus::READY, ServiceStatus::STOPPED], true));
         }
 
-        return $service;
+        return $this->services()->where('type', $type)->where('is_default', 1)->where('status', '!=', ServiceStatus::INSTALLATION_FAILED)->first()
+            ?? $this->services()->where('type', $type)->whereIn('status', [ServiceStatus::READY, ServiceStatus::STOPPED])->first();
     }
 
-    public function ssh(?string $user = null): \App\Helpers\SSH|SSHFake
+    public function ssh(?string $user = null): \App\Helpers\SSH
     {
         return SSH::init($this, $user);
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function installedPHPVersions(): array
+    
+    public function installedServiceVersions(string $type): array
     {
-        $versions = [];
-        $phps = $this->services()->where('type', 'php')->get(['version']);
-        /** @var Service $php */
-        foreach ($phps as $php) {
-            $versions[] = $php->version;
+        if ($this->relationLoaded('services')) {
+            return $this->services->where('type', $type)->pluck('version')->values()->all();
         }
 
-        return $versions;
+        return $this->services()->where('type', $type)->pluck('version')->all();
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function installedNodejsVersions(): array
+    public function installedPHPVersions(): array
     {
-        $versions = [];
-        $nodes = $this->services()->where('type', 'nodejs')->get(['version']);
-        /** @var Service $node */
-        foreach ($nodes as $node) {
-            $versions[] = $node->version;
-        }
-
-        return $versions;
+        return $this->installedServiceVersions('php');
     }
 
     public function provider(): \App\ServerProviders\ServerProvider
     {
         $providerClass = config('server-provider.providers.'.$this->provider.'.handler');
 
-        /** @var \App\ServerProviders\ServerProvider $provider */
+        
         $provider = new $providerClass($this->serverProvider ?? new ServerProvider, $this);
 
         return $provider;
     }
 
-    public function webserver(?string $version = null): ?Service
+    public function canPowerManage(): bool
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('webserver');
+        try {
+            return $this->provider()->canPowerManage();
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    public function serviceOrDefault(string $type, ?string $version = null): ?Service
+    {
+        if ($version === null || $version === '') {
+            return $this->defaultService($type);
         }
 
-        return $this->service('webserver', $version);
+        return $this->service($type, $version);
+    }
+
+    public function webserver(?string $version = null): ?Service
+    {
+        return $this->serviceOrDefault('webserver', $version);
     }
 
     public function database(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('database');
-        }
-
-        return $this->service('database', $version);
+        return $this->serviceOrDefault('database', $version);
     }
 
     public function firewall(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('firewall');
-        }
+        return $this->serviceOrDefault('firewall', $version);
+    }
 
-        return $this->service('firewall', $version);
+    public function fail2ban(): ?Service
+    {
+        return $this->defaultService('fail2ban');
     }
 
     public function processManager(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('process_manager');
-        }
-
-        return $this->service('process_manager', $version);
+        return $this->serviceOrDefault('process_manager', $version);
     }
 
     public function php(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('php');
-        }
-
-        return $this->service('php', $version);
+        return $this->serviceOrDefault('php', $version);
     }
 
     public function nodejs(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('nodejs');
-        }
-
-        return $this->service('nodejs', $version);
+        return $this->serviceOrDefault('nodejs', $version);
     }
 
     public function memoryDatabase(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('memory_database');
-        }
-
-        return $this->service('memory_database', $version);
+        return $this->serviceOrDefault('memory_database', $version);
     }
 
     public function monitoring(?string $version = null): ?Service
     {
-        if ($version === null || $version === '' || $version === '0') {
-            return $this->defaultService('monitoring');
-        }
-
-        return $this->service('monitoring', $version);
+        return $this->serviceOrDefault('monitoring', $version);
     }
 
-    /**
-     * @return array<string, string>
-     */
+    
     public function sshKey(): array
     {
-        /** @var FilesystemAdapter $storageDisk */
         $storageDisk = Storage::disk(config('core.key_pairs_disk'));
+        $privateKeyPath = $storageDisk->path((string) $this->id);
+        $publicKeyPath = $storageDisk->path($this->id.'.pub');
+
+        if ($this->is_self && (! File::exists($privateKeyPath) || ! File::exists($publicKeyPath))) {
+            $masterPrivate = storage_path(config('core.ssh_private_key_name'));
+            $masterPublic = storage_path(config('core.ssh_public_key_name'));
+            if (File::exists($masterPrivate) && File::exists($masterPublic)) {
+                File::ensureDirectoryExists($storageDisk->path(''));
+                File::copy($masterPrivate, $privateKeyPath);
+                File::copy($masterPublic, $publicKeyPath);
+            }
+        }
 
         return [
-            'public_key' => str(Storage::disk(config('core.key_pairs_disk'))->get($this->id.'.pub'))->replace("\n", '')->toString(),
-            'public_key_path' => $storageDisk->path($this->id.'.pub'),
-            'private_key_path' => $storageDisk->path((string) $this->id),
+            'public_key' => str($storageDisk->get($this->id.'.pub') ?? '')->replace("\n", '')->toString(),
+            'public_key_path' => $publicKeyPath,
+            'private_key_path' => $privateKeyPath,
         ];
     }
 
@@ -522,19 +542,41 @@ class Server extends AbstractModel
         return new Cron($this);
     }
 
-    /**
-     * @throws SSHError
-     */
+    public function security(): Security
+    {
+        return new Security($this);
+    }
+
+    
+    public function securityState(): array
+    {
+        $security = $this->feature_data['security'] ?? [];
+
+        return [
+            'password_authentication' => [
+                'enabled' => $security['password_authentication']['enabled'] ?? true,
+                'detected' => $security['password_authentication']['detected'] ?? null,
+                'status' => $security['password_authentication']['status'] ?? SecurityControlStatus::DISABLED->value,
+            ],
+            'root_login' => [
+                'enabled' => $security['root_login']['enabled'] ?? true,
+                'detected' => $security['root_login']['detected'] ?? null,
+                'status' => $security['root_login']['status'] ?? SecurityControlStatus::DISABLED->value,
+            ],
+        ];
+    }
+
+    
     public function checkForUpdates(): void
     {
-        $this->updates = $this->os()->availableUpdates();
+        $result = $this->os()->availableUpdates();
+        $this->updates = $result['updates'];
+        $this->kernel_updates = $result['kernel'];
         $this->last_update_check = now();
         $this->save();
     }
 
-    /**
-     * @throws Throwable
-     */
+    
     public function download(string $path, string $disk = 'tmp'): void
     {
         $this->ssh()->download(
@@ -542,13 +584,48 @@ class Server extends AbstractModel
             $path
         );
     }
-
-    public function getStatusColor(): string
+    public function featuresConfig(): array
     {
-        if (isset(self::$statusColors[$this->status])) {
-            return self::$statusColors[$this->status];
+        return config('server.features', []);
+    }
+
+    
+    public function getWarnings(): array
+    {
+        if ($this->status === ServerStatus::DISCONNECTED) {
+            return [];
         }
 
-        return 'gray';
+        $warnings = [];
+
+        if ($this->updates > 0) {
+            $warnings[] = [
+                'key' => 'updates_available',
+                'count' => $this->updates,
+            ];
+        }
+
+        if ($this->kernel_updates > 0) {
+            $warnings[] = [
+                'key' => 'kernel_update_available',
+                'count' => $this->kernel_updates,
+            ];
+        }
+
+        $backups = (int) ($this->backups_with_health_count ?? $this->backups()->whereNotNull('health')->count());
+
+        if ($backups > 0) {
+            $warnings[] = ['key' => 'backups_need_attention', 'count' => $backups];
+        }
+
+        $latestMetric = $this->relationLoaded('latestMetric')
+            ? $this->latestMetric
+            : $this->latestMetric()->first();
+
+        if ($latestMetric?->reboot_required) {
+            $warnings[] = ['key' => 'reboot_required'];
+        }
+
+        return $warnings;
     }
 }

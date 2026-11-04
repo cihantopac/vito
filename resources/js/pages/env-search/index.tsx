@@ -1,0 +1,187 @@
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import axios from 'axios';
+import { LoaderCircleIcon, SearchIcon, ServerIcon } from 'lucide-react';
+import SettingsLayout from '@/layouts/settings/layout';
+import Container from '@/components/container';
+import HeaderContainer from '@/components/header-container';
+import Heading from '@/components/heading';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { errorMessage } from '@/lib/errors';
+
+type EnvSearchResult = {
+  site_id: number;
+  domain: string;
+  server_id: number;
+  server_name: string;
+  found: boolean;
+  value: string | null;
+};
+
+type SearchStatus =
+  | { status: 'pending' }
+  | { status: 'done'; results: EnvSearchResult[] }
+  | { status: 'failed'; error: string }
+  | { status: 'not_found' };
+
+const POLL_INTERVAL_MS = 1500;
+
+export default function EnvSearch() {
+  const [key, setKey] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<EnvSearchResult[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollTimer.current) {
+        clearTimeout(pollTimer.current);
+      }
+    };
+  }, []);
+
+  const poll = (searchId: string) => {
+    pollTimer.current = setTimeout(async () => {
+      try {
+        const response = await axios.get<SearchStatus>(`/settings/env-search/${encodeURIComponent(String(searchId))}`);
+        const data = response.data;
+
+        if (data.status === 'done') {
+          setResults(data.results);
+          setSearching(false);
+        } else if (data.status === 'failed') {
+          setError(data.error || 'Search failed.');
+          setSearching(false);
+        } else if (data.status === 'not_found') {
+          setError('No search results found.');
+          setSearching(false);
+        } else {
+          poll(searchId);
+        }
+      } catch (e) {
+        setError(errorMessage(e, 'An error occurred during the search.'));
+        setSearching(false);
+      }
+    }, POLL_INTERVAL_MS);
+  };
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (key.trim() === '' || searching) {
+      return;
+    }
+
+    setSearching(true);
+    setError(null);
+    setResults(null);
+
+    try {
+      const response = await axios.post<{ search_id: string }>("/settings/env-search", { key: key.trim() });
+      poll(response.data.search_id);
+    } catch (e) {
+      setError(errorMessage(e, 'Unable to start the search.'));
+      setSearching(false);
+    }
+  };
+
+  return (
+    <SettingsLayout>
+      <Head title="Environment key search" />
+
+      <Container>
+        <HeaderContainer>
+          <Heading
+            title="Environment key search"
+            description="Find a key (e.g. APP_URL) in site .env files and view its values"
+          />
+        </HeaderContainer>
+
+        <form onSubmit={submit} className="flex items-center gap-2">
+          <div className="relative flex-1 max-w-sm">
+            <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
+            <Input
+              placeholder="APP_URL"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              className="pl-8"
+              autoFocus
+            />
+          </div>
+          <Button type="submit" disabled={searching}>
+            {searching && <LoaderCircleIcon className="size-3.5 animate-spin" />}
+            {searching ? 'Searching...' : 'Search'}
+          </Button>
+        </form>
+
+        {error && <p className="text-destructive text-sm">{error}</p>}
+
+        {!searching && results === null && !error && (
+          <p className="text-muted-foreground text-sm">Enter a key to start searching.</p>
+        )}
+
+        {searching && results === null && (
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            <LoaderCircleIcon className="size-3.5 animate-spin" />
+            Scanning server .env files. This may take a moment...
+          </p>
+        )}
+
+        {results !== null && (
+          <div className="overflow-hidden rounded-md border shadow-2xs">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Site</TableHead>
+                  <TableHead>Server</TableHead>
+                  <TableHead>Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {results.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-muted-foreground text-center">
+                      No accessible sites found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  results.map((result) => (
+                    <TableRow key={result.site_id}>
+                      <TableCell>
+                        <Link
+                          href={`/servers/${result.server_id}/sites/${result.site_id}`}
+                          className="font-medium hover:underline"
+                        >
+                          {result.domain}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-muted-foreground flex items-center gap-1.5">
+                          <ServerIcon className="size-3.5" />
+                          {result.server_name}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {result.found ? (
+                          result.value === '' ? (
+                            <span className="text-muted-foreground italic">(empty)</span>
+                          ) : (
+                            result.value
+                          )
+                        ) : (
+                          <span className="text-muted-foreground italic">No value</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Container>
+    </SettingsLayout>
+  );
+}

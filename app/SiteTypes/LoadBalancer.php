@@ -3,9 +3,7 @@
 namespace App\SiteTypes;
 
 use App\Enums\LoadBalancerMethod;
-use App\Exceptions\SSHError;
 use App\Models\Site;
-use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 
 class LoadBalancer extends AbstractSiteType
@@ -38,9 +36,9 @@ class LoadBalancer extends AbstractSiteType
             'method' => [
                 'required',
                 Rule::in([
-                    LoadBalancerMethod::IP_HASH,
-                    LoadBalancerMethod::ROUND_ROBIN,
-                    LoadBalancerMethod::LEAST_CONNECTIONS,
+                    LoadBalancerMethod::IP_HASH->value,
+                    LoadBalancerMethod::ROUND_ROBIN->value,
+                    LoadBalancerMethod::LEAST_CONNECTIONS->value,
                 ]),
             ],
         ];
@@ -49,49 +47,31 @@ class LoadBalancer extends AbstractSiteType
     public function data(array $input): array
     {
         return [
-            'method' => $input['method'] ?? LoadBalancerMethod::ROUND_ROBIN,
+            'method' => $input['method'] ?? LoadBalancerMethod::ROUND_ROBIN->value,
         ];
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
-        $this->isolate();
-
-        $this->site->webserver()->createVHost($this->site);
+        $this->step('isolating-user', 0, fn () => $this->isolate());
+        $this->step('creating-vhost', 50, fn () => $this->site->webserver()->createVHost($this->site));
+        $this->progress(90, 'finishing');
     }
 
-    public function vhost(string $webserver): string|View
+    public function installationSteps(): array
     {
-        if ($webserver === 'nginx') {
-            return view('ssh.services.webserver.nginx.vhost', [
-                'header' => [
-                    view('ssh.services.webserver.nginx.vhost-blocks.force-ssl', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.load-balancer-upstream', ['site' => $this->site]),
-                ],
-                'main' => [
-                    view('ssh.services.webserver.nginx.vhost-blocks.port', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.core', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.load-balancer', ['site' => $this->site]),
-                    view('ssh.services.webserver.nginx.vhost-blocks.redirects', ['site' => $this->site]),
-                ],
-            ]);
-        }
+        return [
+            ['key' => 'isolating-user', 'label' => 'Isolating User & Environment', 'percentage' => 0],
+            ['key' => 'creating-vhost', 'label' => 'Configuring Web Server VHost', 'percentage' => 50],
+            ['key' => 'finishing', 'label' => 'Finalizing & Verifying', 'percentage' => 90],
+        ];
+    }
 
-        if ($webserver === 'caddy') {
-            return view('ssh.services.webserver.caddy.vhost', [
-                'main' => implode("\n", [
-                    view('ssh.services.webserver.caddy.vhost-blocks.force-ssl', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.port', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.core', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.load-balancer', ['site' => $this->site]),
-                    view('ssh.services.webserver.caddy.vhost-blocks.redirects', ['site' => $this->site]),
-                ]),
-            ]);
-        }
-
-        return '';
+    public function vhostData(): array
+    {
+        return [
+            'is_load_balancer' => true,
+        ];
     }
 }

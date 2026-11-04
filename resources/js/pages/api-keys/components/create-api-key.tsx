@@ -1,3 +1,4 @@
+import { useClipboard } from '@/hooks/use-clipboard';
 import { ClipboardCheckIcon, ClipboardIcon, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,35 +18,34 @@ import InputError from '@/components/ui/input-error';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Project } from '@/types/project';
+import { MultiSelect } from '@/components/multi-select';
 
 type ApiKeyForm = {
   name: string;
   permission: string;
+  projects: string[];
 };
 
-export default function CreateApiKey({ children }: { children: ReactNode }) {
+export default function CreateApiKey({ children, projects }: { children: ReactNode; projects: Project[] }) {
   const [open, setOpen] = useState(false);
   const [token, setToken] = useState<string | undefined>();
   const tokenInputRef = useRef<HTMLInputElement>(null);
-  const [copySuccess, setCopySuccess] = useState(false);
+  const { copied: copySuccess, copy } = useClipboard();
   const copyToClipboard = () => {
     tokenInputRef.current?.select();
-    navigator.clipboard.writeText(token || '').then(() => {
-      setCopySuccess(true);
-      setTimeout(() => {
-        setCopySuccess(false);
-      }, 2000);
-    });
+    copy(token || '');
   };
 
   const form = useForm<Required<ApiKeyForm>>({
     name: '',
     permission: '',
+    projects: [],
   });
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    form.post(route('api-keys.store'), {
+    form.post("/settings/api-keys", {
       onSuccess: (page) => {
         const flash = page.props.flash as { data?: { token?: string } };
         setToken(flash.data?.token);
@@ -53,8 +53,21 @@ export default function CreateApiKey({ children }: { children: ReactNode }) {
     });
   };
 
+  const onOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setToken(undefined);
+      form.reset();
+    }
+  };
+
+  const projectOptions = projects.map((project) => ({
+    label: project.name,
+    value: String(project.id),
+  }));
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
         <DialogHeader>
@@ -80,8 +93,8 @@ export default function CreateApiKey({ children }: { children: ReactNode }) {
               </FormField>
               <FormField>
                 <Label htmlFor="permission">Permission</Label>
-                <Select id="permission" name="permission" value={form.data.permission} onValueChange={(value) => form.setData('permission', value)}>
-                  <SelectTrigger>
+                <Select name="permission" value={form.data.permission} onValueChange={(value) => form.setData('permission', value)}>
+                  <SelectTrigger id="permission">
                     <SelectValue placeholder="Select a permission" />
                   </SelectTrigger>
                   <SelectContent>
@@ -97,6 +110,18 @@ export default function CreateApiKey({ children }: { children: ReactNode }) {
                 </Select>
                 <InputError message={form.errors.permission} />
               </FormField>
+              <FormField>
+                <Label htmlFor="projects">Projects</Label>
+                <MultiSelect
+                  options={projectOptions}
+                  onValueChange={(value) => form.setData('projects', value)}
+                  defaultValue={form.data.projects}
+                  placeholder="Select projects"
+                  maxCount={3}
+                />
+                <p className="text-muted-foreground text-xs">Select at least one project.</p>
+                <InputError message={form.errors.projects} />
+              </FormField>
             </FormFields>
           )}
         </Form>
@@ -107,7 +132,7 @@ export default function CreateApiKey({ children }: { children: ReactNode }) {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="button" onClick={submit} disabled={form.processing}>
+            <Button type="button" onClick={submit} disabled={form.processing || form.data.projects.length === 0}>
               {form.processing && <LoaderCircle className="animate-spin" />}
               Create
             </Button>

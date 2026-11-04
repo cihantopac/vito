@@ -1,0 +1,58 @@
+<?php
+
+namespace App\SSH\Storage;
+
+
+class SFTP extends AbstractStorage
+{
+    
+    public function upload(string $src, string $dest): array
+    {
+        $this->server->ssh()->exec(
+            view('ssh.storage.sftp.upload', [
+                'src' => $src,
+                'dest' => $dest,
+                'host' => $this->storageProvider->credentials['host'],
+                'port' => $this->storageProvider->credentials['port'],
+                'username' => $this->storageProvider->credentials['username'],
+                'password' => $this->storageProvider->credentials['password'],
+            ]),
+            'upload-to-sftp'
+        );
+
+        return [
+            'size' => null,
+        ];
+    }
+
+    
+    public function download(string $src, string $dest): void
+    {
+        $this->server->ssh()->exec(
+            view('ssh.storage.sftp.download', [
+                'src' => $src,
+                'dest' => $dest,
+                'host' => $this->storageProvider->credentials['host'],
+                'port' => $this->storageProvider->credentials['port'],
+                'username' => $this->storageProvider->credentials['username'],
+                'password' => $this->storageProvider->credentials['password'],
+            ]),
+            'download-from-sftp'
+        );
+    }
+
+    
+    public function delete(string $src): void
+    {
+        $this->server->ssh()->exec(
+            view('ssh.storage.sftp.delete-file', [
+                'src' => $src,
+                'host' => $this->storageProvider->credentials['host'],
+                'port' => $this->storageProvider->credentials['port'],
+                'username' => $this->storageProvider->credentials['username'],
+                'password' => $this->storageProvider->credentials['password'],
+            ]),
+            'delete-from-sftp'
+        );
+    }
+}

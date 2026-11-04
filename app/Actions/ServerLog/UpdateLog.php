@@ -8,27 +8,19 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateLog
 {
-    /**
-     * @param  array<string, mixed>  $input
-     *
-     * @throws ValidationException
-     */
+    
     public function update(ServerLog $serverLog, array $input): void
     {
-        Validator::make($input, self::rules())->validate();
+        if (! $serverLog->is_remote) {
+            throw ValidationException::withMessages(['path' => __('Only remote log paths can be changed.')]);
+        }
+
+        Validator::make($input, [
+            'path' => ['required', 'string', 'max:500', 'regex:/^\/[A-Za-z0-9._\/@+-]+$/'],
+        ])->validate();
 
         $serverLog->update([
             'name' => $input['path'],
         ]);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function rules(): array
-    {
-        return [
-            'path' => 'required',
-        ];
     }
 }

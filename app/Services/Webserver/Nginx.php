@@ -2,13 +2,15 @@
 
 namespace App\Services\Webserver;
 
-use App\Exceptions\SSHError;
+use App\Actions\Site\EnsureSiteVerificationKey;
+use App\Actions\Webserver\GenerateNginxConfig;
+use App\DTOs\ServiceLog;
 use App\Exceptions\SSLCreationException;
 use App\Models\Site;
 use App\Models\Ssl;
-use Throwable;
+use App\Services\HasLogs;
 
-class Nginx extends AbstractWebserver
+class Nginx extends AbstractWebserver implements HasLogs
 {
     public static function id(): string
     {
@@ -25,15 +27,15 @@ class Nginx extends AbstractWebserver
         return 'nginx';
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function install(): void
     {
-        $this->service->server->ssh()->exec(
-            view('ssh.services.webserver.nginx.install-nginx'),
-            'install-nginx'
-        );
+        $this->service->server->ssh()
+            ->setLog($this->service->log)
+            ->exec(
+                view('ssh.services.webserver.nginx.install-nginx'),
+                'install-nginx'
+            );
 
         $this->service->server->ssh()->write(
             '/etc/nginx/nginx.conf',
@@ -43,14 +45,19 @@ class Nginx extends AbstractWebserver
             'root'
         );
 
+        $this->service->server->ssh()->exec(
+            view('ssh.services.webserver.nginx.create-default-ssl'),
+            'create-default-ssl'
+        );
+
+        $this->deploySplash();
+
         $this->service->server->systemd()->restart('nginx');
         event('service.installed', $this->service);
         $this->service->server->os()->cleanup();
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function uninstall(): void
     {
         $this->service->server->ssh()->exec(
@@ -61,13 +68,23 @@ class Nginx extends AbstractWebserver
         $this->service->server->os()->cleanup();
     }
 
-    /**
-     * @throws SSHError
-     */
+    public function generateVhost(Site $site, ?string $template = null): string
+    {
+        app(EnsureSiteVerificationKey::class)->ensure($site);
+
+        return app(GenerateNginxConfig::class)->generate($site, $template);
+    }
+
+    public function defaultVhostTemplate(): string
+    {
+        return app(GenerateNginxConfig::class)->defaultTemplate();
+    }
+
+    
     public function createVHost(Site $site): void
     {
-        // We need to get the isolated user first, if the site is isolated
-        // otherwise, use the default ssh user
+        
+        
         $ssh = $this->service->server->ssh($site->user);
 
         $ssh->exec(
@@ -94,22 +111,20 @@ class Nginx extends AbstractWebserver
         );
     }
 
-    /**
-     * @throws SSHError
-     */
-    public function updateVHost(Site $site, ?string $vhost = null, array $replace = [], array $regenerate = [], array $append = [], bool $restart = true): void
+    
+    public function updateVHost(Site $site, ?string $vhost = null, bool $restart = false): void
     {
-        if (! $vhost) {
-            $vhost = $this->getVHost($site);
+        if (! $vhost && ! $site->vhost_generation_enabled) {
+            return;
         }
 
-        if (! $vhost || ! preg_match('/#\[header]/', $vhost) || ! preg_match('/#\[main]/', $vhost) || ! preg_match('/#\[footer]/', $vhost)) {
+        if (! $vhost) {
             $vhost = $this->generateVhost($site);
         }
 
         $this->service->server->ssh()->write(
             '/etc/nginx/sites-available/'.$site->domain,
-            format_nginx_config($this->getUpdatedVHost($site, $vhost, $replace, $regenerate, $append)),
+            $vhost,
             'root'
         );
 
@@ -122,9 +137,7 @@ class Nginx extends AbstractWebserver
         $this->service->server->systemd()->reload('nginx');
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function getVHost(Site $site): string
     {
         return $this->service->server->ssh()->exec(
@@ -134,11 +147,16 @@ class Nginx extends AbstractWebserver
         );
     }
 
-    /**
-     * @throws SSHError
-     */
+    
     public function deleteSite(Site $site): void
     {
+        $this->service->server->ssh()->exec(
+            view('ssh.services.webserver.nginx.remove-basic-auth-file', [
+                'path' => $site->htpasswdPath(),
+            ]),
+            'remove-basic-auth-file',
+            $site->id
+        );
         $this->service->server->ssh()->exec(
             view('ssh.services.webserver.nginx.delete-site', [
                 'domain' => $site->domain,
@@ -147,28 +165,10 @@ class Nginx extends AbstractWebserver
             'delete-vhost',
             $site->id
         );
-        $this->service->restart();
+        $this->service->reload();
     }
 
-    /**
-     * @throws SSHError
-     */
-    public function changePHPVersion(Site $site, string $version): void
-    {
-        $this->service->server->ssh()->exec(
-            view('ssh.services.webserver.nginx.change-php-version', [
-                'domain' => $site->domain,
-                'oldVersion' => $site->php_version,
-                'newVersion' => $version,
-            ]),
-            'change-php-version',
-            $site->id
-        );
-    }
-
-    /**
-     * @throws SSHError
-     */
+    
     public function setupSSL(Ssl $ssl): void
     {
         $domains = '';
@@ -202,9 +202,7 @@ class Nginx extends AbstractWebserver
         }
     }
 
-    /**
-     * @throws Throwable
-     */
+    
     public function removeSSL(Ssl $ssl): void
     {
         if ($ssl->certificate_path) {
@@ -218,12 +216,84 @@ class Nginx extends AbstractWebserver
         $this->updateVHost($ssl->site);
     }
 
-    public function version(): string
+    
+    public function deploySplash(): void
     {
-        $version = $this->service->server->ssh()->exec(
-            'nginx -v 2>&1 | awk -F/ \'{print $2}\';'
+        $ssh = $this->service->server->ssh();
+
+        $ssh->exec(
+            'sudo rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default /etc/nginx/conf.d/default.conf',
+            'remove-os-default-site'
         );
 
-        return str(trim($version))->before(' ');
+        $ssh->exec(
+            'sudo mkdir -p /var/www/vito-splash',
+            'create-vito-splash-dir'
+        );
+
+        $ssh->write(
+            '/var/www/vito-splash/index.html',
+            view('ssh.services.webserver.vito-splash'),
+            'root'
+        );
+
+        $ssh->write(
+            '/etc/nginx/sites-available/000-default',
+            view('ssh.services.webserver.nginx.default-vhost'),
+            'root'
+        );
+
+        $ssh->exec(
+            'sudo ln -sf /etc/nginx/sites-available/000-default /etc/nginx/sites-enabled/000-default',
+            'enable-default-vhost'
+        );
+    }
+
+    public function versionCommand(): ?string
+    {
+        return 'nginx -v 2>&1 | awk -F/ \'{print $2}\';';
+    }
+
+    public function parseVersionOutput(string $output): ?string
+    {
+        $version = str(trim($output))->before(' ')->toString();
+
+        return $version === '' ? null : $version;
+    }
+
+    public function logs(): array
+    {
+        $logs = [
+            new ServiceLog(
+                key: 'nginx:error',
+                serviceLabel: 'NGINX',
+                label: 'Error log',
+                source: ServiceLog::SOURCE_FILE,
+                target: '/var/log/nginx/error.log',
+            ),
+            new ServiceLog(
+                key: 'nginx:access',
+                serviceLabel: 'NGINX',
+                label: 'Access log',
+                source: ServiceLog::SOURCE_FILE,
+                target: '/var/log/nginx/access.log',
+            ),
+        ];
+
+        $sites = $this->service->server->relationLoaded('sites')
+            ? $this->service->server->sites->sortBy('id')
+            : $this->service->server->sites()->orderBy('id')->get(['id', 'domain']);
+
+        foreach ($sites as $site) {
+            $logs[] = new ServiceLog(
+                key: 'nginx:site:'.$site->id.':error',
+                serviceLabel: 'NGINX',
+                label: $site->domain.' error log',
+                source: ServiceLog::SOURCE_FILE,
+                target: '/var/log/nginx/'.$site->domain.'-error.log',
+            );
+        }
+
+        return $logs;
     }
 }
