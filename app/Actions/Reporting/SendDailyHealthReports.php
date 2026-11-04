@@ -9,6 +9,7 @@ use App\Models\HealthReportSnapshot;
 use App\Models\Project;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 
 class SendDailyHealthReports
@@ -22,18 +23,9 @@ class SendDailyHealthReports
         if (! $user) {
             return;
         }
-        $end = CarbonImmutable::parse($date, config('app.timezone'))->setTime(9, 0);
-        $projects = Project::query()->whereHas('users', fn ($query) => $query->where('user_id', $userId)->whereIn('role', [UserRole::ADMIN, UserRole::OWNER]))->get();
-        if ($projects->isEmpty()) {
+        $groups = $this->groups($user, $date);
+        if ($groups === []) {
             return;
-        }
-        $snapshots = HealthReportSnapshot::query()->whereIn('project_id', $projects->modelKeys())
-            ->where('hour', '>', $end->subDay())->where('hour', '<=', $end)->orderBy('hour')->get()->groupBy('project_id');
-        $groups = [];
-        foreach ($projects as $project) {
-            $hours = $snapshots->get($project->id, collect());
-            $issues = $hours->flatMap(fn ($snapshot) => $snapshot->issues)->unique('key')->values()->all();
-            $groups[] = ['name' => $project->name, 'issues' => $issues, 'hours' => $hours];
         }
         $delivery = HealthReportDelivery::query()->firstOrCreate(
             ['user_id' => $userId, 'report_date' => $date], ['status' => 'pending'],
@@ -48,5 +40,27 @@ class SendDailyHealthReports
             $delivery->update(['status' => 'failed']);
             throw $e;
         }
+    }
+
+    /**
+     * @return array<int, array{name: string, issues: array<int, array{key: string, label: string, url: string}>, hours: Collection<int, HealthReportSnapshot>}>
+     */
+    public function groups(User $user, string $date): array
+    {
+        $end = CarbonImmutable::parse($date, config('app.timezone'))->setTime(9, 0);
+        $projects = Project::query()->whereHas('users', fn ($query) => $query->where('user_id', $user->id)->whereIn('role', [UserRole::ADMIN, UserRole::OWNER]))->get();
+        if ($projects->isEmpty()) {
+            return [];
+        }
+        $snapshots = HealthReportSnapshot::query()->whereIn('project_id', $projects->modelKeys())
+            ->where('hour', '>', $end->subDay())->where('hour', '<=', $end)->orderBy('hour')->get()->groupBy('project_id');
+        $groups = [];
+        foreach ($projects as $project) {
+            $hours = $snapshots->get($project->id, collect());
+            $issues = $hours->flatMap(fn ($snapshot) => $snapshot->issues)->unique('key')->values()->all();
+            $groups[] = ['name' => $project->name, 'issues' => $issues, 'hours' => $hours];
+        }
+
+        return $groups;
     }
 }
