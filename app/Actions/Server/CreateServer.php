@@ -135,6 +135,7 @@ class CreateServer
             'ssh_user' => [
                 'nullable',
                 'string',
+                'regex:/^[A-Za-z0-9_-]+$/',
             ],
             'services' => [
                 'array',
