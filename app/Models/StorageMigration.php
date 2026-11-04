@@ -95,49 +95,31 @@ class StorageMigration extends AbstractModel
             : 0;
     }
 
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    /**
-     * @return BelongsTo<StorageProvider, $this>
-     */
     public function source(): BelongsTo
     {
         return $this->belongsTo(StorageProvider::class, 'source_storage_id');
     }
 
-    /**
-     * @return BelongsTo<StorageProvider, $this>
-     */
     public function target(): BelongsTo
     {
         return $this->belongsTo(StorageProvider::class, 'target_storage_id');
     }
 
-    /**
-     * @return BelongsTo<Database, $this>
-     */
     public function database(): BelongsTo
     {
         return $this->belongsTo(Database::class);
     }
 
-    /**
-     * @return BelongsTo<DatabaseUser, $this>
-     */
     public function databaseUser(): BelongsTo
     {
         return $this->belongsTo(DatabaseUser::class);
     }
 
-    /**
-     * @return BelongsTo<FirewallRule, $this>
-     */
     public function firewallRule(): BelongsTo
     {
         return $this->belongsTo(FirewallRule::class);

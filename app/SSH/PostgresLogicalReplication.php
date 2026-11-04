@@ -12,7 +12,6 @@ class PostgresLogicalReplication
 {
     public function __construct(protected DatabaseUpgrade $upgrade) {}
 
-    /** @return array{version_num: int, in_recovery: bool, wal_level: string, max_replication_slots: int, used_slots: int, max_wal_senders: int, used_senders: int, read_only: bool, port: int, ssl: bool, databases: list<array{name: string, size: int, tables: int, without_key: int, unlogged: int, materialized_views: int, large_objects: int, extensions: list<string>}>, tables_without_key: list<string>} */
     public static function inspect(Server $server): array
     {
         $output = $server->ssh()->exec(view('ssh.database-upgrade.preflight'), 'database-upgrade-preflight');
@@ -53,7 +52,6 @@ class PostgresLogicalReplication
         ];
     }
 
-    /** @return array{wal_level: string, max_replication_slots: int, max_wal_senders: int, port: int, ssl: bool} */
     public function prepareSource(): array
     {
         $source = $this->upgrade->source;
@@ -92,7 +90,6 @@ class PostgresLogicalReplication
         ];
     }
 
-    /** @return array{max_worker_processes: int, max_logical_replication_workers: int, max_replication_slots: int} */
     public function prepareTargetSettings(): array
     {
         $target = $this->upgrade->target;
@@ -149,7 +146,6 @@ class PostgresLogicalReplication
         return new TransientUnit($this->upgrade->target, 'vito-upgrade-'.$this->upgrade->id);
     }
 
-    /** @return array<string, string> */
     public function createSlots(): array
     {
         $output = $this->upgrade->source->ssh()->exec(view('ssh.database-upgrade.source-slot', [
@@ -202,7 +198,6 @@ class PostgresLogicalReplication
         ]), 'database-upgrade-subscribe', timeout: 600);
     }
 
-    /** @return list<array{name: string, tables: int, copied: int, workers: int, errors: int, seconds_since_change: int}> */
     public function targetStatus(): array
     {
         $output = $this->upgrade->target->ssh()->clearLog()->exec(view('ssh.database-upgrade.target-status', [
@@ -219,7 +214,6 @@ class PostgresLogicalReplication
         ], self::rows($output, 'VITO_SUB'));
     }
 
-    /** @return array{slots: list<array{name: string, active: bool, lag_bytes: int, wal_status: string}>, read_only: bool} */
     public function sourceStatus(): array
     {
         $output = $this->upgrade->source->ssh()->clearLog()->exec(view('ssh.database-upgrade.source-status', [
@@ -237,7 +231,6 @@ class PostgresLogicalReplication
         ];
     }
 
-    /** @return array{lsn: string, remaining: int, slots: int} */
     public function cutover(int $minutes = 10): array
     {
         $output = $this->upgrade->source->ssh()->exec(view('ssh.database-upgrade.cutover', [
@@ -279,7 +272,6 @@ class PostgresLogicalReplication
         ]), 'database-upgrade-source-cleanup');
     }
 
-    /** @return list<array{name: string, subscription: string, slot: string, lsn: string, conninfo: string}> */
     public function databases(): array
     {
         return array_map(fn (array $database): array => [
@@ -336,7 +328,6 @@ class PostgresLogicalReplication
         return '/var/lib/vito/upgrade-'.$this->upgrade->id;
     }
 
-    /** @return list<array{username: string, cidr: string}> */
     private function rules(): array
     {
         $address = $this->upgrade->configuration['target_address'] ?? null;
@@ -351,7 +342,6 @@ class PostgresLogicalReplication
         ]];
     }
 
-    /** @return array<string, string> */
     private static function values(string $output): array
     {
         preg_match_all('/^VITO_([A-Z_]+)=(.*)$/m', $output, $matches);
@@ -359,7 +349,6 @@ class PostgresLogicalReplication
         return array_combine($matches[1], array_map(trim(...), $matches[2]));
     }
 
-    /** @return list<list<string>> */
     private static function rows(string $output, string $prefix): array
     {
         preg_match_all('/^'.$prefix.'\|(.*)$/m', $output, $matches);

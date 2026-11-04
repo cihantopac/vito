@@ -174,9 +174,6 @@ class Server extends AbstractModel
         return in_array($this->status, [ServerStatus::READY, ServerStatus::UPDATING]);
     }
 
-    /**
-     * @return HasMany<SiteResource, $this>
-     */
     public function siteResources(): HasMany
     {
         return $this->hasMany(SiteResource::class);
@@ -192,161 +189,101 @@ class Server extends AbstractModel
         return $this->status === ServerStatus::INSTALLATION_FAILED;
     }
 
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
 
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * @return BelongsTo<ServerProvider, $this>
-     */
     public function serverProvider(): BelongsTo
     {
         return $this->belongsTo(ServerProvider::class, 'provider_id');
     }
 
-    /**
-     * @return HasMany<ServerLog, $this>
-     */
     public function logs(): HasMany
     {
         return $this->hasMany(ServerLog::class);
     }
 
-    /**
-     * @return HasMany<Site, $this>
-     */
     public function sites(): HasMany
     {
         return $this->hasMany(Site::class);
     }
 
-    /**
-     * @return HasMany<IsolatedUser, $this>
-     */
     public function isolatedUsers(): HasMany
     {
         return $this->hasMany(IsolatedUser::class);
     }
 
-    /**
-     * @return HasMany<Service, $this>
-     */
     public function services(): HasMany
     {
         return $this->hasMany(Service::class);
     }
 
-    /**
-     * @return HasMany<Database, $this>
-     */
     public function databases(): HasMany
     {
         return $this->hasMany(Database::class);
     }
 
-    /**
-     * @return HasMany<DatabaseUser, $this>
-     */
     public function databaseUsers(): HasMany
     {
         return $this->hasMany(DatabaseUser::class);
     }
 
-    /**
-     * @return HasMany<Ssl, $this>
-     */
     public function ssls(): HasMany
     {
         return $this->hasMany(Ssl::class);
     }
 
-    /**
-     * @return HasMany<FirewallRule, $this>
-     */
     public function firewallRules(): HasMany
     {
         return $this->hasMany(FirewallRule::class);
     }
 
-    /**
-     * @return HasMany<ServerNetworkRule, $this>
-     */
     public function networkRules(): HasMany
     {
         return $this->hasMany(ServerNetworkRule::class);
     }
 
-    /**
-     * @return HasMany<ServerIpAddress, $this>
-     */
     public function ipAddresses(): HasMany
     {
         return $this->hasMany(ServerIpAddress::class);
     }
 
-    /**
-     * @return HasMany<CronJob, $this>
-     */
     public function cronJobs(): HasMany
     {
         return $this->hasMany(CronJob::class);
     }
 
-    /**
-     * @return HasMany<Worker, $this>
-     */
     public function workers(): HasMany
     {
         return $this->hasMany(Worker::class);
     }
 
-    /**
-     * @return HasMany<Backup, $this>
-     */
     public function backups(): HasMany
     {
         return $this->hasMany(Backup::class);
     }
 
-    /**
-     * @return HasMany<Worker, $this>
-     */
     public function daemons(): HasMany
     {
         return $this->workers()->whereNull('site_id');
     }
 
-    /**
-     * @return HasMany<Metric, $this>
-     */
     public function metrics(): HasMany
     {
         return $this->hasMany(Metric::class);
     }
 
-    /**
-     * @return HasOne<Metric, $this>
-     */
     public function latestMetric(): HasOne
     {
         return $this->hasOne(Metric::class)->latestOfMany();
     }
 
-    /**
-     * @return BelongsToMany<SshKey, $this>
-     */
     public function sshKeys(): BelongsToMany
     {
         return $this->belongsToMany(SshKey::class, 'server_ssh_keys')
@@ -394,17 +331,11 @@ class Server extends AbstractModel
         return $this->load(self::resourceRelations())->loadCount(self::resourceCounts());
     }
 
-    /**
-     * @return list<string>
-     */
     public static function resourceRelations(): array
     {
         return ['latestMetric', 'sshKeys', 'serverProvider', 'services', 'isolatedUsers'];
     }
 
-    /**
-     * @return array<int|string, string|\Closure>
-     */
     public static function resourceCounts(): array
     {
         return ['sites', 'cronJobs', 'workers', 'backups', 'services', 'databases', 'databaseUsers', 'backups as backups_with_health_count' => fn (Builder $query) => $query->whereNotNull('health')];

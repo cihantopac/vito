@@ -382,7 +382,6 @@ class CopyStorageMigrationItems implements ShouldQueue
         });
     }
 
-    /** @param  Collection<string, int>|null  $known */
     private function processItem(StorageMigrationItem $item, ?Collection $known = null): void
     {
         $this->recordActivity();
@@ -480,7 +479,6 @@ class CopyStorageMigrationItems implements ShouldQueue
         });
     }
 
-    /** @return array{items_total: int, items_copied: int, items_skipped: int, items_failed: int, bytes_total: int, bytes_copied: int} */
     private function syncCounters(): array
     {
         return Cache::lock("storage-migration-counters-{$this->storageMigration->id}", 30)->block(5, function (): array {

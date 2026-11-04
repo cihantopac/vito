@@ -9,9 +9,6 @@ use ZipArchive;
 
 class ExportVitoSettings
 {
-    /**
-     * @var array<string, string>
-     */
     public const PATHS = [
         'database.sqlite' => 'storage/database.sqlite',
         '.env' => '.env',

@@ -10,7 +10,6 @@ use Illuminate\Validation\ValidationException;
 
 class MatchingServer
 {
-    /** @return array{database_size: ?int, storage_gb: ?int, measured: bool, cores: ?int, memory_gb: ?float, architecture: ?string, os: string, postgresql: ?string, source: string} */
     public function requirements(Server $source, ?int $databaseSize = null, ?string $version = null): array
     {
         $metric = $source->latestMetric()->first();
@@ -30,16 +29,11 @@ class MatchingServer
         ];
     }
 
-    /** @return array<string, mixed>|null */
     public function plan(?ServerProvider $provider, ?string $region, string $plan): ?array
     {
         return rescue(fn (): ?array => $provider?->provider()->plans($region)[$plan] ?? null, null, false);
     }
 
-    /**
-     * @param  array<string, mixed>  $requirements
-     * @param  array<string, mixed>|null  $plan
-     */
     public function check(array $requirements, ?array $plan, string $field = 'plan'): void
     {
         if (isset($plan['disk'], $requirements['storage_gb']) && $plan['disk'] < $requirements['storage_gb']) {
@@ -58,10 +52,6 @@ class MatchingServer
         }
     }
 
-    /**
-     * @param  array{name: string, server_provider: int|string, region: string, plan: string}  $validated
-     * @param  array<string, mixed>  $requirements
-     */
     public function create(User $user, Server $source, array $validated, array $requirements): Server
     {
         $provider = ServerProvider::query()->find($validated['server_provider']);

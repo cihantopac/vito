@@ -6,10 +6,8 @@ use App\Models\DatabaseUpgrade;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin DatabaseUpgrade */
 class DatabaseUpgradeResource extends JsonResource
 {
-    /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
         return [

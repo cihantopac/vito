@@ -14,10 +14,6 @@ use Throwable;
 
 class SyncCronJobs
 {
-    /**
-     * @param  array<int, string>  $users
-     * @return array<string, string>
-     */
     public function sync(Server $server, array $users = []): array
     {
         $users = $users === [] ? $server->getSshUsers() : $users;
@@ -88,9 +84,6 @@ class SyncCronJobs
         }
     }
 
-    /**
-     * @return array<int, array{raw: string, line: string, commented: bool, frequency: ?string, command: string}>
-     */
     private function parseCrontab(string $crontab): array
     {
         $entries = [];
@@ -121,9 +114,6 @@ class SyncCronJobs
         return $entries;
     }
 
-    /**
-     * @param  Collection<int, CronJob>  $cronJobs
-     */
     private function unwrapStoredCommands(Collection $cronJobs): void
     {
         foreach ($cronJobs as $cronJob) {
@@ -135,10 +125,6 @@ class SyncCronJobs
         }
     }
 
-    /**
-     * @param  Collection<int, CronJob>  $cronJobs
-     * @return array<string, CronJob>
-     */
     private function signatures(Collection $cronJobs): array
     {
         $signatures = [];

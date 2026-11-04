@@ -4,7 +4,6 @@ namespace App\Traits;
 
 trait ParsesVitoLimits
 {
-    /** @return array<string, int> */
     protected function extractVitoLimits(array $config): array
     {
         $rawLimits = [];

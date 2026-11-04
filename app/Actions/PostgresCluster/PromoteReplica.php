@@ -183,7 +183,6 @@ class PromoteReplica
         $this->broadcast($cluster);
     }
 
-    /** @param  array<string, mixed>  $state */
     private function swap(PostgresCluster $cluster, array $state, Server $newPrimary, Server $oldPrimary): void
     {
         if ($cluster->primary_server_id === $newPrimary->id) {
@@ -247,10 +246,6 @@ class PromoteReplica
         return "DO \$\$ DECLARE r record; BEGIN FOR r IN SELECT rolname FROM pg_roles WHERE rolname LIKE 'vito\\_replica\\_%' AND rolname NOT IN ({$keep}) LOOP EXECUTE format('DROP ROLE %I', r.rolname); END LOOP; END \$\$;";
     }
 
-    /**
-     * @param  array<string, mixed>  $values
-     * @return array<string, mixed>
-     */
     private function checkpoint(PostgresCluster $cluster, string $step, array $values = []): array
     {
         $cluster->update(['failover' => [...$cluster->failover, ...$values, 'step' => $step]]);

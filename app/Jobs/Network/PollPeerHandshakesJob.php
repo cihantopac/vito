@@ -86,7 +86,6 @@ class PollPeerHandshakesJob implements ShouldQueue
         }
     }
 
-    /** @param  array<string, int>  $handshakes */
     private function applyToMembers(array $handshakes): void
     {
         foreach ($this->network->servers()->whereNotNull('public_key')->with('server')->get() as $member) {

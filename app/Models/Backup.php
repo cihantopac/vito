@@ -60,17 +60,11 @@ class Backup extends AbstractModel
         });
     }
 
-    /**
-     * @return HasMany<BackupRestore, $this>
-     */
     public function restores(): HasMany
     {
         return $this->hasMany(BackupRestore::class);
     }
 
-    /**
-     * @return HasOne<PostgresCluster, $this>
-     */
     public function cluster(): HasOne
     {
         return $this->hasOne(PostgresCluster::class, 'backup_id');
@@ -100,45 +94,30 @@ class Backup extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
-    /**
-     * @return BelongsTo<StorageProvider, $this>
-     */
     public function storage(): BelongsTo
     {
         return $this->belongsTo(StorageProvider::class, 'storage_id');
     }
 
     
-    /**
-     * @return BelongsTo<Database, $this>
-     */
     public function database(): BelongsTo
     {
         return $this->belongsTo(Database::class)->withTrashed();
     }
 
     
-    /**
-     * @return HasMany<BackupFile, $this>
-     */
     public function files(): HasMany
     {
         return $this->hasMany(BackupFile::class, 'backup_id');
     }
 
     
-    /**
-     * @return HasOne<BackupFile, $this>
-     */
     public function lastFile(): HasOne
     {
         return $this->hasOne(BackupFile::class, 'backup_id')->latest();

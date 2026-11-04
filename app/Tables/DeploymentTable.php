@@ -19,7 +19,6 @@ class DeploymentTable extends Table
 
     private bool $overview = false;
 
-    /** @var array<string, int>|null */
     private ?array $firstDeploymentIdByCommit = null;
 
     protected function getFirstDeploymentIdForCommit(Deployment $deployment): ?int

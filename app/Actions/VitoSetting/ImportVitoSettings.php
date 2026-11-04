@@ -23,7 +23,6 @@ class ImportVitoSettings
             'backup_file' => ['required', 'file', 'mimes:zip'],
         ])->validate();
 
-        /** @var UploadedFile $uploaded */
         $uploaded = $validated['backup_file'];
         $extractPath = Storage::disk('tmp')->path('vito-backup-import-'.time());
         File::makeDirectory($extractPath, 0755, true);

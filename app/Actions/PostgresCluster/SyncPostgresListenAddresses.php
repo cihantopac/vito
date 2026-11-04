@@ -13,7 +13,6 @@ use RuntimeException;
 
 class SyncPostgresListenAddresses
 {
-    /** @return list<string> */
     public static function privateAddresses(Server $server): array
     {
         return collect([

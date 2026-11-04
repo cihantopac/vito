@@ -111,7 +111,6 @@ class PrepareStorageMigration implements ShouldQueue
             ->each(fn (Backup $backup) => app(ManagePgBackRest::class)->reinstall($backup));
     }
 
-    /** @param  array<string, BackupFile>  $backupFiles */
     private function trackBackupFiles(array $backupFiles): void
     {
         StorageMigration::whereKey($this->storageMigration->id)->whereNull('started_at')->update(['started_at' => now()]);
@@ -180,7 +179,6 @@ class PrepareStorageMigration implements ShouldQueue
         return true;
     }
 
-    /** @param  array<string, BackupFile>  $backupFiles */
     private function scanSource(array $backupFiles): void
     {
         StorageMigration::whereKey($this->storageMigration->id)
@@ -266,7 +264,6 @@ class PrepareStorageMigration implements ShouldQueue
         app(BroadcastStorageMigrationUpdate::class)->broadcast($this->storageMigration);
     }
 
-    /** @return array<string, mixed> */
     private function itemRow(string $sourceKey, ?int $size, ?int $backupFileId, Carbon $now): array
     {
         return [
@@ -287,7 +284,6 @@ class PrepareStorageMigration implements ShouldQueue
         return trim((string) ($storage->credentials['path'] ?? ''), '/');
     }
 
-    /** @return list<string> */
     private function pgBackRestRepositories(string $sourcePrefix): array
     {
         return Backup::query()
@@ -311,7 +307,6 @@ class PrepareStorageMigration implements ShouldQueue
         return $targetPrefix !== '' ? $targetPrefix.'/'.$relative : $relative;
     }
 
-    /** @return array<string, BackupFile> */
     private function backupFilesByKey(Collection $backups): array
     {
         $map = [];

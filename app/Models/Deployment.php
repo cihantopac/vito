@@ -69,41 +69,26 @@ class Deployment extends AbstractModel
         });
     }
 
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @return BelongsTo<DeploymentScript, $this>
-     */
     public function deploymentScript(): BelongsTo
     {
         return $this->belongsTo(DeploymentScript::class);
     }
 
-    /**
-     * @return BelongsTo<ServerLog, $this>
-     */
     public function log(): BelongsTo
     {
         return $this->belongsTo(ServerLog::class, 'log_id');
     }
 
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function rolledBackBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rolled_back_by_id');

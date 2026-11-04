@@ -97,13 +97,6 @@ reviews:
       instructions: |
         SSH scripts are Blade templates executed on remote servers. Validate/sanitize any user input that lands in a command. When running as a different user, `cd`/`sudo` must run as the target user, not the login user.
 
-    - path: "tests/**"
-      instructions: |
-        - Pest 5 only. `RefreshDatabase` trait, factories, `assertDatabaseHas()` for DB assertions.
-        - `TestCase` provides `$this->user`, `$this->server`, `$this->site` pre-configured.
-        - Use `SSH::fake()` for SSH and `Http::fake()` for HTTP — never real connections.
-        - Don't over-test trivial logic that PHP handles natively. Flag removed tests.
-
     - path: "public/api-docs/openapi/**"
       instructions: |
         Keep OpenAPI schemas in sync with API Resources and backend enums. Don't document fields the API intentionally omits from responses.

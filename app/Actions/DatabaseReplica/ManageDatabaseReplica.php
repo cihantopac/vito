@@ -308,7 +308,6 @@ class ManageDatabaseReplica
         Notifier::send($replica->primary, new DatabaseReplicaFailed($replica));
     }
 
-    /** @return array{slot_name: string, username: string, password: string} */
     public function credentials(): array
     {
         $suffix = Str::lower(Str::random(10));
@@ -333,7 +332,6 @@ class ManageDatabaseReplica
         }
     }
 
-    /** @return array{database_size: ?int, storage_gb: ?int, measured: bool, cores: ?int, memory_gb: ?float, architecture: ?string, os: string, postgresql: ?string, source: string} */
     public function requirements(Server $primary): array
     {
         $backup = PostgresCluster::forServer($primary)?->backup;
@@ -345,7 +343,6 @@ class ManageDatabaseReplica
         );
     }
 
-    /** @return list<array{id: int, name: string, ip: ?string, postgresql: ?string, databases: int, sites: int, issue: ?string}> */
     public function candidates(Server $primary): array
     {
         return $primary->project->servers()

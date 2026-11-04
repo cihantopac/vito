@@ -17,10 +17,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
-/**
- * @phpstan-type ServerRow array{server: string, project: string, url: string, down: bool, issues: array<string, array<int, string>>}
- * @phpstan-type Report array{projects: int, servers: int, critical: array<int, ServerRow>, warning: array<int, ServerRow>, updates: array{servers: int, packages: int, kernel: int, top: array<int, array{server: string, url: string, count: int}>}, clear: array<int, string>, missing: array<int, string>}
- */
 class SendDailyHealthReports
 {
     private const int DISK_WARNING_PERCENT = 75;
@@ -69,9 +65,6 @@ class SendDailyHealthReports
         }
     }
 
-    /**
-     * @return array{}|Report
-     */
     public function report(User $user, string $date): array
     {
         $projects = Project::query()
@@ -131,10 +124,6 @@ class SendDailyHealthReports
         return $report;
     }
 
-    /**
-     * @param  array<int, int>  $projectIds
-     * @return array<int, HealthReportSnapshot>
-     */
     private function latestSnapshots(array $projectIds, CarbonImmutable $end): array
     {
         $inWindow = fn ($query) => $query->whereIn('project_id', $projectIds)->where('hour', '>', $end->subDay())->where('hour', '<=', $end);
@@ -146,9 +135,6 @@ class SendDailyHealthReports
             ->all();
     }
 
-    /**
-     * @return array<int, array<string, array<int, string>>>
-     */
     private function issuesByServer(HealthReportSnapshot $snapshot): array
     {
         $levels = [];
@@ -169,10 +155,6 @@ class SendDailyHealthReports
         return $levels;
     }
 
-    /**
-     * @param  array<string, array<int, string>>  $issues
-     * @return array<string, array<int, string>>
-     */
     private function serverIssues(Server $server, array $issues, bool $down): array
     {
         $metric = $server->latestMetric;
@@ -189,10 +171,6 @@ class SendDailyHealthReports
         return $issues;
     }
 
-    /**
-     * @param  array<int, string>  $labels
-     * @return array<string, array<int, string>>
-     */
     private function byStatus(array $labels): array
     {
         $groups = [];

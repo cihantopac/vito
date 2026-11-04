@@ -40,33 +40,21 @@ class CronJob extends AbstractModel
         'status' => CronjobStatus::class,
     ];
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @return HasMany<CommandExecution, $this>
-     */
     public function executions(): HasMany
     {
         return $this->hasMany(CommandExecution::class);
     }
 
-    /**
-     * @return HasOne<CommandExecution, $this>
-     */
     public function lastExecution(): HasOne
     {
         return $this->hasOne(CommandExecution::class)->latestOfMany();

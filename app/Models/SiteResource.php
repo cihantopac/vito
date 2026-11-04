@@ -36,25 +36,16 @@ class SiteResource extends AbstractModel
         'original_environment',
     ];
 
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    /**
-     * @return BelongsTo<StorageProvider, $this>
-     */
     public function storageProvider(): BelongsTo
     {
         return $this->belongsTo(StorageProvider::class, 'storage_provider_id');

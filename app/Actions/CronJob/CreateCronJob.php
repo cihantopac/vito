@@ -14,9 +14,6 @@ use Illuminate\Validation\Rule;
 
 class CreateCronJob
 {
-    /**
-     * @param  array<string, mixed>  $input
-     */
     public function create(Server $server, array $input, ?Site $site = null): CronJob
     {
         Validator::make($input, self::rules($input, $server, $site))->validate();
@@ -32,10 +29,6 @@ class CreateCronJob
         return $cronJob;
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array{site_id: ?int, name: ?string, user: string, command: string, frequency: string}
-     */
     public static function attributes(array $input, ?Site $site = null): array
     {
         return [
@@ -47,10 +40,6 @@ class CreateCronJob
         ];
     }
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @return array<string, array<int, mixed>>
-     */
     public static function rules(array $input, Server $server, ?Site $site = null): array
     {
         $rules = [

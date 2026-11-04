@@ -26,18 +26,12 @@ class NetworkFirewallRule extends AbstractModel
     ];
 
     
-    /**
-     * @return BelongsTo<Network, $this>
-     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);
     }
 
     
-    /**
-     * @return HasMany<ServerNetworkRule, $this>
-     */
     public function serverRules(): HasMany
     {
         return $this->hasMany(ServerNetworkRule::class);

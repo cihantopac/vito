@@ -49,36 +49,24 @@ class NetworkServer extends AbstractModel
         return $this->last_handshake_at?->gt(now()->subMinutes(5));
     }
 
-    /**
-     * @return BelongsTo<Network, $this>
-     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);
     }
 
     
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
-    /**
-     * @return BelongsTo<ServerIpAddress, $this>
-     */
     public function serverIpAddress(): BelongsTo
     {
         return $this->belongsTo(ServerIpAddress::class);
     }
 
     
-    /**
-     * @return HasMany<ServerNetworkRule, $this>
-     */
     public function rules(): HasMany
     {
         return $this->hasMany(ServerNetworkRule::class);

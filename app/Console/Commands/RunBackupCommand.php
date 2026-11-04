@@ -29,7 +29,6 @@ class RunBackupCommand extends Command
             ->with('server')
             ->withMax('files', 'created_at')
             ->chunkById(100, function ($backups) use (&$total, &$failed): void {
-                /** @var Backup $backup */
                 foreach ($backups as $backup) {
                     try {
                         $total += (int) $this->start($backup);

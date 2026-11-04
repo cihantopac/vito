@@ -45,7 +45,6 @@ class ScanServerCleanup
 
     private const int SAMPLES = 5;
 
-    /** @return array<int, array{key: string, label: string, description: string, risk: string, size_bytes: int, count: int, command: string, samples: array<int, array{path: string, size_bytes: int}>}> */
     public function handle(Server $server): array
     {
         $groups = [];
@@ -75,7 +74,6 @@ class ScanServerCleanup
         return $categories;
     }
 
-    /** @return array<int, array{category: string, path: string, size: int}> */
     public function items(Server $server): array
     {
         if (! $server->isReady()) {
@@ -109,7 +107,6 @@ class ScanServerCleanup
         return $items;
     }
 
-    /** @param  array<int, string>  $paths */
     private function command(string $category, array $paths): string
     {
         $arguments = implode(' ', array_map('escapeshellarg', $paths));

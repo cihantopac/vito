@@ -6,7 +6,6 @@ use App\Models\EnvVersion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin EnvVersion */
 class EnvVersionResource extends JsonResource
 {
     public function toArray(Request $request): array

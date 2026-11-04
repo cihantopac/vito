@@ -8,7 +8,6 @@ use Illuminate\Validation\ValidationException;
 
 class EditDNSProvider
 {
-    /** @param  array<string, mixed>  $input */
     public function edit(DNSProvider $dnsProvider, array $input, ?int $projectId): DNSProvider
     {
         $provider = $dnsProvider->provider();

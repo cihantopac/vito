@@ -26,9 +26,6 @@ class LoadBalancerServer extends AbstractModel
     ];
 
     
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function loadBalancer(): BelongsTo
     {
         return $this->belongsTo(Site::class, 'load_balancer_id');

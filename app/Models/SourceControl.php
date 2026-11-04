@@ -45,7 +45,6 @@ class SourceControl extends AbstractModel
         return $this->provider === self::PROVIDER_GITHUB_APP;
     }
 
-
     public static function usableForSitesProviders(): array
     {
         $providers = config('source-control.providers', []);
@@ -55,7 +54,6 @@ class SourceControl extends AbstractModel
             fn (array $config): bool => (bool) ($config['usable_for_sites'] ?? true),
         ));
     }
-
 
     public static function usableForServer(Server $server, ?User $user = null): Builder
     {
@@ -68,7 +66,6 @@ class SourceControl extends AbstractModel
                 $query->where('project_id', $server->project_id)->orWhereNull('project_id');
             });
     }
-
 
     public static function siteValidationRules(Server $server, ?User $user = null): array
     {
@@ -104,27 +101,18 @@ class SourceControl extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<Site, $this>
-     */
     public function sites(): HasMany
     {
         return $this->hasMany(Site::class);
     }
 
     
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
     
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
