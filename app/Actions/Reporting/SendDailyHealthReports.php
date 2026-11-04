@@ -2,6 +2,7 @@
 
 namespace App\Actions\Reporting;
 
+use App\Enums\ServerStatus;
 use App\Enums\UserRole;
 use App\Mail\DailyHealthReport;
 use App\Models\HealthReportDelivery;
@@ -22,8 +23,8 @@ class SendDailyHealthReports
         if (! $user) {
             return;
         }
-        $groups = $this->groups($user, $date);
-        if ($groups === []) {
+        $report = $this->report($user, $date);
+        if ($report === []) {
             return;
         }
         $delivery = HealthReportDelivery::query()->firstOrCreate(
@@ -33,7 +34,7 @@ class SendDailyHealthReports
             return;
         }
         try {
-            Mail::to($user->email)->send(new DailyHealthReport($groups, $date));
+            Mail::to($user->email)->send(new DailyHealthReport($report, $date));
             $delivery->update(['status' => 'sent']);
         } catch (\Throwable $e) {
             $delivery->update(['status' => 'failed']);
@@ -42,9 +43,9 @@ class SendDailyHealthReports
     }
 
     /**
-     * @return array<int, array{name: string, checks: int, critical: array<string, array<int, array{label: string, url: string}>>, warning: array<string, array<int, array{label: string, url: string, level: string}>>, disks: array<string, array{url: string, disk: ?int}>}>
+     * @return array{}|array{projects: int, servers: int, critical: array<int, array{server: string, project: string, url: string, issues: array<int, string>}>, warning: array<int, array{server: string, project: string, url: string, issues: array<int, string>}>, updates: array{servers: int, packages: int, kernel: int, top: array<int, array{server: string, url: string, count: int}>}, clear: array<int, string>, missing: array<int, string>}
      */
-    public function groups(User $user, string $date): array
+    public function report(User $user, string $date): array
     {
         $end = CarbonImmutable::parse($date, config('app.timezone'))->setTime(9, 0);
         $projects = Project::query()->with('servers.latestMetric')
@@ -52,45 +53,65 @@ class SendDailyHealthReports
         if ($projects->isEmpty()) {
             return [];
         }
-        $snapshots = HealthReportSnapshot::query()->whereIn('project_id', $projects->modelKeys())
-            ->where('hour', '>', $end->subDay())->where('hour', '<=', $end)->orderBy('hour')->get()->groupBy('project_id');
-        $groups = [];
+        $latest = HealthReportSnapshot::query()->whereIn('project_id', $projects->modelKeys())
+            ->where('hour', '>', $end->subDay())->where('hour', '<=', $end)->orderBy('hour')->get()->keyBy('project_id');
+        $base = rtrim(config('app.url'), '/');
+        $report = ['projects' => $projects->count(), 'servers' => 0, 'critical' => [], 'warning' => [], 'updates' => ['servers' => 0, 'packages' => 0, 'kernel' => 0, 'top' => []], 'clear' => [], 'missing' => []];
         foreach ($projects as $project) {
-            $hours = $snapshots->get($project->id, collect());
-            $issues = collect($hours->last()?->issues ?? [])->reject(fn ($issue) => str_contains($issue['key'], ':site:'));
-            $critical = [];
-            $warning = [];
-            foreach ($issues as $issue) {
-                [$server, $label] = array_pad(explode(' · ', $issue['label'], 2), 2, '');
-                $level = match (strtok($issue['key'], ':')) {
-                    'updates' => 'info',
-                    'metrics' => 'warning',
-                    default => 'critical',
-                };
-                if ($level === 'critical') {
-                    $critical[$server][] = ['label' => $label, 'url' => $issue['url']];
-                } else {
-                    $warning[$server][] = ['label' => $label, 'url' => $issue['url'], 'level' => $level];
+            $snapshot = $latest->get($project->id);
+            if (! $snapshot) {
+                $report['missing'][] = $project->name;
+
+                continue;
+            }
+            $levels = [];
+            foreach ($snapshot->issues as $issue) {
+                $type = strtok($issue['key'], ':');
+                if ($type === 'updates' || str_contains($issue['key'], ':site:') || ! preg_match('#/servers/(\d+)#', $issue['url'], $match)) {
+                    continue;
+                }
+                $label = str_replace(' (server measurement)', '', array_pad(explode(' · ', $issue['label'], 2), 2, '')[1]);
+                $levels[(int) $match[1]][$type === 'metrics' ? 'warning' : 'critical'][] = $label;
+            }
+            $hasIssues = false;
+            foreach ($project->servers as $server) {
+                $report['servers']++;
+                $issues = $levels[$server->id] ?? [];
+                $metric = $server->latestMetric;
+                $disk = $metric && $metric->disk_total > 0 ? 100 * $metric->disk_used / $metric->disk_total : 0;
+                if ($disk >= 75 && $disk <= 90) {
+                    $issues['warning'][] = 'Disk '.round($disk).'%';
+                }
+                if (isset($issues['critical']) && $server->status === ServerStatus::DISCONNECTED) {
+                    unset($issues['warning']);
+                }
+                foreach ($issues as $level => $labels) {
+                    $counts = array_count_values($labels);
+                    $report[$level][] = [
+                        'server' => $server->name,
+                        'project' => $project->name,
+                        'url' => $base.'/servers/'.$server->id,
+                        'issues' => array_map(fn ($label, $count) => $count > 1 ? $label.' ×'.$count : $label, array_keys($counts), $counts),
+                    ];
+                    $hasIssues = true;
+                }
+                if ($server->updates > 0 || $server->kernel_updates > 0) {
+                    $report['updates']['servers']++;
+                    $report['updates']['packages'] += $server->updates;
+                    $report['updates']['kernel'] += $server->kernel_updates;
+                    $report['updates']['top'][] = ['server' => $server->name, 'url' => $base.'/servers/'.$server->id.'/update', 'count' => $server->updates];
                 }
             }
-            uasort($critical, fn ($a, $b) => count($b) <=> count($a));
-            foreach ($warning as $server => $items) {
-                usort($items, fn ($a, $b) => ($b['level'] === 'warning') <=> ($a['level'] === 'warning'));
-                $warning[$server] = $items;
+            if (! $hasIssues) {
+                $report['clear'][] = $project->name;
             }
-            uasort($warning, fn ($a, $b) => [$b[0]['level'] === 'warning', count($b)] <=> [$a[0]['level'] === 'warning', count($a)]);
-            $disks = [];
-            foreach ($project->servers as $server) {
-                $metric = $server->latestMetric;
-                $disks[$server->name] = [
-                    'url' => rtrim(config('app.url'), '/').'/servers/'.$server->id,
-                    'disk' => $metric && $metric->disk_total > 0 ? (int) round(100 * $metric->disk_used / $metric->disk_total) : null,
-                ];
-            }
-            uasort($disks, fn ($a, $b) => ($b['disk'] ?? -1) <=> ($a['disk'] ?? -1));
-            $groups[] = ['name' => $project->name, 'checks' => $hours->count(), 'critical' => $critical, 'warning' => $warning, 'disks' => $disks];
         }
+        foreach (['critical', 'warning'] as $level) {
+            usort($report[$level], fn ($a, $b) => count($b['issues']) <=> count($a['issues']));
+        }
+        usort($report['updates']['top'], fn ($a, $b) => $b['count'] <=> $a['count']);
+        $report['updates']['top'] = array_slice($report['updates']['top'], 0, 5);
 
-        return $groups;
+        return $report;
     }
 }

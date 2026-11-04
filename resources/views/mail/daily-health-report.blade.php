@@ -1,65 +1,47 @@
 @php
-$colors = ['critical' => '#cf222e', 'warning' => '#9a6700', 'info' => '#6e7781', 'ok' => '#1a7f37'];
-$diskColor = fn (int $disk): string => $disk >= 90 ? $colors['critical'] : ($disk >= 75 ? '#d4a72c' : $colors['ok']);
-$cell = 'border-top:1px solid #eee;padding:6px 0;vertical-align:top';
-$nameCell = 'border-top:1px solid #eee;padding:6px 14px 6px 0;vertical-align:top;width:170px;font-weight:600';
+$sections = [
+    'critical' => ['title' => 'Critical', 'color' => '#cf222e', 'bg' => '#fff5f5'],
+    'warning' => ['title' => 'Warnings', 'color' => '#9a6700', 'bg' => '#fffbeb'],
+];
+$updates = $report['updates'];
+$td = 'padding:5px 8px;border-top:1px solid #eee;vertical-align:top';
 @endphp
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Daily health report</title></head>
-<body style="margin:0;background:#f5f5f5;color:#202020;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5">
-<div style="max-width:680px;margin:16px auto;padding:20px 24px;background:#fff;border:1px solid #ddd;border-radius:10px">
-<h1 style="font-size:20px;margin:0">Daily health report</h1>
-<p style="color:#666;margin:2px 0 0">{{ $date }} · status at 09:00 {{ config('app.timezone') }}</p>
-@foreach ($groups as $group)
-<div style="margin-top:18px;padding-top:14px;border-top:1px solid #ddd">
-<h2 style="font-size:16px;margin:0 0 8px">{{ $group['name'] }}</h2>
-@if ($group['checks'] === 0)
-<p style="margin:0;color:#666">No monitoring data for this period.</p>
-@else
-@if ($group['critical'] === [] && $group['warning'] === [])
-<p style="margin:0 0 8px;color:{{ $colors['ok'] }};font-weight:600">✓ All clear</p>
-@endif
-@if ($group['critical'] !== [])
-<div style="background:#fff5f5;border-left:3px solid {{ $colors['critical'] }};padding:8px 12px;margin-bottom:12px">
-<div style="color:{{ $colors['critical'] }};font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.03em">Critical · {{ array_sum(array_map('count', $group['critical'])) }}</div>
-<table style="width:100%;border-collapse:collapse">
-@foreach ($group['critical'] as $server => $items)
-<tr><td style="{{ $nameCell }}">{{ $server }}</td><td style="{{ $cell }}">
-@foreach ($items as $issue)<div><a href="{{ $issue['url'] }}" style="color:{{ $colors['critical'] }}">{{ $issue['label'] }}</a></div>@endforeach
-</td></tr>
-@endforeach
-</table>
-</div>
-@endif
-@if ($group['warning'] !== [])
-<div style="color:{{ $colors['warning'] }};font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.03em">Warnings</div>
-<table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px">
-@foreach ($group['warning'] as $server => $items)
-<tr><td style="{{ $nameCell }};font-weight:normal">{{ $server }}</td><td style="{{ $cell }}">
-@foreach ($items as $issue)<div><a href="{{ $issue['url'] }}" style="color:{{ $colors[$issue['level']] }};text-decoration:none">{{ $issue['label'] }}</a></div>@endforeach
-</td></tr>
-@endforeach
-</table>
-@endif
-@endif
-@if ($group['disks'] !== [])
-<div style="color:#666;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.03em">Disk usage</div>
-<table style="width:100%;border-collapse:collapse;font-size:13px">
-@foreach ($group['disks'] as $server => $row)
+<body style="margin:0;background:#f5f5f5;color:#202020;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;line-height:1.45">
+<div style="max-width:680px;margin:16px auto;padding:18px 22px;background:#fff;border:1px solid #ddd;border-radius:10px">
+<h1 style="font-size:19px;margin:0">Daily health report</h1>
+<p style="color:#666;margin:2px 0 10px">{{ $date }} · status at 09:00 {{ config('app.timezone') }} · {{ $report['projects'] }} projects · {{ $report['servers'] }} servers</p>
+<p style="margin:0 0 12px;font-weight:600">
+<span style="color:#cf222e">● {{ count($report['critical']) }} servers critical</span>&nbsp;&nbsp;
+<span style="color:#9a6700">● {{ count($report['warning']) }} with warnings</span>&nbsp;&nbsp;
+<span style="color:#6e7781">● {{ $updates['servers'] }} need updates</span>
+</p>
+@foreach ($sections as $level => $section)
+@if ($report[$level] !== [])
+<table style="width:100%;border-collapse:collapse;margin-bottom:12px;background:{{ $section['bg'] }};border-left:3px solid {{ $section['color'] }}">
+<tr><td colspan="2" style="padding:6px 8px;color:{{ $section['color'] }};font-weight:700">{{ $section['title'] }}</td></tr>
+@foreach ($report[$level] as $row)
 <tr>
-<td style="padding:3px 14px 3px 0;width:170px"><a href="{{ $row['url'] }}" style="color:#202020;text-decoration:none">{{ $server }}</a></td>
-@if ($row['disk'] !== null)
-<td style="padding:3px 0"><div style="width:100%;height:6px;background:#eee;border-radius:3px;overflow:hidden"><div style="width:{{ min($row['disk'], 100) }}%;height:6px;background:{{ $diskColor($row['disk']) }}"></div></div></td>
-<td align="right" style="padding:3px 0 3px 10px;width:44px;color:{{ $row['disk'] >= 90 ? $colors['critical'] : ($row['disk'] >= 75 ? $colors['warning'] : '#666') }};font-weight:{{ $row['disk'] >= 75 ? 600 : 400 }}">{{ $row['disk'] }}%</td>
-@else
-<td style="padding:3px 0;color:#999">n/a</td><td></td>
-@endif
+<td style="{{ $td }};white-space:nowrap"><a href="{{ $row['url'] }}" style="color:#202020;font-weight:600;text-decoration:none">{{ $row['server'] }}</a> <span style="color:#888">{{ $row['project'] }}</span></td>
+<td style="{{ $td }};color:{{ $section['color'] }}">{{ implode(', ', $row['issues']) }}</td>
 </tr>
 @endforeach
 </table>
 @endif
-</div>
 @endforeach
-<p style="font-size:12px;color:#666;margin:16px 0 0;padding-top:12px;border-top:1px solid #ddd">Status from the latest hourly check. Disk: <span style="color:{{ $colors['ok'] }}">&lt;75%</span> · <span style="color:{{ $colors['warning'] }}">75–89%</span> · <span style="color:{{ $colors['critical'] }}">≥90%</span></p>
+@if ($updates['servers'] > 0)
+<p style="margin:0 0 8px;color:#555"><strong>Updates:</strong> {{ $updates['packages'] }} packages{{ $updates['kernel'] > 0 ? ' and '.$updates['kernel'].' kernel updates' : '' }} pending on {{ $updates['servers'] }} servers. Most:
+@foreach ($updates['top'] as $top)<a href="{{ $top['url'] }}" style="color:#555">{{ $top['server'] }}</a> {{ $top['count'] }}{{ $loop->last ? '.' : ', ' }}@endforeach
+</p>
+@endif
+@if ($report['critical'] === [] && $report['warning'] === [])
+<p style="margin:0 0 8px;color:#1a7f37;font-weight:600">✓ No critical issues or warnings.</p>
+@endif
+<p style="font-size:12px;color:#666;margin:12px 0 0;padding-top:10px;border-top:1px solid #ddd">
+@if ($report['clear'] !== [])<span style="color:#1a7f37">✓ All clear:</span> {{ implode(', ', $report['clear']) }}.@endif
+@if ($report['missing'] !== []) No monitoring data: {{ implode(', ', $report['missing']) }}.@endif
+Disk warning at 75%, critical above 90%.
+</p>
 </div></body></html>
