@@ -73,8 +73,17 @@ class EditStorageProvider
 
         if (! $connected) {
             throw ValidationException::withMessages([
-                'provider' => __("Couldn't connect to the provider"),
+                'provider' => $this->connectionError($provider),
             ]);
         }
+    }
+
+    private function connectionError(StorageProviderContract $provider): string
+    {
+        if (method_exists($provider, 'connectionError') && is_string($provider->connectionError())) {
+            return $provider->connectionError();
+        }
+
+        return __("Couldn't connect to the provider");
     }
 }

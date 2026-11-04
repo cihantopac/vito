@@ -24,10 +24,11 @@ class CreateStorageProvider
             'project_id' => $projectId,
         ]);
 
-        $storageProvider->credentials = $storageProvider->provider()->credentialData($input);
+        $provider = $storageProvider->provider();
+        $storageProvider->credentials = $provider->credentialData($input);
 
         try {
-            $connected = $storageProvider->provider()->connect($storageProvider->credentials);
+            $connected = $provider->connect($storageProvider->credentials);
         } catch (Throwable $e) {
             Log::error('Failed to connect to storage provider', [
                 'provider' => $storageProvider->provider,
@@ -39,7 +40,7 @@ class CreateStorageProvider
 
         if (! $connected) {
             throw ValidationException::withMessages([
-                'provider' => __("Couldn't connect to the provider"),
+                'provider' => $this->connectionError($provider),
             ]);
         }
 
@@ -66,5 +67,14 @@ class CreateStorageProvider
         }
 
         Validator::make($input, $rules)->validate();
+    }
+
+    private function connectionError(object $provider): string
+    {
+        if (method_exists($provider, 'connectionError') && is_string($provider->connectionError())) {
+            return $provider->connectionError();
+        }
+
+        return __("Couldn't connect to the provider");
     }
 }
