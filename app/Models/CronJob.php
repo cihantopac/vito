@@ -127,9 +127,6 @@ class CronJob extends AbstractModel
         return $command;
     }
 
-    /**
-     * Older releases escaped crontab content twice, leaving commands stored as \''command'\'.
-     */
     private static function stripLegacyEscaping(string $command): ?string
     {
         if (! str_starts_with($command, "\\''") || ! str_ends_with($command, "'\\'")) {

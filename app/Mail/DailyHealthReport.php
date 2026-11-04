@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailable;
 class DailyHealthReport extends Mailable
 {
     /**
-     * @param  array<string, mixed>  $report  see SendDailyHealthReports::report()
+     * @param  array<string, mixed>  $report
      */
     public function __construct(public array $report, public string $date) {}
 

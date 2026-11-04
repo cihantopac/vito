@@ -15,8 +15,8 @@ use Throwable;
 class SyncCronJobs
 {
     /**
-     * @param  array<int, string>  $users  users whose crontab is synced; every SSH user of the server when empty
-     * @return array<string, string> failure messages keyed by the user whose crontab could not be synced
+     * @param  array<int, string>  $users
+     * @return array<string, string>
      */
     public function sync(Server $server, array $users = []): array
     {
@@ -136,8 +136,6 @@ class SyncCronJobs
     }
 
     /**
-     * Maps every command form a Vito cron job may appear as in a crontab to the job.
-     *
      * @param  Collection<int, CronJob>  $cronJobs
      * @return array<string, CronJob>
      */

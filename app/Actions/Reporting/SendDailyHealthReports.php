@@ -147,7 +147,7 @@ class SendDailyHealthReports
     }
 
     /**
-     * @return array<int, array<string, array<int, string>>> labels keyed by server id, then by level
+     * @return array<int, array<string, array<int, string>>>
      */
     private function issuesByServer(HealthReportSnapshot $snapshot): array
     {
@@ -190,8 +190,6 @@ class SendDailyHealthReports
     }
 
     /**
-     * Groups "name — status" labels by status so the email reads "Failed: horizon ×2, app".
-     *
      * @param  array<int, string>  $labels
      * @return array<string, array<int, string>>
      */

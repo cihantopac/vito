@@ -224,7 +224,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Light Top Section: Title, Badges, Progress, Actions */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">
@@ -248,9 +247,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
             </p>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-2">
-            {/* Cancel & Delete Dialog */}
             <Dialog open={deleteDialogOpen} onOpenChange={handleOpenDeleteChange}>
               <DialogTrigger asChild>
                 <Button
@@ -344,7 +341,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
               </DialogContent>
             </Dialog>
 
-            {/* Resume / Retry Dialog - only rendered when installation fails */}
             {failed && (
               <Dialog open={retryDialogOpen} onOpenChange={setRetryDialogOpen}>
                 <DialogTrigger asChild>
@@ -400,10 +396,8 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
           </div>
         </div>
 
-        {/* Sleek Progress Bar */}
         <Progress value={progressPercent} className="h-1.5 w-full transition-all duration-300" />
 
-        {/* Error banner if any */}
         {site.last_error && (
           <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-3 text-xs">
             <div className="flex items-center gap-1.5 font-semibold">
@@ -415,9 +409,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
         )}
       </div>
 
-      {/* Main Grid: Left = Timeline, Right = Terminal */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        {/* Step-by-Step Timeline (5 columns on desktop) */}
         <Card className="border-border/60 shadow-none lg:col-span-5">
           <CardHeader className="p-3.5 border-b flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base font-semibold">Installation Steps</CardTitle>
@@ -435,7 +427,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
 
                 return (
                   <div key={s.key} aria-current={isStepActive ? 'step' : undefined} className="flex gap-3 relative py-3 first:pt-0 last:pb-0">
-                    {/* Vertical connecting line */}
                     {index < steps.length - 1 && (
                       <div
                         className={cn(
@@ -445,7 +436,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                       />
                     )}
 
-                    {/* Step Icon */}
                     <div className="relative z-10 flex size-6 shrink-0 items-center justify-center bg-card">
                       {isStepCompleted ? (
                         <CheckCircle2 className="size-5 text-neutral-500" />
@@ -458,7 +448,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                       )}
                     </div>
 
-                    {/* Step content */}
                     <div className="flex flex-1 flex-col min-w-0 justify-center">
                       <span
                         className={cn(
@@ -472,7 +461,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                         {index + 1}. {s.label}
                       </span>
 
-                      {/* Pure Sub-commands compact view */}
                       {s.key === 'running-auto-install' && vitoInstallCommands.length > 0 && (
                         <div className="mt-2 ml-1 flex flex-col gap-1 border-l pl-2.5">
                           {vitoInstallCommands.map((cmd, cmdIdx) => {
@@ -514,7 +502,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
           </CardContent>
         </Card>
 
-        {/* Live Terminal (7 columns on desktop) */}
         <Card className="border-border/60 shadow-none flex flex-col lg:col-span-7">
           <CardHeader className="p-3.5 border-b flex flex-row items-center justify-between gap-3 space-y-0">
             <div className="flex items-center gap-2 min-w-0">
@@ -587,7 +574,6 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
         </Card>
       </div>
 
-      {/* Historical Logs Collapsible Accordion */}
       <Collapsible open={showAllLogs} onOpenChange={setShowAllLogs} className="rounded-xl border border-border/60 shadow-none">
         <CollapsibleTrigger asChild>
           <Button
