@@ -2,6 +2,9 @@
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
+$app = require dirname(__DIR__).'/bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
 use App\StorageProviders\S3;
 use Aws\Command;
 use Aws\S3\Exception\S3Exception;
