@@ -106,7 +106,16 @@ class CronJob extends AbstractModel
 
     public static function wrapCommand(string $command): string
     {
-        return 'bash -lc '.escapeshellarg($command);
+        return 'bash -lc '.escapeshellarg(self::unwrapAll($command));
+    }
+
+    public static function unwrapAll(string $command): string
+    {
+        while (($inner = self::unwrapCommand(trim($command))) !== null) {
+            $command = $inner;
+        }
+
+        return $command;
     }
 
     public static function unwrapCommand(string $command): ?string

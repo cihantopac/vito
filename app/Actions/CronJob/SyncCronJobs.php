@@ -78,7 +78,7 @@ class SyncCronJobs
             }
 
             $frequency = $this->normalizeFrequency(implode(' ', array_slice($parts, 0, 5)));
-            $command = $this->normalizeCommand($parts[5]);
+            $command = $this->normalizeCommand(CronJob::unwrapAll($parts[5]));
 
             $serverCronJobs[] = [
                 'frequency' => $frequency,
@@ -138,13 +138,12 @@ class SyncCronJobs
 
     private function matchesCommand(CronJob $cronJob, string $serverCommand): bool
     {
-        $commands = [
-            $this->normalizeCommand($cronJob->command),
-            $this->normalizeCommand($cronJob->executionCommand()),
-        ];
+        $serverCommand = $this->normalizeCommand(CronJob::unwrapAll($serverCommand));
 
-        return in_array($serverCommand, $commands, true)
-            || in_array($this->normalizeCommand(CronJob::unwrapCommand($serverCommand) ?? $serverCommand), $commands, true);
+        return in_array($serverCommand, [
+            $this->normalizeCommand(CronJob::unwrapAll($cronJob->command)),
+            $this->normalizeCommand(CronJob::unwrapAll($cronJob->executionCommand())),
+        ], true);
     }
 
     private function getUserCrontab(Server $server, string $user): ?string
