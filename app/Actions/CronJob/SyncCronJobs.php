@@ -167,6 +167,7 @@ class SyncCronJobs
         return in_array($serverCommand, [
             $this->normalizeCommand(CronJob::unwrapAll($cronJob->command)),
             $this->normalizeCommand(CronJob::unwrapAll($cronJob->executionCommand())),
+            $this->normalizeCommand('cd '.escapeshellarg((string) $cronJob->site?->path).' && ('.$cronJob->command.')'),
         ], true);
     }
 

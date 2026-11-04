@@ -100,7 +100,7 @@ class CronJob extends AbstractModel
     public function executionCommand(): string
     {
         return $this->site
-            ? 'cd '.escapeshellarg($this->site->path).' && ('.$this->command.')'
+            ? 'cd '.(preg_match('#^/[\w./-]*$#', $this->site->path) ? $this->site->path : escapeshellarg($this->site->path)).' && ('.$this->command.')'
             : $this->command;
     }
 
