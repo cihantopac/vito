@@ -6,7 +6,7 @@ use Illuminate\Mail\Mailable;
 
 class DailyHealthReport extends Mailable
 {
-    public function __construct(public array $groups, public string $date) {}
+    public function __construct(public array $report, public string $date) {}
 
     public function build(): static
     {

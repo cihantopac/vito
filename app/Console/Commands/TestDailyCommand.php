@@ -24,14 +24,14 @@ class TestDailyCommand extends Command
         }
 
         $date = now()->toDateString();
-        $groups = app(SendDailyHealthReports::class)->groups($user, $date);
-        if ($groups === []) {
+        $report = app(SendDailyHealthReports::class)->report($user, $date);
+        if ($report === []) {
             $this->error('This user is not an owner or admin of any project.');
 
             return self::FAILURE;
         }
 
-        Mail::to($user->email)->send(new DailyHealthReport($groups, $date));
+        Mail::to($user->email)->send(new DailyHealthReport($report, $date));
         $this->info('Daily health report sent to '.$user->email);
 
         return self::SUCCESS;
