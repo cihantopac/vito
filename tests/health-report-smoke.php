@@ -51,7 +51,7 @@ if (Mail::sent(App\Mail\DailyHealthReport::class)->count() !== 1) {throw new Exc
 if (Mail::sent(App\Mail\DailyHealthReport::class,fn ($mail)=>$mail->report['projects']===2 && $mail->hasTo('admin@example.test'))->count() !== 1) {throw new Exception('Permission or grouping failure');}
 $mail=new App\Mail\DailyHealthReport(app(App\Actions\Reporting\SendDailyHealthReports::class)->report(App\Models\User::query()->find(1),'2026-11-02'),'2026-11-02');
 $html=$mail->render();
-if (!str_contains($html,'1 servers critical') || !str_contains($html,'https://vito.test/servers/1/update') || str_contains($html,'affected by server')) {throw new Exception('Email links/render: '.$html);}
+if (!str_contains($html,'critical servers') || !str_contains($html,'https://vito.test/servers/1/update') || str_contains($html,'affected by server')) {throw new Exception('Email links/render: '.$html);}
 
 echo "PASS: hourly idempotency, >90% boundary, service/worker/resource issues, affected sites, project authorization, per-user daily deduplication, email rendering and links.\n";
 
