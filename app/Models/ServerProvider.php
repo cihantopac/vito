@@ -30,9 +30,6 @@ class ServerProvider extends AbstractModel
         'project_id' => 'integer',
     ];
 
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -43,9 +40,6 @@ class ServerProvider extends AbstractModel
         return $this->credentials;
     }
 
-    /**
-     * @return HasMany<Server, $this>
-     */
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class, 'provider_id');
@@ -60,25 +54,16 @@ class ServerProvider extends AbstractModel
         return $provider;
     }
 
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function cachedRegions(): array
     {
         return Cache::remember($this->catalogueKey('regions'), now()->addMinutes(10), fn (): array => $this->provider()->regions());
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function cachedPlans(string $region, bool $available = false): array
     {
         return Cache::remember($this->catalogueKey('plans:'.($available ? 'available:' : '').$region), now()->addMinutes(10), fn (): array => $available ? $this->provider()->availablePlans($region) : $this->provider()->plans($region));

@@ -54,7 +54,6 @@ class CheckBackupHealth
         });
     }
 
-    /** @return array<string, string> */
     public function problems(Backup $backup): array
     {
         if ($backup->status === BackupStatus::FAILED) {
@@ -117,7 +116,6 @@ class CheckBackupHealth
         return $problems;
     }
 
-    /** @return list<array{id: int, server_id: int, title: string, problems: list<string>}> */
     public function attention(Relation $backups): array
     {
         return $backups->whereNotNull('backups.health')->with('server', 'database')->get()
@@ -130,7 +128,6 @@ class CheckBackupHealth
             ->all();
     }
 
-    /** @param  array<string, mixed>  $configuration */
     private function pending(array $configuration, string $task): bool
     {
         $grace = now()->subMinutes((int) config('core.backup_overdue_grace_minutes'));
@@ -139,7 +136,6 @@ class CheckBackupHealth
             || (isset($configuration[$task]['started_at']) && Carbon::parse($configuration[$task]['started_at'])->gt(now()->subDay()));
     }
 
-    /** @param  array<int|string, string|null>  $schedules */
     private function missed(Backup $backup, array $schedules, ?Carbon $last): ?Carbon
     {
         $reference = now()->subMinutes((int) config('core.backup_overdue_grace_minutes'));

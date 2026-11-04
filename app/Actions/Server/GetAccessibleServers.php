@@ -10,14 +10,6 @@ use Illuminate\Validation\Rule;
 
 class GetAccessibleServers
 {
-    /**
-     * @param array<string, mixed> $input
-     * @return array{
-     * query: Builder<Server>,
-     * scope: string,
-     * groupBy: string
-     * }
-     */
     public function get(User $user, array $input): array
     {
         app(EnsureSelfServerExists::class)->ensure($user);

@@ -20,10 +20,6 @@ class ConnectDropbox
 
     private const string SESSION_KEY = 'dropbox_oauth';
 
-    /**
-     * @param  array<string, mixed>  $input
-     * @param  ?int  $projectId
-     */
     public function redirectUrl(array $input, ?int $projectId): string
     {
         Validator::make($input, [
@@ -81,7 +77,6 @@ class ConnectDropbox
             (string) $pending['app_secret'],
         );
 
-        /** @var ?int $projectId */
         $projectId = $pending['project_id'] ?? null;
 
         return app(CreateStorageProvider::class)->create($user, [

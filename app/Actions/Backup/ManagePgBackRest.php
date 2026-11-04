@@ -33,10 +33,8 @@ use RuntimeException;
 
 class ManagePgBackRest
 {
-    /** @var array<string, int> */
     private const TYPE_RANK = ['incr' => 1, 'diff' => 2, 'full' => 3];
 
-    /** @var array<string, list<string>> */
     private const COVERED_BY = ['full' => ['full'], 'diff' => ['full', 'diff'], 'incr' => ['full', 'diff', 'incr']];
 
     public function create(Server $server, array $input): Backup
@@ -441,7 +439,6 @@ class ManagePgBackRest
         });
     }
 
-    /** @param  callable(): bool  $callback */
     private function locked(Backup $backup, callable $callback): bool
     {
         return Cache::lock('pgbackrest-schedule-'.$backup->id, 120)->block(30, $callback);
@@ -521,7 +518,6 @@ class ManagePgBackRest
         ])->validate();
     }
 
-    /** @return array{strategy: string, schedules: array{full: string, diff: ?string, incr: ?string}, retention: array{full: int, diff: ?int}, verify_schedule: string, check_schedule: string, process_max: int, wal_queue_max_gb: int} */
     private function settings(array $input): array
     {
         $strategy = PgBackRestStrategy::from($input['strategy']);

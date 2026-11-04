@@ -13,7 +13,6 @@ class StorageProvider extends AbstractModel
     
     use HasFactory;
 
-
     protected $fillable = [
         'user_id',
         'profile',
@@ -29,9 +28,6 @@ class StorageProvider extends AbstractModel
     ];
 
     
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -63,25 +59,16 @@ class StorageProvider extends AbstractModel
         return (object) $this->provider()->editableData();
     }
 
-    /**
-     * @return HasMany<Backup, $this>
-     */
     public function backups(): HasMany
     {
         return $this->hasMany(Backup::class, 'storage_id');
     }
 
-    /**
-     * @return HasMany<SiteResource, $this>
-     */
     public function siteResources(): HasMany
     {
         return $this->hasMany(SiteResource::class, 'storage_provider_id');
     }
 
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

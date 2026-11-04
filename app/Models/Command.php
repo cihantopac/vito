@@ -34,9 +34,6 @@ class Command extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
@@ -57,18 +54,12 @@ class Command extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<CommandExecution, $this>
-     */
     public function executions(): HasMany
     {
         return $this->hasMany(CommandExecution::class);
     }
 
     
-    /**
-     * @return HasOne<CommandExecution, $this>
-     */
     public function lastExecution(): HasOne
     {
         return $this->hasOne(CommandExecution::class)->latest();

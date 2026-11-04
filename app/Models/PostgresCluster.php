@@ -46,47 +46,31 @@ class PostgresCluster extends AbstractModel
         });
     }
 
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function primary(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'primary_server_id');
     }
 
-    /**
-     * @return BelongsTo<Backup, $this>
-     */
     public function backup(): BelongsTo
     {
         return $this->belongsTo(Backup::class);
     }
 
-    /**
-     * @return BelongsTo<Network, $this>
-     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);
     }
 
-    /**
-     * @return HasMany<DatabaseReplica, $this>
-     */
     public function replicas(): HasMany
     {
         return $this->hasMany(DatabaseReplica::class);
     }
 
-    /** @return Collection<int, DatabaseReplica> */
     public function streamingReplicas(): Collection
     {
         return $this->replicas()
@@ -95,7 +79,6 @@ class PostgresCluster extends AbstractModel
             ->get();
     }
 
-    /** @return Collection<int, Server> */
     public function nodes(): Collection
     {
         return collect([$this->primary])

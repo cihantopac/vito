@@ -12,16 +12,6 @@ use Illuminate\Validation\Rule;
 
 class GetAccessibleSites
 {
-    /**
-     * @param array<string, mixed> $input
-     * @return array{
-     * query: Builder<Site>,
-     * scope: string,
-     * serverScope: string,
-     * groupBy: string,
-     * servers: array<int, array{id: int, name: string, project_id: int, project_name: string|null}>
-     * }
-     */
     public function get(User $user, array $input): array
     {
         app(EnsureSelfServerExists::class)->ensure($user);

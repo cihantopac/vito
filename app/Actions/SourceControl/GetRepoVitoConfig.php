@@ -9,15 +9,6 @@ class GetRepoVitoConfig
 {
     use ParsesVitoLimits;
 
-    /**
-     * @return array{
-     * exists: bool,
-     * path: ?string,
-     * config: ?array,
-     * raw: ?string,
-     * error: ?string
-     * }
-     */
     public function get(SourceControl $sourceControl, string $repo, ?string $branch = null): array
     {
         $provider = $sourceControl->provider();

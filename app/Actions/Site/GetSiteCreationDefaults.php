@@ -9,12 +9,6 @@ use App\Models\User;
 class GetSiteCreationDefaults
 {
     
-    /**
-     * @return array{
-     * php_version: string|null,
-     * source_control_id: int|null
-     * }
-     */
     public function get(Server $server, ?User $user = null): array
     {
         $phpVersions = $server->installedPHPVersions();

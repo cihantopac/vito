@@ -116,7 +116,6 @@ abstract class AbstractSiteType implements SiteType
         return null;
     }
 
-    /** @return array<int, array{key: string, label: string, percentage: number}> */
     public function installationSteps(): array
     {
         return [

@@ -36,9 +36,6 @@ class HetznerController extends Controller
         return response()->json(['latencies' => $latencies]);
     }
 
-    /**
-     * @return array<string, ?int>
-     */
     private function measure(): array
     {
         $responses = Http::pool(fn (Pool $pool) => collect(self::LOCATIONS)

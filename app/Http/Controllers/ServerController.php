@@ -80,7 +80,6 @@ class ServerController extends Controller
     public function json(Request $request): ResourceCollection
     {
         $projectId = $request->input('project_id');
-        /** @var \App\Models\Project $project */
         $project = $projectId
             ? user()->allProjects()->where('projects.id', (int) $projectId)->firstOrFail()
             : user()->currentProject;
@@ -96,7 +95,6 @@ class ServerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $projectId = $request->input('project_id');
-        /** @var \App\Models\Project $project */
         $project = $projectId
             ? user()->allProjects()->where('projects.id', (int) $projectId)->firstOrFail()
             : user()->currentProject;

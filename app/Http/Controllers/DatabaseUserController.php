@@ -112,7 +112,6 @@ class DatabaseUserController extends Controller
         return back()
             ->with('success', 'Database user deleted successfully.');
     }
-    /** @return array{server_id: int, name: ?string}|null */
     private function replicaOf(Server $server): ?array
     {
         $cluster = PostgresCluster::forServer($server);

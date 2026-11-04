@@ -10,7 +10,6 @@ use Illuminate\Validation\ValidationException;
 
 class ConnectSourceControl
 {
-    /** @param  array<string, mixed>  $input */
     public function connect(User $user, array $input, ?int $projectId): SourceControl
     {
         $this->validate($input);

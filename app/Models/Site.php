@@ -167,18 +167,12 @@ class Site extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
-    /**
-     * @return BelongsTo<IsolatedUser, $this>
-     */
     public function isolatedUser(): BelongsTo
     {
         return $this->belongsTo(IsolatedUser::class);
@@ -195,80 +189,53 @@ class Site extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<ServerLog, $this>
-     */
     public function logs(): HasMany
     {
         return $this->hasMany(ServerLog::class);
     }
 
     
-    /**
-     * @return HasMany<Deployment, $this>
-     */
     public function deployments(): HasMany
     {
         return $this->hasMany(Deployment::class);
     }
 
-    /**
-     * @return HasMany<EnvVersion, $this>
-     */
     public function envVersions(): HasMany
     {
         return $this->hasMany(EnvVersion::class);
     }
 
     
-    /**
-     * @return HasMany<Command, $this>
-     */
     public function commands(): HasMany
     {
         return $this->hasMany(Command::class);
     }
 
     
-    /**
-     * @return HasOne<GitHook, $this>
-     */
     public function gitHook(): HasOne
     {
         return $this->hasOne(GitHook::class);
     }
 
     
-    /**
-     * @return HasMany<DeploymentScript, $this>
-     */
     public function deploymentScripts(): HasMany
     {
         return $this->hasMany(DeploymentScript::class);
     }
 
     
-    /**
-     * @return HasOne<DeploymentScript, $this>
-     */
     public function deploymentScript(): HasOne
     {
         return $this->hasOne(DeploymentScript::class, 'site_id')->where('name', 'default');
     }
 
     
-    /**
-     * @return HasOne<DeploymentScript, $this>
-     */
     public function buildScript(): HasOne
     {
         return $this->hasOne(DeploymentScript::class, 'site_id')->where('name', 'build');
     }
 
     
-    /**
-     * @return HasOne<DeploymentScript, $this>
-     */
     public function preFlightScript(): HasOne
     {
         return $this->hasOne(DeploymentScript::class, 'site_id')->where('name', 'pre-flight');
@@ -336,54 +303,36 @@ class Site extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<Worker, $this>
-     */
     public function workers(): HasMany
     {
         return $this->hasMany(Worker::class);
     }
 
     
-    /**
-     * @return HasMany<SiteResource, $this>
-     */
     public function resources(): HasMany
     {
         return $this->hasMany(SiteResource::class);
     }
 
     
-    /**
-     * @return HasMany<CronJob, $this>
-     */
     public function cronJobs(): HasMany
     {
         return $this->hasMany(CronJob::class);
     }
 
     
-    /**
-     * @return HasMany<Ssl, $this>
-     */
     public function ssls(): HasMany
     {
         return $this->hasMany(Ssl::class);
     }
 
     
-    /**
-     * @return HasMany<HostedDomain, $this>
-     */
     public function hostedDomains(): HasMany
     {
         return $this->hasMany(HostedDomain::class);
     }
 
     
-    /**
-     * @return BelongsTo<SourceControl, $this>
-     */
     public function sourceControl(): BelongsTo
     {
         return $this->belongsTo(SourceControl::class)->withTrashed();
@@ -425,7 +374,6 @@ class Site extends AbstractModel
         }
     }
 
-    /** @return array<int, array{key: string, label: string, percentage: number}> */
     public function installationSteps(): array
     {
         return $this->typeOrNull()?->installationSteps() ?? [];
@@ -732,9 +680,6 @@ class Site extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<LoadBalancerServer, $this>
-     */
     public function loadBalancerServers(): HasMany
     {
         return $this->hasMany(LoadBalancerServer::class, 'load_balancer_id');
@@ -757,18 +702,12 @@ class Site extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<Redirect, $this>
-     */
     public function redirects(): HasMany
     {
         return $this->hasMany(Redirect::class);
     }
 
     
-    /**
-     * @return HasMany<Redirect, $this>
-     */
     public function activeRedirects(): HasMany
     {
         return $this->redirects()->whereIn('status', [RedirectStatus::CREATING, RedirectStatus::READY]);

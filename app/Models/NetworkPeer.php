@@ -42,9 +42,6 @@ class NetworkPeer extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<Network, $this>
-     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);

@@ -49,18 +49,12 @@ class HostedDomain extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
     
-    /**
-     * @return BelongsTo<Ssl, $this>
-     */
     public function ssl(): BelongsTo
     {
         return $this->belongsTo(Ssl::class);

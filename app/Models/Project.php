@@ -43,49 +43,31 @@ class Project extends AbstractModel
             ->with(['users' => fn ($users) => $users->where('user_id', $viewer->id)]);
     }
 
-    /**
-     * @return HasMany<Server, $this>
-     */
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
     }
 
-    /**
-     * @return HasManyThrough<Site, Server, $this>
-     */
     public function sites(): HasManyThrough
     {
         return $this->hasManyThrough(Site::class, Server::class);
     }
 
-    /**
-     * @return HasManyThrough<Backup, Server, $this>
-     */
     public function backups(): HasManyThrough
     {
         return $this->hasManyThrough(Backup::class, Server::class);
     }
 
-    /**
-     * @return HasMany<NotificationChannel, $this>
-     */
     public function notificationChannels(): HasMany
     {
         return $this->hasMany(NotificationChannel::class);
     }
 
-    /**
-     * @return HasMany<UserProject, $this>
-     */
     public function users(): HasMany
     {
         return $this->hasMany(UserProject::class, 'project_id');
     }
 
-    /**
-     * @return HasMany<SourceControl, $this>
-     */
     public function sourceControls(): HasMany
     {
         return $this->hasMany(SourceControl::class);
@@ -114,25 +96,16 @@ class Project extends AbstractModel
         return $this->resolvedUserRoles[$user->id];
     }
 
-    /**
-     * @return HasMany<Domain, $this>
-     */
     public function domains(): HasMany
     {
         return $this->hasMany(Domain::class);
     }
 
-    /**
-     * @return HasMany<Network, $this>
-     */
     public function networks(): HasMany
     {
         return $this->hasMany(Network::class);
     }
 
-    /**
-     * @return HasMany<StorageMigration, $this>
-     */
     public function storageMigrations(): HasMany
     {
         return $this->hasMany(StorageMigration::class);

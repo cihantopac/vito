@@ -51,17 +51,11 @@ class DatabaseReplica extends AbstractModel
         });
     }
 
-    /**
-     * @return BelongsTo<PostgresCluster, $this>
-     */
     public function cluster(): BelongsTo
     {
         return $this->belongsTo(PostgresCluster::class, 'postgres_cluster_id');
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function replica(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'replica_server_id');
@@ -72,17 +66,11 @@ class DatabaseReplica extends AbstractModel
         return $this->cluster->primary;
     }
 
-    /**
-     * @return HasMany<DatabaseReplicaMetric, $this>
-     */
     public function metrics(): HasMany
     {
         return $this->hasMany(DatabaseReplicaMetric::class);
     }
 
-    /**
-     * @return HasOne<DatabaseReplicaMetric, $this>
-     */
     public function latestMetric(): HasOne
     {
         return $this->hasOne(DatabaseReplicaMetric::class)->latestOfMany();

@@ -16,9 +16,6 @@ class ResolveHetznerServerSpecs
 
     private static array $projectCostCache = [];
 
-    /**
-     * @var array<string, array{cores: int, memory: int, prices: array{eu: float, us: float, sin: float}}>
-     */
     private const CATALOG = [
         'cx11' => ['cores' => 1, 'memory' => 2, 'prices' => ['eu' => 3.29, 'us' => 3.79, 'sin' => 5.49]],
         'cx21' => ['cores' => 2, 'memory' => 4, 'prices' => ['eu' => 4.85, 'us' => 5.59, 'sin' => 7.99]],
@@ -81,9 +78,6 @@ class ResolveHetznerServerSpecs
         return self::CATALOG[$plan]['cores'] ?? null;
     }
 
-    /**
-     * @return array{amount: float, currency: string, formatted: string, plan: string, region: string|null}|null
-     */
     public function resolveCost(Server $server): ?array
     {
         if ($server->provider !== Hetzner::id()) {
@@ -112,9 +106,6 @@ class ResolveHetznerServerSpecs
         ];
     }
 
-    /**
-     * @return array{amount: float, currency: string, formatted: string}|null
-     */
     public function resolveProjectCost(Project $project): ?array
     {
         if (! $project->relationLoaded('servers')) {
@@ -225,9 +216,6 @@ class ResolveHetznerServerSpecs
         return self::CATALOG[$plan]['prices'][$zone] ?? self::CATALOG[$plan]['prices']['eu'];
     }
 
-    /**
-     * @return array<string, array{cores: int, prices: array<string, float>}>
-     */
     private function fetchLiveServerTypes(?ServerProvider $serverProvider): array
     {
         if (! $serverProvider || $serverProvider->provider !== Hetzner::id()) {

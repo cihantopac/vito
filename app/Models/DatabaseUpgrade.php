@@ -50,33 +50,21 @@ class DatabaseUpgrade extends AbstractModel
         'password',
     ];
 
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function source(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'source_server_id');
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function target(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'target_server_id');
     }
 
-    /**
-     * @return BelongsTo<Network, $this>
-     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);
@@ -106,7 +94,6 @@ class DatabaseUpgrade extends AbstractModel
         $this->update(['events' => array_slice($events, -200)]);
     }
 
-    /** @return list<array{name: string, size: int, tables: int}> */
     public function databases(): array
     {
         return array_values($this->preflight['databases'] ?? []);

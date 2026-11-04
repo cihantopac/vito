@@ -6,9 +6,6 @@ use App\Actions\Site\GetDeploymentProgress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @mixin \App\Models\Deployment
- */
 class DeploymentResource extends JsonResource
 {
     public function toArray(Request $request): array

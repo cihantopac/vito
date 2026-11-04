@@ -12,7 +12,6 @@ use RuntimeException;
 
 class SyncPostgresClusterFirewall
 {
-    /** @var array<int, string> */
     private const PORTS = [5432 => 'postgres-replica', PgBackRest::TLS_PORT => 'pgbackrest-tls'];
 
     public function sync(PostgresCluster $cluster): bool

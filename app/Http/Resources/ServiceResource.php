@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
-/**
- * @mixin \App\Models\Service
- */
 class ServiceResource extends JsonResource
 {
     

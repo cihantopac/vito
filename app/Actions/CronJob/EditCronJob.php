@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class EditCronJob
 {
-    /**
-     * @param  array<string, mixed>  $input
-     */
     public function edit(Server $server, CronJob $cronJob, array $input, ?Site $site = null): CronJob
     {
         Validator::make($input, CreateCronJob::rules($input, $server, $site))->validate();

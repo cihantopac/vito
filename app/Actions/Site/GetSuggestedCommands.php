@@ -10,9 +10,6 @@ class GetSuggestedCommands
 {
     private const int LIMIT = 5;
 
-    /**
-     * @return array<int, string>
-     */
     public function get(User $user): array
     {
         $ranByUser = fn (Builder $query): Builder => $query->where('user_id', $user->id);

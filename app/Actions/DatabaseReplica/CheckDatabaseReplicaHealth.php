@@ -13,12 +13,10 @@ use Illuminate\Support\Number;
 
 class CheckDatabaseReplicaHealth
 {
-    /** @var array<string, int> */
     private const SEVERITY = ['healthy' => 0, 'warning' => 1, 'critical' => 2];
 
     private DatabaseReplicaHealth $health = DatabaseReplicaHealth::HEALTHY;
 
-    /** @var list<string> */
     private array $reasons = [];
 
     public function check(DatabaseReplica $replica): DatabaseReplicaMetric
@@ -189,7 +187,6 @@ class CheckDatabaseReplicaHealth
         }
     }
 
-    /** @param  array<string, string>  $status */
     private function latency(array $status, string $key): ?float
     {
         if ($status['state'] !== 'streaming') {
