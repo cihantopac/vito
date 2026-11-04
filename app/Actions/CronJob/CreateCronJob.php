@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\CronJob;
 
 use App\Enums\CronjobStatus;
@@ -12,79 +14,60 @@ use Illuminate\Validation\Rule;
 
 class CreateCronJob
 {
-    
+    /**
+     * @param  array<string, mixed>  $input
+     */
     public function create(Server $server, array $input, ?Site $site = null): CronJob
     {
-        $this->validate($input, $server, $site);
+        Validator::make($input, self::rules($input, $server, $site))->validate();
 
-        
-        $siteId = $site?->id;
-        if (! $site && isset($input['site_id']) && ! empty($input['site_id'])) {
-            $siteId = (int) $input['site_id'];
-        }
-
-        $cronJob = new CronJob([
-            'name' => $input['name'] ?? null,
-            'server_id' => $server->id,
-            'site_id' => $siteId,
-            'user' => $input['user'],
-            'command' => $input['command'],
-            'frequency' => $input['frequency'] == 'custom' ? $input['custom'] : $input['frequency'],
+        $cronJob = $server->cronJobs()->create([
+            ...self::attributes($input, $site),
             'status' => CronjobStatus::CREATING,
         ]);
-        $cronJob->save();
 
         $server->cron()->update($cronJob->user, CronJob::crontab($server, $cronJob->user));
-        $cronJob->status = CronjobStatus::READY;
-        $cronJob->save();
+        $cronJob->update(['status' => CronjobStatus::READY]);
 
         return $cronJob;
     }
 
-        public static function rules(array $input, Server $server, ?Site $site = null): array
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array{site_id: ?int, name: ?string, user: string, command: string, frequency: string}
+     */
+    public static function attributes(array $input, ?Site $site = null): array
+    {
+        return [
+            'site_id' => $site?->id ?? (empty($input['site_id']) ? null : (int) $input['site_id']),
+            'name' => $input['name'] ?? null,
+            'user' => $input['user'],
+            'command' => $input['command'],
+            'frequency' => $input['frequency'] === 'custom' ? $input['custom'] : $input['frequency'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, array<int, mixed>>
+     */
+    public static function rules(array $input, Server $server, ?Site $site = null): array
     {
         $rules = [
-            'command' => [
-                'required',
-                'string',
-                'not_regex:/[\r\n]/',
-            ],
-            'user' => [
-                'required',
-                Rule::in($site?->getSshUsers() ?? $server->getSshUsers()),
-            ],
-            'frequency' => [
-                'required',
-                new CronRule(acceptCustom: true),
-            ],
-            'name' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+            'command' => ['required', 'string', 'not_regex:/[\r\n]/'],
+            'user' => ['required', Rule::in($site?->getSshUsers() ?? $server->getSshUsers())],
+            'frequency' => ['required', new CronRule(acceptCustom: true)],
+            'name' => ['nullable', 'string', 'max:255'],
         ];
 
-        
-        if (isset($input['site_id']) && ! empty($input['site_id'])) {
-            $rules['site_id'] = [
-                'required',
-                'integer',
-                Rule::exists('sites', 'id')->where('server_id', $server->id),
-            ];
+        if (! empty($input['site_id'])) {
+            $rules['site_id'] = ['required', 'integer', Rule::exists('sites', 'id')->where('server_id', $server->id)];
         }
 
-        if (isset($input['frequency']) && $input['frequency'] == 'custom') {
-            $rules['custom'] = [
-                'required',
-                new CronRule,
-            ];
+        if (($input['frequency'] ?? null) === 'custom') {
+            $rules['custom'] = ['required', new CronRule];
         }
 
         return $rules;
-    }
-
-    private function validate(array $input, Server $server, ?Site $site = null): void
-    {
-        Validator::make($input, self::rules($input, $server, $site))->validate();
     }
 }

@@ -382,7 +382,7 @@ class CopyStorageMigrationItems implements ShouldQueue
         });
     }
 
-    /** @param  Collection<string, int>|null  $known  target sizes by key hash from the target inventory, or null to ask the target */
+    /** @param  Collection<string, int>|null  $known */
     private function processItem(StorageMigrationItem $item, ?Collection $known = null): void
     {
         $this->recordActivity();

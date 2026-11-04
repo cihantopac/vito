@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\CronJob;
 
 use App\Enums\CronjobStatus;
@@ -10,50 +12,31 @@ use Illuminate\Support\Facades\Validator;
 
 class EditCronJob
 {
-    
+    /**
+     * @param  array<string, mixed>  $input
+     */
     public function edit(Server $server, CronJob $cronJob, array $input, ?Site $site = null): CronJob
     {
-        $this->validate($input, $server, $site);
+        Validator::make($input, CreateCronJob::rules($input, $server, $site))->validate();
 
-        
-        app(SyncCronJobs::class)->sync($server);
+        $originalUser = $cronJob->user;
+        $attributes = CreateCronJob::attributes($input, $site);
 
-        
-        $siteId = $site?->id;
-        if (! $site && isset($input['site_id'])) {
-            $siteId = ! empty($input['site_id']) ? (int) $input['site_id'] : null;
+        if (! $site && ! array_key_exists('site_id', $input)) {
+            $attributes['site_id'] = $cronJob->site_id;
         }
 
-        
-        $originalUser = $cronJob->user;
-        $newUser = $input['user'];
-        $userChanged = $originalUser !== $newUser;
+        app(SyncCronJobs::class)->sync($server, [$originalUser, $attributes['user']]);
 
-        $cronJob->update([
-            'site_id' => $siteId,
-            'name' => $input['name'] ?? null,
-            'user' => $input['user'],
-            'command' => $input['command'],
-            'frequency' => $input['frequency'] == 'custom' ? $input['custom'] : $input['frequency'],
-            'status' => CronjobStatus::UPDATING,
-        ]);
-        $cronJob->save();
+        $cronJob->update([...$attributes, 'status' => CronjobStatus::UPDATING]);
 
-        
-        if ($userChanged) {
+        if ($originalUser !== $cronJob->user) {
             $server->cron()->update($originalUser, CronJob::crontab($server, $originalUser));
         }
 
-        
         $server->cron()->update($cronJob->user, CronJob::crontab($server, $cronJob->user));
-        $cronJob->status = CronjobStatus::READY;
-        $cronJob->save();
+        $cronJob->update(['status' => CronjobStatus::READY]);
 
         return $cronJob;
-    }
-
-    private function validate(array $input, Server $server, ?Site $site = null): void
-    {
-        Validator::make($input, CreateCronJob::rules($input, $server, $site))->validate();
     }
 }

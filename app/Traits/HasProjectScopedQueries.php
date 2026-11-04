@@ -20,7 +20,7 @@ trait HasProjectScopedQueries
     }
 
     /**
-     * @param  array<int>  $projectIds  An empty list applies no project filter.
+     * @param  array<int>  $projectIds
      * @return Builder<static>
      */
     private static function scopedToProjects(User $user, array $projectIds): Builder

@@ -22,7 +22,7 @@ class ConnectDropbox
 
     /**
      * @param  array<string, mixed>  $input
-     * @param  ?int  $projectId  The project the provider will belong to, or null for a global one.
+     * @param  ?int  $projectId
      */
     public function redirectUrl(array $input, ?int $projectId): string
     {

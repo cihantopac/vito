@@ -1,25 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\CronJob;
 
 use App\Enums\CronjobStatus;
 use App\Models\CronJob;
 use App\Models\Server;
+use Cron\CronExpression;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class SyncCronJobs
 {
     /**
-     * @return array<string, string> failure messages keyed by the user whose crontab could not be synced
+     * @param  array<int, string>  $users
+     * @return array<string, string>
      */
-    public function sync(Server $server): array
+    public function sync(Server $server, array $users = []): array
     {
-        $users = array_values(array_filter($server->getSshUsers(), fn ($u) => is_string($u) && $u !== ''));
+        $users = $users === [] ? $server->getSshUsers() : $users;
         $errors = [];
 
-        foreach ($users as $user) {
+        foreach (array_unique(array_filter($users, fn (mixed $user): bool => is_string($user) && $user !== '')) as $user) {
             try {
-                $this->syncUserCronJobs($server, $user);
+                $this->syncUser($server, $user);
             } catch (Throwable $e) {
                 $errors[$user] = $e->getMessage();
             }
@@ -28,151 +34,146 @@ class SyncCronJobs
         return $errors;
     }
 
-    private function syncUserCronJobs(Server $server, string $user): void
+    private function syncUser(Server $server, string $user): void
     {
-        $crontabOutput = $this->getUserCrontab($server, $user);
+        $entries = $this->parseCrontab($this->getUserCrontab($server, $user));
+        $unmanagedLines = array_column(array_filter($entries, fn (array $entry): bool => $entry['frequency'] === null), 'raw');
+        $activeLines = array_column(array_filter($entries, fn (array $entry): bool => $entry['frequency'] !== null && ! $entry['commented']), 'line');
 
-        $vitoCronJobs = $server->cronJobs()
-            ->where('user', $user)
-            ->with('site')
-            ->get();
+        DB::transaction(function () use ($server, $user, $entries): void {
+            $cronJobs = $server->cronJobs()->where('user', $user)->with('site')->get();
 
-        if ($user !== 'root') {
-            foreach ($vitoCronJobs as $cronJob) {
-                $cleanCommand = CronJob::unwrapAll($cronJob->command);
+            if ($user !== 'root') {
+                $this->unwrapStoredCommands($cronJobs);
+            }
 
-                if ($cleanCommand !== $cronJob->command) {
-                    $cronJob->update(['command' => $cleanCommand]);
+            $managed = $this->signatures($cronJobs);
+            $matchedIds = [];
+
+            foreach ($entries as $entry) {
+                if ($entry['frequency'] === null) {
+                    continue;
                 }
-            }
-        }
 
-        $serverLevelCronJobs = $vitoCronJobs->where('site_id', null);
+                $cronJob = $managed[$this->signature($entry['frequency'], $entry['command'])] ?? null;
 
-        $lines = explode("\n", $crontabOutput);
-        $serverCronJobs = [];
-        $foundCronJobs = [];
-        $activeLines = [];
-        $unmanagedLines = [];
+                if (! $cronJob instanceof CronJob) {
+                    $server->cronJobs()->create([
+                        'site_id' => null,
+                        'user' => $user,
+                        'command' => $this->normalize($user === 'root' ? $entry['command'] : CronJob::unwrapAll($entry['command'])),
+                        'frequency' => $entry['frequency'],
+                        'status' => $entry['commented'] ? CronjobStatus::DISABLED : CronjobStatus::READY,
+                    ]);
 
-        foreach ($lines as $line) {
-            $line = trim($line);
+                    continue;
+                }
 
-            if (empty($line)) {
-                continue;
-            }
+                $matchedIds[$cronJob->id] = true;
 
-            $rawLine = $line;
-            $isCommented = str_starts_with($line, '#');
-
-            if ($isCommented) {
-                $line = ltrim($line, '#');
-                $line = trim($line);
-            }
-
-            $parts = preg_split('/\s+/', $line, 6);
-            if (count($parts) < 6) {
-                $unmanagedLines[] = $rawLine;
-
-                continue;
-            }
-
-            $isValidCronFormat = true;
-            for ($i = 0; $i < 5; $i++) {
-                if (! preg_match('/^[\d\*\-\/,]+$/', $parts[$i])) {
-                    $isValidCronFormat = false;
-                    break;
+                if ($cronJob->site_id === null) {
+                    $this->syncStatus($cronJob, $entry['commented'] ? CronjobStatus::DISABLED : CronjobStatus::READY);
                 }
             }
 
-            if (! $isValidCronFormat) {
-                $unmanagedLines[] = $rawLine;
+            $cronJobs
+                ->filter(fn (CronJob $cronJob): bool => $cronJob->site_id === null && ! isset($matchedIds[$cronJob->id]))
+                ->each(fn (CronJob $cronJob) => $this->syncStatus($cronJob, CronjobStatus::DISABLED));
+        });
 
-                continue;
-            }
+        $desiredLines = array_values(array_filter(explode("\n", CronJob::crontab($server, $user)), fn (string $line): bool => $line !== ''));
 
-            $frequency = $this->normalizeFrequency(implode(' ', array_slice($parts, 0, 5)));
-            $command = $this->normalizeCommand($user === 'root' ? $parts[5] : CronJob::unwrapAll($parts[5]));
-
-            if (! $isCommented) {
-                $activeLines[] = $this->normalizeCommand($line);
-            }
-
-            $serverCronJobs[] = [
-                'frequency' => $frequency,
-                'command' => $command,
-                'commented' => $isCommented,
-            ];
-
-            $matchingCronJob = $vitoCronJobs->first(function ($cronJob) use ($frequency, $command) {
-                return $this->normalizeFrequency($cronJob->frequency) === $frequency && $this->matchesCommand($cronJob, $command);
-            });
-
-            if ($matchingCronJob) {
-                $foundCronJobs[] = $matchingCronJob->id;
-
-                if ($matchingCronJob->site_id === null) {
-                    if ($isCommented && $matchingCronJob->status === CronjobStatus::READY) {
-                        $matchingCronJob->update(['status' => CronjobStatus::DISABLED]);
-                    } elseif (! $isCommented && $matchingCronJob->status === CronjobStatus::DISABLED) {
-                        $matchingCronJob->update(['status' => CronjobStatus::READY]);
-                    }
-                }
-            }
-        }
-
-        foreach ($serverLevelCronJobs as $cronJob) {
-            if (! in_array($cronJob->id, $foundCronJobs) && $cronJob->status === CronjobStatus::READY) {
-                $cronJob->update(['status' => CronjobStatus::DISABLED]);
-            }
-        }
-
-        foreach ($serverCronJobs as $cronJobData) {
-            $isVitoManaged = $vitoCronJobs->contains(function ($cronJob) use ($cronJobData) {
-                return $this->normalizeFrequency($cronJob->frequency) === $cronJobData['frequency'] && $this->matchesCommand($cronJob, $cronJobData['command']);
-            });
-
-            if (! $isVitoManaged) {
-                $server->cronJobs()->create([
-                    'site_id' => null, 
-                    'user' => $user,
-                    'command' => $cronJobData['command'],
-                    'frequency' => $cronJobData['frequency'],
-                    'status' => $cronJobData['commented'] ? CronjobStatus::DISABLED : CronjobStatus::READY,
-                ]);
-            }
-        }
-
-        $desiredLines = array_values(array_filter(explode("\n", CronJob::crontab($server, $user))));
-
-        if (array_diff(array_map($this->normalizeCommand(...), $desiredLines), $activeLines) !== []) {
+        if (array_diff(array_map($this->normalize(...), $desiredLines), $activeLines) !== []) {
             $server->cron()->update($user, implode("\n", [...$unmanagedLines, ...$desiredLines]));
         }
     }
 
-    private function normalizeFrequency(string $frequency): string
+    /**
+     * @return array<int, array{raw: string, line: string, commented: bool, frequency: ?string, command: string}>
+     */
+    private function parseCrontab(string $crontab): array
     {
-        return preg_replace('/\s+/', ' ', trim($frequency));
+        $entries = [];
+
+        foreach (explode("\n", $crontab) as $raw) {
+            $raw = trim($raw);
+
+            if ($raw === '') {
+                continue;
+            }
+
+            $commented = str_starts_with($raw, '#');
+            $line = $this->normalize($commented ? ltrim($raw, '#') : $raw);
+            $parts = explode(' ', $line, str_starts_with($line, '@') ? 2 : 6);
+            $command = count($parts) > 1 ? (string) array_pop($parts) : '';
+            $frequency = implode(' ', $parts);
+            $isCron = $command !== '' && CronExpression::isValidExpression($frequency);
+
+            $entries[] = [
+                'raw' => $raw,
+                'line' => $line,
+                'commented' => $commented,
+                'frequency' => $isCron ? $frequency : null,
+                'command' => $command,
+            ];
+        }
+
+        return $entries;
     }
 
-    private function normalizeCommand(string $command): string
+    /**
+     * @param  Collection<int, CronJob>  $cronJobs
+     */
+    private function unwrapStoredCommands(Collection $cronJobs): void
     {
-        return preg_replace('/\s+/', ' ', trim($command));
+        foreach ($cronJobs as $cronJob) {
+            $command = CronJob::unwrapAll($cronJob->command);
+
+            if ($command !== $cronJob->command) {
+                $cronJob->update(['command' => $command]);
+            }
+        }
     }
 
-    private function matchesCommand(CronJob $cronJob, string $serverCommand): bool
+    /**
+     * @param  Collection<int, CronJob>  $cronJobs
+     * @return array<string, CronJob>
+     */
+    private function signatures(Collection $cronJobs): array
     {
-        $serverCommand = $this->normalizeCommand(CronJob::unwrapAll($serverCommand));
+        $signatures = [];
 
-        $commands = [CronJob::unwrapAll($cronJob->command), CronJob::unwrapAll($cronJob->executionCommand())];
+        foreach ($cronJobs as $cronJob) {
+            $commands = [$cronJob->command, $cronJob->executionCommand()];
 
-        if ($cronJob->site) {
-            foreach ([$cronJob->site->path, escapeshellarg($cronJob->site->path)] as $path) {
-                $commands[] = "cd {$path} && ({$cronJob->command})";
+            if ($cronJob->site) {
+                $commands[] = "cd {$cronJob->site->path} && ({$cronJob->command})";
+                $commands[] = 'cd '.escapeshellarg($cronJob->site->path)." && ({$cronJob->command})";
+            }
+
+            foreach ($commands as $command) {
+                $signatures[$this->signature($cronJob->frequency, $command)] ??= $cronJob;
             }
         }
 
-        return in_array($serverCommand, array_map($this->normalizeCommand(...), $commands), true);
+        return $signatures;
+    }
+
+    private function signature(string $frequency, string $command): string
+    {
+        return $this->normalize($frequency)."\n".$this->normalize(CronJob::unwrapAll($command));
+    }
+
+    private function syncStatus(CronJob $cronJob, CronjobStatus $status): void
+    {
+        if ($cronJob->status !== $status && in_array($cronJob->status, [CronjobStatus::READY, CronjobStatus::DISABLED], true)) {
+            $cronJob->update(['status' => $status]);
+        }
+    }
+
+    private function normalize(string $value): string
+    {
+        return (string) preg_replace('/\s+/', ' ', trim($value));
     }
 
     private function getUserCrontab(Server $server, string $user): string
