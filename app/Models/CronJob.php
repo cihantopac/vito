@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\CronjobStatus;
@@ -93,7 +95,7 @@ class CronJob extends AbstractModel
                 CronjobStatus::ENABLING,
             ])
             ->get()
-            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
+            ->map(fn (self $cronJob): string => $cronJob->frequency.' '.($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
             ->implode("\n");
     }
 
@@ -109,7 +111,7 @@ class CronJob extends AbstractModel
         return "cd {$path} && {$command}";
     }
 
-    public static function wrapCommand(string $command): string
+    private static function wrapCommand(string $command): string
     {
         return 'bash -lc '.escapeshellarg(self::unwrapAll($command));
     }
@@ -137,7 +139,7 @@ class CronJob extends AbstractModel
         return str_replace("'\\''", "'", substr($command, 3, -3));
     }
 
-    public static function unwrapCommand(string $command): ?string
+    private static function unwrapCommand(string $command): ?string
     {
         $prefix = 'bash -lc ';
         if (! str_starts_with($command, $prefix)) {

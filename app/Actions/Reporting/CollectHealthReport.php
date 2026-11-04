@@ -1,27 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Reporting;
 
+use App\Enums\ServerStatus;
+use App\Enums\ServiceStatus;
+use App\Enums\SiteResourceStatus;
+use App\Enums\SiteStatus;
+use App\Enums\WorkerStatus;
 use App\Models\HealthReportSnapshot;
 use App\Models\Project;
-use App\Enums\ServiceStatus;
-use App\Enums\WorkerStatus;
-use App\Enums\SiteResourceStatus;
-use App\Enums\ServerStatus;
-use App\Enums\SiteStatus;
 
 class CollectHealthReport
 {
     public function handle(): void
     {
+        $appUrl = rtrim((string) config('app.url'), '/');
+        $hour = now()->startOfHour();
+
         Project::query()->with(['servers.latestMetric', 'servers.services', 'servers.workers', 'servers.sites.resources'])
-            ->chunkById(25, function ($projects): void {
+            ->chunkById(25, function ($projects) use ($appUrl, $hour): void {
                 foreach ($projects as $project) {
                     $issues = [];
                     foreach ($project->servers as $server) {
                         $base = '/servers/'.$server->id;
-                        $add = function (string $key, string $label, string $path) use (&$issues, $server): void {
-                            $issues[] = ['key' => $key, 'label' => $server->name.' · '.$label, 'url' => rtrim(config('app.url'), '/').$path];
+                        $add = function (string $key, string $label, string $path) use (&$issues, $server, $appUrl): void {
+                            $issues[] = ['key' => $key, 'label' => $server->name.' · '.$label, 'url' => $appUrl.$path];
                         };
                         if ($server->updates > 0 || $server->kernel_updates > 0) {
                             $add('updates:'.$server->id, $server->updates.' package updates, '.$server->kernel_updates.' kernel updates', $base.'/update');
@@ -67,7 +72,7 @@ class CollectHealthReport
                         }
                     }
                     HealthReportSnapshot::query()->firstOrCreate(
-                        ['project_id' => $project->id, 'hour' => now()->startOfHour()],
+                        ['project_id' => $project->id, 'hour' => $hour],
                         ['issues' => $issues],
                     );
                 }

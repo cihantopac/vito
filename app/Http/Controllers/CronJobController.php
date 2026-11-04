@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Actions\CronJob\CreateCronJob;
@@ -31,7 +33,6 @@ use Spatie\RouteAttributes\Attributes\WhereNumber;
 #[Middleware(['auth', 'has-project'])]
 class CronJobController extends Controller
 {
-
     #[Get('/cronjobs', name: 'cronjobs')]
     public function index(Server $server): Response
     {
@@ -83,8 +84,6 @@ class CronJobController extends Controller
         return $this->update($request, $server, $cronJob, $site);
     }
 
-    
-
     #[Post('/cronjobs/{cronJob}/enable', name: 'cronjobs.enable')]
     public function enable(Server $server, CronJob $cronJob): RedirectResponse
     {
@@ -96,8 +95,6 @@ class CronJobController extends Controller
             ->with('success', 'Cron job has been enabled.');
     }
 
-    
-
     #[Post('/cronjobs/{cronJob}/disable', name: 'cronjobs.disable')]
     public function disable(Server $server, CronJob $cronJob): RedirectResponse
     {
@@ -108,8 +105,6 @@ class CronJobController extends Controller
         return back()
             ->with('success', 'Cron job has been disabled.');
     }
-
-    
 
     #[Delete('/cronjobs/{cronJob}', name: 'cronjobs.destroy')]
     public function destroy(Server $server, CronJob $cronJob): RedirectResponse
@@ -165,18 +160,10 @@ class CronJobController extends Controller
 
         app(ExecuteCronJob::class)->execute($server, $cronJob, user());
 
-        if ($site) {
-            return redirect()->route('cronjobs.site.show', [
-                'server' => $server,
-                'site' => $site,
-                'cronJob' => $cronJob,
-            ])->with('info', 'Cron job is being executed.');
-        }
-
-        return redirect()->route('cronjobs.show', [
-            'server' => $server,
-            'cronJob' => $cronJob,
-        ])->with('info', 'Cron job is being executed.');
+        return redirect()->route(
+            $site ? 'cronjobs.site.show' : 'cronjobs.show',
+            array_filter(['server' => $server, 'site' => $site, 'cronJob' => $cronJob]),
+        )->with('info', 'Cron job is being executed.');
     }
 
     #[Post('/sites/{site}/cronjobs/{cronJob}/execute', name: 'cronjobs.site.execute')]
@@ -185,23 +172,6 @@ class CronJobController extends Controller
     {
         return $this->execute($server, $cronJob, $site);
     }
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
 
     #[Post('/cronjobs/sync', name: 'cronjobs.sync')]
     public function sync(Server $server): RedirectResponse
