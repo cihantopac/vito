@@ -2,15 +2,7 @@ import { useState, FormEventHandler, useEffect, useMemo } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-  ArrowLeftIcon,
-  CheckCircle2Icon,
-  ChevronRightIcon,
-  Layers3Icon,
-  LoaderCircleIcon,
-  SparklesIcon,
-  TriangleAlertIcon,
-} from 'lucide-react';
+import { ArrowLeftIcon, CheckCircle2Icon, ChevronRightIcon, LoaderCircleIcon, TriangleAlertIcon } from 'lucide-react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';

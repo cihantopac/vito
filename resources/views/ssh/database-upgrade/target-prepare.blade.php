@@ -70,8 +70,6 @@ VITO_SQL
     sudo -u postgres psql -X -q -v ON_ERROR_STOP=1 -c "$DDL"
     touch "$STATE/$SUB.created"
 
-    # Grants and settings on the database itself are not part of a schema dump: without them an application can find
-    # its tables there and still be refused at the door.
     echo "Copying the grants and settings of $DB"
     sudo -u postgres psql -XtAq -v ON_ERROR_STOP=1 -d "$CONN" <<'VITO_SQL' | sudo -u postgres psql -X -q -v ON_ERROR_STOP=1 -d "$DB" > /dev/null
 SELECT format('GRANT %s ON DATABASE %I TO %s;', a.privilege_type, d.datname,
@@ -94,8 +92,6 @@ VITO_SQL
         | sudo -u postgres psql -X -q -v ON_ERROR_STOP=1 -d "$DB" > /dev/null
     touch "$STATE/$SUB.schema"
 
-    # Every index the copy would have to maintain row by row is put aside and built once at the end instead. Primary
-    # keys, unique and exclusion indexes stay: they carry meaning, and the apply worker uses them to find rows.
     INDEX_FILE="/var/lib/postgresql/$SUB-indexes.sql"
     sudo -u postgres psql -XtAq -v ON_ERROR_STOP=1 -d "$DB" > /tmp/$SUB-indexes.sql <<'VITO_SQL'
 SELECT pg_get_indexdef(c.oid) || ';'
@@ -143,16 +139,12 @@ wait_for_copy() {
     echo "The first copy of $DB is done"
 }
 
-# Concurrently, because an ordinary index build locks the table against the rows still arriving, and everything the
-# apply worker cannot write is WAL the old server has to keep. It costs two table scans instead of one; it buys an old
-# server that keeps releasing WAL while the new one builds.
 build_indexes() {
     DB="$1"
     SUB="$2"
     INDEX_FILE="/var/lib/postgresql/$SUB-indexes.sql"
 
     if [ -s "$INDEX_FILE" ]; then
-        # A concurrent build that was interrupted leaves an index behind that is invalid and never used again.
         sudo -u postgres psql -XtAq -v ON_ERROR_STOP=1 -d "$DB" <<'VITO_SQL' | sudo -u postgres psql -X -q -v ON_ERROR_STOP=1 -d "$DB" > /dev/null
 SELECT format('DROP INDEX %I.%I;', n.nspname, c.relname)
 FROM pg_class c

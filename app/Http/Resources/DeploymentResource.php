@@ -6,9 +6,11 @@ use App\Actions\Site\GetDeploymentProgress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Models\Deployment
+ */
 class DeploymentResource extends JsonResource
 {
-    
     public function toArray(Request $request): array
     {
         return [
@@ -19,6 +21,7 @@ class DeploymentResource extends JsonResource
             'log' => $this->log ? new ServerLogResource($this->log) : null,
             'commit_id' => $this->commit_id,
             'commit_id_short' => $this->commit_id_short,
+            'is_duplicate' => $this->isDuplicate(),
             'commit_data' => $this->commit_data ?? [],
             'status' => $this->status->getText(),
             'status_color' => $this->status->getColor(),

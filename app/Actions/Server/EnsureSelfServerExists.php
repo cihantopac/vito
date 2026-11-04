@@ -194,7 +194,7 @@ class EnsureSelfServerExists
     private function detectGitRepository(): string
     {
         $configPath = base_path('.git/config');
-        if (File::exists($configPath) && preg_match('#(?:github\.com|gitlab\.com|bitbucket\.org)[:/]([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?\s*$#m', (string) File::get($configPath), $matches)) {
+        if (File::exists($configPath) && preg_match('#(?:github\.com|gitlab\.com)[:/]([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?\s*$#m', (string) File::get($configPath), $matches)) {
             return $matches[1];
         }
 

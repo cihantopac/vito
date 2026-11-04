@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 class NotificationChannel extends AbstractModel
 {
     use HasProjectScopedQueries;
-    
+
     use HasFactory;
 
     use Notifiable;
@@ -39,16 +39,11 @@ class NotificationChannel extends AbstractModel
     {
         $class = config('notification-channel.providers.'.$this->provider.'.handler');
 
-        
         $provider = new $class($this);
 
         return $provider;
     }
 
-    /**
-     * Sends to the channels of the project the notifiable belongs to plus global channels; a notifiable without a
-     * project (or null) reaches global channels only.
-     */
     public static function notifyAll(NotificationInterface $notification, ?object $notifiable = null): void
     {
         $projectId = self::projectIdOf($notifiable);
@@ -71,13 +66,17 @@ class NotificationChannel extends AbstractModel
         };
     }
 
-    
+    /**
+     * @return BelongsTo<Project, $this>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -1,10 +1,8 @@
-import DateTime from '@/components/date-time';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SharedData } from '@/types';
 import type { Project } from '@/types/project';
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { ColumnDef } from '@tanstack/react-table';
 import { UsersIcon } from 'lucide-react';
@@ -83,23 +81,11 @@ export const columns: ColumnDef<Project>[] = [
     enableColumnFilter: true,
     enableSorting: true,
     cell: ({ row }) => {
-      const users = getActiveRegisteredUsers(row.original);
-      const count = users.length;
-      const serversCount = row.original.servers_count ?? 0;
-      const monthlyCost = row.original.monthly_cost;
-
       return (
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium">{row.original.name}</span>
-          <span className="text-muted-foreground text-xs font-normal">({count})</span>
-          <Badge variant="secondary" className="text-xs font-normal">
-            {serversCount} {serversCount === 1 ? 'server' : 'servers'}
-          </Badge>
-          {monthlyCost && monthlyCost.amount > 0 && (
-            <Badge variant="outline" className="font-mono text-xs font-normal">
-              {monthlyCost.formatted}
-            </Badge>
-          )}
+        <div className="flex min-w-0 items-center gap-2">
+          <Link href={`/servers?project=${row.original.id}`} className="truncate font-medium hover:underline">
+            {row.original.name}
+          </Link>
           <CurrentProject project={row.original} />
         </div>
       );
@@ -111,7 +97,7 @@ export const columns: ColumnDef<Project>[] = [
     enableColumnFilter: false,
     enableSorting: true,
     cell: ({ row }) => {
-      return <Badge variant="outline">{row.original.servers_count ?? 0}</Badge>;
+      return <span className="tabular-nums">{row.original.servers_count ?? 0}</span>;
     },
   },
   {
@@ -130,24 +116,16 @@ export const columns: ColumnDef<Project>[] = [
   },
   {
     id: 'access',
-    header: 'Access',
+    header: 'Members',
     enableColumnFilter: false,
     enableSorting: false,
     cell: ({ row }) => {
       const users = getActiveRegisteredUsers(row.original);
 
       return (
-        <div className="flex max-w-md flex-wrap gap-1">
-          {users.map((user) => {
-            const label = user.name || user.email;
-            if (!label) return null;
-            return (
-              <Badge key={user.id} variant="outline" title={user.email || user.name || undefined}>
-                {label}
-              </Badge>
-            );
-          })}
-        </div>
+        <span className="text-muted-foreground text-sm" title={users.map((user) => user.name || user.email).join(', ')}>
+          {users.length} {users.length === 1 ? 'member' : 'members'}
+        </span>
       );
     },
   },
@@ -155,18 +133,9 @@ export const columns: ColumnDef<Project>[] = [
     accessorKey: 'role',
     header: 'Role',
     enableColumnFilter: true,
-    enableSorting: true,
+    enableSorting: false,
     cell: ({ row }) => {
-      return <Badge variant="outline">{row.original.role}</Badge>;
-    },
-  },
-  {
-    accessorKey: 'created_at',
-    header: 'Created at',
-    enableColumnFilter: true,
-    enableSorting: true,
-    cell: ({ row }) => {
-      return <DateTime date={row.original.created_at} />;
+      return <span className="text-muted-foreground text-sm capitalize">{row.original.role}</span>;
     },
   },
   {

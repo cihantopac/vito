@@ -29,7 +29,6 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth'])]
 class ProjectController extends Controller
 {
-
     #[Get('/', name: 'projects')]
     public function index(GetAccessibleProjects $getProjects, GetPendingInvitations $getInvitations): Response
     {

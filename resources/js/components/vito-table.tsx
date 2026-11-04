@@ -51,7 +51,6 @@ interface VitoTableProps extends Omit<InertiaTableProps, 'tableData'> {
   toolbar?: ReactNode;
   toolbarClassName?: string;
   groupBy?: 'project' | 'server' | 'none' | string | null;
-  /** Props to reload on realtime events; defaults to the whole page. */
   reloadOnly?: string[];
 }
 

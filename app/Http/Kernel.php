@@ -36,9 +36,8 @@ use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 class Kernel extends HttpKernel
 {
-    
     protected $middleware = [
-        
+
         TrustProxies::class,
         HandleCors::class,
         PreventRequestsDuringMaintenance::class,
@@ -47,7 +46,6 @@ class Kernel extends HttpKernel
         ConvertEmptyStringsToNull::class,
     ];
 
-    
     protected $middlewareGroups = [
         'web' => [
             EncryptCookies::class,
@@ -68,7 +66,6 @@ class Kernel extends HttpKernel
         ],
     ];
 
-    
     protected $middlewareAliases = [
         'auth' => Authenticate::class,
         'auth.basic' => AuthenticateWithBasicAuth::class,

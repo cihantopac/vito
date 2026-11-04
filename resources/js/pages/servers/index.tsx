@@ -292,7 +292,7 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
         <p>Compared with the latest patch release for each PHP branch.</p>
-        <p>{result.checked_at ? `Last successful check: ${new Date(result.checked_at).toLocaleString()}` : 'No successful checks yet.'}</p>
+        <p>{result.checked_at ? `Last successful check: ${new Date(result.checked_at).toLocaleString('en-US')}` : 'No successful checks yet.'}</p>
         {result.status === 'error' && <p>Unable to reach the server or PHP version source. Previous results are preserved.</p>}
       </TooltipContent>
     </Tooltip>

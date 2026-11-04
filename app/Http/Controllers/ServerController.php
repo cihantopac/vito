@@ -38,7 +38,6 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth', 'has-project'])]
 class ServerController extends Controller
 {
-
     #[Get('/', name: 'servers')]
     public function index(Request $request): Response
     {
@@ -216,8 +215,6 @@ class ServerController extends Controller
 
         return back()->with('success', 'Server start command sent to '.$server->provider.'.');
     }
-
-    
 
     #[Post('/{server}/check-for-updates', name: 'servers.check-for-updates')]
     public function checkForUpdates(Server $server): RedirectResponse

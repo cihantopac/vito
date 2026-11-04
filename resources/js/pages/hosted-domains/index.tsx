@@ -10,19 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  BookOpenIcon,
-  CalendarClockIcon,
-  EllipsisVerticalIcon,
-  LoaderCircleIcon,
-  LockIcon,
-  LockOpenIcon,
-  MoreVerticalIcon,
-  PlusIcon,
-  RefreshCwIcon,
-  ShieldCheckIcon,
-  ShieldOffIcon,
-} from 'lucide-react';
+import { CalendarClockIcon, EllipsisVerticalIcon, LoaderCircleIcon, LockIcon, LockOpenIcon, PlusIcon, RefreshCwIcon, ShieldCheckIcon, ShieldOffIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { VitoTable } from '@/components/vito-table';
 import ErrorIndicator from '@/components/error-indicator';

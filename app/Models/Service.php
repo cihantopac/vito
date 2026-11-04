@@ -49,12 +49,18 @@ class Service extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
+    /**
+     * @return BelongsTo<ServerLog, $this>
+     */
     public function log(): BelongsTo
     {
         return $this->belongsTo(ServerLog::class, 'log_id');

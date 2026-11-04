@@ -18,21 +18,8 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavGroup, type NavItem, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import {
-  ChevronRightIcon,
-  CogIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  LogsIcon,
-  MousePointerClickIcon,
-  NetworkIcon,
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
-  ServerIcon,
-  UsersIcon,
-} from 'lucide-react';
+import { ChevronRightIcon, CogIcon, LayoutDashboardIcon, ListIcon, MousePointerClickIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, ServerIcon, UsersIcon } from 'lucide-react';
 import AppLogo from './app-logo';
-import { Icon } from '@/components/icon';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';

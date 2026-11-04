@@ -6,26 +6,7 @@ import { Server } from '@/types/server';
 import Container from '@/components/container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  CalendarClockIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CodeXmlIcon,
-  ExternalLinkIcon,
-  FileCode2Icon,
-  GitBranchIcon,
-  Globe2Icon,
-  Layers3Icon,
-  ListEndIcon,
-  LockKeyholeIcon,
-  MoreHorizontalIcon,
-  NetworkIcon,
-  ServerIcon,
-  UserRoundIcon,
-  XIcon,
-  ZapIcon,
-  type LucideIcon,
-} from 'lucide-react';
+import { CalendarClockIcon, ChevronDownIcon, ChevronUpIcon, CodeXmlIcon, ExternalLinkIcon, FileCode2Icon, GitBranchIcon, Globe2Icon, ListEndIcon, LockKeyholeIcon, MoreHorizontalIcon, NetworkIcon, ServerIcon, UserRoundIcon, XIcon, ZapIcon, type LucideIcon } from 'lucide-react';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import DeploymentScript from '@/pages/application/components/deployment-script';

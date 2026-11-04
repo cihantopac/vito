@@ -8,7 +8,6 @@ class Cron
 {
     public function __construct(protected Server $server) {}
 
-    
     public function update(string $user, string $cron): void
     {
         $this->server->ssh()->exec(

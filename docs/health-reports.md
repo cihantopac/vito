@@ -2,7 +2,7 @@
 
 Deploy the migration with the usual deployment procedure. The existing Laravel scheduler and queue worker must run. No additional daemon or API endpoint is needed. Configure the application's mail transport and `APP_URL` before enabling production delivery.
 
-`reports:health` captures hourly observations. `reports:health --send` captures an observation and queues one report per authorized user. The scheduler runs delivery at 09:00 in `config('app.timezone')` (currently UTC). The email states this timezone explicitly.
+`reports:health` captures hourly observations. The hourly run at 09:00 (or `reports:health --send` manually) also queues one report per authorized user. Delivery happens at 09:00 in `config('app.timezone')` (currently UTC). The email states this timezone explicitly.
 
 Recipients must be project owners or admins at delivery time. A user receives a single email containing only their authorized projects, covering the previous 24 hours up to 09:00. Regular project members receive no report. Invitations without an existing user do not receive reports.
 

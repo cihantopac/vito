@@ -11,7 +11,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('reports:health')->hourly()->withoutOverlapping();
-        $schedule->command('reports:health --send')->dailyAt('09:00')->withoutOverlapping();
         $schedule->command('backups:run')->everyMinute();
         $schedule->command('backups:reconcile')->everyThirtyMinutes();
         $schedule->command('backups:check-archiving')->everyFifteenMinutes();

@@ -36,7 +36,7 @@ export default function DatabaseReplicas() {
         ['Backups', backup ? `${backup.pgbackrest?.strategy === 'custom' ? 'Custom' : 'Standard'} strategy on ${backup.storage?.profile ?? 'S3'}` : 'none'],
         ['Backups run on', cluster.backups_from_replicas ? 'a healthy replica, else the primary' : 'the primary'],
         ['Last verify', backup?.pgbackrest?.last_verify_result ?? 'not yet'],
-        ['TLS certificates expire', cluster.tls_expires_at ? new Date(cluster.tls_expires_at).toLocaleDateString() : '-'],
+        ['TLS certificates expire', cluster.tls_expires_at ? new Date(cluster.tls_expires_at).toLocaleDateString('en-US') : '-'],
       ]
     : [];
 

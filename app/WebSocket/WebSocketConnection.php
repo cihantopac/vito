@@ -24,16 +24,6 @@ class WebSocketConnection
         }
     }
 
-    public function sendRaw(string $data): void
-    {
-        try {
-            $frame = new Frame($data, true, Frame::OP_TEXT);
-            $this->tcpConnection->write($frame->getContents());
-        } catch (\Throwable $e) {
-            Log::error('WebSocket send error', ['error' => $e->getMessage()]);
-        }
-    }
-
     public function ping(): void
     {
         $frame = new Frame('', true, Frame::OP_PING);
@@ -43,10 +33,5 @@ class WebSocketConnection
     public function close(): void
     {
         $this->tcpConnection->close();
-    }
-
-    public function getTcpConnection(): ConnectionInterface
-    {
-        return $this->tcpConnection;
     }
 }

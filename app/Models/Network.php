@@ -37,12 +37,18 @@ class Network extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Project, $this>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
     
+    /**
+     * @return BelongsTo<ServerProvider, $this>
+     */
     public function serverProvider(): BelongsTo
     {
         return $this->belongsTo(ServerProvider::class);
@@ -58,30 +64,45 @@ class Network extends AbstractModel
     }
 
     
+    /**
+     * @return HasMany<NetworkServer, $this>
+     */
     public function servers(): HasMany
     {
         return $this->hasMany(NetworkServer::class);
     }
 
     
+    /**
+     * @return HasMany<NetworkFirewallRule, $this>
+     */
     public function firewallRules(): HasMany
     {
         return $this->hasMany(NetworkFirewallRule::class);
     }
 
     
+    /**
+     * @return HasMany<ServerNetworkRule, $this>
+     */
     public function serverRules(): HasMany
     {
         return $this->hasMany(ServerNetworkRule::class);
     }
 
     
+    /**
+     * @return HasMany<NetworkPeer, $this>
+     */
     public function peers(): HasMany
     {
         return $this->hasMany(NetworkPeer::class);
     }
 
     
+    /**
+     * @return HasMany<ServerLog, $this>
+     */
     public function serverLogs(): HasMany
     {
         return $this->hasMany(ServerLog::class);

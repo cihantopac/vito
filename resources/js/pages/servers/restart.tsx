@@ -40,7 +40,7 @@ export default function ServerRestart() {
   const [uptime, setUptime] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [milestones, setMilestones] = useState<Milestone[]>(() => {
-    const now = new Date().toLocaleTimeString();
+    const now = new Date().toLocaleTimeString('en-US');
     if (server.status === 'disconnected') {
       return [{ id: 'init-0', time: now, text: 'Server is currently disconnected. Probing for reconnection.' }];
     }
@@ -48,7 +48,7 @@ export default function ServerRestart() {
   });
 
   const addMilestone = useCallback((text: string) => {
-    const time = new Date().toLocaleTimeString();
+    const time = new Date().toLocaleTimeString('en-US');
     setMilestones((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, time, text }]);
   }, []);
 
@@ -84,7 +84,7 @@ export default function ServerRestart() {
     setPhase('rebooting');
     setProbeAttempt(0);
     setUptime(null);
-    setMilestones([{ id: `${Date.now()}`, time: new Date().toLocaleTimeString(), text: 'Reboot signal sent ($ sudo reboot)' }]);
+    setMilestones([{ id: `${Date.now()}`, time: new Date().toLocaleTimeString('en-US'), text: 'Reboot signal sent ($ sudo reboot)' }]);
 
     try {
       await fetch(`/servers/${server.id}/restart/trigger`, {

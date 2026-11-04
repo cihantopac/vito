@@ -7,8 +7,6 @@ import { Server } from '@/types/server';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { BookOpenIcon } from 'lucide-react';
 import React from 'react';
 import { PaginatedData } from '@/types';
 import { ServerLog } from '@/types/server-log';

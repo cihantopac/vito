@@ -34,9 +34,4 @@ enum DatabaseReplicaStatus: string implements VitoEnum
     {
         return in_array($this, [self::PENDING, self::WAITING_FOR_SERVER, self::CONFIGURING, self::PROMOTING, self::DELETING], true);
     }
-
-    public function isReplicating(): bool
-    {
-        return ! in_array($this, [self::NEEDS_REBUILD, self::PROMOTING, self::DELETING], true);
-    }
 }

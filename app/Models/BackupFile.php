@@ -154,11 +154,17 @@ class BackupFile extends AbstractModel
     }
 
 
+    /**
+     * @return BelongsTo<Backup, $this>
+     */
     public function backup(): BelongsTo
     {
         return $this->belongsTo(Backup::class);
     }
 
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);

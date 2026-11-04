@@ -11,7 +11,6 @@ import { SSL } from '@/types/ssl';
 import { Domain } from '@/types/domain';
 import { useRealtime } from '@/hooks/use-socket-events';
 import { Button } from '@/components/ui/button';
-import { BookOpenIcon } from 'lucide-react';
 import CreateServerSsl from '@/pages/server-ssls/components/create-server-ssl';
 
 export default function ServerSsls() {

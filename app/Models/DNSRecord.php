@@ -33,6 +33,9 @@ class DNSRecord extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Domain, $this>
+     */
     public function domain(): BelongsTo
     {
         return $this->belongsTo(Domain::class);

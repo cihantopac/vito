@@ -1,7 +1,6 @@
 import { withQuery } from '@/lib/url';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import siteHelper from '@/lib/site-helper';

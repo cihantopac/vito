@@ -9,7 +9,7 @@ import Heading from '@/components/heading';
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/pages/server-logs/components/columns';
 import { Button } from '@/components/ui/button';
-import { BookOpenIcon, PlusIcon } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import LogForm from '@/pages/server-logs/components/form';
 import { useRealtime } from '@/hooks/use-socket-events';
 

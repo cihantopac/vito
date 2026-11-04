@@ -64,30 +64,45 @@ class User extends Authenticatable
         });
     }
 
+    /**
+     * @return HasMany<UserProject, $this>
+     */
     public function projectMemberships(): HasMany
     {
         return $this->hasMany(UserProject::class);
     }
 
     
+    /**
+     * @return HasMany<Server, $this>
+     */
     public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
     }
 
     
+    /**
+     * @return HasMany<SshKey, $this>
+     */
     public function sshKeys(): HasMany
     {
         return $this->hasMany(SshKey::class);
     }
 
     
+    /**
+     * @return HasMany<SourceControl, $this>
+     */
     public function sourceControls(): HasMany
     {
         return $this->hasMany(SourceControl::class);
     }
 
     
+    /**
+     * @return HasMany<ServerProvider, $this>
+     */
     public function serverProviders(): HasMany
     {
         return $this->hasMany(ServerProvider::class);
@@ -100,6 +115,9 @@ class User extends Authenticatable
     }
 
     
+    /**
+     * @return HasMany<StorageProvider, $this>
+     */
     public function storageProviders(): HasMany
     {
         return $this->hasMany(StorageProvider::class);
@@ -111,11 +129,17 @@ class User extends Authenticatable
         return $this->hasOne(StorageProvider::class)->where('provider', $provider);
     }
 
+    /**
+     * @return HasMany<DNSProvider, $this>
+     */
     public function dnsProviders(): HasMany
     {
         return $this->hasMany(DNSProvider::class);
     }
 
+    /**
+     * @return HasMany<Domain, $this>
+     */
     public function domains(): HasMany
     {
         return $this->hasMany(Domain::class);
@@ -127,12 +151,18 @@ class User extends Authenticatable
             ->whereHas('users', fn (Builder $q) => $q->where('user_id', $this->id));
     }
 
+    /**
+     * @return HasManyThrough<Project, UserProject, $this>
+     */
     public function projects(): HasManyThrough
     {
         return $this->hasManyThrough(Project::class, UserProject::class, 'user_id', 'id', 'id', 'project_id');
     }
 
     
+    /**
+     * @return HasOne<Project, $this>
+     */
     public function currentProject(): HasOne
     {
         return $this->HasOne(Project::class, 'id', 'current_project_id');
@@ -184,6 +214,9 @@ class User extends Authenticatable
     }
 
     
+    /**
+     * @return HasMany<ServerTemplate, $this>
+     */
     public function serverTemplates(): HasMany
     {
         return $this->hasMany(ServerTemplate::class);

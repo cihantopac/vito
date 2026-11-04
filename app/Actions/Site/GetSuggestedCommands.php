@@ -11,8 +11,6 @@ class GetSuggestedCommands
     private const int LIMIT = 5;
 
     /**
-     * The most recent distinct commands the user ran, across all projects and sites.
-     *
      * @return array<int, string>
      */
     public function get(User $user): array

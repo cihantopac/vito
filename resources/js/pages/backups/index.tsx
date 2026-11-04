@@ -6,7 +6,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { BookOpenIcon, InfoIcon, PlusIcon } from 'lucide-react';
+import { InfoIcon, PlusIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Backup } from '@/types/backup';
 import { VitoTable } from '@/components/vito-table';

@@ -66,7 +66,6 @@ class Gitlab extends AbstractSourceControlProvider
         return $this->data()['ssh_port'];
     }
 
-    
     public static function editableFields(): array
     {
         return ['ssh_port'];
@@ -102,7 +101,6 @@ class Gitlab extends AbstractSourceControlProvider
         return $res->successful();
     }
 
-    
     public function getRepo(string $repo): mixed
     {
         $repository = $repo !== '' && $repo !== '0' ? urlencode($repo) : null;
@@ -121,7 +119,6 @@ class Gitlab extends AbstractSourceControlProvider
         return sprintf('git@%s-%s:%s.git', $host, $key, $repo);
     }
 
-    
     public function deployHook(string $repo, array $events, string $secret): array
     {
         $repository = urlencode($repo);
@@ -158,7 +155,6 @@ class Gitlab extends AbstractSourceControlProvider
         ];
     }
 
-    
     public function destroyHook(string $repo, string $hookId): void
     {
         $repository = urlencode($repo);
@@ -175,7 +171,6 @@ class Gitlab extends AbstractSourceControlProvider
         }
     }
 
-    
     public function getLastCommit(string $repo, string $branch): ?array
     {
         $repository = urlencode($repo);
@@ -189,10 +184,11 @@ class Gitlab extends AbstractSourceControlProvider
             return [
                 'commit_id' => $commits[0]['id'],
                 'commit_data' => [
-                    'name' => $commits[0]['committer_name'] ?? null,
-                    'email' => $commits[0]['committer_email'] ?? null,
+                    'name' => $commits[0]['committer_name'] ?? $commits[0]['author_name'] ?? null,
+                    'email' => $commits[0]['committer_email'] ?? $commits[0]['author_email'] ?? null,
                     'message' => $commits[0]['title'] ?? null,
                     'url' => $commits[0]['web_url'] ?? null,
+                    'date' => $commits[0]['committed_date'] ?? $commits[0]['authored_date'] ?? null,
                 ],
             ];
         }
@@ -200,7 +196,6 @@ class Gitlab extends AbstractSourceControlProvider
         return null;
     }
 
-    
     public function deployKey(string $title, string $repo, string $key): string
     {
         $repository = urlencode($repo);
@@ -239,7 +234,6 @@ class Gitlab extends AbstractSourceControlProvider
                     'response' => $response->body(),
                 ]);
             }
-
         } catch (Throwable $e) {
             Log::error('Error deleting Gitlab deploy key', [
                 'repo' => $repo,
@@ -274,7 +268,6 @@ class Gitlab extends AbstractSourceControlProvider
             Cache::put($cacheKey, $repoNames, self::CACHE_TTL);
 
             return $repoNames;
-
         } catch (Throwable $e) {
             Log::error('Failed to fetch GitLab repositories', [
                 'error' => $e->getMessage(),
@@ -302,7 +295,6 @@ class Gitlab extends AbstractSourceControlProvider
             Cache::put($cacheKey, $branchNames, self::CACHE_TTL);
 
             return $branchNames;
-
         } catch (Throwable $e) {
             Log::error('Failed to fetch GitLab branches', [
                 'repo' => $repo,
@@ -313,7 +305,6 @@ class Gitlab extends AbstractSourceControlProvider
         }
     }
 
-    
     private function fetchAllPages(string $endpoint, array $params = []): Collection
     {
         $allData = collect();
@@ -340,7 +331,6 @@ class Gitlab extends AbstractSourceControlProvider
             } else {
                 $allData = $allData->concat($pageData);
 
-                
                 $linkHeader = $response->header('Link');
                 $totalPages = (int) $response->header('X-Total-Pages');
 
@@ -349,7 +339,6 @@ class Gitlab extends AbstractSourceControlProvider
                 } elseif ($linkHeader && str_contains($linkHeader, 'rel="next"')) {
                     $hasMore = true;
                 } else {
-                    
                     $perPage = $params['per_page'] ?? self::MAX_PER_PAGE;
                     $hasMore = count($pageData) >= $perPage;
                 }

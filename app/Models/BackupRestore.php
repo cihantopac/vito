@@ -28,16 +28,25 @@ class BackupRestore extends AbstractModel
         'finished_at' => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<Backup, $this>
+     */
     public function backup(): BelongsTo
     {
         return $this->belongsTo(Backup::class);
     }
 
+    /**
+     * @return BelongsTo<BackupFile, $this>
+     */
     public function file(): BelongsTo
     {
         return $this->belongsTo(BackupFile::class, 'backup_file_id');
     }
 
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);

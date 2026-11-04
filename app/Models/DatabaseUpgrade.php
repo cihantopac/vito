@@ -50,21 +50,33 @@ class DatabaseUpgrade extends AbstractModel
         'password',
     ];
 
+    /**
+     * @return BelongsTo<Project, $this>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function source(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'source_server_id');
     }
 
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function target(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'target_server_id');
     }
 
+    /**
+     * @return BelongsTo<Network, $this>
+     */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class);

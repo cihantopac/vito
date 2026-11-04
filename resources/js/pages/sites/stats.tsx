@@ -1,7 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { BookOpenIcon, RefreshCwIcon } from 'lucide-react';
+import { RefreshCwIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSocketListener } from '@/hooks/use-socket-events';
 
@@ -31,7 +31,7 @@ type Page = {
 };
 
 function formatNumber(value: number): string {
-  return value.toLocaleString();
+  return value.toLocaleString('en-US');
 }
 
 function formatMonth(value: string): string {
@@ -235,7 +235,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <h3 className="text-foreground text-base font-medium">{selectedMonth ? formatMonth(selectedMonth) : ''} detail</h3>
-              {detail.generated_at && <span className="text-muted-foreground text-xs">Updated {new Date(detail.generated_at).toLocaleString()}</span>}
+              {detail.generated_at && <span className="text-muted-foreground text-xs">Updated {new Date(detail.generated_at).toLocaleString('en-US')}</span>}
             </div>
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -311,12 +311,12 @@ function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }
     {
       accessorKey: 'hits',
       header: () => <div className="text-right">Hits</div>,
-      cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString()}</div>,
+      cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString('en-US')}</div>,
     },
     {
       accessorKey: 'visitors',
       header: () => <div className="text-right">Visitors</div>,
-      cell: ({ row }) => <div className="text-right">{row.original.visitors.toLocaleString()}</div>,
+      cell: ({ row }) => <div className="text-right">{row.original.visitors.toLocaleString('en-US')}</div>,
     },
   ];
 
@@ -332,7 +332,7 @@ function StatusCodesCard({ rows }: { rows: SiteStatsStatusCode[] }) {
     {
       accessorKey: 'hits',
       header: () => <div className="text-right">Hits</div>,
-      cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString()}</div>,
+      cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString('en-US')}</div>,
     },
   ];
 

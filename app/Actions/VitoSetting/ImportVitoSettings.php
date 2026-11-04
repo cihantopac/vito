@@ -47,9 +47,6 @@ class ImportVitoSettings
         Artisan::call('optimize');
     }
 
-    /**
-     * Extracts only the entries a Vito export contains, so a crafted archive cannot write outside the import directory.
-     */
     private function extract(string $archive, string $to): void
     {
         $zip = new ZipArchive;

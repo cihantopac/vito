@@ -1,6 +1,6 @@
 import { withQuery } from '@/lib/url';
 import { ConfigPath, Service } from '@/types/service';
-import { FormEvent, useEffect } from 'react';
+import { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

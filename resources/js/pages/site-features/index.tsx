@@ -3,7 +3,6 @@ import { Server } from '@/types/server';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
 import SiteBanners from '@/components/site-banners';
 import { TriangleAlertIcon } from 'lucide-react';

@@ -1,18 +1,4 @@
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  CheckCircle2Icon,
-  CheckIcon,
-  ChevronsUpDownIcon,
-  ClipboardCheckIcon,
-  ClipboardIcon,
-  LoaderCircle,
-  PlusIcon,
-  ServerIcon,
-  TrashIcon,
-  TriangleAlertIcon,
-  WifiIcon,
-} from 'lucide-react';
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, ClipboardCheckIcon, ClipboardIcon, LoaderCircle, PlusIcon, ServerIcon, TrashIcon, TriangleAlertIcon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -309,7 +295,6 @@ export default function CreateServerPage({
     if (defaultProvider) {
       fetchRegions(defaultProvider.id, defaultProvider.provider);
     }
-    // Only for the connection pre-selected on mount; later switches are handled by selectProviderMode/handleProviderSelect.
   }, []);
 
   useEffect(() => {
@@ -410,8 +395,8 @@ export default function CreateServerPage({
       if (list.length > 0 && form.data.server_provider === 0) {
         handleProviderSelect(list[0]);
       }
-    } catch {
-      // silent
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Could not fetch server providers');
     }
   };
 

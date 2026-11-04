@@ -30,7 +30,7 @@ class SendDailyHealthReports
         $delivery = HealthReportDelivery::query()->firstOrCreate(
             ['user_id' => $userId, 'report_date' => $date], ['status' => 'pending'],
         );
-        if (! HealthReportDelivery::query()->whereKey($delivery->id)->where('status', 'pending')->update(['status' => 'sending'])) {
+        if (! HealthReportDelivery::query()->whereKey($delivery->id)->whereIn('status', ['pending', 'failed'])->update(['status' => 'sending'])) {
             return;
         }
         try {

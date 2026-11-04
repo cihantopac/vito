@@ -56,24 +56,36 @@ class Ssl extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
     
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
+    /**
+     * @return BelongsTo<Domain, $this>
+     */
     public function domain(): BelongsTo
     {
         return $this->belongsTo(Domain::class);
     }
 
     
+    /**
+     * @return HasMany<HostedDomain, $this>
+     */
     public function hostedDomains(): HasMany
     {
         return $this->hasMany(HostedDomain::class);
@@ -154,6 +166,9 @@ class Ssl extends AbstractModel
     }
 
     
+    /**
+     * @return BelongsTo<ServerLog, $this>
+     */
     public function log(): BelongsTo
     {
         return $this->belongsTo(ServerLog::class);

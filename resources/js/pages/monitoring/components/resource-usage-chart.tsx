@@ -49,7 +49,7 @@ export function ResourceUsageChart<T extends object>({ title, color, dataKey, la
                   ? valueFormatter(latest)
                   : formatter
                     ? formatter(latest, dataKey)
-                    : (latest as number | string).toLocaleString()
+                    : (latest as number | string).toLocaleString('en-US')
                 : 'N/A'}
             </span>
           </div>

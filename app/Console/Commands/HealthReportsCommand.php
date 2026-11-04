@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 class HealthReportsCommand extends Command
 {
-    protected $signature = 'reports:health {--send : Queue the daily email}';
+    protected $signature = 'reports:health {--send : Queue the daily email now (sent automatically at 09:00)}';
 
     protected $description = 'Capture hourly project health and optionally send daily summaries';
 
@@ -18,7 +18,7 @@ class HealthReportsCommand extends Command
     {
         app(CollectHealthReport::class)->handle();
 
-        if ($this->option('send')) {
+        if ($this->option('send') || now()->hour === 9) {
             User::query()->whereHas('projects', fn ($query) => $query->whereIn('role', [UserRole::ADMIN, UserRole::OWNER]))
                 ->chunkById(100, function ($users): void {
                     foreach ($users as $user) {

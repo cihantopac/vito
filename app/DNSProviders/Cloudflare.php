@@ -140,8 +140,6 @@ class Cloudflare extends AbstractDNSProvider
     }
 
     /**
-     * Cloudflare caps per_page at 100, so every list endpoint is walked page by page.
-     *
      * @return list<array<string, mixed>>
      */
     private function paginate(string $endpoint): array

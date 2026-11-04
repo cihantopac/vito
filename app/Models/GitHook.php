@@ -31,12 +31,18 @@ class GitHook extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
     
+    /**
+     * @return BelongsTo<SourceControl, $this>
+     */
     public function sourceControl(): BelongsTo
     {
         return $this->belongsTo(SourceControl::class);

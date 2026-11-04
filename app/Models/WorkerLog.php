@@ -23,11 +23,17 @@ class WorkerLog extends AbstractModel
         'type' => WorkerLogType::class,
     ];
 
+    /**
+     * @return BelongsTo<Worker, $this>
+     */
     public function worker(): BelongsTo
     {
         return $this->belongsTo(Worker::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

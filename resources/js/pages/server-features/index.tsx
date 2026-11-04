@@ -1,9 +1,8 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Server, ServerFeature } from '@/types/server';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
 import FeaturesCard from '@/components/features-card';
 import { useDialog } from '@/hooks/use-dialog';

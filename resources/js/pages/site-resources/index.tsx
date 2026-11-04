@@ -275,7 +275,6 @@ export default function SiteResources() {
         {page.props.site.status === 'installation_failed' && <SiteBanners site={page.props.site} />}
 
         <div className="flex w-full flex-col gap-3">
-          {/* Database Card */}
           <Card className="w-full transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
               <div className="flex items-center gap-3 min-w-0">
@@ -422,7 +421,6 @@ export default function SiteResources() {
               )}
           </Card>
 
-          {/* Cache & Queue Card */}
           <Card className="w-full transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
               <div className="flex items-center gap-3 min-w-0">
@@ -569,7 +567,6 @@ export default function SiteResources() {
               )}
           </Card>
 
-          {/* Object Storage Card */}
           <Card className="w-full transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
               <div className="flex items-center gap-3 min-w-0">

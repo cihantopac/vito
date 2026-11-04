@@ -12,7 +12,9 @@ class GetAccessibleProjects
 {
     public function get(User $user): Paginator
     {
-        $costOrderSql = app(ResolveHetznerServerSpecs::class)->projectCostOrderSql();
+        $costOrderSql = request('sort_by') === 'monthly_cost'
+            ? app(ResolveHetznerServerSpecs::class)->projectCostOrderSql()
+            : '0';
 
         $query = $user
             ->allProjects()

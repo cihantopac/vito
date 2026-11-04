@@ -4,19 +4,22 @@ namespace App\Tooling;
 
 final class ToolingRegistry
 {
-    
+    /** @var array<string, ToolingInterface>|null */
+    private static ?array $instances = null;
+
+    /** @return array<string, ToolingInterface> */
     public static function all(): array
     {
-        
-        $providers = config('tooling.providers', []);
-
-        $out = [];
-        foreach ($providers as $class) {
-            $instance = new $class;
-            $out[$class::id()] = $instance;
+        if (self::$instances !== null) {
+            return self::$instances;
         }
 
-        return $out;
+        $out = [];
+        foreach (config('tooling.providers', []) as $class) {
+            $out[$class::id()] = new $class;
+        }
+
+        return self::$instances = $out;
     }
 
     public static function find(string $id): ?ToolingInterface
@@ -24,7 +27,6 @@ final class ToolingRegistry
         return self::all()[$id] ?? null;
     }
 
-    
     public static function ids(): array
     {
         return array_keys(self::all());

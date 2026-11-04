@@ -7,7 +7,6 @@ use App\Models\Site;
 
 class Git
 {
-
     public function clone(Site $site, ?string $path = null, ?Server $server = null): void
     {
         $usesToken = $site->sourceControl?->isGithubApp() ?? false;
@@ -72,7 +71,6 @@ class Git
         );
     }
 
-    
     public function setRemote(Site $site, string $newRepoUrl): void
     {
         $usesToken = $site->sourceControl?->isGithubApp() ?? false;
@@ -99,37 +97,11 @@ class Git
             return;
         }
 
-        $escapedPath = escapeshellarg($site->path);
-        $user = $site->user ?: (string) config('core.ssh_user', 'vito');
-        $escapedUser = escapeshellarg($user);
-        $escapedHome = escapeshellarg(home_path($user));
-
-        try {
-            $site->server->ssh($site->user)->exec(<<<BASH
-sudo -n bash -c '
-  user={$escapedUser}
-  home_dir={$escapedHome}
-  mkdir -p "\$home_dir/.ssh"
-  touch "\$home_dir/.ssh/config" "\$home_dir/.ssh/known_hosts"
-  for key in /root/.ssh/id_ed25519 /root/.ssh/id_rsa /root/.ssh/id_ecdsa; do
-    if [ -f "\$key" ]; then
-      target="\$home_dir/.ssh/root_\$(basename "\$key")"
-      cp -f "\$key" "\$target"
-      chmod 600 "\$target"
-      grep -qxF "IdentityFile \$target" "\$home_dir/.ssh/config" || echo "IdentityFile \$target" >> "\$home_dir/.ssh/config"
-    fi
-  done
-  if [ -f /root/.ssh/known_hosts ]; then
-    cat /root/.ssh/known_hosts >> "\$home_dir/.ssh/known_hosts"
-  fi
-  chmod 600 "\$home_dir/.ssh/config"
-  chmod 644 "\$home_dir/.ssh/known_hosts"
-  chown -R "\$user:\$user" "\$home_dir/.ssh" {$escapedPath}
-' 2>/dev/null || true
-git config --global --add safe.directory {$escapedPath} 2>/dev/null || true
-BASH);
-        } catch (\Throwable) {
-        }
+        $site->server->ssh($site->user)->exec(
+            view('ssh.git.prepare-self', ['path' => escapeshellarg($site->path)]),
+            'prepare-self-repository',
+            $site->id
+        );
     }
 
     public function lastCommit(Site $site, ?string $path = null): ?array
@@ -142,7 +114,7 @@ BASH);
         try {
             $escapedPath = escapeshellarg($targetPath);
             $output = trim($site->server->ssh($site->user)->exec(
-                "cd {$escapedPath} && git -c safe.directory={$escapedPath} log -1 --format=\"%H%n%an%n%ae%n%s\" 2>/dev/null || true"
+                "cd {$escapedPath} && git -c safe.directory={$escapedPath} log -1 --format=\"%H%n%an%n%ae%n%s%n%cI\" 2>/dev/null || true"
             ));
             $lines = explode("\n", $output);
 
@@ -153,6 +125,7 @@ BASH);
                         'name' => trim($lines[1]),
                         'email' => trim($lines[2]),
                         'message' => trim($lines[3]),
+                        'date' => isset($lines[4]) && trim($lines[4]) !== '' ? trim($lines[4]) : null,
                     ],
                 ];
             }

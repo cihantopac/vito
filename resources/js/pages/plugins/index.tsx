@@ -7,8 +7,6 @@ import InstalledPlugins from '@/pages/plugins/components/installed';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plugin } from '@/types/plugin';
-import { Button } from '@/components/ui/button';
-import { BookOpenIcon } from 'lucide-react';
 import InstallDialog from '@/pages/plugins/components/install-dialog';
 import DiscoveredPlugins from '@/pages/plugins/components/discovered';
 import CheckForUpdates from '@/pages/plugins/components/check-updates';

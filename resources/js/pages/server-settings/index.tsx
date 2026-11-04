@@ -168,7 +168,6 @@ export default function ServerSettings() {
         </HeaderContainer>
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-          {/* Main Configuration Form Column */}
           <div className="lg:col-span-7">
             <form onSubmit={submit}>
               <Card>
@@ -387,9 +386,7 @@ export default function ServerSettings() {
             </form>
           </div>
 
-          {/* Right Column: System Overview, SSH Access & Danger Zone */}
           <div className="space-y-6 lg:col-span-5">
-            {/* System Overview Card */}
             <Card>
               <CardHeader className="p-6 pb-3">
                 <div className="flex items-center justify-between">
@@ -485,7 +482,6 @@ export default function ServerSettings() {
               </CardContent>
             </Card>
 
-            {/* SSH Access & Keys Card */}
             <Card>
               <CardHeader className="p-6 pb-3">
                 <div className="flex items-center justify-between">
@@ -527,7 +523,6 @@ export default function ServerSettings() {
               </CardContent>
             </Card>
 
-            {/* Danger Zone Card */}
             <Card className="border-destructive/30 bg-destructive/[0.02]">
               <CardHeader className="p-6 pb-3">
                 <div className="flex items-center gap-2">

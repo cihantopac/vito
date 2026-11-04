@@ -42,7 +42,7 @@ class ServiceTable extends Table
                     return 'n/a';
                 }
 
-                if (isset($service->type_data['networking_effective']) && $service->type_data['networking_effective'] !== null) {
+                if (isset($service->type_data['networking_effective'])) {
                     return $service->type_data['networking_effective'] ? 'yes' : 'no';
                 }
 

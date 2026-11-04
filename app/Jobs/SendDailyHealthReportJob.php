@@ -25,6 +25,6 @@ class SendDailyHealthReportJob implements ShouldQueue
 
     public function failed(Throwable $e): void
     {
-        Log::warning('Daily health report failed', ['user_id' => $this->userId, 'date' => $this->date]);
+        Log::warning('Daily health report failed', ['user_id' => $this->userId, 'date' => $this->date, 'error' => $e->getMessage()]);
     }
 }

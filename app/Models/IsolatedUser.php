@@ -28,12 +28,18 @@ class IsolatedUser extends AbstractModel
     ];
 
     
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
+    /**
+     * @return HasMany<Site, $this>
+     */
     public function sites(): HasMany
     {
         return $this->hasMany(Site::class);

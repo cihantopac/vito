@@ -32,7 +32,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
   const groups = useMemo(() => [...new Set(filteredPlans.map((plan) => plan.group))], [filteredPlans]);
 
   const money = (amount: number) =>
-    new Intl.NumberFormat('de-DE', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'EUR',
       maximumFractionDigits: 2,

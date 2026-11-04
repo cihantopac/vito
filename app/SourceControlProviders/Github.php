@@ -53,7 +53,6 @@ class Github extends AbstractSourceControlProvider
         }
     }
 
-    
     public function getRepo(string $repo): mixed
     {
         $url = $repo !== '' && $repo !== '0'
@@ -72,7 +71,6 @@ class Github extends AbstractSourceControlProvider
         return sprintf('git@github.com-%s:%s.git', $key, $repo);
     }
 
-    
     public function deployHook(string $repo, array $events, string $secret): array
     {
         try {
@@ -97,7 +95,6 @@ class Github extends AbstractSourceControlProvider
                 'hook_id' => $hookData['id'],
                 'hook_response' => $hookData,
             ];
-
         } catch (Throwable $e) {
             Log::error('Failed to deploy GitHub hook', [
                 'repo' => $repo,
@@ -108,7 +105,6 @@ class Github extends AbstractSourceControlProvider
         }
     }
 
-    
     public function destroyHook(string $repo, string $hookId): void
     {
         try {
@@ -118,7 +114,6 @@ class Github extends AbstractSourceControlProvider
             if ($response->status() !== 204) {
                 throw new FailedToDestroyGitHook($response->body());
             }
-
         } catch (Throwable $e) {
             Log::error('Failed to destroy GitHub hook', [
                 'repo' => $repo,
@@ -130,7 +125,6 @@ class Github extends AbstractSourceControlProvider
         }
     }
 
-    
     public function getLastCommit(string $repo, string $branch): ?array
     {
         $cacheKey = 'github_commit_'.md5($repo.$branch.$this->data()['token']);
@@ -150,10 +144,11 @@ class Github extends AbstractSourceControlProvider
                 $result = [
                     'commit_id' => $commit['sha'],
                     'commit_data' => [
-                        'name' => $commit['commit']['committer']['name'] ?? null,
-                        'email' => $commit['commit']['committer']['email'] ?? null,
+                        'name' => $commit['commit']['committer']['name'] ?? $commit['commit']['author']['name'] ?? null,
+                        'email' => $commit['commit']['committer']['email'] ?? $commit['commit']['author']['email'] ?? null,
                         'message' => $commit['commit']['message'] ?? null,
                         'url' => $commit['html_url'] ?? null,
+                        'date' => $commit['commit']['committer']['date'] ?? $commit['commit']['author']['date'] ?? null,
                     ],
                 ];
 
@@ -163,7 +158,6 @@ class Github extends AbstractSourceControlProvider
             }
 
             return null;
-
         } catch (Throwable $e) {
             Log::error('Failed to fetch last commit', [
                 'repo' => $repo,
@@ -175,7 +169,6 @@ class Github extends AbstractSourceControlProvider
         }
     }
 
-    
     public function deployKey(string $title, string $repo, string $key): string
     {
         try {
@@ -191,7 +184,6 @@ class Github extends AbstractSourceControlProvider
             }
 
             return $response->json()['id'] ?? '';
-
         } catch (Throwable $e) {
             Log::error('Failed to deploy GitHub key', [
                 'repo' => $repo,
@@ -216,7 +208,6 @@ class Github extends AbstractSourceControlProvider
                     'response' => $response->body(),
                 ]);
             }
-
         } catch (Throwable $e) {
             Log::error('Error deleting GitHub deploy key', [
                 'repo' => $repo,
@@ -243,7 +234,6 @@ class Github extends AbstractSourceControlProvider
             Cache::put($cacheKey, $repoNames, self::CACHE_TTL);
 
             return $repoNames;
-
         } catch (Throwable $e) {
             Log::error('Failed to fetch GitHub repositories', [
                 'error' => $e->getMessage(),
@@ -269,7 +259,6 @@ class Github extends AbstractSourceControlProvider
             Cache::put($cacheKey, $branchNames, self::CACHE_TTL);
 
             return $branchNames;
-
         } catch (Throwable $e) {
             Log::error('Failed to fetch GitHub branches', [
                 'repo' => $repo,
@@ -280,7 +269,6 @@ class Github extends AbstractSourceControlProvider
         }
     }
 
-    
     private function fetchAllPages(string $endpoint, array $params = []): Collection
     {
         $allData = collect();

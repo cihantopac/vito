@@ -19,10 +19,8 @@ elif [[ "$1" == "--beta" ]]; then
   INCLUDE_PATTERN='^4\.[0-9]+\.[0-9]+(-beta-[0-9]+|-rc-[0-9]+)?$'
 fi
 
-# Filter and sort matching tags
 MATCHING_TAGS=$(git tag | grep -E "$INCLUDE_PATTERN" | sort -V)
 
-# Get the latest tag from the list
 NEW_RELEASE=$(echo "$MATCHING_TAGS" | tail -n 1)
 
 if [[ -z "$NEW_RELEASE" ]]; then

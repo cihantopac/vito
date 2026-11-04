@@ -100,6 +100,11 @@ export default function DeploymentShow() {
 
             <Badge variant={deployment.status_color}>{deployment.status}</Badge>
             {deployment.active && <Badge variant="outline">active</Badge>}
+            {deployment.is_duplicate && (
+              <Badge variant="outline" className="text-neutral-500 border-neutral-500/30 bg-neutral-500/10 uppercase font-mono text-[10px]">
+                duplicate
+              </Badge>
+            )}
 
             {deployment.commit_id_short && (
               <div className="flex items-center gap-1">
@@ -132,6 +137,12 @@ export default function DeploymentShow() {
             {deployment.commit_data.message && (
               <span className="text-foreground max-w-3xl whitespace-normal break-words" title={deployment.commit_data.message}>
                 · {deployment.commit_data.message}
+              </span>
+            )}
+
+            {deployment.commit_data.date && (
+              <span title={`Committed on ${moment(deployment.commit_data.date).format('YYYY-MM-DD HH:mm:ss')}`}>
+                · Committed <DateTime date={deployment.commit_data.date} relative />
               </span>
             )}
 

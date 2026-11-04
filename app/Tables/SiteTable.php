@@ -118,5 +118,15 @@ class SiteTable extends Table
                 $servers->where('name', 'LIKE', "%{$search}%");
             });
         });
+
+        if (request()->filled($this->getSortParam())) {
+            return;
+        }
+
+        $base = $this->query->getQuery();
+        $orders = $base->orders ?? [];
+        $base->orders = $this->groupBy === 'none' ? [] : array_splice($orders, 0, 1);
+        $this->query->orderByRaw('CASE WHEN domain = ? THEN 0 WHEN domain LIKE ? THEN 1 WHEN domain LIKE ? THEN 2 ELSE 3 END', [$search, $search.'%', '%'.$search.'%']);
+        $base->orders = [...$base->orders, ...$orders];
     }
 }

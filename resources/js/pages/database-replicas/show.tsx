@@ -47,7 +47,7 @@ export default function ShowDatabaseReplica() {
     ['Streaming state', latest?.state],
     ['Slot WAL status', latest?.slot_wal_status],
     ['Replay delay', latest?.replay_delay_seconds != null ? `${latest.replay_delay_seconds} s` : null],
-    ['Last checked', replica.last_checked_at ? new Date(replica.last_checked_at).toLocaleString() : null],
+    ['Last checked', replica.last_checked_at ? new Date(replica.last_checked_at).toLocaleString('en-US') : null],
   ];
 
   return (

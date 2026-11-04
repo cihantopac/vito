@@ -61,7 +61,7 @@ export default function DatabaseUpgrades() {
             ? '-'
             : `${(upgrade.lag_bytes / 1048576).toFixed(1)} MB of WAL${upgrade.wal_keep_gb ? ` (of ${upgrade.wal_keep_gb} GB kept)` : ''}`,
         ],
-        ['Started', new Date(upgrade.created_at).toLocaleString()],
+        ['Started', new Date(upgrade.created_at).toLocaleString('en-US')],
       ]
     : [];
 
@@ -210,7 +210,7 @@ export default function DatabaseUpgrades() {
                     {[...upgrade.events].reverse().map((event) => (
                       <li key={`${event.at}-${event.message}`} className="flex gap-3">
                         <span className="text-muted-foreground shrink-0 font-mono text-xs">
-                          {new Date(event.at).toLocaleTimeString()}
+                          {new Date(event.at).toLocaleTimeString('en-US')}
                         </span>
                         <span className={event.level === 'error' ? 'text-destructive' : event.level === 'waiting' ? 'text-muted-foreground' : ''}>
                           {event.message}
@@ -235,7 +235,7 @@ export default function DatabaseUpgrades() {
                         >
                           <span className="font-mono text-xs">{log.name}</span>
                           <span className="text-muted-foreground shrink-0 text-xs">
-                            {log.server_name} · {log.created_at ? new Date(log.created_at).toLocaleTimeString() : ''}
+                            {log.server_name} · {log.created_at ? new Date(log.created_at).toLocaleTimeString('en-US') : ''}
                           </span>
                         </button>
                       ))}

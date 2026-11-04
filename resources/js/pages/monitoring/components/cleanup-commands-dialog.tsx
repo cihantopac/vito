@@ -15,7 +15,7 @@ function formatBytes(b: number): string {
   if (b <= 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
   const i = Math.min(Math.floor(Math.log(b) / Math.log(1024)), units.length - 1);
-  return `${(b / Math.pow(1024, i)).toFixed(2)} ${units[i]}`;
+  return `${Math.round(b / Math.pow(1024, i))} ${units[i]}`;
 }
 
 export default function CleanupCommandsDialog({ open, onOpenChange, commands, selectedBytes }: CleanupCommandsDialogProps) {
