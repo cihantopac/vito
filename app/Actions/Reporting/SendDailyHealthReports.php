@@ -42,7 +42,7 @@ class SendDailyHealthReports
     }
 
     /**
-     * @return array<int, array{name: string, checks: int, counts: array{critical: int, warning: int, info: int}, servers: array<string, array{url: string, disk: ?int, open: array<int, array{label: string, url: string, level: string}>, resolved: array<int, string>}>}>
+     * @return array<int, array{name: string, checks: int, critical: array<string, array<int, array{label: string, url: string}>>, warning: array<string, array<int, array{label: string, url: string, level: string}>>, disks: array<string, array{url: string, disk: ?int}>}>
      */
     public function groups(User $user, string $date): array
     {
@@ -57,42 +57,38 @@ class SendDailyHealthReports
         $groups = [];
         foreach ($projects as $project) {
             $hours = $snapshots->get($project->id, collect());
-            $latest = collect($hours->last()?->issues ?? [])->keyBy('key');
-            $seen = $hours->flatMap(fn ($snapshot) => $snapshot->issues)->reject(fn ($issue) => str_contains($issue['key'], ':site:'))->keyBy('key');
-            $servers = [];
-            foreach ($project->servers as $server) {
-                $metric = $server->latestMetric;
-                $servers[$server->name] = [
-                    'url' => rtrim(config('app.url'), '/').'/servers/'.$server->id,
-                    'disk' => $metric && $metric->disk_total > 0 ? (int) round(100 * $metric->disk_used / $metric->disk_total) : null,
-                    'open' => [],
-                    'resolved' => [],
-                ];
-            }
-            $counts = ['critical' => 0, 'warning' => 0, 'info' => 0];
-            foreach ($seen as $key => $issue) {
+            $issues = collect($hours->last()?->issues ?? [])->reject(fn ($issue) => str_contains($issue['key'], ':site:'));
+            $critical = [];
+            $warning = [];
+            foreach ($issues as $issue) {
                 [$server, $label] = array_pad(explode(' · ', $issue['label'], 2), 2, '');
-                $servers[$server] ??= ['url' => preg_replace('#(/servers/\d+).*#', '$1', $issue['url']), 'disk' => null, 'open' => [], 'resolved' => []];
-                if (! $latest->has($key)) {
-                    $servers[$server]['resolved'][] = $label;
-
-                    continue;
-                }
-                $level = match (strtok($key, ':')) {
+                $level = match (strtok($issue['key'], ':')) {
                     'updates' => 'info',
                     'metrics' => 'warning',
                     default => 'critical',
                 };
-                $counts[$level]++;
-                $servers[$server]['open'][] = ['label' => $label, 'url' => $issue['url'], 'level' => $level];
+                if ($level === 'critical') {
+                    $critical[$server][] = ['label' => $label, 'url' => $issue['url']];
+                } else {
+                    $warning[$server][] = ['label' => $label, 'url' => $issue['url'], 'level' => $level];
+                }
             }
-            $rank = fn (array $server): array => [
-                count(array_filter($server['open'], fn ($issue) => $issue['level'] === 'critical')),
-                count($server['open']),
-                $server['disk'] ?? -1,
-            ];
-            uasort($servers, fn ($a, $b) => $rank($b) <=> $rank($a));
-            $groups[] = ['name' => $project->name, 'checks' => $hours->count(), 'counts' => $counts, 'servers' => $servers];
+            uasort($critical, fn ($a, $b) => count($b) <=> count($a));
+            foreach ($warning as $server => $items) {
+                usort($items, fn ($a, $b) => ($b['level'] === 'warning') <=> ($a['level'] === 'warning'));
+                $warning[$server] = $items;
+            }
+            uasort($warning, fn ($a, $b) => [$b[0]['level'] === 'warning', count($b)] <=> [$a[0]['level'] === 'warning', count($a)]);
+            $disks = [];
+            foreach ($project->servers as $server) {
+                $metric = $server->latestMetric;
+                $disks[$server->name] = [
+                    'url' => rtrim(config('app.url'), '/').'/servers/'.$server->id,
+                    'disk' => $metric && $metric->disk_total > 0 ? (int) round(100 * $metric->disk_used / $metric->disk_total) : null,
+                ];
+            }
+            uasort($disks, fn ($a, $b) => ($b['disk'] ?? -1) <=> ($a['disk'] ?? -1));
+            $groups[] = ['name' => $project->name, 'checks' => $hours->count(), 'critical' => $critical, 'warning' => $warning, 'disks' => $disks];
         }
 
         return $groups;
