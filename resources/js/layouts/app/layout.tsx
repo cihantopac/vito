@@ -41,7 +41,9 @@ export default function Layout({
   const pathname = page.url.split('?')[0].replace(/\/$/, '');
   const expandPrimaryNav = ['/overview', '/servers', '/sites', '/admin/users', '/settings/projects'].includes(pathname);
   const isServerLevel = defaultPrimaryNavOpen !== undefined ? !defaultPrimaryNavOpen : (!!page.props.site || !!page.props.server || secondNavSubtitle === 'Server');
-  const [primaryNavOpen, setPrimaryNavOpen] = useState(() => expandPrimaryNav || (!isServerLevel && getStoredSidebarOpen(hasSecondNav)));
+  const [primaryNavOpen, setPrimaryNavOpen] = useState(() =>
+    expandPrimaryNav || (!isServerLevel && getStoredSidebarOpen(hasSecondNav)),
+  );
   const [secondNavOpen, setSecondNavOpen] = useState(hasSecondNav);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function Layout({
     } else {
       setPrimaryNavOpen(getStoredSidebarOpen(hasSecondNav));
     }
-  }, [hasSecondNav, page.props.site?.id, page.props.server?.id, isServerLevel, expandPrimaryNav, pathname]);
+  }, [expandPrimaryNav, hasSecondNav, page.props.site?.id, page.props.server?.id, isServerLevel]);
 
   useEffect(() => {
     setSecondNavOpen(hasSecondNav);

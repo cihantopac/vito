@@ -39,36 +39,59 @@ use Illuminate\View\ViewServiceProvider;
 
 return [
 
+    
+
     'name' => 'Pure',
+
+    
 
     'env' => env('APP_ENV', 'production'),
 
+    
+
     'debug' => (bool) env('APP_DEBUG', false),
+
+    
 
     'url' => env('APP_URL', 'http://localhost'),
     'ws_url' => env('WS_URL'),
 
     'asset_url' => env('ASSET_URL'),
 
+    
+
     'timezone' => 'UTC',
+
+    
 
     'locale' => 'en',
 
+    
+
     'fallback_locale' => 'en',
 
+    
+
     'faker_locale' => 'en_US',
+
+    
 
     'key' => env('APP_KEY'),
 
     'cipher' => 'AES-256-CBC',
 
+    
+
     'maintenance' => [
         'driver' => 'file',
-
+        
     ],
+
+    
 
     'providers' => [
 
+        
         AuthServiceProvider::class,
         BroadcastServiceProvider::class,
         BusServiceProvider::class,
@@ -92,6 +115,9 @@ return [
         ValidationServiceProvider::class,
         ViewServiceProvider::class,
 
+        
+
+        
         AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         RouteServiceProvider::class,
@@ -108,8 +134,10 @@ return [
         HorizonServiceProvider::class,
     ],
 
-    'aliases' => Facade::defaultAliases()->merge([
+    
 
+    'aliases' => Facade::defaultAliases()->merge([
+        
     ])->toArray(),
 
     'version' => '4.1.1',
