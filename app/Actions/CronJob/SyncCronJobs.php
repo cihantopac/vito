@@ -164,11 +164,15 @@ class SyncCronJobs
     {
         $serverCommand = $this->normalizeCommand(CronJob::unwrapAll($serverCommand));
 
-        return in_array($serverCommand, [
-            $this->normalizeCommand(CronJob::unwrapAll($cronJob->command)),
-            $this->normalizeCommand(CronJob::unwrapAll($cronJob->executionCommand())),
-            $this->normalizeCommand('cd '.escapeshellarg((string) $cronJob->site?->path).' && ('.$cronJob->command.')'),
-        ], true);
+        $commands = [CronJob::unwrapAll($cronJob->command), CronJob::unwrapAll($cronJob->executionCommand())];
+
+        if ($cronJob->site) {
+            foreach ([$cronJob->site->path, escapeshellarg($cronJob->site->path)] as $path) {
+                $commands[] = "cd {$path} && ({$cronJob->command})";
+            }
+        }
+
+        return in_array($serverCommand, array_map($this->normalizeCommand(...), $commands), true);
     }
 
     private function getUserCrontab(Server $server, string $user): string

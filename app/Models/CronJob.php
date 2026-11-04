@@ -99,9 +99,14 @@ class CronJob extends AbstractModel
 
     public function executionCommand(): string
     {
-        return $this->site
-            ? 'cd '.(preg_match('#^/[\w./-]*$#', $this->site->path) ? $this->site->path : escapeshellarg($this->site->path)).' && ('.$this->command.')'
-            : $this->command;
+        if (! $this->site) {
+            return $this->command;
+        }
+
+        $path = preg_match('#^/[\w./-]*$#', $this->site->path) ? $this->site->path : escapeshellarg($this->site->path);
+        $command = preg_match('/;|\|\||(?<![<>&])&(?![&>])/', $this->command) ? "({$this->command})" : $this->command;
+
+        return "cd {$path} && {$command}";
     }
 
     public static function wrapCommand(string $command): string
