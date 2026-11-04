@@ -42,12 +42,13 @@ class SendDailyHealthReports
     }
 
     /**
-     * @return array<int, array{name: string, checks: int, open: int, servers: array<string, array{url: string, open: array<int, array{label: string, url: string}>, resolved: array<int, string>}>}>
+     * @return array<int, array{name: string, checks: int, counts: array{critical: int, warning: int, info: int}, servers: array<string, array{url: string, disk: ?int, open: array<int, array{label: string, url: string, level: string}>, resolved: array<int, string>}>}>
      */
     public function groups(User $user, string $date): array
     {
         $end = CarbonImmutable::parse($date, config('app.timezone'))->setTime(9, 0);
-        $projects = Project::query()->whereHas('users', fn ($query) => $query->where('user_id', $user->id)->whereIn('role', [UserRole::ADMIN, UserRole::OWNER]))->get();
+        $projects = Project::query()->with('servers.latestMetric')
+            ->whereHas('users', fn ($query) => $query->where('user_id', $user->id)->whereIn('role', [UserRole::ADMIN, UserRole::OWNER]))->get();
         if ($projects->isEmpty()) {
             return [];
         }
@@ -59,17 +60,39 @@ class SendDailyHealthReports
             $latest = collect($hours->last()?->issues ?? [])->keyBy('key');
             $seen = $hours->flatMap(fn ($snapshot) => $snapshot->issues)->reject(fn ($issue) => str_contains($issue['key'], ':site:'))->keyBy('key');
             $servers = [];
+            foreach ($project->servers as $server) {
+                $metric = $server->latestMetric;
+                $servers[$server->name] = [
+                    'url' => rtrim(config('app.url'), '/').'/servers/'.$server->id,
+                    'disk' => $metric && $metric->disk_total > 0 ? (int) round(100 * $metric->disk_used / $metric->disk_total) : null,
+                    'open' => [],
+                    'resolved' => [],
+                ];
+            }
+            $counts = ['critical' => 0, 'warning' => 0, 'info' => 0];
             foreach ($seen as $key => $issue) {
                 [$server, $label] = array_pad(explode(' · ', $issue['label'], 2), 2, '');
-                $servers[$server] ??= ['url' => preg_replace('#(/servers/\d+).*#', '$1', $issue['url']), 'open' => [], 'resolved' => []];
-                if ($latest->has($key)) {
-                    $servers[$server]['open'][] = ['label' => $label, 'url' => $issue['url']];
-                } else {
+                $servers[$server] ??= ['url' => preg_replace('#(/servers/\d+).*#', '$1', $issue['url']), 'disk' => null, 'open' => [], 'resolved' => []];
+                if (! $latest->has($key)) {
                     $servers[$server]['resolved'][] = $label;
+
+                    continue;
                 }
+                $level = match (strtok($key, ':')) {
+                    'updates' => 'info',
+                    'metrics' => 'warning',
+                    default => 'critical',
+                };
+                $counts[$level]++;
+                $servers[$server]['open'][] = ['label' => $label, 'url' => $issue['url'], 'level' => $level];
             }
-            uasort($servers, fn ($a, $b) => count($b['open']) <=> count($a['open']));
-            $groups[] = ['name' => $project->name, 'checks' => $hours->count(), 'open' => array_sum(array_map(fn ($server) => count($server['open']), $servers)), 'servers' => $servers];
+            $rank = fn (array $server): array => [
+                count(array_filter($server['open'], fn ($issue) => $issue['level'] === 'critical')),
+                count($server['open']),
+                $server['disk'] ?? -1,
+            ];
+            uasort($servers, fn ($a, $b) => $rank($b) <=> $rank($a));
+            $groups[] = ['name' => $project->name, 'checks' => $hours->count(), 'counts' => $counts, 'servers' => $servers];
         }
 
         return $groups;
