@@ -11,12 +11,10 @@ use Illuminate\Validation\Rule;
 
 class GetDatabaseReplicaMetrics
 {
-    /** @var array<string, int> */
     private const PERIODS = ['1h' => 60, '24h' => 1440, '7d' => 10080, '30d' => 43200];
 
     private const MAX_POINTS = 240;
 
-    /** @return array{period: string, metrics: Collection<int, array<string, mixed>>} */
     public function get(DatabaseReplica $replica, array $input): array
     {
         $period = Validator::make($input, [
@@ -39,10 +37,6 @@ class GetDatabaseReplicaMetrics
         ];
     }
 
-    /**
-     * @param  Collection<int, DatabaseReplicaMetric>  $bucket
-     * @return array<string, mixed>
-     */
     private function bucket(Collection $bucket): array
     {
         $last = $bucket->last();

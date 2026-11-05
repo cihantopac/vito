@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\CronJob;
 
 use App\Enums\CronjobStatus;
@@ -8,17 +10,12 @@ use App\Models\Server;
 
 class EnableCronJob
 {
-    
     public function enable(Server $server, CronJob $cronJob): void
     {
-        
-        app(SyncCronJobs::class)->sync($server);
+        app(SyncCronJobs::class)->sync($server, [$cronJob->user]);
 
-        $cronJob->status = CronjobStatus::ENABLING;
-        $cronJob->save();
-
+        $cronJob->update(['status' => CronjobStatus::ENABLING]);
         $server->cron()->update($cronJob->user, CronJob::crontab($server, $cronJob->user));
-        $cronJob->status = CronjobStatus::READY;
-        $cronJob->save();
+        $cronJob->update(['status' => CronjobStatus::READY]);
     }
 }

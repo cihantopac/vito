@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\CronjobStatus;
@@ -38,33 +40,21 @@ class CronJob extends AbstractModel
         'status' => CronjobStatus::class,
     ];
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    /**
-     * @return BelongsTo<Site, $this>
-     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
-    /**
-     * @return HasMany<CommandExecution, $this>
-     */
     public function executions(): HasMany
     {
         return $this->hasMany(CommandExecution::class);
     }
 
-    /**
-     * @return HasOne<CommandExecution, $this>
-     */
     public function lastExecution(): HasOne
     {
         return $this->hasOne(CommandExecution::class)->latestOfMany();
@@ -93,18 +83,23 @@ class CronJob extends AbstractModel
                 CronjobStatus::ENABLING,
             ])
             ->get()
-            ->map(fn (self $cronJob) => $cronJob->frequency . ' ' . ($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
+            ->map(fn (self $cronJob): string => $cronJob->frequency.' '.($user === 'root' && ! $cronJob->site ? $cronJob->command : self::wrapCommand($cronJob->executionCommand())))
             ->implode("\n");
     }
 
     public function executionCommand(): string
     {
-        return $this->site
-            ? 'cd '.(preg_match('#^/[\w./-]*$#', $this->site->path) ? $this->site->path : escapeshellarg($this->site->path)).' && ('.$this->command.')'
-            : $this->command;
+        if (! $this->site) {
+            return $this->command;
+        }
+
+        $path = preg_match('#^/[\w./-]*$#', $this->site->path) ? $this->site->path : escapeshellarg($this->site->path);
+        $command = preg_match('/;|\|\||(?<![<>&])&(?![&>])/', $this->command) ? "({$this->command})" : $this->command;
+
+        return "cd {$path} && {$command}";
     }
 
-    public static function wrapCommand(string $command): string
+    private static function wrapCommand(string $command): string
     {
         return 'bash -lc '.escapeshellarg(self::unwrapAll($command));
     }
@@ -120,9 +115,6 @@ class CronJob extends AbstractModel
         return $command;
     }
 
-    /**
-     * Older releases escaped crontab content twice, leaving commands stored as \''command'\'.
-     */
     private static function stripLegacyEscaping(string $command): ?string
     {
         if (! str_starts_with($command, "\\''") || ! str_ends_with($command, "'\\'")) {
@@ -132,7 +124,7 @@ class CronJob extends AbstractModel
         return str_replace("'\\''", "'", substr($command, 3, -3));
     }
 
-    public static function unwrapCommand(string $command): ?string
+    private static function unwrapCommand(string $command): ?string
     {
         $prefix = 'bash -lc ';
         if (! str_starts_with($command, $prefix)) {

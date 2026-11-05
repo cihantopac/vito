@@ -28,9 +28,6 @@ class StartEnvSearch
         return $searchId;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function status(User $user, string $searchId): array
     {
         if (Cache::get("env-search-owner:{$searchId}") !== $user->id) {

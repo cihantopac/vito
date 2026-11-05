@@ -19,7 +19,6 @@ class IssueClusterCertificates
 
     private const NODE_RENEW_DAYS = 30;
 
-    /** @return list<int> ids of servers whose certificate files changed */
     public function ensure(PostgresCluster $cluster): array
     {
         $tls = $cluster->tls ?? [];
@@ -48,7 +47,6 @@ class IssueClusterCertificates
         return $renewCa ? $cluster->nodes()->pluck('id')->all() : $changed;
     }
 
-    /** @return array{ca: string, cert: string, key: string} */
     public function files(PostgresCluster $cluster, Server $server): array
     {
         $tls = $cluster->tls;
@@ -65,7 +63,6 @@ class IssueClusterCertificates
         return PostgresCluster::hostAlias($server);
     }
 
-    /** @return array{ca_cert: string, ca_key: string, ca_expires_at: string} */
     private function ca(PostgresCluster $cluster): array
     {
         $key = EC::createKey('nistp256');
@@ -92,10 +89,6 @@ class IssueClusterCertificates
         ];
     }
 
-    /**
-     * @param  array<string, mixed>  $tls
-     * @return array{cert: string, key: string, expires_at: string}
-     */
     private function node(array $tls, Server $server): array
     {
         $key = EC::createKey('nistp256');

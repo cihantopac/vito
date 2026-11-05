@@ -12,7 +12,6 @@ use Throwable;
 
 class EditStorageProvider
 {
-    /** @param  array<string, mixed>  $input */
     public function edit(StorageProvider $storageProvider, array $input, ?int $projectId): StorageProvider
     {
         if (! $storageProvider->hasProviderHandler()) {

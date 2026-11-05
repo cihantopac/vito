@@ -38,7 +38,6 @@ use RuntimeException;
 
 class ManageDatabaseUpgrade
 {
-    /** @return array{version: int, versions: list<string>, databases: list<array<string, mixed>>, database_size: int, storage_gb: int, cores: ?int, memory_gb: ?float, os: string, source: string, restart_needed: bool, read_only: bool, wal_level: string, required_slots: int, required_senders: int, tables_without_key: list<string>, tables_without_key_count: int, warnings: list<string>} */
     public function requirements(Server $source): array
     {
         $inspect = PostgresLogicalReplication::inspect($source);
@@ -76,7 +75,6 @@ class ManageDatabaseUpgrade
         ];
     }
 
-    /** @return array{version: int, versions: list<string>, source: string} */
     public function versions(Server $source): array
     {
         $version = (int) ($source->database()?->name === 'postgresql' ? $source->database()->version : 0);
@@ -91,7 +89,6 @@ class ManageDatabaseUpgrade
         ];
     }
 
-    /** @return array{available: bool, reason: ?string, stanza: ?string, taken_at: ?string} */
     public function seedable(Server $source): array
     {
         $backup = $source->backups()->where('type', BackupType::PGBACKREST)->first();
@@ -738,10 +735,6 @@ class ManageDatabaseUpgrade
         $upgrade->record($step);
     }
 
-    /**
-     * @param  array<string, mixed>  $inspect
-     * @return list<string>
-     */
     private function warnings(Server $source, array $inspect): array
     {
         $sum = fn (string $key): int => (int) array_sum(array_column($inspect['databases'], $key));

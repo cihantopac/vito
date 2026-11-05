@@ -4,10 +4,8 @@ namespace App\Tooling;
 
 final class ToolingRegistry
 {
-    /** @var array<string, ToolingInterface>|null */
     private static ?array $instances = null;
 
-    /** @return array<string, ToolingInterface> */
     public static function all(): array
     {
         if (self::$instances !== null) {

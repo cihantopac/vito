@@ -32,17 +32,11 @@ class CommandExecution extends AbstractModel
     ];
 
     
-    /**
-     * @return BelongsTo<Command, $this>
-     */
     public function command(): BelongsTo
     {
         return $this->belongsTo(Command::class);
     }
 
-    /**
-     * @return BelongsTo<CronJob, $this>
-     */
     public function cronJob(): BelongsTo
     {
         return $this->belongsTo(CronJob::class);
@@ -61,27 +55,18 @@ class CommandExecution extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<ServerLog, $this>
-     */
     public function serverLog(): BelongsTo
     {
         return $this->belongsTo(ServerLog::class);
     }
 
     
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
     
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

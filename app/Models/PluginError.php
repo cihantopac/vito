@@ -25,9 +25,6 @@ class PluginError extends AbstractModel
         'line' => 'integer',
     ];
 
-    /**
-     * @return BelongsTo<Plugin, $this>
-     */
     public function plugin(): BelongsTo
     {
         return $this->belongsTo(Plugin::class);

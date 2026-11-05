@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\CronJob;
 
 use App\Enums\CronjobStatus;
@@ -8,16 +10,12 @@ use App\Models\Server;
 
 class DeleteCronJob
 {
-    
     public function delete(Server $server, CronJob $cronJob): void
     {
-        
-        app(SyncCronJobs::class)->sync($server);
+        app(SyncCronJobs::class)->sync($server, [$cronJob->user]);
 
-        $user = $cronJob->user;
-        $cronJob->status = CronjobStatus::DELETING;
-        $cronJob->save();
-        $server->cron()->update($cronJob->user, CronJob::crontab($server, $user));
+        $cronJob->update(['status' => CronjobStatus::DELETING]);
+        $server->cron()->update($cronJob->user, CronJob::crontab($server, $cronJob->user));
         $cronJob->delete();
     }
 }

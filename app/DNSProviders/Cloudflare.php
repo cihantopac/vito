@@ -139,9 +139,6 @@ class Cloudflare extends AbstractDNSProvider
         })->toArray();
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
     private function paginate(string $endpoint): array
     {
         $results = [];

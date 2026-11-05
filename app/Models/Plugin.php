@@ -25,9 +25,6 @@ class Plugin extends AbstractModel
         'updates_available' => 'boolean',
     ];
 
-    /**
-     * @return HasMany<PluginError, $this>
-     */
     public function errors(): HasMany
     {
         return $this->hasMany(PluginError::class);

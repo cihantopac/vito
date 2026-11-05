@@ -22,7 +22,6 @@ enum PgBackRestStrategy: string implements VitoEnum
         };
     }
 
-    /** @return array{schedules: array{full: string, diff: ?string, incr: ?string}, retention: array{full: int, diff: ?int}, verify_schedule: string, check_schedule: string} */
     public static function standard(): array
     {
         return [

@@ -12,7 +12,6 @@ use Throwable;
 
 class CreateStorageProvider
 {
-    /** @param  array<string, mixed>  $input */
     public function create(User $user, array $input, ?int $projectId): StorageProvider
     {
         $this->validate($input);

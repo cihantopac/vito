@@ -9,9 +9,6 @@ events {
 
 http {
 
-	##
-	##
-
 	sendfile on;
 	tcp_nopush on;
 	tcp_nodelay on;
@@ -19,50 +16,18 @@ http {
 	types_hash_max_size 2048;
 	server_tokens off;
 
-
 	include /etc/nginx/mime.types;
 	default_type application/octet-stream;
 
-	##
-	##
-
-	ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # Dropping SSLv3, ref: POODLE
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 	ssl_prefer_server_ciphers on;
-
-	##
-	##
 
 	access_log /var/log/nginx/access.log;
 	error_log /var/log/nginx/error.log;
 
-	##
-	##
-
 	gzip on;
-
-
-	##
-	##
 
 	include /etc/nginx/conf.d/*.conf;
 	include /etc/nginx/sites-enabled/*;
 }
 
-
-#mail {
-#	# See sample authentication script at:
-#	# http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
-#	# auth_http localhost/auth.php;
-#	# pop3_capabilities "TOP" "USER";
-#	# imap_capabilities "IMAP4rev1" "UIDPLUS";
-#	server {
-#		listen     localhost:110;
-#		protocol   pop3;
-#		proxy      on;
-#	}
-#	server {
-#		listen     localhost:143;
-#		protocol   imap;
-#		proxy      on;
-#	}
-#}

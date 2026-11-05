@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * @var array<string, list<string|list<string>>>
-     */
     private const INDEXES = [
         'servers' => [['project_id', 'status']],
         'services' => [['server_id', 'type', 'is_default']],
@@ -62,9 +59,6 @@ return new class extends Migration
         }
     }
 
-    /**
-     * @param  list<string>  $columns
-     */
     private function name(string $table, array $columns): string
     {
         return $table.'_'.implode('_', $columns).'_idx';

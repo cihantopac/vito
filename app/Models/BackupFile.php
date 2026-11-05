@@ -153,18 +153,11 @@ class BackupFile extends AbstractModel
         );
     }
 
-
-    /**
-     * @return BelongsTo<Backup, $this>
-     */
     public function backup(): BelongsTo
     {
         return $this->belongsTo(Backup::class);
     }
 
-    /**
-     * @return BelongsTo<Server, $this>
-     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
@@ -211,7 +204,6 @@ class BackupFile extends AbstractModel
     public function path(?StorageProvider $storage = null): string
     {
         $storage ??= $this->backup->storage;
-
 
         $backupName = $this->backup->type === BackupType::FILE
             ? basename($this->backup->path)

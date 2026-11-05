@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 class EditSourceControl
 {
-    /** @param  array<string, mixed>  $input */
     public function edit(SourceControl $sourceControl, array $input, ?int $projectId): SourceControl
     {
         if ($sourceControl->isGithubApp()) {

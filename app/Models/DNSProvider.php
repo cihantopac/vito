@@ -15,7 +15,6 @@ class DNSProvider extends AbstractModel
     use HasFactory;
     use SoftDeletes;
 
-
     protected $table = 'dns_providers';
 
     protected $fillable = [
@@ -35,9 +34,6 @@ class DNSProvider extends AbstractModel
     ];
 
     
-    /**
-     * @return BelongsTo<User, $this>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -50,9 +46,6 @@ class DNSProvider extends AbstractModel
     }
 
     
-    /**
-     * @return HasMany<Domain, $this>
-     */
     public function domains(): HasMany
     {
         return $this->hasMany(Domain::class, 'dns_provider_id');
@@ -85,9 +78,6 @@ class DNSProvider extends AbstractModel
     }
 
     
-    /**
-     * @return BelongsTo<Project, $this>
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

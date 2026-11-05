@@ -26,7 +26,6 @@ use RuntimeException;
 
 class RestoreToNewServer
 {
-    /** @return array{database_size: ?int, storage_gb: ?int, measured: bool, cores: ?int, memory_gb: ?float, architecture: ?string, os: string, postgresql: ?string, source: string} */
     public function requirements(Backup $backup): array
     {
         return app(MatchingServer::class)->requirements(
