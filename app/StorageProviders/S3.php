@@ -40,7 +40,7 @@ class S3 extends AbstractStorageProvider implements ReportsConnectionErrors
                 $url = 'https://' . $url;
             }
 
-            return $url;
+            return rtrim($url, '/');
         }
 
         $region = $credentials['region'] ?? 'us-east-1';
@@ -50,14 +50,21 @@ class S3 extends AbstractStorageProvider implements ReportsConnectionErrors
 
     public function getClient(): S3Client
     {
-        return new S3Client($this->clientConfig);
+        return $this->client ??= new S3Client($this->clientConfig);
+    }
+
+    public function forgetCachedState(): void
+    {
+        $this->client = null;
+        $this->clientConfig = [];
+        $this->lastConnectionError = null;
     }
 
     public function buildClientConfig(?array $credentials = null): array
     {
         $credentials ??= $this->storageProvider->credentials;
 
-        $this->clientConfig = [
+        $config = [
             'credentials' => [
                 'key' => trim($credentials['key']),
                 'secret' => trim($credentials['secret']),
@@ -67,6 +74,11 @@ class S3 extends AbstractStorageProvider implements ReportsConnectionErrors
             'endpoint' => $this->getApiUrl($credentials),
             'use_path_style_endpoint' => true,
         ];
+
+        if ($config !== $this->clientConfig) {
+            $this->client = null;
+            $this->clientConfig = $config;
+        }
 
         return $this->clientConfig;
     }
@@ -151,7 +163,6 @@ class S3 extends AbstractStorageProvider implements ReportsConnectionErrors
         }
     }
 
-    /** @return list<string> */
     public function listBuckets(array $credentials): array
     {
         $this->lastConnectionError = null;

@@ -12,7 +12,6 @@ use Illuminate\Validation\ValidationException;
 
 class ImportS3Buckets
 {
-    /** @return list<string> */
     public function availableBuckets(array $input): array
     {
         $credentials = $this->credentials($input);
@@ -21,7 +20,6 @@ class ImportS3Buckets
         return $provider->listBuckets($credentials);
     }
 
-    /** @return array{created: list<string>, skipped: list<string>} */
     public function import(User $user, array $input, ?int $projectId): array
     {
         $credentials = $this->credentials($input);
@@ -40,13 +38,15 @@ class ImportS3Buckets
             ]);
         }
 
+        $endpoint = $provider->getApiUrl($credentials);
         $existingBuckets = StorageProvider::query()
             ->where('user_id', $user->id)
             ->where('provider', S3::id())
             ->when($projectId === null, fn ($query) => $query->whereNull('project_id'), fn ($query) => $query->where('project_id', $projectId))
-            ->get()
+            ->select(['id', 'provider', 'credentials'])
+            ->cursor()
             ->filter(fn (StorageProvider $storageProvider): bool =>
-                $storageProvider->provider()->getApiUrl() === $provider->getApiUrl($credentials)
+                $storageProvider->provider()->getApiUrl() === $endpoint
             )
             ->map(fn (StorageProvider $storageProvider) => $storageProvider->credentials['bucket'] ?? null)
             ->filter(fn (mixed $bucket): bool => is_string($bucket))
@@ -77,7 +77,6 @@ class ImportS3Buckets
         ];
     }
 
-    /** @return array{api_url: string, key: string, secret: string, region: string, bucket: string, path: string} */
     private function credentials(array $input): array
     {
         $data = Validator::make($input, [

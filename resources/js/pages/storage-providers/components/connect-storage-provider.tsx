@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler, ReactNode, useEffect, useState } from 'react';
+import { FormEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -108,6 +108,7 @@ export default function ConnectStorageProvider({
   const [loadingR2Buckets, setLoadingR2Buckets] = useState(false);
   const [importingR2Buckets, setImportingR2Buckets] = useState(false);
   const [r2Error, setR2Error] = useState<string | null>(null);
+  const bucketRequest = useRef(0);
 
   const configs = useConfigs()!;
   const csrfToken = usePage<SharedData>().props.csrf_token;
@@ -143,7 +144,16 @@ export default function ConnectStorageProvider({
     });
   };
 
+  useEffect(() => {
+    bucketRequest.current += 1;
+    setR2Buckets([]);
+    setSelectedR2Buckets([]);
+    setR2Error(null);
+    setLoadingR2Buckets(false);
+  }, [form.data.provider, form.data.api_url, form.data.key, form.data.secret, form.data.region, form.data.path, open]);
+
   const listR2Buckets = async () => {
+    const request = ++bucketRequest.current;
     setLoadingR2Buckets(true);
     setR2Error(null);
 
@@ -156,12 +166,13 @@ export default function ConnectStorageProvider({
         region: form.data.region,
         path: form.data.path,
       });
+      if (request !== bucketRequest.current) return;
       setR2Buckets(data.buckets);
       setSelectedR2Buckets(data.buckets);
     } catch (error) {
-      setR2Error(requestErrorMessage(error));
+      if (request === bucketRequest.current) setR2Error(requestErrorMessage(error));
     } finally {
-      setLoadingR2Buckets(false);
+      if (request === bucketRequest.current) setLoadingR2Buckets(false);
     }
   };
 

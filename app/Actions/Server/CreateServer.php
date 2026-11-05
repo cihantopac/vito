@@ -178,16 +178,15 @@ class CreateServer
     {
         if (
             ! isset($input['provider']) ||
-            ! isset($input['server_provider']) ||
-            ! config('server-provider.providers.'.$input['provider']) ||
-            in_array($input['provider'], [Custom::id(), Existing::id()])
+            (! in_array($input['provider'], [Custom::id(), Existing::id()]) && ! isset($input['server_provider'])) ||
+            ! config('server-provider.providers.'.$input['provider'])
         ) {
             return [];
         }
 
         $server = new Server([
             'provider' => $input['provider'],
-            'provider_id' => $input['server_provider'],
+            'provider_id' => $input['server_provider'] ?? null,
         ]);
 
         return $server->provider()->createRules($input);
