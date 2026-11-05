@@ -154,7 +154,7 @@ class EnsureSelfServerExists
             'branch' => $site->branch ?: $this->detectGitBranch(),
             'status' => SiteStatus::READY,
             'progress' => 100,
-            'user' => $server->getSshUser() ?: (string) config('core.ssh_user', 'vito'),
+            'user' => $site->user ?: (string) config('core.ssh_user', 'vito'),
             'force_ssl' => false,
             'ssl_enabled' => str_starts_with((string) config('app.url'), 'https://'),
             'vhost_generation_enabled' => false,
