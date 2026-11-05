@@ -45,6 +45,9 @@ class ImportS3Buckets
             ->where('provider', S3::id())
             ->when($projectId === null, fn ($query) => $query->whereNull('project_id'), fn ($query) => $query->where('project_id', $projectId))
             ->get()
+            ->filter(fn (StorageProvider $storageProvider): bool =>
+                $storageProvider->provider()->getApiUrl() === $provider->getApiUrl($credentials)
+            )
             ->map(fn (StorageProvider $storageProvider) => $storageProvider->credentials['bucket'] ?? null)
             ->filter(fn (mixed $bucket): bool => is_string($bucket))
             ->all();
@@ -61,13 +64,7 @@ class ImportS3Buckets
             ]);
             $storageProvider->credentials = [...$credentials, 'bucket' => $bucket];
 
-            $bucketProvider = new S3($storageProvider);
-
-            if (! $bucketProvider->connect($storageProvider->credentials)) {
-                throw ValidationException::withMessages([
-                    'provider' => $bucketProvider->connectionError() ?? __('Couldn\'t connect to the provider.'),
-                ]);
-            }
+            app(VerifyStorageConnection::class)->verify($storageProvider->provider(), $storageProvider->credentials);
 
             $storageProviders[] = $storageProvider;
         }

@@ -35,3 +35,31 @@ assertSameValue(
 );
 
 echo "PASS: S3 connection errors are safe and actionable.\n";
+
+$provider = new class(new App\Models\StorageProvider(['provider' => 's3'])) extends S3
+{
+    public bool $connected = true;
+
+    public function connect(array $credentials): bool
+    {
+        return $this->connected;
+    }
+
+    public function connectionError(): ?string
+    {
+        return 'Access was denied. Check the storage token permissions.';
+    }
+};
+
+$verification = new App\Actions\StorageProvider\VerifyStorageConnection;
+$verification->verify($provider, []);
+$provider->connected = false;
+
+try {
+    $verification->verify($provider, []);
+    throw new RuntimeException('Failed connections must block persistence.');
+} catch (Illuminate\Validation\ValidationException $e) {
+    assertSameValue($provider->connectionError(), $e->errors()['provider'][0], 'The provider error must reach form validation.');
+}
+
+echo "PASS: shared verification accepts valid connections and rejects failures with actionable errors.\n";

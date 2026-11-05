@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
-class S3 extends AbstractStorageProvider
+class S3 extends AbstractStorageProvider implements ReportsConnectionErrors
 {
     protected StorageProvider $storageProvider;
 

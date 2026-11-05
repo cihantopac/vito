@@ -10,6 +10,7 @@ use App\Actions\StorageProvider\ImportS3Buckets;
 use App\Http\Resources\StorageProviderResource;
 use App\Models\StorageProvider;
 use App\StorageProviders\S3;
+use App\StorageProviders\ReportsConnectionErrors;
 use App\Tables\StorageProviderTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -115,7 +116,7 @@ class StorageProviderController extends Controller
         } catch (Throwable $e) {
             Log::error('Failed to list S3 buckets', ['exception' => get_class($e)]);
 
-            return response()->json(['message' => $e->getMessage() ?: __('Couldn\'t connect to the provider.')], 422);
+            return response()->json(['message' => S3::connectionErrorMessage($e->getPrevious() ?? $e)], 422);
         }
     }
 
@@ -157,7 +158,7 @@ class StorageProviderController extends Controller
 
         return response()->json([
             'connected' => $connected,
-            'error' => ! $connected && method_exists($handler, 'connectionError') ? $handler->connectionError() : null,
+            'error' => ! $connected && $handler instanceof ReportsConnectionErrors ? $handler->connectionError() : null,
         ]);
     }
 
