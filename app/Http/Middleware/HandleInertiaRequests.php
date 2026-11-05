@@ -137,7 +137,7 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
-        if ($user && ! $request->route('server') && ! $request->route('network')) {
+        if ($user && $request->is('overview', 'servers', 'sites')) {
             $scope = session('project_scope.'.$user->id);
             if ($scope === 'all') {
                 $data['serverScope'] = 'all';
