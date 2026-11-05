@@ -249,7 +249,7 @@ class EnsureSelfServerExists
     private function ensureKeys(Server $server): void
     {
         $storageDisk = Storage::disk(config('core.key_pairs_disk'));
-        File::ensureDirectoryExists($storageDisk->path(''));
+        File::ensureDirectoryExists($storageDisk->path(''), 0700);
 
         $pairs = [
             storage_path(config('core.ssh_private_key_name')) => $storageDisk->path((string) $server->id),
@@ -259,6 +259,7 @@ class EnsureSelfServerExists
         foreach ($pairs as $source => $target) {
             if (! File::exists($target) && File::exists($source)) {
                 File::copy($source, $target);
+                File::chmod($target, str_ends_with($target, '.pub') ? 0644 : 0600);
             }
         }
     }
@@ -270,7 +271,7 @@ class EnsureSelfServerExists
             return;
         }
 
-        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? home_path((string) config('core.ssh_user', 'vito')));
+        $home = home_path((string) config('core.ssh_user', 'vito'));
         $sshDir = $home.'/.ssh';
         $authKeysPath = $sshDir.'/authorized_keys';
 
