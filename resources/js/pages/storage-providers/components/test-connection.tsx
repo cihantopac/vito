@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { LoaderCircleIcon } from 'lucide-react';
+import { requestErrorMessage } from '@/lib/request-error';
 
 export default function TestConnection({ storageProvider }: { storageProvider: StorageProvider }) {
   const [testing, setTesting] = useState(false);
@@ -17,8 +18,8 @@ export default function TestConnection({ storageProvider }: { storageProvider: S
       } else {
         toast.error(data.error || `Could not verify read/write access to "${storageProvider.name}".`);
       }
-    } catch {
-      toast.error(`Could not verify read/write access to "${storageProvider.name}".`);
+    } catch (error) {
+      toast.error(requestErrorMessage(error, `Could not verify read/write access to "${storageProvider.name}".`));
     } finally {
       setTesting(false);
     }

@@ -20,7 +20,7 @@ class EditStorageProvider
         $provider = $storageProvider->provider();
 
         $rules = array_merge(
-            ['name' => ['required']],
+            ['name' => ['required', 'string', 'max:255']],
             $provider->editValidationRules($input),
         );
 
@@ -51,5 +51,4 @@ class EditStorageProvider
 
         return $storageProvider;
     }
-
 }

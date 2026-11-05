@@ -37,6 +37,7 @@ import { useSocketListener } from '@/hooks/use-socket-events';
 import type { ServerRole } from '@/lib/server-roles';
 import Layout from '@/layouts/app/layout';
 import Container from '@/components/container';
+import { requestErrorMessage } from '@/lib/request-error';
 
 const STEPS = [
   { id: 'provider', label: 'Provider & Connection' },
@@ -252,7 +253,7 @@ export default function CreateServerPage({
   const [copiedKey, setCopiedKey] = useState(false);
   const [providers, setProviders] = useState<ServerProvider[]>(() => {
     if (Array.isArray(initialProviders)) return initialProviders;
-    if (initialProviders && Array.isArray((initialProviders as any).data)) return (initialProviders as any).data;
+    if (initialProviders && Array.isArray(initialProviders.data)) return initialProviders.data;
     return [];
   });
 
@@ -393,14 +394,14 @@ export default function CreateServerPage({
 
   const fetchServerProviders = async () => {
     try {
-      const response = await axios.get<ServerProvider[]>("/settings/server-providers/json");
-      const list = Array.isArray(response.data) ? response.data : (response.data as any)?.data || [];
+      const response = await axios.get<ServerProvider[] | { data?: ServerProvider[] }>("/settings/server-providers/json");
+      const list = Array.isArray(response.data) ? response.data : response.data.data || [];
       setProviders(list);
       if (list.length > 0 && form.data.server_provider === 0) {
         handleProviderSelect(list[0]);
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Could not fetch server providers');
+    } catch (error) {
+      toast.error(requestErrorMessage(error, 'Could not fetch server providers'));
     }
   };
 
@@ -410,8 +411,8 @@ export default function CreateServerPage({
         `/settings/server-providers/${serverProvider}/regions/${encodeURIComponent(String(region))}/plans`,
       );
       setPlans(res.data || {});
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Could not fetch plans');
+    } catch (error) {
+      toast.error(requestErrorMessage(error, 'Could not fetch plans'));
     }
   };
 
@@ -463,8 +464,8 @@ export default function CreateServerPage({
           void 0;
         }
       }
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Could not fetch regions from provider';
+    } catch (error) {
+      const msg = requestErrorMessage(error, 'Could not fetch regions from provider');
       setRegions({});
       setRegionsError(msg);
       toast.error(msg);

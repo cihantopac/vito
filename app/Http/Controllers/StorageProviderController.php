@@ -9,8 +9,8 @@ use App\Actions\StorageProvider\EditStorageProvider;
 use App\Actions\StorageProvider\ImportS3Buckets;
 use App\Http\Resources\StorageProviderResource;
 use App\Models\StorageProvider;
-use App\StorageProviders\S3;
 use App\StorageProviders\ReportsConnectionErrors;
+use App\StorageProviders\S3;
 use App\Tables\StorageProviderTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +33,6 @@ use Throwable;
 #[Middleware(['auth'])]
 class StorageProviderController extends Controller
 {
-
     #[Get('/', name: 'storage-providers')]
     public function index(): Response
     {

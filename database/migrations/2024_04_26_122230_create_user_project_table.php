@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    
     public function up(): void
     {
         Schema::create('user_project', function (Blueprint $table): void {
@@ -19,13 +18,13 @@ return new class extends Migration
         $now = now();
 
         DB::table('projects')->orderBy('id')->each(function (object $project) use ($now): void {
-            if (! $project->user_id || ! DB::table('users')->whereKey($project->user_id)->exists()) {
+            if (! $project->user_id || ! DB::table('users')->where('id', $project->user_id)->exists()) {
                 return;
             }
 
             DB::table('user_project')->updateOrInsert(
                 ['user_id' => $project->user_id, 'project_id' => $project->id],
-                ['role' => 'owner', 'created_at' => $now, 'updated_at' => $now],
+                ['created_at' => $now, 'updated_at' => $now],
             );
         });
 
@@ -45,17 +44,15 @@ return new class extends Migration
                 DB::table('user_project')->insert([
                     'user_id' => $user->id,
                     'project_id' => $projectId,
-                    'role' => 'owner',
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
             }
 
-            DB::table('users')->whereKey($user->id)->update(['current_project_id' => $projectId]);
+            DB::table('users')->where('id', $user->id)->update(['current_project_id' => $projectId]);
         });
     }
 
-    
     public function down(): void
     {
         Schema::dropIfExists('user_project');

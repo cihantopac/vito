@@ -2,9 +2,8 @@
 
 namespace App\Actions\Server;
 
-use Throwable;
-use App\Jobs\Server\InstallJob;
 use App\Enums\ServerRole;
+use App\Jobs\Server\InstallJob;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\ServerProvider;
@@ -17,12 +16,12 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class CreateServer
 {
     protected Server $server;
 
-    
     public function create(User $creator, Project $project, array $input): Server
     {
         $this->validate($project, $input);
@@ -61,19 +60,14 @@ class CreateServer
 
             $this->server->provider_data = $this->server->provider()->data($input);
 
-            
             $this->server->save();
 
-            
             $this->server->provider()->create();
 
-            
             $this->createServices($input);
 
-            
             dispatch(new InstallJob($this->server))->onQueue('ssh');
 
-            
             $this->server->refresh();
 
             return $this->server;
@@ -173,7 +167,6 @@ class CreateServer
             ->validate();
     }
 
-    
     private function providerRules(array $input): array
     {
         if (

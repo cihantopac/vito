@@ -33,7 +33,6 @@ class Blank extends AbstractProxiedSiteType
         return new self(new Site(['type' => self::id()]));
     }
 
-    
     public static function formFields(): array
     {
         $shared = parent::sharedFormFields();

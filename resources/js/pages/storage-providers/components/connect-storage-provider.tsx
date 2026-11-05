@@ -20,11 +20,12 @@ import InputError from '@/components/ui/input-error';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DynamicFieldConfig } from '@/types/dynamic-field-config';
+import { DynamicFieldConfig, DynamicFieldValue } from '@/types/dynamic-field-config';
 import DynamicField from '@/components/ui/dynamic-field';
 import { useConfigs } from '@/stores/bootstrap-store';
 import { SharedData } from '@/types';
 import { cn } from '@/lib/utils';
+import { requestErrorMessage } from '@/lib/request-error';
 
 type StorageProviderForm = {
   provider: string;
@@ -32,7 +33,7 @@ type StorageProviderForm = {
   global: boolean;
   app_key: string;
   app_secret: string;
-  [key: string]: any;
+  [key: string]: DynamicFieldValue;
 };
 
 const S3_PRESETS = [
@@ -79,17 +80,6 @@ const S3_PRESETS = [
 ];
 
 const OPTIONAL_FIELD_NAMES = ['path', 'port', 'ssl', 'passive'];
-
-function requestErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined;
-    const fieldError = data?.errors ? Object.values(data.errors).flat()[0] : undefined;
-
-    return fieldError || data?.message || 'Could not connect to the provider.';
-  }
-
-  return 'Could not connect to the provider.';
-}
 
 export default function ConnectStorageProvider({
   defaultProvider,

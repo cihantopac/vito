@@ -39,6 +39,8 @@ class CreateStorageProvider
             ],
             'name' => [
                 'required',
+                'string',
+                'max:255',
             ],
         ];
 
@@ -49,5 +51,4 @@ class CreateStorageProvider
 
         Validator::make($input, $rules)->validate();
     }
-
 }

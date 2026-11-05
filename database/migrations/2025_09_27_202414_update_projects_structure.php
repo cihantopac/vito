@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    
     public function up(): void
     {
         if (DB::getDriverName() === 'sqlite') {
@@ -38,7 +37,7 @@ return new class extends Migration
                 ->orderBy('membership.id')
                 ->select(['membership.id', 'users.email', 'users.is_admin'])
                 ->each(function (object $membership): void {
-                    DB::table('user_project')->whereKey($membership->id)->update([
+                    DB::table('user_project')->where('id', $membership->id)->update([
                         'email' => $membership->email,
                         'role' => $membership->is_admin ? 'owner' : 'user',
                     ]);
@@ -46,9 +45,5 @@ return new class extends Migration
         });
     }
 
-    
-    public function down(): void
-    {
-        
-    }
+    public function down(): void {}
 };

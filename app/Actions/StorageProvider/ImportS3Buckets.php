@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class ImportS3Buckets
 {
@@ -17,7 +18,7 @@ class ImportS3Buckets
         $credentials = $this->credentials($input);
         $provider = new S3(new StorageProvider(['provider' => S3::id()]));
 
-        return $provider->listBuckets($credentials);
+        return $this->listBuckets($provider, $credentials);
     }
 
     public function import(User $user, array $input, ?int $projectId): array
@@ -29,7 +30,7 @@ class ImportS3Buckets
         ])->validate()['buckets'];
 
         $provider = new S3(new StorageProvider(['provider' => S3::id()]));
-        $availableBuckets = $provider->listBuckets($credentials);
+        $availableBuckets = $this->listBuckets($provider, $credentials);
         $unknownBuckets = array_values(array_diff($buckets, $availableBuckets));
 
         if ($unknownBuckets !== []) {
@@ -45,8 +46,7 @@ class ImportS3Buckets
             ->when($projectId === null, fn ($query) => $query->whereNull('project_id'), fn ($query) => $query->where('project_id', $projectId))
             ->select(['id', 'provider', 'credentials'])
             ->cursor()
-            ->filter(fn (StorageProvider $storageProvider): bool =>
-                $storageProvider->provider()->getApiUrl() === $endpoint
+            ->filter(fn (StorageProvider $storageProvider): bool => $storageProvider->provider()->getApiUrl() === $endpoint
             )
             ->map(fn (StorageProvider $storageProvider) => $storageProvider->credentials['bucket'] ?? null)
             ->filter(fn (mixed $bucket): bool => is_string($bucket))
@@ -77,11 +77,22 @@ class ImportS3Buckets
         ];
     }
 
+    private function listBuckets(S3 $provider, array $credentials): array
+    {
+        try {
+            return $provider->listBuckets($credentials);
+        } catch (RuntimeException) {
+            throw ValidationException::withMessages([
+                'provider' => $provider->connectionError() ?? __('Couldn\'t connect to the provider.'),
+            ]);
+        }
+    }
+
     private function credentials(array $input): array
     {
         $data = Validator::make($input, [
             'name' => ['required', 'string', 'max:240'],
-            'api_url' => ['nullable', 'string', 'max:255'],
+            'api_url' => ['nullable', 'string', 'max:2048'],
             'key' => ['required', 'string', 'max:255'],
             'secret' => ['required', 'string', 'max:1000'],
             'region' => ['required', 'string', 'max:255'],
