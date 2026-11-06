@@ -101,7 +101,7 @@ const metricCell = (threshold: number) =>
     const numeric = typeof value === 'number' ? value : null;
 
     if (numeric === null) {
-      return <span className="text-muted-foreground text-xs">—</span>;
+      return <span className="text-muted-foreground text-xs" title="Cloud pricing is not linked or could not be verified.">—</span>;
     }
 
     return (
@@ -142,7 +142,7 @@ const costCell = ({ value }: CellRenderProps) => {
 
   return (
     <div className="flex flex-col">
-      <span className="font-mono text-sm font-medium">{cost.formatted}</span>
+      <span className="font-mono text-sm font-medium" title="Monthly server plan before VAT. IPv4, backups and other extras are not included.">{cost.formatted}</span>
       {cost.plan && (
         <span className="text-muted-foreground text-[11px]">
           {cost.plan}{cost.region ? ` · ${cost.region}` : ''}
