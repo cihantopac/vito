@@ -37,6 +37,11 @@ class Site extends AbstractModel
 
     use HasProjectThroughServer;
 
+    public function runtimeProcesses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(RuntimeProcess::class, 'runtime_process_site');
+    }
+
     protected $fillable = [
         'server_id',
         'isolated_user_id',

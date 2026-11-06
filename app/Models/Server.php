@@ -40,6 +40,11 @@ class Server extends AbstractModel
         'role' => ServerRole::APP->value,
     ];
 
+    public function runtimeProcesses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RuntimeProcess::class);
+    }
+
     protected $fillable = [
         'project_id',
         'user_id',
