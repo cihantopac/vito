@@ -40,6 +40,6 @@ class SiteResourcePolicy
     {
         return $resource->site_id === $site->id &&
             $site->server_id === $server->id &&
-            $this->hasOwnerAccess($user, $server->project);
+            $this->hasServerOwnerAccess($user, $server);
     }
 }

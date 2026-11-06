@@ -35,7 +35,7 @@ class DatabasePolicy
 
     public function browse(User $user, Database $database, Server $server): bool
     {
-        return $database->server_id === $server->id && $this->hasOwnerAccess($user, $server->project);
+        return $database->server_id === $server->id && $this->hasServerOwnerAccess($user, $server);
     }
 
     public function update(User $user, Database $database): bool
