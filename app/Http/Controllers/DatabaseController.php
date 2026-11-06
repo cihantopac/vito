@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Database\CreateDatabase;
+use App\Actions\Database\ListRegisteredContainerDatabases;
 use App\Actions\Database\BrowsePostgresDatabase;
 use App\Actions\Database\SyncDatabases;
 use App\Http\Resources\DatabaseResource;
@@ -52,6 +53,7 @@ class DatabaseController extends Controller
 
         return Inertia::render('databases/index', [
             'databases' => DatabaseTable::make($server->databases())->simplePaginate(),
+            'registeredDatabases' => app(ListRegisteredContainerDatabases::class)->get($server, user()),
         ]);
     }
 

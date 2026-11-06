@@ -118,19 +118,19 @@ export default function ServerLayout({ children }: { children: ReactNode }) {
       flyoutContent: <RecentSitesFlyout server={server} />,
     },
     {
-      title: server.counts?.databases !== undefined ? `Databases (${server.counts.databases})` : 'Databases',
+      title: services['database'] && server.counts?.databases !== undefined ? `Databases (${server.counts.databases})` : 'Databases',
       href: `/servers/${serverId}/database`,
       icon: DatabaseIcon,
       isDisabled: isMenuDisabled,
-      hidden: !services['database'],
       children: [
         {
-          title: server.counts?.databases !== undefined ? `Databases (${server.counts.databases})` : 'Databases',
+          title: services['database'] && server.counts?.databases !== undefined ? `Databases (${server.counts.databases})` : 'Databases',
           href: `/servers/${serverId}/database`,
           onlyActivePath: `/servers/${serverId}/database`,
           icon: DatabaseIcon,
         },
         {
+          hidden: !services['database'],
           title: server.counts?.database_users !== undefined ? `Database users (${server.counts.database_users})` : 'Database users',
           href: `/servers/${serverId}/database/users`,
           icon: UsersIcon,
