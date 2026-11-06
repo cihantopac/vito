@@ -167,7 +167,7 @@ class EnsureSelfServerExists
         ])->saveQuietly();
 
         $defaultScriptContent = implode("\n", [
-            'git pull origin $BRANCH',
+            'git pull --ff-only origin "$BRANCH"',
             'composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev',
             'php artisan vito',
         ]);
@@ -178,7 +178,8 @@ class EnsureSelfServerExists
         );
 
         $currentContent = trim((string) $script->content);
-        if ($currentContent === '' || str_starts_with($currentContent, "git pull\nphp artisan vito")) {
+        $previousDefault = str_replace('git pull --ff-only origin "$BRANCH"', 'git pull origin $BRANCH', $defaultScriptContent);
+        if ($currentContent === '' || $currentContent === $previousDefault || str_starts_with($currentContent, "git pull\nphp artisan vito")) {
             $script->update(['content' => $defaultScriptContent, 'configs' => ['restart_workers' => false]]);
         }
 
