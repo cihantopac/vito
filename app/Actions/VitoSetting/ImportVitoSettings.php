@@ -225,6 +225,22 @@ class ImportVitoSettings
             $this->invalid();
         }
 
+        $columns = $database->query('PRAGMA table_info(servers)')->fetchAll(PDO::FETCH_COLUMN, 1);
+        if (in_array('authentication', $columns, true)) {
+            $encrypter = new Encrypter($applicationKey, config('app.cipher'));
+            $previousKeys = array_filter(explode(',', $environment['APP_PREVIOUS_KEYS'] ?? ''));
+            $previousKeys = array_map(fn (string $key): string => str_starts_with($key, 'base64:') ? (string) base64_decode(substr($key, 7), true) : $key, $previousKeys);
+            $encrypter->previousKeys($previousKeys);
+            $credentials = $database->query('SELECT authentication FROM servers WHERE authentication IS NOT NULL');
+            try {
+                while (($value = $credentials->fetchColumn()) !== false) {
+                    $encrypter->decryptString($value);
+                }
+            } catch (\Exception) {
+                $this->invalid();
+            }
+        }
+
         $serverIds = $database->query('SELECT id FROM servers')->fetchAll(PDO::FETCH_COLUMN);
         foreach ($serverIds as $id) {
             $private = $to.'/key-pairs/'.$id;
