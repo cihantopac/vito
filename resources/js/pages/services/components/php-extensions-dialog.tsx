@@ -9,6 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import InputError from '@/components/ui/input-error';
 import { useConfigs } from '@/stores/bootstrap-store';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { Badge } from '@/components/ui/badge';
 
 export default function PhpExtensionsDialog({
   open,
@@ -28,6 +31,17 @@ export default function PhpExtensionsDialog({
     version: service.version,
   });
   const [, php] = Object.entries(configs.service.services).filter(([key]) => key === 'php')[0] ?? [];
+  const query = useQuery({
+    queryKey: ['php.extensions', service.server_id, service.id],
+    queryFn: async () => {
+      const response = await axios.get<{ extensions: string[] }>(`/servers/${service.server_id}/php/${service.id}/extensions`);
+      return response.data.extensions;
+    },
+    enabled: open,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const installedExtensions = query.data ?? [];
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -56,16 +70,33 @@ export default function PhpExtensionsDialog({
         <Form id="install-extension-form" className="p-4" onSubmit={submit}>
           <FormFields>
             <FormField>
+              <Label>Installed extensions</Label>
+              {query.isPending ? (
+                <p role="status" className="text-sm text-muted-foreground">Loading installed extensions…</p>
+              ) : query.isError ? (
+                <div role="alert" className="flex items-center gap-2">
+                  <p className="text-sm text-destructive">Could not load installed extensions.</p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
+                    Retry
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex max-h-48 flex-wrap gap-2 overflow-y-auto">
+                  {installedExtensions.map((extension) => <Badge key={extension} variant="secondary">{extension}</Badge>)}
+                </div>
+              )}
+            </FormField>
+            <FormField>
               <Label htmlFor="extension">Extension</Label>
-              <Select value={form.data.extension} onValueChange={(value) => form.setData('extension', value)}>
+              <Select value={form.data.extension} onValueChange={(value) => form.setData('extension', value)} disabled={!query.isSuccess}>
                 <SelectTrigger id="extension">
                   <SelectValue placeholder="Select an extension" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {availableExtensions.map((extension: string) => (
-                      <SelectItem key={`extension-${extension}`} value={extension} disabled={service.type_data?.extensions?.includes(extension)}>
-                        {extension} {service.type_data?.extensions?.includes(extension) && <span>(installed)</span>}
+                      <SelectItem key={`extension-${extension}`} value={extension} disabled={installedExtensions.includes(extension) || service.type_data?.extensions?.includes(extension)}>
+                        {extension} {installedExtensions.includes(extension) && <span>(installed)</span>}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -79,7 +110,7 @@ export default function PhpExtensionsDialog({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button form="install-extension-form" type="submit" disabled={form.processing} className="ml-2">
+          <Button form="install-extension-form" type="submit" disabled={form.processing || !query.isSuccess || !form.data.extension || installedExtensions.includes(form.data.extension)} className="ml-2">
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             Install
           </Button>
