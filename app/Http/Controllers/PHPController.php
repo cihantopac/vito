@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\PHP\ChangeDefaultCli;
+use App\Actions\PHP\GetPHPExtensions;
 use App\Actions\PHP\GetPHPIni;
 use App\Actions\PHP\InstallPHPExtension;
 use App\Actions\PHP\UpdatePHPIni;
@@ -21,6 +22,16 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 #[Middleware(['auth', 'has-project'])]
 class PHPController extends Controller
 {
+
+    #[Get('/{service}/extensions', name: 'php.extensions')]
+    public function extensions(Server $server, Service $service): JsonResponse
+    {
+        $this->authorize('view', [$service, $server]);
+
+        return response()->json([
+            'extensions' => app(GetPHPExtensions::class)->handle($service),
+        ]);
+    }
 
     #[Get('/{service}/ini', name: 'php.ini')]
     public function ini(Request $request, Server $server, Service $service): JsonResponse
