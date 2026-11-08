@@ -36,7 +36,7 @@ const nameCell = ({ row, value }: CellRenderProps) => {
   const isFailed = status === 'installation_failed';
   const isSelf = Boolean(row.is_self);
   const id = row.id as number;
-  const name = isSelf ? 'Pure server' : String(value || row.name || '');
+  const name = String(value || row.name || '');
   const sitesCount = typeof row.sites_count === 'number' ? row.sites_count : 0;
 
   return (
