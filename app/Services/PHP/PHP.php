@@ -66,6 +66,7 @@ class PHP extends AbstractService implements HasLogs
                 view('ssh.services.php.install-php', [
                     'version' => $this->service->version,
                     'user' => $server->getSshUser(),
+                    'useSury' => version_compare($server->os->getVersion(), '26.04', '>='),
                 ]),
                 'install-php-'.$this->service->version
             );

@@ -70,7 +70,7 @@ class BackupFile extends AbstractModel
 
             $backup->files()
                 ->where('id', '<', $oldestKept->id)
-                ->whereNotIn('status', [BackupFileStatus::CREATING, BackupFileStatus::DELETING, BackupFileStatus::RESTORING])
+                ->whereNotIn('status', [BackupFileStatus::CREATING, BackupFileStatus::DELETING, BackupFileStatus::DELETE_FAILED, BackupFileStatus::RESTORING])
                 ->get()
                 ->each(fn (BackupFile $file) => app(ManageBackupFile::class)->delete($file));
         });
