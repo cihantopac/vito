@@ -40,7 +40,7 @@ class SiteCiController extends Controller
             ] : null,
             'canConfigure' => $canConfigure,
             'canRun' => $request->user()->can('run', [CiRunner::class, $site, $server]),
-            'runnerServers' => $canConfigure ? Server::query()->where('is_self', false)->where('status', 'ready')->orderBy('name')->get(['id', 'name'])->map->only(['id', 'name'])->values() : [],
+            'runnerServers' => $canConfigure ? Server::query()->with('project')->where('is_self', false)->where('status', 'ready')->orderBy('name')->get(['id', 'name', 'project_id', 'is_self', 'status'])->filter(fn (Server $candidate): bool => $request->user()->can('update', $candidate))->map->only(['id', 'name'])->values() : [],
         ]);
     }
 
@@ -48,6 +48,8 @@ class SiteCiController extends Controller
     public function configure(Request $request, Server $server, Site $site): JsonResponse
     {
         $this->authorize('configure', [CiRunner::class, $site, $server]);
+        $target = $request->validate(['server_id' => ['required', 'integer']]);
+        $this->authorize('update', Server::query()->findOrFail($target['server_id']));
         app(ConfigureCiRunner::class)->configure($site, $request->all());
 
         return response()->json(['message' => __('CI runner connected.')])->header('Cache-Control', 'private, no-store');
