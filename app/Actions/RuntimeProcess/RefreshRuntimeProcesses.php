@@ -5,6 +5,7 @@ namespace App\Actions\RuntimeProcess;
 use App\Enums\RuntimeProcessStatus;
 use App\Models\RuntimeProcess;
 use App\Models\Server;
+use App\Services\RuntimeProcess\RuntimeCommand;
 use Illuminate\Support\Collection;
 use Throwable;
 
@@ -13,9 +14,9 @@ class RefreshRuntimeProcesses
     public function refresh(Server $server): void
     {
         $processes = RuntimeProcess::query()->where('server_id', $server->id)->get();
-        foreach ($processes->groupBy('driver') as $driver => $group) {
+        foreach ($processes->groupBy(fn (RuntimeProcess $process): string => $process->driver.':'.$process->unix_user) as $group) {
             try {
-                $states = $this->read($server, $driver, $group);
+                $states = $this->read($server, $group->first()->driver, $group, $group->first()->unix_user);
                 foreach ($group as $process) {
                     $state = $states[$process->runtime_name] ?? ['status' => RuntimeProcessStatus::UNKNOWN, 'details' => []];
                     $process->update([...$state, 'last_checked_at' => now()]);
@@ -32,20 +33,25 @@ class RefreshRuntimeProcesses
         }
     }
 
-    private function read(Server $server, string $driver, Collection $processes): array
+    private function read(Server $server, string $driver, Collection $processes, string $user): array
     {
+        $commands = app(RuntimeCommand::class);
+        foreach ($processes as $process) {
+            $commands->validateName($driver, $process->runtime_name);
+        }
+        $prefix = $commands->prefix($server, $driver, $user);
         $ssh = $server->ssh()->clearLog();
-        if ($driver === 'systemd') {
+        if (in_array($driver, ['systemd', 'systemd_user'], true)) {
             $names = $processes->map(fn (RuntimeProcess $process): string => escapeshellarg($process->runtime_name))->implode(' ');
-            $output = $ssh->exec('sudo -n systemctl show '.$names.' -p Id -p LoadState -p ActiveState -p SubState -p UnitFileState -p MainPID -p LastTriggerUSec -p NextElapseUSecRealtime');
+            $output = $ssh->exec($prefix.' show '.$names.' -p Id -p LoadState -p ActiveState -p SubState -p UnitFileState -p MainPID -p LastTriggerUSec -p NextElapseUSecRealtime', timeout: 20, outputLimit: 1048576);
 
             return $this->parseSystemd($output);
         }
-        if ($driver === 'docker') {
-            return $this->parseDocker($ssh->exec("sudo -n docker ps -a --format '{{.Names}}|{{.State}}|{{.Status}}'"));
+        if (in_array($driver, ['docker', 'rootless_docker'], true)) {
+            return $this->parseDocker($ssh->exec($prefix." ps -a --format '{{.Names}}|{{.State}}|{{.Status}}'", timeout: 20, outputLimit: 1048576));
         }
         if ($driver === 'supervisor') {
-            return $this->parseSupervisor($ssh->exec('sudo -n supervisorctl status || test "$?" -eq 3'));
+            return $this->parseSupervisor($ssh->exec($prefix.' status || test "$?" -eq 3', timeout: 20, outputLimit: 1048576));
         }
 
         return [];

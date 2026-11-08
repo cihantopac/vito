@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\RuntimeProcess\ControlRuntimeProcessJob;
-use App\Enums\RuntimeProcessStatus;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use App\Actions\RuntimeProcess\RegisterRuntimeProcess;
+use App\Enums\RuntimeProcessStatus;
 use App\Http\Resources\RuntimeProcessResource;
+use App\Jobs\RuntimeProcess\ControlRuntimeProcessJob;
 use App\Jobs\RuntimeProcess\RefreshRuntimeProcessesJob;
 use App\Models\RuntimeProcess;
 use App\Models\Server;
@@ -16,6 +13,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Delete;
@@ -49,10 +49,13 @@ class RuntimeProcessController extends Controller
             $query->where('kind', $filters['kind']);
         }
 
+        $canManage = Gate::allows('create', [RuntimeProcess::class, $server]);
+
         return response()->json([
             'processes' => RuntimeProcessResource::collection($query->orderBy('kind')->orderBy('label')->limit(500)->get()),
             'sites' => $server->sites()->orderBy('domain')->get(['id', 'domain']),
-            'can_manage' => Gate::allows('create', [RuntimeProcess::class, $server]),
+            'can_manage' => $canManage,
+            'isolated_users' => $canManage ? $server->isolatedUsers()->orderBy('username')->pluck('username') : [],
         ])->header('Cache-Control', 'no-store, private');
     }
 

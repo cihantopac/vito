@@ -13,6 +13,7 @@ class RuntimeProcessResource extends JsonResource
             'id' => $this->id,
             'label' => $this->label,
             'driver' => $this->driver,
+            'unix_user' => $this->unix_user,
             'runtime_name' => $this->runtime_name,
             'kind' => $this->kind,
             'status' => $this->status->value,

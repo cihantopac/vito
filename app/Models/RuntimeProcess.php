@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class RuntimeProcess extends AbstractModel
 {
-    protected $fillable = ['server_id', 'label', 'driver', 'runtime_name', 'kind', 'status', 'details', 'last_checked_at'];
+    protected $fillable = ['server_id', 'label', 'driver', 'unix_user', 'runtime_name', 'kind', 'status', 'details', 'last_checked_at'];
+
+    protected $attributes = ['unix_user' => ''];
 
     protected $casts = [
         'server_id' => 'integer',
