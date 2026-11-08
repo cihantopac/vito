@@ -82,12 +82,7 @@ const statusCell = ({ row, value }: CellRenderProps) => {
 const durationCell = ({ row }: CellRenderProps) => {
   const deployment = row as unknown as Deployment;
   if (deployment.status === 'deploying') {
-    return (
-      <span className="text-warning text-xs font-mono inline-flex items-center gap-1">
-        <LoaderCircleIcon className="size-3 animate-spin" />
-        <span>Running</span>
-      </span>
-    );
+    return <span className="text-warning text-xs font-mono">Running</span>;
   }
 
   if (deployment.formatted_duration) {
