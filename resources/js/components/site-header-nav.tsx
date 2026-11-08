@@ -31,6 +31,7 @@ function buildPrimaryItems(server: Server, site: Site): SiteNavItem[] {
     { title: 'Topology', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/topology` },
     { title: 'Resources', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/resources`, count: site.counts?.resources ?? 0 },
     { title: 'Domains', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/domains`, count: site.counts?.domains ?? 0 },
+    { title: 'CI', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/ci` },
     { title: 'Commands', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/commands`, count: site.counts?.commands ?? 0 },
     { title: 'Workers', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/workers`, count: site.counts?.workers ?? 0 },
     { title: 'Settings', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/settings` },
