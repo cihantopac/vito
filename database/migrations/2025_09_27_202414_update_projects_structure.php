@@ -1,5 +1,10 @@
 <?php
 
+use App\Enums\UserRole;
+use App\Models\Project;
+use App\Models\User;
+use App\Models\UserProject;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -19,29 +24,25 @@ return new class extends Migration
             $table->string('role')->after('project_id')->default('user');
         });
 
-        $now = now();
-        $admins = DB::table('users')->where('is_admin', true)->get(['id', 'email']);
+        Model::withoutEvents(function (): void {
+            $admins = User::query()->where('is_admin', true)->get(['id', 'email']);
 
-        DB::table('projects')->orderBy('id')->each(function (object $project) use ($admins, $now): void {
-            foreach ($admins as $admin) {
-                DB::table('user_project')->updateOrInsert(
-                    ['user_id' => $admin->id, 'project_id' => $project->id],
-                    ['email' => $admin->email, 'role' => 'owner', 'created_at' => $now, 'updated_at' => $now],
-                );
-            }
+            Project::withoutGlobalScopes()->select('id')->each(function (Project $project) use ($admins): void {
+                foreach ($admins as $admin) {
+                    $project->users()->updateOrCreate(
+                        ['user_id' => $admin->id],
+                        ['email' => $admin->email, 'role' => UserRole::OWNER],
+                    );
+                }
 
-            DB::table('user_project as membership')
-                ->leftJoin('users', 'users.id', '=', 'membership.user_id')
-                ->where('membership.project_id', $project->id)
-                ->whereNotNull('membership.user_id')
-                ->orderBy('membership.id')
-                ->select(['membership.id', 'users.email', 'users.is_admin'])
-                ->each(function (object $membership): void {
-                    DB::table('user_project')->where('id', $membership->id)->update([
-                        'email' => $membership->email,
-                        'role' => $membership->is_admin ? 'owner' : 'user',
-                    ]);
-                });
+                $project->users()->with('user:id,email,is_admin')->whereNotNull('user_id')
+                    ->each(function (UserProject $membership): void {
+                        $membership->forceFill([
+                            'email' => $membership->user?->email,
+                            'role' => $membership->user?->is_admin ? UserRole::OWNER : UserRole::USER,
+                        ])->save();
+                    });
+            });
         });
     }
 

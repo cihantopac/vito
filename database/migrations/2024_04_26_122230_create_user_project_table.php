@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,41 +17,25 @@ return new class extends Migration
             $table->unsignedBigInteger('project_id');
             $table->timestamps();
         });
-        $now = now();
+        Model::withoutEvents(function (): void {
+            Project::withoutGlobalScopes()->select(['id', 'user_id'])->each(function (Project $project): void {
+                if ($project->user_id && User::query()->whereKey($project->user_id)->exists()) {
+                    $project->users()->firstOrCreate(['user_id' => $project->user_id]);
+                }
+            });
 
-        DB::table('projects')->orderBy('id')->each(function (object $project) use ($now): void {
-            if (! $project->user_id || ! DB::table('users')->where('id', $project->user_id)->exists()) {
-                return;
-            }
+            User::query()->select('id')->each(function (User $user): void {
+                $projectId = $user->projectMemberships()->orderBy('id')->value('project_id');
 
-            DB::table('user_project')->updateOrInsert(
-                ['user_id' => $project->user_id, 'project_id' => $project->id],
-                ['created_at' => $now, 'updated_at' => $now],
-            );
-        });
+                if (! $projectId) {
+                    $project = new Project;
+                    $project->forceFill(['user_id' => $user->id, 'name' => 'default'])->save();
+                    $project->users()->create(['user_id' => $user->id]);
+                    $projectId = $project->id;
+                }
 
-        DB::table('users')->orderBy('id')->each(function (object $user) use ($now): void {
-            $projectId = DB::table('user_project')
-                ->where('user_id', $user->id)
-                ->value('project_id');
-
-            if (! $projectId) {
-                $projectId = DB::table('projects')->insertGetId([
-                    'user_id' => $user->id,
-                    'name' => 'default',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-
-                DB::table('user_project')->insert([
-                    'user_id' => $user->id,
-                    'project_id' => $projectId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-            }
-
-            DB::table('users')->where('id', $user->id)->update(['current_project_id' => $projectId]);
+                $user->forceFill(['current_project_id' => $projectId])->save();
+            });
         });
     }
 
