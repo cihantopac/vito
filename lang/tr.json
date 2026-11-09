@@ -3242,5 +3242,19 @@
   "Backup monitoring needs attention on :server": ":server sunucusunda yedek izleme kontrol gerektiriyor",
   "Backup monitoring recovered on :server": ":server sunucusunda yedek izleme normale döndü",
   "Backup monitor :label on server [:server] reports :status.": "[:server] sunucusundaki :label yedek izleyicisinin durumu: :status.",
-  "View backup monitoring": "Yedek izlemeyi görüntüle"
+  "View backup monitoring": "Yedek izlemeyi görüntüle",
+  "Detected server certificates": "Sunucuda bulunan sertifikalar",
+  "Read-only certificate expiry from the current Nginx configuration. Existing renewal services stay responsible; this view does not install or renew certificates. Results are cached for ten minutes.": "Mevcut Nginx yapılandırmasındaki sertifikaların sürelerini gösterir. Yenilemeyi mevcut servisler yapar; bu ekran sertifika kurmaz veya yenilemez. Sonuçlar on dakika önbellekte tutulur.",
+  "Inspecting existing certificates...": "Mevcut sertifikalar kontrol ediliyor...",
+  "Certificate inspection failed. Check SSH access and Nginx or Mailcow configuration, then retry.": "Sertifikalar kontrol edilemedi. SSH erişimi ile Nginx veya Mailcow yapılandırmasını kontrol edip tekrar deneyin.",
+  "Certificate discovery is incomplete. Some configured certificates could not be inspected; do not treat this list as complete.": "Sertifika taraması eksik. Yapılandırılmış bazı sertifikalar kontrol edilemedi; bu liste tüm sertifikaları kapsamıyor.",
+  "No certificates were detected in the current configuration.": "Mevcut yapılandırmada sertifika bulunamadı.",
+  "Registered in Vito": "Vito’da kayıtlı",
+  "Managed outside Vito": "Vito dışında yönetiliyor",
+  "Days remaining": "Kalan gün",
+  "not-yet-valid": "Henüz geçerli değil",
+  "The certificate inventory is invalid.": "Sertifika envanteri geçersiz.",
+  "valid": "Geçerli",
+  "expired": "Süresi dolmuş",
+  "expiring": "Süresi yaklaşıyor"
 }
