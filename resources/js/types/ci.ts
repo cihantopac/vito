@@ -14,6 +14,7 @@ export type CiRun = {
   exit_code: number | null;
   created_at: number | null;
   finished_at: number | null;
+  failure_reason?: string | null;
   local_stack_mode: 'fake' | 'real' | null;
   stages: CiStage[];
 };

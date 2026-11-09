@@ -45,9 +45,24 @@ class CiRunData
             ...Arr::only($run, ['run_id', 'ref', 'sha', 'status', 'exit_code']),
             'created_at' => $this->number($run['created_at'] ?? null),
             'finished_at' => $this->number($run['finished_at'] ?? null),
+            'failure_reason' => $status === 'infrastructure_error' ? $this->failureReason($run['error_code'] ?? null) : null,
             'stages' => $stages,
             'local_stack_mode' => in_array($run['local_stack_mode'] ?? null, ['fake', 'real'], true) ? $run['local_stack_mode'] : null,
         ];
+    }
+
+    private function failureReason(mixed $code): ?string
+    {
+        return match ($code) {
+            'cache_measurement_unavailable' => __('CI cache usage could not be measured. Check the worker disk measurement before retrying.'),
+            'disk_capacity' => __('The CI worker reached its disk or cache limit. Clean up unused CI caches before retrying.'),
+            'command_timeout' => __('A CI command reached its time limit. Inspect the stage log before retrying.'),
+            'container_runtime_or_memory' => __('A CI container could not complete because of a runtime or memory limit error. Inspect the worker and stage log.'),
+            'workflow_profile_changed' => __('The repository workflow changed. Update the runner profile before retrying.'),
+            'dependency_access' => __('CI could not download dependencies. Check package credentials and the worker network.'),
+            'worker_role' => __('The CI worker role could not be verified. Check the worker before running CI.'),
+            default => null,
+        };
     }
 
     private function number(mixed $value): ?float
