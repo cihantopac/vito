@@ -1,3 +1,5 @@
+import BackupMonitors from '@/pages/backups/components/backup-monitors';
+import type { BackupMonitor, BackupMonitorServer } from '@/types/backup-monitor';
 import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -20,6 +22,8 @@ import type { InertiaTableData, Row } from '@forjedio/inertia-table-react';
 type Page = {
   server?: Server;
   backups: InertiaTableData;
+  backupMonitors?: BackupMonitor[];
+  monitorServers?: BackupMonitorServer[];
   attention: { id: number; server_id: number; title: string; problems: string[] }[];
   hasNotificationChannels: boolean;
   replicaOf?: { server_id: number; name: string | null; backup_id: number | null } | null;
@@ -39,7 +43,8 @@ export default function Backups() {
       <Container>
         <HeaderContainer>
           <Heading title={translateText('Backups')} />
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {!!page.props.monitorServers?.length && <Button variant="outline" onClick={() => dialog.backupMonitorCreate.open({ servers: page.props.monitorServers ?? [], serverId: page.props.server?.id })}>{translateText('Monitor existing backup')}</Button>}
             <Button onClick={() => dialog.backupCreate.open({ server: page.props.server })}>
               <PlusIcon />
               <span className="hidden lg:block">{translateText('Create')}</span>
@@ -73,6 +78,9 @@ export default function Backups() {
           hasNotificationChannels={page.props.hasNotificationChannels}
         />
 
+        <BackupMonitors monitors={page.props.backupMonitors ?? []} />
+
+        {!!page.props.backupMonitors?.length && <h3 className="text-lg font-semibold">{translateText('Native backup jobs')}</h3>}
         <VitoTable
           tableData={page.props.backups}
           actions={(row: Row) => <BackupActions backup={asRow<{ resource: Backup }>(row, ['resource']).resource} />}
