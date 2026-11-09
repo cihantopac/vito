@@ -8,6 +8,7 @@ import { Link, useForm } from '@inertiajs/react';
 import { useDialog } from '@/hooks/use-dialog';
 
 function CheckForUpdates({ server }: { server: Server }) {
+  const translateText = useTranslate();
   const form = useForm();
 
   const submit = () => {
@@ -23,7 +24,7 @@ function CheckForUpdates({ server }: { server: Server }) {
       }}
     >
       {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-      Check for updates
+      {translateText("Check for updates")}
     </DropdownMenuItem>
   );
 }
@@ -62,7 +63,7 @@ export default function ServerActions({
   size = 'sm',
   className,
 }: ServerActionsProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const canPowerManage = server.can_power_manage === true;
   const isDisconnected = server.status === 'disconnected';
@@ -72,7 +73,7 @@ export default function ServerActions({
       <DropdownMenuTrigger asChild>
         <Button variant={variant} size={size} className={className ?? 'gap-1 cursor-pointer'}>
           <MoreVerticalIcon className="size-3 text-muted-foreground" />
-          <span>{t('Server actions')}</span>
+          <span>{translateText('Server actions')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
@@ -100,7 +101,7 @@ export default function ServerActions({
         <DropdownMenuItem asChild>
           <Link href={withQuery(`/servers/${server.id}/restart`, { start: 1 })} className="flex items-center w-full cursor-pointer">
             <RefreshCwIcon className="size-4 mr-2" />
-            {t('Restart')}
+            {translateText('Restart')}
           </Link>
         </DropdownMenuItem>
 

@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import { ToolingDescriptor } from '@/types';
 
 export default function SiteTooling() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{ server: Server; site: Site } & SiteToolingProps>();
   const site = useRealtimeRecord<Site>(page.props.site, 'site')!;
 
@@ -63,7 +63,7 @@ export default function SiteTooling() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Tooling')} description={`Manage developer tooling installed for isolated user ${isolated_user}.`} />
+          <Heading title={translateText('Tooling')} description={`Manage developer tooling installed for isolated user ${isolated_user}.`} />
         </HeaderContainer>
 
         <SiteBanners site={site} />

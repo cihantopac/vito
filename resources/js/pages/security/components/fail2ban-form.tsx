@@ -21,7 +21,7 @@ export default function Fail2banForm({
   serverId: number;
   fail2ban?: Service | null;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const data = (fail2ban?.type_data ?? {}) as Record<string, string | number>;
   const isInstalled = !!fail2ban;
 
@@ -101,7 +101,7 @@ export default function Fail2banForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           <Button form="fail2ban-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

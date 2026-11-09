@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,10 +33,11 @@ export function buildSchedule({ frequency, time, weekday }: Parsed): string {
 }
 
 export default function ScheduleBuilder({ value, onChange }: { value: Parsed; onChange: (next: Parsed) => void }) {
+  const translateText = useTranslate();
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="frequency">Frequency</Label>
+        <Label htmlFor="frequency">{translateText("Frequency")}</Label>
         <Select value={value.frequency} onValueChange={(frequency) => onChange({ ...value, frequency: frequency as Parsed['frequency'] })}>
           <SelectTrigger id="frequency" className="w-full">
             <SelectValue />

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Domain } from '@/types/domain';
 
 export default function SyncRecords({ domain }: { domain: Domain }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm();
 
@@ -24,22 +24,22 @@ export default function SyncRecords({ domain }: { domain: Domain }) {
       <DialogTrigger asChild>
         <Button variant="outline">
           <RefreshCwIcon />
-          <span className="hidden lg:block">{t('Sync')}</span>
+          <span className="hidden lg:block">{translateText('Sync')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Sync DNS Records</DialogTitle>
-          <DialogDescription className="sr-only">Sync DNS records from the DNS provider to Pure.</DialogDescription>
+          <DialogTitle>{translateText("Sync DNS Records")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Sync DNS records from the DNS provider to Pure.")}</DialogDescription>
         </DialogHeader>
-        <p className="p-4">This will delete the copy of the DNS records in vito and fetch them again from the provider</p>
+        <p className="p-4">{translateText("This will delete the copy of the DNS records in vito and fetch them again from the provider")}</p>
         <DialogFooter>
           <DialogTrigger asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogTrigger>
           <Button disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Sync')}
+            {translateText('Sync')}
           </Button>
         </DialogFooter>
       </DialogContent>

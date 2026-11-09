@@ -35,7 +35,7 @@ function Action({ type, cronJob }: { type: 'enable' | 'disable'; cronJob: CronJo
 }
 
 function Delete({ cronJob }: { cronJob: CronJob; site?: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -52,13 +52,13 @@ function Delete({ cronJob }: { cronJob: CronJob; site?: Site }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }
 
 function Actions({ cronJob, site }: { cronJob: CronJob; site?: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const runForm = useForm();
   const showUrl = getCronJobUrl(cronJob, site);
@@ -77,13 +77,13 @@ function Actions({ cronJob, site }: { cronJob: CronJob; site?: Site }) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={runCronJob} disabled={runForm.processing}>
             {runForm.processing ? <LoaderCircleIcon className="animate-spin" /> : <PlayIcon />}
-            {t('Run now')}
+            {translateText('Run now')}
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={showUrl}><Clock3Icon />{t('View logs')}</Link>
+            <Link href={showUrl}><Clock3Icon />{translateText('View logs')}</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => dialog.cronjobForm.open({ serverId: cronJob.server_id, site, cronJob })}>{t('Edit')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => dialog.cronjobForm.open({ serverId: cronJob.server_id, site, cronJob })}>{translateText('Edit')}</DropdownMenuItem>
           {cronJob.status === 'disabled' && <Action type="enable" cronJob={cronJob} site={site} />}
           {cronJob.status === 'ready' && <Action type="disable" cronJob={cronJob} site={site} />}
           <DropdownMenuSeparator />

@@ -4,7 +4,7 @@ import { Plugin } from '@/types/plugin';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function InstallPlugin({ plugin }: { plugin: Plugin }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -20,7 +20,7 @@ export default function InstallPlugin({ plugin }: { plugin: Plugin }) {
         })
       }
     >
-      {t('Install')}
+      {translateText('Install')}
     </DropdownMenuItem>
   );
 }

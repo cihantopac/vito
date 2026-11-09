@@ -12,7 +12,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Textarea } from '@/components/ui/textarea';
 
 export default function EditCommand({ open, onOpenChange, command }: { open: boolean; onOpenChange: (open: boolean) => void; command: Command }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<{
     name: string;
     command: string;
@@ -32,24 +32,24 @@ export default function EditCommand({ open, onOpenChange, command }: { open: boo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Edit command</DialogTitle>
-          <DialogDescription className="sr-only">Create a new command</DialogDescription>
+          <DialogTitle>{translateText("Edit command")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Create a new command")}</DialogDescription>
         </DialogHeader>
         <Form id="edit-command-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input id="name" name="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
             <FormField>
-              <Label htmlFor="command">{t('Command')}</Label>
+              <Label htmlFor="command">{translateText('Command')}</Label>
               <Textarea id="command" name="command" value={form.data.command} onChange={(e) => form.setData('command', e.target.value)} />
               {command.is_raw ? (
-                <p className="text-muted-foreground text-sm">Shell variables are passed through as written and are not prompted.</p>
+                <p className="text-muted-foreground text-sm">{translateText("Shell variables are passed through as written and are not prompted.")}</p>
               ) : (
                 <p className="text-muted-foreground text-sm">
-                  You can use variables like {'${VARIABLE_NAME}'} in the command. The variables will be asked when executing the command
+                  {translateText("You can use variables like")} {'${VARIABLE_NAME}'} {translateText("in the command. The variables will be asked when executing the command")}
                 </p>
               )}
               <InputError message={form.errors.command} />
@@ -59,11 +59,11 @@ export default function EditCommand({ open, onOpenChange, command }: { open: boo
         <DialogFooter>
           <div className="flex items-center gap-2">
             <DialogClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </DialogClose>
             <Button form="edit-command-form" type="submit" disabled={form.processing}>
               {form.processing && <LoaderCircle className="animate-spin" />}
-              {t('Save')}
+              {translateText('Save')}
             </Button>
           </div>
         </DialogFooter>

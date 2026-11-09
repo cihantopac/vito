@@ -45,7 +45,7 @@ const SSL_METHOD_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export default function CreateHostedDomain({ open, onOpenChange, site }: { open: boolean; onOpenChange: (open: boolean) => void; site: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{ server?: Server }>();
   const serverIp = site.server?.ip || page.props.server?.ip || '';
 
@@ -222,8 +222,8 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{t('Add Domain')}</DialogTitle>
-          <DialogDescription className="sr-only">Add a domain to this site</DialogDescription>
+          <DialogTitle>{translateText('Add Domain')}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Add a domain to this site")}</DialogDescription>
         </DialogHeader>
 
         <Form className="p-4" id="create-hosted-domain-form" onSubmit={submit}>
@@ -234,11 +234,11 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="provider" className="flex items-center gap-1.5">
                       <CloudIcon className="h-4 w-4" />
-                      <span>From DNS Provider</span>
+                      <span>{translateText("From DNS Provider")}</span>
                     </TabsTrigger>
                     <TabsTrigger value="manual" className="flex items-center gap-1.5">
                       <GlobeIcon className="h-4 w-4" />
-                      <span>Custom Domain</span>
+                      <span>{translateText("Custom Domain")}</span>
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -248,7 +248,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
             {mode === 'provider' && connectedProviders.length > 0 ? (
               <>
                 <FormField>
-                  <Label htmlFor="dns_provider_id">{t('DNS Provider')}</Label>
+                  <Label htmlFor="dns_provider_id">{translateText('DNS Provider')}</Label>
                   <div className="flex items-center gap-2">
                     <Select value={form.data.dns_provider_id} onValueChange={handleProviderChange}>
                       <SelectTrigger id="dns_provider_id">
@@ -265,7 +265,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                       </SelectContent>
                     </Select>
                     <ConnectDNSProvider onProviderAdded={fetchProviders}>
-                      <Button variant="outline" size="icon" type="button" aria-label={t('Connect DNS Provider')}>
+                      <Button variant="outline" size="icon" type="button" aria-label={translateText('Connect DNS Provider')}>
                         <CloudIcon className="h-4 w-4" />
                       </Button>
                     </ConnectDNSProvider>
@@ -274,7 +274,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                 </FormField>
 
                 <FormField>
-                  <Label htmlFor="provider_domain_id">Cloudflare Zone (Root Domain)</Label>
+                  <Label htmlFor="provider_domain_id">{translateText("Cloudflare Zone (Root Domain)")}</Label>
                   <div className="flex items-center gap-2">
                     <Select
                       value={selectedZoneId}
@@ -311,7 +311,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                 </FormField>
 
                 <FormField>
-                  <Label htmlFor="subdomain">Subdomain (Optional)</Label>
+                  <Label htmlFor="subdomain">{translateText("Subdomain (Optional)")}</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="text"
@@ -319,25 +319,25 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                       name="subdomain"
                       value={subdomain}
                       onChange={(e) => setSubdomain(e.target.value)}
-                      placeholder="e.g. app, api, or leave empty for root (@)"
+                      placeholder={translateText("e.g. app, api, or leave empty for root (@)")}
                     />
                   </div>
                   <p className="text-muted-foreground text-xs">
-                    Leave blank or type <code className="rounded bg-muted px-1 py-0.5">@</code> to point the root domain itself.
+                    {translateText("Leave blank or type")} <code className="rounded bg-muted px-1 py-0.5">@</code> {translateText("to point the root domain itself.")}
                   </p>
                 </FormField>
 
                 {computedDomain && (
                   <div className="rounded-md border bg-muted/40 p-3 text-xs space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Domain to add:</span>
+                      <span className="text-muted-foreground">{translateText("Domain to add:")}</span>
                       <span className="font-semibold text-foreground font-mono">{computedDomain}</span>
                     </div>
                     {form.data.create_dns_record && serverIp && (
                       <div className="flex items-center justify-between text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <ServerIcon className="h-3 w-3" />
-                          <span>DNS A Record:</span>
+                          <span>{translateText("DNS A Record:")}</span>
                         </span>
                         <span className="font-mono text-foreground font-medium">
                           {computedDomain} &rarr; {serverIp}
@@ -357,10 +357,10 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                       />
                       <div className="grid gap-0.5 leading-none">
                         <Label htmlFor="create_dns_record" className="cursor-pointer font-medium">
-                          Automatically create A record on Cloudflare
+                          {translateText("Automatically create A record on Cloudflare")}
                         </Label>
                         <p className="text-muted-foreground text-xs">
-                          Creates an A record pointing <span className="font-mono font-medium">{computedDomain || 'this domain'}</span> to server IP{' '}
+                          {translateText("Creates an A record pointing")} <span className="font-mono font-medium">{computedDomain || 'this domain'}</span> {translateText("to server IP")}{' '}
                           <span className="font-mono font-medium">{serverIp || 'N/A'}</span>.
                         </p>
                       </div>
@@ -375,10 +375,10 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                         />
                         <div className="grid gap-0.5 leading-none">
                           <Label htmlFor="dns_record_proxied" className="cursor-pointer font-medium">
-                            Enable Cloudflare Proxy (CDN & DDoS Protection)
+                            {translateText("Enable Cloudflare Proxy (CDN & DDoS Protection)")}
                           </Label>
                           <p className="text-muted-foreground text-xs">
-                            Turn on orange cloud proxy on Cloudflare for this record.
+                            {translateText("Turn on orange cloud proxy on Cloudflare for this record.")}
                           </p>
                         </div>
                       </div>
@@ -389,7 +389,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
               </>
             ) : (
               <FormField>
-                <Label htmlFor="domain">{t('Domain')}</Label>
+                <Label htmlFor="domain">{translateText('Domain')}</Label>
                 <Input
                   type="text"
                   id="domain"
@@ -403,14 +403,14 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
             )}
 
             <FormField>
-              <Label htmlFor="type">{t('Type')}</Label>
+              <Label htmlFor="type">{translateText('Type')}</Label>
               <Select onValueChange={(value) => form.setData('type', value)} value={form.data.type}>
                 <SelectTrigger id="type">
-                  <SelectValue placeholder={t('Select type')} />
+                  <SelectValue placeholder={translateText('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alias">Alias</SelectItem>
-                  <SelectItem value="redirect">{t('Redirect')}</SelectItem>
+                  <SelectItem value="redirect">{translateText('Redirect')}</SelectItem>
                 </SelectContent>
               </Select>
               <InputError message={form.errors.type} />
@@ -435,7 +435,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
 
             {form.data.ssl_method === 'custom' && (
               <FormField>
-                <Label htmlFor="ssl_id">SSL Certificate</Label>
+                <Label htmlFor="ssl_id">{translateText("SSL Certificate")}</Label>
                 <Select onValueChange={(value) => form.setData('ssl_id', value)} value={form.data.ssl_id}>
                   <SelectTrigger id="ssl_id">
                     <SelectValue placeholder={loadingSsls ? 'Loading...' : 'Select a certificate'} />
@@ -449,7 +449,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                   </SelectContent>
                 </Select>
                 <p className="text-muted-foreground text-sm">
-                  Only server-level SSL certificates that match the domain you entered will appear here. Add certificates via the server SSL settings.
+                  {translateText("Only server-level SSL certificates that match the domain you entered will appear here. Add certificates via the server SSL settings.")}
                 </p>
                 <InputError message={form.errors.ssl_id} />
               </FormField>
@@ -460,7 +460,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button
@@ -470,7 +470,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
           >
             {(form.processing || loadingSsls || sslStale) && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            {t('Add Domain')}
+            {translateText('Add Domain')}
           </Button>
         </DialogFooter>
       </DialogContent>

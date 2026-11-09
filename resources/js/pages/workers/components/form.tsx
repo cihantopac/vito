@@ -42,7 +42,7 @@ export default function WorkerForm({
   site?: Site;
   worker?: Worker;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData & { server: Server; sites?: Array<{ id: number; domain: string }> }>();
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
 
@@ -167,7 +167,7 @@ export default function WorkerForm({
                         form.setData({ ...form.data, name: '', command: '' });
                       }}
                     >
-                      {t('Clear')}
+                      {translateText('Clear')}
                     </Button>
                   )}
                 </div>
@@ -198,13 +198,13 @@ export default function WorkerForm({
             )}
 
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input type="text" id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
 
             <FormField>
-              <Label htmlFor="command">{t('Command')}</Label>
+              <Label htmlFor="command">{translateText('Command')}</Label>
               <Input
                 type="text"
                 id="command"
@@ -278,7 +278,7 @@ export default function WorkerForm({
                 <Label htmlFor="site_id">Site</Label>
                 <Select value={form.data.site_id} onValueChange={(value) => form.setData('site_id', value)}>
                   <SelectTrigger id="site_id">
-                    <SelectValue placeholder="Select a site (optional)" />
+                    <SelectValue placeholder={translateText("Select a site (optional)")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -296,10 +296,10 @@ export default function WorkerForm({
             )}
 
             <FormField>
-              <Label htmlFor="user">{t('User')}</Label>
+              <Label htmlFor="user">{translateText('User')}</Label>
               <Select value={form.data.user} onValueChange={(value) => form.setData('user', value)} disabled={runningExternally}>
                 <SelectTrigger id="user">
-                  <SelectValue placeholder="Select a user" />
+                  <SelectValue placeholder={translateText("Select a user")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -347,11 +347,11 @@ export default function WorkerForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           <Button form="worker-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

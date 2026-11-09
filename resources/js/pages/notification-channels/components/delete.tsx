@@ -4,7 +4,7 @@ import { NotificationChannel } from '@/types/notification-channel';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ notificationChannel }: { notificationChannel: NotificationChannel }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Delete({ notificationChannel }: { notificationChannel: N
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

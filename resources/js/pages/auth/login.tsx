@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth/layout';
 
 export default function Login() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     demo: boolean;
   }>();
@@ -33,13 +33,13 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title={t('Log in')} showFooter={false}>
-      <Head title={t('Log in')} />
+    <AuthLayout title={translateText('Log in')} showFooter={false}>
+      <Head title={translateText('Log in')} />
 
       <form onSubmit={submit}>
         <div className="grid gap-6">
           <div className="grid gap-2">
-            <Label htmlFor="email">{t('Email address')}</Label>
+            <Label htmlFor="email">{translateText('Email address')}</Label>
             <Input
               id="email"
               type="email"
@@ -55,7 +55,7 @@ export default function Login() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="password">{t('Password')}</Label>
+            <Label htmlFor="password">{translateText('Password')}</Label>
             <Input
               id="password"
               type="password"
@@ -64,7 +64,7 @@ export default function Login() {
               autoComplete="current-password"
               value={form.data.password}
               onChange={(e) => form.setData('password', e.target.value)}
-              placeholder={t('Password')}
+              placeholder={translateText('Password')}
             />
             <InputError message={form.errors.password} />
           </div>
@@ -77,12 +77,12 @@ export default function Login() {
               onClick={() => form.setData('remember', !form.data.remember)}
               tabIndex={3}
             />
-            <Label htmlFor="remember">{t('Remember me')}</Label>
+            <Label htmlFor="remember">{translateText('Remember me')}</Label>
           </div>
 
           <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Log in')}
+            {translateText('Log in')}
           </Button>
         </div>
       </form>

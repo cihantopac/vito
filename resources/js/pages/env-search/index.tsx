@@ -30,7 +30,7 @@ type SearchStatus =
 const POLL_INTERVAL_MS = 1500;
 
 export default function EnvSearch() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [key, setKey] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<EnvSearchResult[] | null>(null);
@@ -91,13 +91,13 @@ export default function EnvSearch() {
 
   return (
     <SettingsLayout>
-      <Head title="Environment key search" />
+      <Head title={translateText("Environment key search")} />
 
       <Container>
         <HeaderContainer>
           <Heading
-            title="Environment key search"
-            description="Find a key (e.g. APP_URL) in site .env files and view its values"
+            title={translateText("Environment key search")}
+            description={translateText("Find a key (e.g. APP_URL) in site .env files and view its values")}
           />
         </HeaderContainer>
 
@@ -121,13 +121,13 @@ export default function EnvSearch() {
         {error && <p className="text-destructive text-sm">{error}</p>}
 
         {!searching && results === null && !error && (
-          <p className="text-muted-foreground text-sm">Enter a key to start searching.</p>
+          <p className="text-muted-foreground text-sm">{translateText("Enter a key to start searching.")}</p>
         )}
 
         {searching && results === null && (
           <p className="text-muted-foreground flex items-center gap-2 text-sm">
             <LoaderCircleIcon className="size-3.5 animate-spin" />
-            Scanning server .env files. This may take a moment...
+            {translateText("Scanning server .env files. This may take a moment...")}
           </p>
         )}
 
@@ -137,15 +137,15 @@ export default function EnvSearch() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Site</TableHead>
-                  <TableHead>{t('Server')}</TableHead>
-                  <TableHead>Value</TableHead>
+                  <TableHead>{translateText('Server')}</TableHead>
+                  <TableHead>{translateText("Value")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-muted-foreground text-center">
-                      No accessible sites found.
+                      {translateText("No accessible sites found.")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -168,12 +168,12 @@ export default function EnvSearch() {
                       <TableCell className="font-mono text-xs">
                         {result.found ? (
                           result.value === '' ? (
-                            <span className="text-muted-foreground italic">(empty)</span>
+                            <span className="text-muted-foreground italic">{translateText("(empty)")}</span>
                           ) : (
                             result.value
                           )
                         ) : (
-                          <span className="text-muted-foreground italic">No value</span>
+                          <span className="text-muted-foreground italic">{translateText("No value")}</span>
                         )}
                       </TableCell>
                     </TableRow>

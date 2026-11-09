@@ -17,7 +17,7 @@ import { Site } from '@/types/site';
 import { useRealtime } from '@/hooks/use-socket-events';
 
 export default function Redirects() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -32,7 +32,7 @@ export default function Redirects() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Redirect')} description="Here you can Redirect certificates" />
+          <Heading title={translateText('Redirect')} description={translateText("Here you can Redirect certificates")} />
           <div className="flex items-center gap-2">
             <CreateRedirect site={page.props.site}>
               <Button>

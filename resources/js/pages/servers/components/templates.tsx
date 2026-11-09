@@ -26,7 +26,7 @@ import InputError from '@/components/ui/input-error';
 import { Switch } from '@/components/ui/switch';
 
 function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onTemplateDeleted: (template: ServerTemplate) => void }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm({});
 
@@ -48,17 +48,17 @@ function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onT
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Delete template</DialogTitle>
-          <DialogDescription className="sr-only">Delete template</DialogDescription>
+          <DialogTitle>{translateText("Delete template")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Delete template")}</DialogDescription>
         </DialogHeader>
         <p className="p-4">Are you sure you want to delete this template?</p>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">{t('Cancel')}</Button>
+            <Button type="button" variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button type="button" variant="destructive" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Delete')}
+            {translateText('Delete')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -75,7 +75,7 @@ function Save({
   services: Service[];
   onChangesSaved: (template: ServerTemplate) => void;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm<{
     id: string | null;
@@ -160,11 +160,11 @@ function Save({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">{t('Cancel')}</Button>
+            <Button type="button" variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button type="button" onClick={save} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

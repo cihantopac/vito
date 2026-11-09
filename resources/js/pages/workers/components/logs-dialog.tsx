@@ -20,7 +20,7 @@ type WorkerLogsDialogProps = {
 };
 
 export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerId }: WorkerLogsDialogProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [activeTab, setActiveTab] = useState<'output' | 'history'>('output');
 
   const query = useQuery({
@@ -50,11 +50,11 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
             <TabsList className="h-7 bg-muted/60 p-0.5">
               <TabsTrigger value="output" className="h-6 text-xs px-2.5 gap-1.5">
                 <TerminalIcon className="size-3.5" />
-                <span>{t('Output')}</span>
+                <span>{translateText('Output')}</span>
               </TabsTrigger>
               <TabsTrigger value="history" className="h-6 text-xs px-2.5 gap-1.5">
                 <HistoryIcon className="size-3.5" />
-                <span>{t('History')}</span>
+                <span>{translateText('History')}</span>
                 {historyList.length > 0 && (
                   <span className="text-[10px] bg-background text-foreground px-1 py-0.2 rounded-full font-mono">
                     {historyList.length}
@@ -72,7 +72,7 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
             {historyList.length === 0 ? (
               <div className="text-muted-foreground flex flex-col items-center justify-center py-12 gap-2">
                 <HistoryIcon className="size-8 stroke-1 text-muted-foreground/60" />
-                <span className="text-sm">No start/stop history recorded for this worker yet.</span>
+                <span className="text-sm">{translateText("No start/stop history recorded for this worker yet.")}</span>
               </div>
             ) : (
               <div className="divide-y divide-border border rounded-md overflow-hidden bg-card">
@@ -109,7 +109,7 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
             </Link>
           </Button>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

@@ -57,7 +57,7 @@ function SecretField({
   onRegenerate: () => void;
   onRemove: (() => void) | null;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const copy = () => {
     if (!navigator.clipboard) {
       toast.error('The clipboard is not available in this browser');
@@ -72,7 +72,7 @@ function SecretField({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor="networking-secret">{t('Password')}</Label>
+      <Label htmlFor="networking-secret">{translateText('Password')}</Label>
       <div className="flex items-center gap-2">
         <div className="flex-1">
           <PasswordInput id="networking-secret" readOnly value={secret} className="font-mono" />
@@ -84,12 +84,12 @@ function SecretField({
       <div className="flex items-center gap-2">
         <Button type="button" variant="outline" size="sm" disabled={busy} onClick={onRegenerate}>
           <RefreshCwIcon />
-          {t('Regenerate')}
+          {translateText('Regenerate')}
         </Button>
         {onRemove && (
           <Button type="button" variant="outline" size="sm" disabled={busy} onClick={onRemove}>
             <Trash2Icon />
-            {t('Remove')}
+            {translateText('Remove')}
           </Button>
         )}
       </div>
@@ -111,7 +111,7 @@ export default function ServiceNetworkingDialog({
   onOpenChange: (open: boolean) => void;
   service: Service;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -223,7 +223,7 @@ export default function ServiceNetworkingDialog({
           {details && (
             <>
               <div className="flex flex-col gap-2">
-                <StateRow label={t('Networking')}>
+                <StateRow label={translateText('Networking')}>
                   {pending ? (
                     <Badge variant="gray">Applying…</Badge>
                   ) : unknown ? (
@@ -346,7 +346,7 @@ export default function ServiceNetworkingDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           {details && (
             <Button

@@ -45,7 +45,7 @@ export default function SiteSelect({
   onOpenChange: controlledOnOpenChange,
   footer,
 }: SiteSelectProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -207,9 +207,9 @@ export default function SiteSelect({
                 {hasNextPage && (
                   <div ref={loadMoreRef} className="flex justify-center py-2">
                     {isFetchingNextPage ? (
-                      <span className="text-muted-foreground text-xs">{t('Loading more...')}</span>
+                      <span className="text-muted-foreground text-xs">{translateText('Loading more...')}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">{t('Scroll for more')}</span>
+                      <span className="text-muted-foreground text-xs">{translateText('Scroll for more')}</span>
                     )}
                   </div>
                 )}

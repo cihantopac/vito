@@ -23,7 +23,7 @@ export default function ServiceConfigFileDialog({
   service: Service;
   configPath: ConfigPath;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<{
     content: string;
     config_name: string;
@@ -59,9 +59,9 @@ export default function ServiceConfigFileDialog({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-5xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
-          <SheetTitle>{t('Edit')} {configPath.name}</SheetTitle>
+          <SheetTitle>{translateText('Edit')} {configPath.name}</SheetTitle>
           <SheetDescription className="sr-only">
-            You can edit the {configPath.name} file for this service. Make sure to save your changes.
+            {translateText("You can edit the")} {configPath.name} file for this service. Make sure to save your changes.
           </SheetDescription>
         </SheetHeader>
         <Form id="update-config-form" className="h-full" onSubmit={submit}>
@@ -83,10 +83,10 @@ export default function ServiceConfigFileDialog({
           <div className="flex items-center gap-2">
             <Button form="update-config-form" type="submit" disabled={form.processing || query.isLoading} className="ml-2">
               {(form.processing || query.isLoading) && <LoaderCircleIcon className="animate-spin" />}
-              {t('Save')}
+              {translateText('Save')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

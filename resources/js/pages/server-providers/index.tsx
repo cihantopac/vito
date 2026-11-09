@@ -22,18 +22,18 @@ type Page = {
 };
 
 export default function ServerProviders() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
 
   return (
     <SettingsLayout>
-      <Head title="Server Providers" />
+      <Head title={translateText("Server Providers")} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Server Providers" />
+          <Heading title={translateText("Server Providers")} />
           <div className="flex items-center gap-2">
             <ConnectServerProvider>
-              <Button>{t('Connect')}</Button>
+              <Button>{translateText('Connect')}</Button>
             </ConnectServerProvider>
           </div>
         </div>

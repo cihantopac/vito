@@ -22,7 +22,7 @@ export default function Invite({
   onOpenChange: (open: boolean) => void;
   project: Project;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const queryClient = useQueryClient();
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const [quickCreateEmail, setQuickCreateEmail] = useState('');
@@ -49,9 +49,9 @@ export default function Invite({
           <DialogHeader>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <DialogTitle>Add user to {project.name}</DialogTitle>
+                <DialogTitle>{translateText("Add user to")} {project.name}</DialogTitle>
                 <DialogDescription>
-                  Select a Pure user and choose their role. The user will be added to the project immediately.
+                  {translateText("Select a Pure user and choose their role. The user will be added to the project immediately.")}
                 </DialogDescription>
               </div>
             </div>
@@ -61,7 +61,7 @@ export default function Invite({
             <FormFields>
               <FormField>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="invite-user">{t('User')}</Label>
+                  <Label htmlFor="invite-user">{translateText('User')}</Label>
                   <Button
                     type="button"
                     variant="ghost"
@@ -73,7 +73,7 @@ export default function Invite({
                     }}
                   >
                     <UserPlusIcon className="size-3.5" />
-                    <span>Create new user</span>
+                    <span>{translateText("Create new user")}</span>
                   </Button>
                 </div>
                 <InviteeSelect
@@ -89,15 +89,15 @@ export default function Invite({
                 <InputError message={form.errors.user_id} />
               </FormField>
               <FormField>
-                <Label htmlFor="role">{t('Role')}</Label>
+                <Label htmlFor="role">{translateText('Role')}</Label>
                 <Select value={form.data.role} onValueChange={(value) => form.setData('role', value)}>
                   <SelectTrigger id="role" name="role" className="w-full">
-                    <SelectValue placeholder="Select a role" />
+                    <SelectValue placeholder={translateText("Select a role")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">{t('User')}</SelectItem>
+                      <SelectItem value="user">{translateText('User')}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -108,11 +108,11 @@ export default function Invite({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </DialogClose>
             <Button form="invite-form" type="submit" disabled={form.processing || form.data.user_id === null}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              {t('Add user')}
+              {translateText('Add user')}
             </Button>
           </DialogFooter>
         </DialogContent>

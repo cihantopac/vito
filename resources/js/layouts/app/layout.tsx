@@ -30,7 +30,7 @@ export default function Layout({
   secondNavSubtitle?: string;
   defaultPrimaryNavOpen?: boolean;
 }>) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData & { server?: { id: number }; site?: { id: number } }>();
   const queryClient = getQueryClient(page.props.auth.user.id);
   const { status: socketStatus, reconnect: socketReconnect } = useSocketEvents();
@@ -127,12 +127,12 @@ export default function Layout({
                   <div className="flex max-w-md flex-col items-center gap-4 text-center">
                     <AlertCircleIcon className="text-destructive size-8" />
                     <div>
-                      <h2 className="text-lg font-semibold">Failed to load application data</h2>
+                      <h2 className="text-lg font-semibold">{translateText("Failed to load application data")}</h2>
                       <p className="text-muted-foreground mt-1 text-sm">
-                        Check your connection and try again.
+                        {translateText("Check your connection and try again.")}
                       </p>
                     </div>
-                    <Button onClick={() => fetchBootstrap()}>{t('Retry')}</Button>
+                    <Button onClick={() => fetchBootstrap()}>{translateText('Retry')}</Button>
                   </div>
                 </div>
               ) : bootstrapConfigsLoaded ? (

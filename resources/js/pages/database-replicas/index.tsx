@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { PlusIcon } from 'lucide-react';
 import type { InertiaTableData, Row } from '@forjedio/inertia-table-react';
@@ -23,6 +24,7 @@ type Page = {
 };
 
 export default function DatabaseReplicas() {
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
   const { cluster, server } = page.props;
@@ -46,17 +48,17 @@ export default function DatabaseReplicas() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Replication" description="PostgreSQL streaming replicas built from pgBackRest backups, checked every minute." />
+          <Heading title={translateText("Replication")} description={translateText("PostgreSQL streaming replicas built from pgBackRest backups, checked every minute.")} />
           <div className="flex items-center gap-2">
             {cluster && <Badge variant={cluster.status_color}>{cluster.status}</Badge>}
             {isPrimary ? (
               <Button onClick={() => dialog.databaseReplicaCreate.open({ server, cluster })} disabled={cluster?.status === 'failing_over'}>
                 <PlusIcon />
-                <span className="hidden lg:block">Create replica</span>
+                <span className="hidden lg:block">{translateText("Create replica")}</span>
               </Button>
             ) : (
               <Button variant="outline" asChild>
-                <Link href={`/servers/${cluster.primary_server_id}/database-replicas`}>Go to primary</Link>
+                <Link href={`/servers/${cluster.primary_server_id}/database-replicas`}>{translateText("Go to primary")}</Link>
               </Button>
             )}
           </div>
@@ -86,7 +88,7 @@ export default function DatabaseReplicas() {
                       })
                     }
                   >
-                    Continue failover
+                    {translateText("Continue failover")}
                   </Button>
                 </div>
               )}
@@ -113,7 +115,7 @@ export default function DatabaseReplicas() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <p className="flex flex-wrap items-center gap-2 font-medium">
-                    Private network {cluster.network.name}
+                    {translateText("Private network")} {cluster.network.name}
                     <Badge variant={cluster.network.type === 'wireguard' ? 'success' : 'info'}>{cluster.network.kind}</Badge>
                   </p>
                   <p className="text-muted-foreground">
@@ -126,7 +128,7 @@ export default function DatabaseReplicas() {
                   </p>
                 </div>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/networks/${cluster.network.id}/servers`}>Open network</Link>
+                  <Link href={`/networks/${cluster.network.id}/servers`}>{translateText("Open network")}</Link>
                 </Button>
               </div>
               {cluster.network.nodes.map((node) => (

@@ -32,7 +32,7 @@ type PageProps = {
 };
 
 export default function ServerUpdate() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { server: initialServer, initialLog, csrf_token } = usePage<PageProps & SharedData>().props;
   const server = useRealtimeRecord<Server>(initialServer, 'server') ?? initialServer;
 
@@ -116,7 +116,7 @@ export default function ServerUpdate() {
           <Button variant="ghost" size="sm" asChild className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2 cursor-pointer">
             <Link href={`/servers/${server.id}`}>
               <ArrowLeftIcon className="size-3.5" />
-              <span>{t('Overview')}</span>
+              <span>{translateText('Overview')}</span>
             </Link>
           </Button>
 
@@ -147,7 +147,7 @@ export default function ServerUpdate() {
             </div>
             <Button size="sm" asChild className="h-7 text-xs shrink-0 cursor-pointer" variant="outline">
               <Link href={`/servers/${server.id}/restart`}>
-                Restart server
+                {translateText("Restart server")}
               </Link>
             </Button>
           </div>
@@ -174,7 +174,7 @@ export default function ServerUpdate() {
               {isUpdating ? (
                 <>
                   <LoaderCircleIcon className="size-3.5 animate-spin" />
-                  <span>Updating...</span>
+                  <span>{translateText("Updating...")}</span>
                 </>
               ) : (
                 <>
@@ -210,7 +210,7 @@ export default function ServerUpdate() {
                 as="button"
               >
                 <RefreshCwIcon className="size-3" />
-                <span>Check for updates</span>
+                <span>{translateText("Check for updates")}</span>
               </Link>
             </Button>
           </div>
@@ -223,7 +223,7 @@ export default function ServerUpdate() {
                 className="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
                 asChild
                 title="Download log file"
-                aria-label={t('Download log')}
+                aria-label={translateText('Download log')}
               >
                 <a
                   href={`/servers/${server.id}/logs/${activeLogId}/download`}

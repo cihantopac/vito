@@ -20,7 +20,7 @@ export default function AddNetworkPeer({
   onOpenChange: (open: boolean) => void;
   networkId: number;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [byo, setByo] = useState(false);
   const form = useForm<{ name: string; public_key: string }>({
     name: '',
@@ -43,13 +43,13 @@ export default function AddNetworkPeer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{t('Add peer')}</DialogTitle>
-          <DialogDescription className="sr-only">Add a device to this network</DialogDescription>
+          <DialogTitle>{translateText('Add peer')}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Add a device to this network")}</DialogDescription>
         </DialogHeader>
         <Form id="add-network-peer-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} placeholder="e.g. my-laptop" />
               <InputError message={form.errors.name} />
             </FormField>
@@ -57,7 +57,7 @@ export default function AddNetworkPeer({
             <FormField>
               <div className="flex items-center gap-2">
                 <Checkbox id="byo" checked={byo} onCheckedChange={(checked) => setByo(checked === true)} />
-                <Label htmlFor="byo">I'll provide my own public key</Label>
+                <Label htmlFor="byo">{translateText("I'll provide my own public key")}</Label>
               </div>
             </FormField>
 
@@ -68,9 +68,9 @@ export default function AddNetworkPeer({
                   id="public_key"
                   value={form.data.public_key}
                   onChange={(e) => form.setData('public_key', e.target.value)}
-                  placeholder="Base64-encoded WireGuard public key"
+                  placeholder={translateText("Base64-encoded WireGuard public key")}
                 />
-                <p className="text-muted-foreground text-xs">Pure will never hold this peer's private key. The device keeps it.</p>
+                <p className="text-muted-foreground text-xs">{translateText("Pure will never hold this peer's private key. The device keeps it.")}</p>
                 <InputError message={form.errors.public_key} />
               </FormField>
             )}
@@ -78,11 +78,11 @@ export default function AddNetworkPeer({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           <Button form="add-network-peer-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Add peer')}
+            {translateText('Add peer')}
           </Button>
         </DialogFooter>
       </DialogContent>

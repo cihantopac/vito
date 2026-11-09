@@ -47,7 +47,7 @@ export default function EdgeNetworkDialog({
   hostedDomains = [],
   domainProxyStatus = {},
 }: EdgeNetworkDialogProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const [togglingDomain, setTogglingDomain] = useState<string | null>(null);
 
@@ -94,9 +94,9 @@ export default function EdgeNetworkDialog({
         <DialogHeader className="pb-1">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <DialogTitle className="text-base font-semibold">Edge Network &amp; Security</DialogTitle>
+              <DialogTitle className="text-base font-semibold">{translateText("Edge Network & Security")}</DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Edge proxy and CDN settings for <span className="font-mono font-medium text-foreground">{site.domain}</span>
+                {translateText("Edge proxy and CDN settings for")} <span className="font-mono font-medium text-foreground">{site.domain}</span>
               </DialogDescription>
             </div>
 
@@ -104,23 +104,23 @@ export default function EdgeNetworkDialog({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 shrink-0 text-xs">
                   <SettingsIcon className="size-3.5" />
-                  <span>Links &amp; Manage</span>
+                  <span>{translateText("Links & Manage")}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  Management
+                  {translateText("Management")}
                 </DropdownMenuLabel>
                 <DropdownMenuItem asChild>
                   <Link href={`/servers/${server.id}/sites/${site.id}/domains`} className="flex items-center gap-2 cursor-pointer text-xs">
                     <GlobeIcon className="size-3.5 text-muted-foreground" />
-                    <span>{t('Manage Domains')}</span>
+                    <span>{translateText('Manage Domains')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={"/settings/dns-providers"} className="flex items-center gap-2 cursor-pointer text-xs">
                     <SettingsIcon className="size-3.5 text-muted-foreground" />
-                    <span>{t('DNS Providers')}</span>
+                    <span>{translateText('DNS Providers')}</span>
                   </Link>
                 </DropdownMenuItem>
                 {hasCloudflare && (
@@ -133,7 +133,7 @@ export default function EdgeNetworkDialog({
                         rel="noopener noreferrer"
                         className="flex items-center justify-between cursor-pointer text-xs"
                       >
-                        <span>Cloudflare Dashboard</span>
+                        <span>{translateText("Cloudflare Dashboard")}</span>
                         <ExternalLinkIcon className="size-3 text-muted-foreground ml-2" />
                       </a>
                     </DropdownMenuItem>
@@ -166,11 +166,11 @@ export default function EdgeNetworkDialog({
               {hasCloudflare ? (
                 <Button variant="outline" size="sm" onClick={openCloudflareEdit} className="h-8 text-xs">
                   <SettingsIcon className="size-3.5 mr-1" />
-                  {t('Edit')}
+                  {translateText('Edit')}
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-                  <Link href={"/settings/dns-providers"}>Connect Cloudflare</Link>
+                  <Link href={"/settings/dns-providers"}>{translateText("Connect Cloudflare")}</Link>
                 </Button>
               )}
             </div>
@@ -179,18 +179,18 @@ export default function EdgeNetworkDialog({
           <div className="rounded-lg border overflow-hidden">
             <div className="flex items-center justify-between bg-muted/30 px-4 py-2.5 border-b">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold">{t('Domains')}</span>
+                <span className="text-xs font-semibold">{translateText('Domains')}</span>
                 <Badge variant="gray" className="text-[10px] font-mono font-normal">
                   {hasCloudflare ? `${protectedCount} confirmed protected${unknownCount ? ` · ${unknownCount} not checked` : ''}` : `${domains.length} total`}
                 </Badge>
               </div>
               <Button variant="outline" size="sm" onClick={openAddDomain} className="h-7 text-xs px-2.5 gap-1">
                 <PlusIcon className="size-3" />
-                <span>{t('Add Domain')}</span>
+                <span>{translateText('Add Domain')}</span>
               </Button>
             </div>
 
-            <p className="text-muted-foreground px-4 pb-3 text-xs">Unknown status is not a protection verdict. <Link href="/domains" className="underline">Sync DNS records</Link> to check it.</p>
+            <p className="text-muted-foreground px-4 pb-3 text-xs">{translateText("Unknown status is not a protection verdict.")} <Link href="/domains" className="underline">{translateText("Sync DNS records")}</Link> {translateText("to check it.")}</p>
             <div className="divide-y divide-border/50">
               {domains.map((item) => {
                 const proxyStatus = domainProxyStatus[item.domain];
@@ -206,7 +206,7 @@ export default function EdgeNetworkDialog({
                       </span>
                       {item.type === 'primary' && (
                         <Badge variant="gray" className="text-[9px] h-4 px-1 uppercase font-semibold">
-                          {t('Primary')}
+                          {translateText('Primary')}
                         </Badge>
                       )}
                     </div>
@@ -227,7 +227,7 @@ export default function EdgeNetworkDialog({
                         </div>
                       ) : (
                         <Badge variant="outline" className="text-xs text-muted-foreground font-normal">
-                          Proxy not verified
+                          {translateText("Proxy not verified")}
                         </Badge>
                       )}
                     </div>
@@ -241,7 +241,7 @@ export default function EdgeNetworkDialog({
         <DialogFooter className="pt-2">
           <DialogClose asChild>
             <Button variant="outline" size="sm" className="h-8 text-xs">
-              {t('Close')}
+              {translateText('Close')}
             </Button>
           </DialogClose>
         </DialogFooter>

@@ -23,7 +23,7 @@ export default function PhpExtensionsDialog({
   onOpenChange: (open: boolean) => void;
   service: Service;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const configs = useConfigs()!;
   const form = useForm<{
     extension: string;
@@ -79,7 +79,7 @@ export default function PhpExtensionsDialog({
                 <div role="alert" className="flex items-center gap-2">
                   <p className="text-sm text-destructive">Could not load installed extensions.</p>
                   <Button type="button" variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
-                    {t('Retry')}
+                    {translateText('Retry')}
                   </Button>
                 </div>
               ) : (
@@ -110,11 +110,11 @@ export default function PhpExtensionsDialog({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="install-extension-form" type="submit" disabled={form.processing || !query.isSuccess || !form.data.extension || installedExtensions.includes(form.data.extension)} className="ml-2">
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Install')}
+            {translateText('Install')}
           </Button>
         </DialogFooter>
       </DialogContent>

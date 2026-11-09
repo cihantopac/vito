@@ -21,18 +21,18 @@ type Page = {
 };
 
 export default function NotificationChannels() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
 
   return (
     <SettingsLayout>
-      <Head title="Notification Channels" />
+      <Head title={translateText("Notification Channels")} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Notification Channels" />
+          <Heading title={translateText("Notification Channels")} />
           <div className="flex items-center gap-2">
             <ConnectNotificationChannel>
-              <Button>{t('Connect')}</Button>
+              <Button>{translateText('Connect')}</Button>
             </ConnectNotificationChannel>
           </div>
         </div>

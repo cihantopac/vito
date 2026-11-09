@@ -6,7 +6,7 @@ import { Plugin } from '@/types/plugin';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function QuickInstall({ url }: { url: string }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm({
     url: url,
   });
@@ -28,10 +28,10 @@ export default function QuickInstall({ url }: { url: string }) {
       <TooltipTrigger>
         <Button variant="default" onClick={submit} disabled={form.processing || isInstalled}>
           {form.processing && <LoaderCircleIcon className="animate-spin" />}
-          {t('Install')}
+          {translateText('Install')}
         </Button>
       </TooltipTrigger>
-      {isInstalled && <TooltipContent>Already Installed</TooltipContent>}
+      {isInstalled && <TooltipContent>{translateText("Already Installed")}</TooltipContent>}
     </Tooltip>
   );
 }

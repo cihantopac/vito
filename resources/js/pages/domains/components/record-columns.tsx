@@ -12,10 +12,10 @@ import { useClipboard } from '@/hooks/use-clipboard';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Edit({ domain, record }: { domain: Domain; record: DNSRecord }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.dnsRecordForm.open({ domain, record })}>{t('Edit')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.dnsRecordForm.open({ domain, record })}>{translateText('Edit')}</DropdownMenuItem>;
 }
 
 function CopyableText({ text }: { text: string | null | undefined }) {
@@ -33,7 +33,7 @@ function CopyableText({ text }: { text: string | null | undefined }) {
 }
 
 function Delete({ record }: { record: DNSRecord }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -50,7 +50,7 @@ function Delete({ record }: { record: DNSRecord }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

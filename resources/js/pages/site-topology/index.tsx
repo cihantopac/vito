@@ -14,7 +14,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { useRealtimeRecord } from '@/hooks/use-socket-events';
 
 export default function SiteTopology() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -34,7 +34,7 @@ export default function SiteTopology() {
       <Container className="gap-6">
         <HeaderContainer>
           <Heading
-            title={t('Infrastructure Topology')}
+            title={translateText('Infrastructure Topology')}
             description="Interactive diagram of domain routing, runtime environment, connected databases, cache, storage, and background workers."
           />
           {site.status !== 'installation_failed' && <SiteBanners site={site} compact />}

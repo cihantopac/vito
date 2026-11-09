@@ -7,7 +7,7 @@ import ServiceVersionSelect from '@/pages/services/components/service-version-se
 import FieldUpdateDialog from '@/components/field-update-dialog';
 
 export default function ChangePHPVersion({ site, children }: { site: Site; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <FieldUpdateDialog
       title="Change PHP version"
@@ -19,7 +19,7 @@ export default function ChangePHPVersion({ site, children }: { site: Site; child
     >
       {(form) => (
         <>
-          <Label htmlFor="version">{t('PHP version')}</Label>
+          <Label htmlFor="version">{translateText('PHP version')}</Label>
           <ServiceVersionSelect
             serverId={site.server_id}
             service="php"

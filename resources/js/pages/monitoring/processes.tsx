@@ -67,7 +67,7 @@ function MetricValue({ value }: { value: number }) {
 }
 
 export default function Processes() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const { server } = page.props;
   const dialog = useDialog();
@@ -149,13 +149,13 @@ export default function Processes() {
 
       <Container>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Heading title="Process Manager" description="Running processes on this server, sorted by CPU usage" />
+          <Heading title={translateText("Process Manager")} description={translateText("Running processes on this server, sorted by CPU usage")} />
 
           <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
             <div className="relative">
               <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
               <Input
-                placeholder="Filter command or PID..."
+                placeholder={translateText("Filter command or PID...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-8 w-36 sm:w-44 pl-8 pr-6 text-xs bg-muted/30 border-muted-foreground/20 focus:bg-background transition-colors"
@@ -165,7 +165,7 @@ export default function Processes() {
                   type="button"
                   onClick={() => setSearch('')}
                   className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2 text-xs leading-none"
-                  aria-label="Clear filter"
+                  aria-label={translateText("Clear filter")}
                 >
                   ✕
                 </button>
@@ -174,10 +174,10 @@ export default function Processes() {
 
             <Select value={selectedUser} onValueChange={setSelectedUser}>
               <SelectTrigger className="h-8 w-28 text-xs bg-muted/30 border-muted-foreground/20 hover:bg-muted/50">
-                <SelectValue placeholder="All users" />
+                <SelectValue placeholder={translateText("All users")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All users</SelectItem>
+                <SelectItem value="all">{translateText("All users")}</SelectItem>
                 {data.users.map((u) => (
                   <SelectItem key={u} value={u}>
                     {u}
@@ -189,15 +189,15 @@ export default function Processes() {
             {selectedUser !== 'all' && (
               <Button variant="destructive" size="sm" className="h-8 px-2 text-xs gap-1" onClick={killUserProcesses}>
                 <SkullIcon className="size-3.5" />
-                <span className="hidden sm:inline">Kill {selectedUser}'s</span>
-                <span className="sm:hidden">Kill</span>
+                <span className="hidden sm:inline">{translateText("Kill")} {selectedUser}'s</span>
+                <span className="sm:hidden">{translateText("Kill")}</span>
               </Button>
             )}
 
             <Select value={interval} onValueChange={setIntervalValue}>
               <SelectTrigger
                 className="h-8 w-[95px] text-xs bg-muted/30 border-muted-foreground/20 hover:bg-muted/50 gap-1 px-2"
-                aria-label="Auto refresh"
+                aria-label={translateText("Auto refresh")}
               >
                 {interval !== '0' && <span className="size-1.5 rounded-full bg-neutral-500 shrink-0 animate-pulse" />}
                 <SelectValue />
@@ -220,12 +220,12 @@ export default function Processes() {
                     className="size-8 shrink-0 bg-muted/30 border-muted-foreground/20 text-muted-foreground hover:text-foreground hover:bg-muted/50 cursor-pointer"
                     onClick={fetchProcesses}
                     disabled={loading}
-                    aria-label="Refresh processes"
+                    aria-label={translateText("Refresh processes")}
                   >
                     <RefreshCwIcon className={cn('size-3.5', loading && 'animate-spin')} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Refresh processes</TooltipContent>
+                <TooltipContent>{translateText("Refresh processes")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -236,13 +236,13 @@ export default function Processes() {
             <div className="flex items-center gap-2.5">
               <AlertCircleIcon className="size-4 shrink-0" />
               <div>
-                <p className="text-xs font-semibold">Unable to fetch processes</p>
+                <p className="text-xs font-semibold">{translateText("Unable to fetch processes")}</p>
                 <p className="text-[11px] text-destructive/80 font-mono">{data.error}</p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="h-7 text-xs" onClick={fetchProcesses} disabled={loading}>
               <RefreshCwIcon className={cn('size-3', loading && 'animate-spin')} />
-              {t('Retry')}
+              {translateText('Retry')}
             </Button>
           </div>
         )}
@@ -253,11 +253,11 @@ export default function Processes() {
               <TableRow className="h-8 hover:bg-transparent border-b border-border/60">
                 <TableHead className="h-8 w-8 px-2 text-center text-xs">#</TableHead>
                 <TableHead className="h-8 w-16 px-2 text-xs">PID</TableHead>
-                <TableHead className="h-8 w-24 px-2 text-xs">{t('User')}</TableHead>
-                <TableHead className="h-8 w-14 px-2 text-right text-xs">Priority</TableHead>
+                <TableHead className="h-8 w-24 px-2 text-xs">{translateText('User')}</TableHead>
+                <TableHead className="h-8 w-14 px-2 text-right text-xs">{translateText("Priority")}</TableHead>
                 <TableHead className="h-8 w-20 px-2 text-right text-xs">CPU %</TableHead>
-                <TableHead className="h-8 w-20 px-2 text-right text-xs">Memory %</TableHead>
-                <TableHead className="h-8 px-2 text-xs">{t('Command')}</TableHead>
+                <TableHead className="h-8 w-20 px-2 text-right text-xs">{translateText("Memory %")}</TableHead>
+                <TableHead className="h-8 px-2 text-xs">{translateText('Command')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -284,7 +284,7 @@ export default function Processes() {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="right">
-                          <span>Kill process #{p.pid}</span>
+                          <span>{translateText("Kill process #")}{p.pid}</span>
                         </TooltipContent>
                       </Tooltip>
                     </TableCell>
@@ -315,12 +315,12 @@ export default function Processes() {
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
-            {filtered.length} process{filtered.length !== 1 ? 'es' : ''} shown
+            {filtered.length} {translateText("process")}{filtered.length !== 1 ? 'es' : ''} {translateText("shown")}
             {selectedUser !== 'all' && ` (user: ${selectedUser})`}
             {search && ` (filter: "${search}")`}
           </span>
           {data.processes.length > 0 && (
-            <span>{t('Total:')} {data.processes.length} processes</span>
+            <span>{translateText('Total:')} {data.processes.length} {translateText("processes")}</span>
           )}
         </div>
       </Container>

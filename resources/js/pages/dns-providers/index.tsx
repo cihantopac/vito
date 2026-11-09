@@ -20,18 +20,18 @@ type Page = {
 };
 
 export default function DNSProviders() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page & SharedData>();
 
   return (
     <SettingsLayout>
-      <Head title={t('DNS Providers')} />
+      <Head title={translateText('DNS Providers')} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={t('DNS Providers')} />
+          <Heading title={translateText('DNS Providers')} />
           <div className="flex items-center gap-2">
             <ConnectDNSProvider>
-              <Button>{t('Connect')}</Button>
+              <Button>{translateText('Connect')}</Button>
             </ConnectDNSProvider>
           </div>
         </div>

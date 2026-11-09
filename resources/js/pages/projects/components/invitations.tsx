@@ -8,7 +8,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Link } from '@inertiajs/react';
 
 function Actions({ invitation }: { invitation: ProjectUser }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -28,12 +28,12 @@ function Actions({ invitation }: { invitation: ProjectUser }) {
         }
       >
         <XIcon />
-        {t('Reject')}
+        {translateText('Reject')}
       </Button>
       <Button size="sm" asChild>
         <Link href={`/settings/projects/${invitation.project_id}/invitations/accept`}>
           <CheckIcon />
-          Accept & join
+          {translateText("Accept & join")}
         </Link>
       </Button>
     </div>

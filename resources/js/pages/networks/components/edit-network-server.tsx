@@ -21,7 +21,7 @@ export default function EditNetworkServer({
   networkId: number;
   member: NetworkMemberIp;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [ips, setIps] = useState<PrivateIp[]>(member.private_ips);
 
   const form = useForm<{ server_ip_address_id: number | null }>({
@@ -40,13 +40,13 @@ export default function EditNetworkServer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{t('Edit')} {member.server_name}</DialogTitle>
-          <DialogDescription className="sr-only">Change the private IP this server uses on the network</DialogDescription>
+          <DialogTitle>{translateText('Edit')} {member.server_name}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Change the private IP this server uses on the network")}</DialogDescription>
         </DialogHeader>
         <Form id="edit-network-server-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="server_ip_address_id">{t('Private IP')}</Label>
+              <Label htmlFor="server_ip_address_id">{translateText('Private IP')}</Label>
               <PrivateIpSelect
                 serverId={member.server_id}
                 ips={ips}
@@ -65,11 +65,11 @@ export default function EditNetworkServer({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           <Button form="edit-network-server-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

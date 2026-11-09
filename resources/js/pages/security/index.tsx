@@ -28,7 +28,7 @@ function serviceStatusLabel(status: string): string {
 }
 
 function AutoUpdateRow({ server, autoUpdate }: { server: number; autoUpdate: AutoUpdateState }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [parsed, setParsed] = useState(parseSchedule(autoUpdate.schedule));
   const form = useForm<{ enabled: boolean; schedule: string }>({
     enabled: autoUpdate.enabled,
@@ -52,7 +52,7 @@ function AutoUpdateRow({ server, autoUpdate }: { server: number; autoUpdate: Aut
             <Switch checked={form.data.enabled} onCheckedChange={(value) => form.setData('enabled', value)} aria-label="Enable automatic updates" />
             <Button onClick={save} disabled={form.processing}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              {t('Save')}
+              {translateText('Save')}
             </Button>
           </div>
         </div>
@@ -77,7 +77,7 @@ function AutoUpdateRow({ server, autoUpdate }: { server: number; autoUpdate: Aut
 }
 
 function Fail2banRow({ server, fail2ban }: { server: number; fail2ban: Service | null }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const installing = fail2ban?.status === 'installing' || fail2ban?.status === 'uninstalling';
 
@@ -94,7 +94,7 @@ function Fail2banRow({ server, fail2ban }: { server: number; fail2ban: Service |
                   {serviceStatusLabel(fail2ban.status)}
                 </Badge>
               ) : (
-                <Badge variant="gray">{t('not applied')}</Badge>
+                <Badge variant="gray">{translateText('not applied')}</Badge>
               )}
             </CardTitle>
             <CardDescription>Bans IP addresses with too many failed SSH login attempts.</CardDescription>
@@ -103,7 +103,7 @@ function Fail2banRow({ server, fail2ban }: { server: number; fail2ban: Service |
             {fail2ban ? (
               <>
                 <Button variant="outline" disabled={installing} onClick={() => dialog.fail2banForm.open({ serverId: server, fail2ban })}>
-                  Configure
+                  {translateText("Configure")}
                 </Button>
                 <Button
                   variant="destructive"
@@ -119,11 +119,11 @@ function Fail2banRow({ server, fail2ban }: { server: number; fail2ban: Service |
                     })
                   }
                 >
-                  {t('Uninstall')}
+                  {translateText('Uninstall')}
                 </Button>
               </>
             ) : (
-              <Button onClick={() => dialog.fail2banForm.open({ serverId: server, fail2ban: null })}>{t('Install')}</Button>
+              <Button onClick={() => dialog.fail2banForm.open({ serverId: server, fail2ban: null })}>{translateText('Install')}</Button>
             )}
           </div>
         </div>
@@ -176,7 +176,7 @@ function ScoreCard({ score, children }: { score: SecurityScore; children: ReactN
 }
 
 function FirewallRow({ server, firewall }: { server: number; firewall: Service | null }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const installing = firewall?.status === 'installing' || firewall?.status === 'uninstalling';
   return (
     <div>
@@ -191,7 +191,7 @@ function FirewallRow({ server, firewall }: { server: number; firewall: Service |
                   {serviceStatusLabel(firewall.status)}
                 </Badge>
               ) : (
-                <Badge variant="gray">{t('not applied')}</Badge>
+                <Badge variant="gray">{translateText('not applied')}</Badge>
               )}
             </CardTitle>
             <CardDescription>A UFW firewall controls which ports accept inbound connections.</CardDescription>
@@ -202,7 +202,7 @@ function FirewallRow({ server, firewall }: { server: number; firewall: Service |
             </Button>
           ) : (
             <Button disabled={installing} onClick={() => router.post(`/servers/${server}/security/firewall`, {}, { preserveScroll: true })}>
-              {t('Install')}
+              {translateText('Install')}
             </Button>
           )}
         </div>
@@ -212,7 +212,7 @@ function FirewallRow({ server, firewall }: { server: number; firewall: Service |
 }
 
 export default function Security() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     score: SecurityScore;
@@ -253,7 +253,7 @@ export default function Security() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Security')} description="Harden this server: automatic updates, firewall, Fail2ban, and SSH access." />
+          <Heading title={translateText('Security')} description="Harden this server: automatic updates, firewall, Fail2ban, and SSH access." />
           <Button variant="outline" onClick={check} disabled={checking} aria-label="Check security status">
             {checking ? <LoaderCircleIcon className="animate-spin" /> : <RefreshCwIcon />}
             <span className="hidden lg:block">Check status</span>

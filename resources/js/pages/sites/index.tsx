@@ -87,7 +87,7 @@ function CreatedAtCell({ value }: CellRenderProps) {
 }
 
 export default function Sites() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page & SharedData>();
 
   const Comp = page.props.server ? ServerLayout : Layout;
@@ -139,10 +139,10 @@ export default function Sites() {
                       }}
                     >
                       <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by project">
-                        <SelectValue placeholder={t('Select a project')} />
+                        <SelectValue placeholder={translateText('Select a project')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">{t('All Projects')}</SelectItem>
+                        <SelectItem value="all">{translateText('All Projects')}</SelectItem>
                         {(page.props.auth.user.projects ?? []).map((project) => (
                           <SelectItem key={project.id} value={project.id.toString()}>
                             {project.name}
@@ -168,10 +168,10 @@ export default function Sites() {
                       }}
                     >
                       <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by server">
-                        <SelectValue placeholder={t('All Servers')} />
+                        <SelectValue placeholder={translateText('All Servers')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">{t('All Servers')}</SelectItem>
+                        <SelectItem value="all">{translateText('All Servers')}</SelectItem>
                         {filteredServers.map((server) => (
                           <SelectItem key={server.id} value={server.id.toString()}>
                             {server.name}
@@ -197,11 +197,11 @@ export default function Sites() {
                       }}
                     >
                       <SelectTrigger className="h-8 w-36 text-sm" aria-label="Group sites by">
-                        <SelectValue placeholder={t('No grouping')} />
+                        <SelectValue placeholder={translateText('No grouping')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">{t('No grouping')}</SelectItem>
-                        <SelectItem value="project">Group by Project</SelectItem>
+                        <SelectItem value="none">{translateText('No grouping')}</SelectItem>
+                        <SelectItem value="project">{translateText("Group by Project")}</SelectItem>
                         <SelectItem value="server">Group by Server</SelectItem>
                       </SelectContent>
                     </Select>
@@ -219,7 +219,7 @@ export default function Sites() {
                       }
                     >
                       <PlusIcon />
-                      {t('Create site')}
+                      {translateText('Create site')}
                     </Link>
                   </Button>
                 </div>

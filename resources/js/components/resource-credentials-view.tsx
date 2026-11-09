@@ -28,7 +28,7 @@ export default function ResourceCredentialsView({
   redacted = false,
   onReveal,
 }: ResourceCredentialsViewProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [masked, setMasked] = useState(true);
   const [copiedEnv, setCopiedEnv] = useState(false);
   const [copiedDeeplink, setCopiedDeeplink] = useState(false);
@@ -123,8 +123,8 @@ export default function ResourceCredentialsView({
               className="size-6 text-muted-foreground hover:text-foreground"
               onClick={copyEnv}
               disabled={redacted}
-              aria-label="Copy environment variables"
-              title={t('Copy to clipboard')}
+              aria-label={translateText("Copy environment variables")}
+              title={translateText('Copy to clipboard')}
             >
               {copiedEnv ? <CheckIcon className="text-success size-3" /> : <CopyIcon className="size-3" />}
             </Button>
@@ -167,7 +167,7 @@ export default function ResourceCredentialsView({
             onClick={copyDeeplink}
             disabled={redacted}
             aria-label={`Copy ${deeplinkLabel}`}
-            title={t('Copy')}
+            title={translateText('Copy')}
           >
             {copiedDeeplink ? <CheckIcon className="text-success size-3" /> : <CopyIcon className="size-3" />}
           </Button>

@@ -32,7 +32,7 @@ export default function WorkerEnvDialog({
   workerId?: number;
   siteId?: number;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const groupLabelId = useId();
   const [variables, setVariables] = useState<EnvVariable[]>([]);
   const [apply, setApply] = useState<ApplyChoice>('');
@@ -155,7 +155,7 @@ export default function WorkerEnvDialog({
                   Failed to load the environment variables.
                   <Button type="button" variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
                     <RefreshCwIcon className={query.isFetching ? 'animate-spin' : ''} />
-                    {t('Retry')}
+                    {translateText('Retry')}
                   </Button>
                 </AlertDescription>
               </Alert>
@@ -172,7 +172,7 @@ export default function WorkerEnvDialog({
                 ))}
                 <Button type="button" variant="outline" className="w-full" onClick={handleAddVariable}>
                   <PlusIcon className="mr-2 size-4" />
-                  Add Variable
+                  {translateText("Add Variable")}
                 </Button>
               </div>
             ) : (
@@ -190,20 +190,20 @@ export default function WorkerEnvDialog({
           <div className="shrink-0 pt-4">
             {workerMode ? (
               <FormField>
-                <Label id={groupLabelId}>How should we apply this change?</Label>
+                <Label id={groupLabelId}>{translateText("How should we apply this change?")}</Label>
                 <RadioGroup value={apply} onValueChange={(value) => setApply(value as ApplyChoice)} aria-labelledby={groupLabelId} className="gap-2">
                   <RadioCard
                     value="config"
                     selected={apply === 'config'}
                     onSelect={(value) => setApply(value as ApplyChoice)}
-                    title="Update config only"
+                    title={translateText("Update config only")}
                     description="The worker keeps running with its current variables. The change takes effect on the next restart or deploy."
                   />
                   <RadioCard
                     value="restart"
                     selected={apply === 'restart'}
                     onSelect={(value) => setApply(value as ApplyChoice)}
-                    title="Update and restart now"
+                    title={translateText("Update and restart now")}
                     description="Rewrites the config and restarts the worker immediately so the new variables take effect right away."
                   />
                 </RadioGroup>
@@ -218,11 +218,11 @@ export default function WorkerEnvDialog({
         <SheetFooter className="shrink-0">
           <div className="flex items-center gap-2">
             <SheetClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </SheetClose>
             <Button form="worker-env-form" type="submit" disabled={form.processing || !query.isSuccess || hasDuplicates || choiceMissing}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              {t('Save')}
+              {translateText('Save')}
             </Button>
           </div>
         </SheetFooter>

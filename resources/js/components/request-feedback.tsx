@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { httpErrorMessage } from '@/lib/request-error';
 
 export function RequestFeedback() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { locale = 'en' } = usePage().props;
 
   useEffect(() => {
@@ -14,18 +14,18 @@ export function RequestFeedback() {
   useEffect(() => {
     const stopNetwork = router.on('networkError', (event) => {
       event.preventDefault();
-      toast.error(t('The connection failed. Check your network and try again.'), { id: 'request-error' });
+      toast.error(translateText('The connection failed. Check your network and try again.'), { id: 'request-error' });
     });
     const stopHttp = router.on('httpException', (event) => {
       event.preventDefault();
-      toast.error(t(httpErrorMessage(event.detail.response.status, 'The request could not be completed. Please try again.')), { id: 'request-error' });
+      toast.error(translateText(httpErrorMessage(event.detail.response.status, 'The request could not be completed. Please try again.')), { id: 'request-error' });
     });
 
     return () => {
       stopNetwork();
       stopHttp();
     };
-  }, [t]);
+  }, [translateText]);
 
   return null;
 }

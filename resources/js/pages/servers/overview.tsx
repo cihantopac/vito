@@ -16,7 +16,7 @@ import { type OverviewSite, useOverviewResources } from '@/hooks/use-overview-re
 import { RecentSitesSkeleton } from '@/components/page-skeleton';
 
 export default function ServerOverview() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData & { server: Server }>();
   const server = useRealtimeRecord<Server>(page.props.server, 'server')!;
   const [recentSiteIds, setRecentSiteIds] = useState<number[]>([]);
@@ -45,9 +45,9 @@ export default function ServerOverview() {
 
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-4 border-b px-4 py-3">
-          <CardTitle className="text-sm font-semibold">{t('Recent sites')}</CardTitle>
+          <CardTitle className="text-sm font-semibold">{translateText('Recent sites')}</CardTitle>
           <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs" asChild>
-            <Link href={`/servers/${server.id}/sites`}>{t('All')}</Link>
+            <Link href={`/servers/${server.id}/sites`}>{translateText('All')}</Link>
           </Button>
         </CardHeader>
         <CardContent className="p-0">
@@ -55,7 +55,7 @@ export default function ServerOverview() {
             <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
               <span className="text-destructive text-sm">Recent sites could not be loaded.</span>
               <Button variant="outline" size="sm" onClick={() => void resources.refetch()}>
-                {t('Retry')}
+                {translateText('Retry')}
               </Button>
             </div>
           ) : resources.isLoading ? (
@@ -105,15 +105,15 @@ export default function ServerOverview() {
             <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
               <GlobeIcon className="text-muted-foreground size-5" />
               <div className="flex flex-col gap-0.5">
-                <h3 className="text-sm font-medium">{t('No recent sites')}</h3>
-                <p className="text-muted-foreground text-xs">{t('Sites you open on this server will appear here.')}</p>
+                <h3 className="text-sm font-medium">{translateText('No recent sites')}</h3>
+                <p className="text-muted-foreground text-xs">{translateText('Sites you open on this server will appear here.')}</p>
               </div>
               {!server.is_self && (
                 <div className="pt-2">
                   <Button size="sm" className="gap-1.5 cursor-pointer" asChild>
                     <Link href={`/servers/${server.id}/sites/create`}>
                       <PlusIcon className="size-3.5" />
-                      {t('Create site')}
+                      {translateText('Create site')}
                     </Link>
                   </Button>
                 </div>

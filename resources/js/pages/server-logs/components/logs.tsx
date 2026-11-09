@@ -10,7 +10,7 @@ import { DataTable } from '@/components/data-table';
 import { columns } from '@/pages/server-logs/components/columns';
 
 export default function Logs({ server, site }: { server: Server; site?: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [currentPage, setCurrentPage] = useState(1);
   const queryClient = useQueryClient();
 
@@ -43,7 +43,7 @@ export default function Logs({ server, site }: { server: Server; site?: Site }) 
       {query.isError ? (
         <div role="alert" className="flex items-center gap-2 text-sm">
           <span>Unable to load server logs.</span>
-          <button type="button" className="underline" onClick={() => void query.refetch()}>{t('Try again')}</button>
+          <button type="button" className="underline" onClick={() => void query.refetch()}>{translateText('Try again')}</button>
         </div>
       ) : query.isLoading ? (
         <TableSkeleton rows={5} cells={3} />

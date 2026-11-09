@@ -8,15 +8,15 @@ import { useDialog } from '@/hooks/use-dialog';
 import { withQuery } from '@/lib/url';
 
 export default function ServerOfflineBanner({ server }: { server: Server }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   return (
     <Alert className="border-warning/35 bg-warning/5 [&>svg]:text-warning">
       <WifiOffIcon />
-      <AlertTitle>Server offline — read-only mode</AlertTitle>
+      <AlertTitle>{translateText("Server offline — read-only mode")}</AlertTitle>
       <AlertDescription>
         <div className="flex w-full flex-wrap items-center justify-between gap-3">
-          <p className="min-w-0 flex-1 basis-64">Saved data is available. Changes and live metrics are paused until the server reconnects.</p>
+          <p className="min-w-0 flex-1 basis-64">{translateText("Saved data is available. Changes and live metrics are paused until the server reconnects.")}</p>
           {server.can_power_manage ? (
         <Button
           variant="outline"
@@ -31,12 +31,12 @@ export default function ServerOfflineBanner({ server }: { server: Server }) {
             })
           }
         >
-          Start server
+          {translateText("Start server")}
         </Button>
       ) : (
         <Button variant="outline" size="sm" asChild>
           <Link href={withQuery(`/servers/${server.id}/restart`, { start: 1 })}>
-            {t('Restart')}
+            {translateText('Restart')}
           </Link>
         </Button>
       )}

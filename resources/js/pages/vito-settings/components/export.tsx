@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { DownloadIcon } from 'lucide-react';
 
 export default function ExportVito() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const submit = () => {
     window.open("/admin/vito/export", '_blank');
   };
@@ -11,7 +11,7 @@ export default function ExportVito() {
   return (
     <Button onClick={submit}>
       <DownloadIcon />
-      {t('Export')}
+      {translateText('Export')}
     </Button>
   );
 }

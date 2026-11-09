@@ -26,7 +26,7 @@ type Page = {
 };
 
 export default function Backups() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
 
@@ -38,11 +38,11 @@ export default function Backups() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Backups')} />
+          <Heading title={translateText('Backups')} />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.backupCreate.open({ server: page.props.server })}>
               <PlusIcon />
-              <span className="hidden lg:block">{t('Create')}</span>
+              <span className="hidden lg:block">{translateText('Create')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -50,19 +50,18 @@ export default function Backups() {
         {page.props.replicaOf && (
           <Alert>
             <InfoIcon />
-            <AlertTitle>{t('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
+            <AlertTitle>{translateText('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
-                It holds the same data as {page.props.replicaOf.name}, so it isn't backed up separately. The cluster has one pgBackRest backup, set up on{' '}
-                {page.props.replicaOf.name}. Pure runs it on the healthiest, most caught-up replica, which can be this server, straight to S3, and on the
-                primary only when no replica qualifies. The Host column of each backup shows where it ran.
+                {translateText("It holds the same data as")} {page.props.replicaOf.name}{translateText(", so it isn't backed up separately. The cluster has one pgBackRest backup, set up on")}{' '}
+                {page.props.replicaOf.name}{translateText(". Pure runs it on the healthiest, most caught-up replica, which can be this server, straight to S3, and on the primary only when no replica qualifies. The Host column of each backup shows where it ran.")}
               </p>
               {page.props.replicaOf.backup_id && (
                 <Link
                   href={`/servers/${page.props.replicaOf.server_id}/backups/${page.props.replicaOf.backup_id}/files`}
                   className="text-foreground underline"
                 >
-                  View the cluster's backups
+                  {translateText("View the cluster's backups")}
                 </Link>
               )}
             </AlertDescription>

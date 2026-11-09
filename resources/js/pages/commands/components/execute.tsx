@@ -28,7 +28,7 @@ export default function Execute({
   onOpenChange: (open: boolean) => void;
   command: Command;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<Record<string, string>>({});
 
   const submit = (e: FormEvent) => {
@@ -42,8 +42,8 @@ export default function Execute({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{t('Run')} {command.name}</DialogTitle>
-          <DialogDescription>The output will open automatically and update live.</DialogDescription>
+          <DialogTitle>{translateText('Run')} {command.name}</DialogTitle>
+          <DialogDescription>{translateText("The output will open automatically and update live.")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 p-4">
           <div className="bg-muted rounded-md border p-3 font-mono text-sm break-all whitespace-pre-wrap">{command.command}</div>
@@ -61,12 +61,12 @@ export default function Execute({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="execute-command-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Run command
+            {translateText("Run command")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -14,7 +14,7 @@ import { Project } from '@/types/project';
 import { useMemo } from 'react';
 
 export default function ApiKeys() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     apiKeys: PaginatedData<ApiKey>;
     projects: Project[];
@@ -24,15 +24,15 @@ export default function ApiKeys() {
 
   return (
     <SettingsLayout>
-      <Head title={t('API Keys')} />
+      <Head title={translateText('API Keys')} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={t('API Keys')} />
+          <Heading title={translateText('API Keys')} />
           <div className="flex items-center gap-2">
             <CreateApiKey projects={page.props.projects}>
               <Button>
                 <PlusIcon />
-                {t('Create')}
+                {translateText('Create')}
               </Button>
             </CreateApiKey>
           </div>

@@ -30,7 +30,7 @@ export default function SiteCi() {
 }
 
 function SiteCiContent() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { server, site, runner, canConfigure, canRun, runnerServers } = usePage<{
     server: Server;
     site: Site;
@@ -109,7 +109,7 @@ function SiteCiContent() {
     {!runner && <Alert><AlertDescription>No CI runner is connected. {canConfigure ? 'Connect an isolated runner above.' : 'Ask an administrator to connect a runner for this repository.'}</AlertDescription></Alert>}
     {runner && <p className="text-sm text-muted-foreground">Runner: {runner.server_name} · {runner.repository}</p>}
     {runner && !runner.enabled && <Alert><AlertDescription>CI is paused. Existing jobs are not cancelled by pausing this connection.</AlertDescription></Alert>}
-    {query.isError && <Alert variant="destructive"><AlertDescription>{ciError(query.error)} <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()} disabled={query.isFetching}>{t('Retry')}</Button></AlertDescription></Alert>}
+    {query.isError && <Alert variant="destructive"><AlertDescription>{ciError(query.error)} <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()} disabled={query.isFetching}>{translateText('Retry')}</Button></AlertDescription></Alert>}
     {runner?.enabled && canRun && <form onSubmit={start} className="space-y-3 rounded-xl border bg-card p-4">
       <Label htmlFor="ci-ref">Branch, PR or commit</Label>
       <div className="flex flex-col gap-2 sm:flex-row"><Input id="ci-ref" value={ref} onChange={(event) => setRef(event.target.value)} placeholder="main, pr:47 or a full commit SHA" maxLength={200} required autoComplete="off" /><Button type="submit" disabled={submitting || busy || !query.isSuccess || !ref.trim() || (!all && chosen.length === 0)}>{submitting ? 'Submitting…' : 'Run CI'}</Button></div>
@@ -132,7 +132,7 @@ function SiteCiContent() {
         <p className="break-all font-mono text-xs text-muted-foreground">{selected.sha || 'Commit not resolved yet'}</p>
         {selected.status === 'infrastructure_error' && <Alert variant="destructive"><AlertDescription>{selected.failure_reason || 'The environment could not complete this job. This is not a passing check; inspect the log before retrying.'}</AlertDescription></Alert>}
         {selected.local_stack_mode === 'fake' && <Alert><AlertDescription>Local stack used fake engines. It verifies the application wiring, not real engine analysis.</AlertDescription></Alert>}
-        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="py-2">{t('Stage')}</th><th>{t('Result')}</th><th>{t('Duration')}</th><th>Peak memory</th></tr></thead><tbody>{selected.stages.map((item) => <tr key={item.name} className="border-b"><th scope="row" className="py-2 text-left font-normal">{item.name}</th><td>{statusLabel(item.result)}</td><td>{item.seconds === null ? '—' : `${item.seconds.toFixed(1)}s`}</td><td>{item.peak_mem_mb === null ? '—' : `${Math.round(item.peak_mem_mb)} MiB${item.sampled_memory ? ' (sampled)' : ''}`}</td></tr>)}</tbody></table></div>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="py-2">{translateText('Stage')}</th><th>{translateText('Result')}</th><th>{translateText('Duration')}</th><th>Peak memory</th></tr></thead><tbody>{selected.stages.map((item) => <tr key={item.name} className="border-b"><th scope="row" className="py-2 text-left font-normal">{item.name}</th><td>{statusLabel(item.result)}</td><td>{item.seconds === null ? '—' : `${item.seconds.toFixed(1)}s`}</td><td>{item.peak_mem_mb === null ? '—' : `${Math.round(item.peak_mem_mb)} MiB${item.sampled_memory ? ' (sampled)' : ''}`}</td></tr>)}</tbody></table></div>
         <div className="space-y-2"><Label htmlFor="ci-log-stage">Log</Label><select id="ci-log-stage" value={stage} onChange={(event) => setStage(event.target.value)} className="h-9 w-full rounded-md border bg-background px-3 text-sm"><option value="">All stages</option>{selected.stages.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}</select>
           {log.error && <p role="alert" className="text-sm text-destructive">{log.error}</p>}
           {log.loading && !log.text && <p role="status" className="text-sm">Loading log…</p>}

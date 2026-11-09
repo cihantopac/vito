@@ -20,7 +20,7 @@ import { LoaderCircleIcon } from 'lucide-react';
 import { ProjectSelect } from '@/components/project-select';
 
 export default function TransferServer({ server, children }: { server: Server; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
 
   const form = useForm({
@@ -46,14 +46,14 @@ export default function TransferServer({ server, children }: { server: Server; c
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Transfer {server.name}</DialogTitle>
+          <DialogTitle>{translateText("Transfer")} {server.name}</DialogTitle>
           <DialogDescription className="sr-only">Transfer server to another project</DialogDescription>
         </DialogHeader>
 
         <Form id="transfer-server-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="project_id">{t('Project')}</Label>
+              <Label htmlFor="project_id">{translateText('Project')}</Label>
               <ProjectSelect value={form.data.project_id} onValueChange={handleProjectChange} placeholder="Select project..." className="w-full" />
               <InputError message={form.errors.project_id} />
             </FormField>
@@ -62,7 +62,7 @@ export default function TransferServer({ server, children }: { server: Server; c
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
 
           <Button form="transfer-server-form" disabled={form.processing}>

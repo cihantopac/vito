@@ -4,7 +4,7 @@ import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Uninstall({ service }: { service: Service }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Uninstall({ service }: { service: Service }) {
         })
       }
     >
-      {t('Uninstall')}
+      {translateText('Uninstall')}
     </DropdownMenuItem>
   );
 }

@@ -4,7 +4,7 @@ import { ServerProvider } from '@/types/server-provider';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ serverProvider }: { serverProvider: ServerProvider }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Delete({ serverProvider }: { serverProvider: ServerProvi
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

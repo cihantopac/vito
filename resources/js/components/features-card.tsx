@@ -23,7 +23,7 @@ export default function FeaturesCard({
   features, 
   onActionSelect 
 }: FeaturesCardProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex-row items-center justify-between gap-2">
@@ -44,7 +44,7 @@ export default function FeaturesCard({
                 <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline">
-                      {t('Actions')}
+                      {translateText('Actions')}
                       <MoreVerticalIcon />
                     </Button>
                   </DropdownMenuTrigger>
@@ -66,9 +66,9 @@ export default function FeaturesCard({
           ))
         ) : (
           <CardRow className="flex-col items-center justify-center space-y-2">
-            <span className="text-muted-foreground">No available features</span>
+            <span className="text-muted-foreground">{translateText("No available features")}</span>
             <Link href={"/admin/plugins"} prefetch>
-              <Button variant="outline">Explore Plugins</Button>
+              <Button variant="outline">{translateText("Explore Plugins")}</Button>
             </Link>
           </CardRow>
         )}

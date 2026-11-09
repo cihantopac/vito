@@ -80,7 +80,7 @@ function LiveStatusBadge({ serviceId, liveStatuses }: { serviceId: number; liveS
 }
 
 export default function ServicesIndex() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const { server, services, refreshing } = page.props;
   const isOffline = server.status === 'disconnected';
@@ -124,16 +124,16 @@ export default function ServicesIndex() {
       <Container>
         <RuntimeProcesses kind="service" />
         <HeaderContainer>
-          <Heading title={t('Services')} description="Here you can manage server's services" />
+          <Heading title={translateText('Services')} description="Here you can manage server's services" />
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={refresh} disabled={busy || isOffline}>
               <RefreshCwIcon className={cn(busy && 'animate-spin')} />
-              <span className="hidden lg:block">{t('Refresh')}</span>
+              <span className="hidden lg:block">{translateText('Refresh')}</span>
             </Button>
             <InstallService>
               <Button disabled={isOffline}>
                 <PlusIcon />
-                <span className="hidden lg:block">{t('Install')}</span>
+                <span className="hidden lg:block">{translateText('Install')}</span>
               </Button>
             </InstallService>
           </div>

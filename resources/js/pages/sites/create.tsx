@@ -80,7 +80,7 @@ export default function CreateSitePage({
 }: {
   server?: Server;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData & { server?: Server }>();
   const server = propServer || page.props.server;
   const isServerContext = Boolean(server && !server.is_self);
@@ -310,7 +310,7 @@ export default function CreateSitePage({
 
   return (
     <PageLayout>
-      <Head title={t('Create site')} />
+      <Head title={translateText('Create site')} />
 
       <Container className="max-w-3xl py-8">
         <div className="mb-6">
@@ -381,7 +381,7 @@ export default function CreateSitePage({
 
               <div className="p-4 sm:p-5 border-t bg-muted/20 flex items-center justify-between">
                 <Button variant="outline" asChild>
-                  <Link href={backRoute}>{t('Cancel')}</Link>
+                  <Link href={backRoute}>{translateText('Cancel')}</Link>
                 </Button>
               </div>
             </div>
@@ -433,7 +433,7 @@ export default function CreateSitePage({
                     <>
                       {server === undefined && (
                         <FormField>
-                          <Label htmlFor="server">{t('Server')}</Label>
+                          <Label htmlFor="server">{translateText('Server')}</Label>
                           <ServerSelect
                             value={form.data.server}
                             excludeSelf
@@ -447,7 +447,7 @@ export default function CreateSitePage({
                         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1.4fr] items-end gap-2 sm:gap-3">
                           <FormField className="w-full">
                             <Label htmlFor="source_control" className="text-xs">
-                              Source control provider
+                              {translateText("Source control provider")}
                             </Label>
                             <SourceControlSelect
                               id="source_control"
@@ -464,7 +464,7 @@ export default function CreateSitePage({
 
                           <FormField className="w-full">
                             <Label htmlFor="repository" className="text-xs">
-                              {t('Repository')}
+                              {translateText('Repository')}
                             </Label>
                             <SelectRepo
                               sourceControlId={form.data.source_control}
@@ -532,7 +532,7 @@ export default function CreateSitePage({
                                 <div className="font-mono text-foreground">{vitoDetected.config.web_directory || 'public'}</div>
                               </div>
                               <div className="bg-background/80 rounded p-2 border">
-                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">{t('Commands')}</div>
+                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">{translateText('Commands')}</div>
                                 <div className="font-mono text-foreground">{vitoDetected.config.commands?.length ?? 0} step(s)</div>
                               </div>
                               <div className="bg-background/80 rounded p-2 border">
@@ -559,7 +559,7 @@ export default function CreateSitePage({
                     <>
                       {server === undefined && (
                         <FormField>
-                          <Label htmlFor="server">{t('Server')}</Label>
+                          <Label htmlFor="server">{translateText('Server')}</Label>
                           <ServerSelect
                             value={form.data.server}
                             excludeSelf
@@ -583,7 +583,7 @@ export default function CreateSitePage({
                           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1.4fr] items-end gap-2 sm:gap-3">
                             <FormField className="w-full">
                               <Label htmlFor="source_control" className="text-xs">
-                                Source control provider
+                                {translateText("Source control provider")}
                               </Label>
                               <SourceControlSelect
                                 id="source_control"
@@ -600,7 +600,7 @@ export default function CreateSitePage({
 
                             <FormField className="w-full">
                               <Label htmlFor="repository" className="text-xs">
-                                {t('Repository')}
+                                {translateText('Repository')}
                               </Label>
                               <SelectRepo
                                 sourceControlId={form.data.source_control}
@@ -628,7 +628,7 @@ export default function CreateSitePage({
 
                       {isPhpType && (
                         <FormField>
-                          <Label htmlFor="php_version">{t('PHP version')}</Label>
+                          <Label htmlFor="php_version">{translateText('PHP version')}</Label>
                           <ServiceVersionSelect
                             id="php_version"
                             service="php"
@@ -655,7 +655,7 @@ export default function CreateSitePage({
                             <span>Advanced Settings</span>
                             {hasAdvancedErrors && (
                               <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
-                                {t('Error')}
+                                {translateText('Error')}
                               </Badge>
                             )}
                           </button>
@@ -673,12 +673,12 @@ export default function CreateSitePage({
 
                 <div className="pt-4 border-t flex items-center justify-between">
                   <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={form.processing}>
-                    <ArrowLeftIcon className="mr-1.5 size-4" /> {t('Back')}
+                    <ArrowLeftIcon className="mr-1.5 size-4" /> {translateText('Back')}
                   </Button>
 
                   <Button type="submit" disabled={form.processing}>
                     {form.processing && <LoaderCircleIcon className="mr-1.5 size-4 animate-spin" />}
-                    {t('Create site')}
+                    {translateText('Create site')}
                   </Button>
                 </div>
               </Form>

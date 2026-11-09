@@ -16,20 +16,20 @@ type Page = {
 };
 
 export default function Domains() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
 
   return (
     <SettingsLayout>
-      <Head title={t('Domains')} />
+      <Head title={translateText('Domains')} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={t('Domains')} />
+          <Heading title={translateText('Domains')} />
           <div className="flex items-center gap-2">
             <AddDomain>
               <Button>
                 <PlusIcon />
-                {t('Add Domain')}
+                {translateText('Add Domain')}
               </Button>
             </AddDomain>
           </div>

@@ -4,8 +4,8 @@ import { DNSProvider } from '@/types/dns-provider';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Edit({ dnsProvider }: { dnsProvider: DNSProvider }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.dnsProviderEdit.open({ dnsProvider })}>{t('Edit')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.dnsProviderEdit.open({ dnsProvider })}>{translateText('Edit')}</DropdownMenuItem>;
 }

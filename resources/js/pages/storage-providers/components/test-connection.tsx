@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { StorageProvider } from '@/types/storage-provider';
 import axios from 'axios';
@@ -7,6 +8,7 @@ import { LoaderCircleIcon } from 'lucide-react';
 import { requestErrorMessage } from '@/lib/request-error';
 
 export default function TestConnection({ storageProvider }: { storageProvider: StorageProvider }) {
+  const translateText = useTranslate();
   const [testing, setTesting] = useState(false);
 
   const test = async () => {
@@ -28,7 +30,7 @@ export default function TestConnection({ storageProvider }: { storageProvider: S
   return (
     <DropdownMenuItem onSelect={(e) => { e.preventDefault(); void test(); }} disabled={testing}>
       {testing && <LoaderCircleIcon className="animate-spin" />}
-      Test connection
+      {translateText("Test connection")}
     </DropdownMenuItem>
   );
 }

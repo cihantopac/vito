@@ -11,7 +11,7 @@ import { Server } from '@/types/server';
 type Tab = 'restore' | 'replica' | 'primary';
 
 export default function ReplicaLogs({ replica }: { replica: DatabaseReplica }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [tab, setTab] = useState<Tab>(replica.status === 'seeding' || replica.status === 'failed' ? 'restore' : 'replica');
 
   const restore = useQuery({
@@ -30,12 +30,11 @@ export default function ReplicaLogs({ replica }: { replica: DatabaseReplica }) {
   ];
 
   return (
-    <section id="logs" className="flex flex-col gap-3" aria-label="Replica logs">
+    <section id="logs" className="flex flex-col gap-3" aria-label={translateText("Replica logs")}>
       <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-semibold">{t('Logs')}</h3>
+        <h3 className="text-lg font-semibold">{translateText('Logs')}</h3>
         <p className="text-muted-foreground text-sm">
-          Every command Pure runs for this replica is logged on the server it ran on: network, firewall, pg_hba.conf, pgBackRest and certificates. The
-          restore output comes straight from the restore process on the replica.
+          {translateText("Every command Pure runs for this replica is logged on the server it ran on: network, firewall, pg_hba.conf, pgBackRest and certificates. The restore output comes straight from the restore process on the replica.")}
         </p>
       </div>
       <div className="flex flex-wrap gap-1" role="tablist">

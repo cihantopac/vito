@@ -9,7 +9,7 @@ import { Project } from '@/types/project';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Delete({ apiKey }: { apiKey: ApiKey }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -26,7 +26,7 @@ function Delete({ apiKey }: { apiKey: ApiKey }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

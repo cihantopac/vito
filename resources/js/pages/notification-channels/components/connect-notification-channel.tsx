@@ -39,7 +39,7 @@ export default function ConnectNotificationChannel({
   onProviderAdded?: () => void;
   children: ReactNode;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
 
   const configs = useConfigs()!;
@@ -67,13 +67,13 @@ export default function ConnectNotificationChannel({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Connect to notification channel</DialogTitle>
-          <DialogDescription className="sr-only">Connect to a new notification channel</DialogDescription>
+          <DialogTitle>{translateText("Connect to notification channel")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Connect to a new notification channel")}</DialogDescription>
         </DialogHeader>
         <Form id="create-notification-channel-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="provider">{t('Provider')}</Label>
+              <Label htmlFor="provider">{translateText('Provider')}</Label>
               <Select
                 value={form.data.provider}
                 onValueChange={(value) => {
@@ -82,7 +82,7 @@ export default function ConnectNotificationChannel({
                 }}
               >
                 <SelectTrigger id="provider">
-                  <SelectValue placeholder={t('Select a provider')} />
+                  <SelectValue placeholder={translateText('Select a provider')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -97,12 +97,12 @@ export default function ConnectNotificationChannel({
               <InputError message={form.errors.provider} />
             </FormField>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input
                 type="text"
                 name="name"
                 id="name"
-                placeholder={t('Name')}
+                placeholder={translateText('Name')}
                 value={form.data.name}
                 onChange={(e) => form.setData('name', e.target.value)}
               />
@@ -123,7 +123,7 @@ export default function ConnectNotificationChannel({
             <FormField>
               <div className="flex items-center space-x-3">
                 <Checkbox id="global" name="global" checked={form.data.global} onClick={() => form.setData('global', !form.data.global)} />
-                <Label htmlFor="global">{t('Is global (accessible in all projects)')}</Label>
+                <Label htmlFor="global">{translateText('Is global (accessible in all projects)')}</Label>
               </div>
               <InputError message={form.errors.global} />
             </FormField>
@@ -132,12 +132,12 @@ export default function ConnectNotificationChannel({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            {t('Connect')}
+            {translateText('Connect')}
           </Button>
         </DialogFooter>
       </DialogContent>

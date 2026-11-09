@@ -31,7 +31,7 @@ type Page = SharedData & {
 };
 
 export default function SourceControls() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const configs = useConfigs()!;
   const githubAppInstalled = configs.github_app.installed;
@@ -107,21 +107,21 @@ export default function SourceControls() {
 
   return (
     <SettingsLayout>
-      <Head title="Source Controls" />
+      <Head title={translateText("Source Controls")} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Source Controls" description="Here you can manage all of the source control connections" />
+          <Heading title={translateText("Source Controls")} description="Here you can manage all of the source control connections" />
           <div className="flex items-center gap-2">
             {githubAppInstalled && (
-              <a href={"/admin/github-app/install"} title="Install GitHub App on an organization">
+              <a href={"/admin/github-app/install"} title={translateText("Install GitHub App on an organization")}>
                 <Button variant="outline" size="icon">
                   <GithubIcon />
-                  <span className="sr-only">Install GitHub App on an organization</span>
+                  <span className="sr-only">{translateText("Install GitHub App on an organization")}</span>
                 </Button>
               </a>
             )}
             <ConnectSourceControl>
-              <Button>{t('Connect')}</Button>
+              <Button>{translateText('Connect')}</Button>
             </ConnectSourceControl>
           </div>
         </div>
@@ -165,10 +165,10 @@ export default function SourceControls() {
             }}
           >
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder={t('All Projects')} />
+              <SelectValue placeholder={translateText('All Projects')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('All Projects')}</SelectItem>
+              <SelectItem value="all">{translateText('All Projects')}</SelectItem>
               <SelectItem value="global">Global Only</SelectItem>
               {page.props.projects?.map((prj) => (
                 <SelectItem key={prj.id} value={String(prj.id)}>
@@ -186,10 +186,10 @@ export default function SourceControls() {
             }}
           >
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="All Users" />
+              <SelectValue placeholder={translateText("All Users")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Users</SelectItem>
+              <SelectItem value="all">{translateText("All Users")}</SelectItem>
               {page.props.users?.map((u) => (
                 <SelectItem key={u.id} value={String(u.id)}>
                   {u.name || u.email}
@@ -201,7 +201,7 @@ export default function SourceControls() {
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground">
               <RotateCcwIcon className="mr-1.5 size-3.5" />
-              {t('Reset')}
+              {translateText('Reset')}
             </Button>
           )}
         </div>

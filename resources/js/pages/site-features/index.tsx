@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function SiteFeatures() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -29,7 +29,7 @@ export default function SiteFeatures() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Features')} description="Your site has some features enabled by Pure or other plugins" />
+          <Heading title={translateText('Features')} description="Your site has some features enabled by Pure or other plugins" />
         </HeaderContainer>
 
         <SiteBanners site={page.props.site} />

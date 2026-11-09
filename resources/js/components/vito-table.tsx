@@ -94,7 +94,7 @@ function vitoCellRenderer({ row, value, displays, defaultRender }: CellRenderPro
 }
 
 export function VitoTable({ tableData, children, modal, isFetching, showPagination = true, toolbar, groupBy, reloadOnly, fitContent = false, columnWidths, toolbarClassName, ...props }: VitoTableProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const orderedTableData = useMemo(() => {
     const rawCols = tableData?.columns ?? [];
     let cols = orderTableColumns(rawCols, (column) => column.name);
@@ -176,8 +176,8 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
           {orderedTableData.searchable && (
             <>
               <Input
-                placeholder={t('Search...')}
-                aria-label="Search table"
+                placeholder={translateText('Search...')}
+                aria-label={translateText("Search table")}
                 className={cn('max-w-sm', toolbar && 'min-w-48 flex-1')}
                 value={searchTerm}
                 onChange={(e) => onSearch(e.target.value)}
@@ -202,7 +202,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                     <TableHead style={columnWidths?.[colDef.name] ? { width: columnWidths[colDef.name] } : undefined} key={colDef.name} className={colDef.fit ? (fitContent ? 'w-20' : 'w-0') : undefined}>
                       {colDef.sortable ? (
                         <button type="button" className="flex cursor-pointer items-center gap-2" onClick={() => onSort(colDef.sort_key)}>
-                          {typeof colDef.header === 'string' ? t(colDef.header) : colDef.header}
+                          {typeof colDef.header === 'string' ? translateText(colDef.header) : colDef.header}
                           {sortState.active ? (
                             sortState.direction === 'asc' ? (
                               <ChevronUpIcon className="text-muted-foreground inline-block h-4 w-4" />
@@ -214,7 +214,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                           )}
                         </button>
                       ) : (
-                        typeof colDef.header === 'string' ? t(colDef.header) : colDef.header
+                        typeof colDef.header === 'string' ? translateText(colDef.header) : colDef.header
                       )}
                     </TableHead>
                   );
@@ -322,7 +322,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t('No results.')}
+                  {translateText('No results.')}
                 </TableCell>
               </TableRow>
             )}
@@ -335,8 +335,8 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
               {tableData.meta.from && tableData.meta.to && (
                 <span>
                   {tableData.meta.total !== undefined
-                    ? t('Showing :from to :to of :total results', { from: tableData.meta.from, to: tableData.meta.to, total: tableData.meta.total })
-                    : t('Showing :from to :to', { from: tableData.meta.from, to: tableData.meta.to })}
+                    ? translateText('Showing :from to :to of :total results', { from: tableData.meta.from, to: tableData.meta.to, total: tableData.meta.total })
+                    : translateText('Showing :from to :to', { from: tableData.meta.from, to: tableData.meta.to })}
                 </span>
               )}
             </div>
@@ -362,7 +362,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                   className="h-8 w-8 cursor-pointer"
                   onClick={() => onPageChange(1)}
                   disabled={currentPage <= 1 || isProcessing}
-                  title={t('First page')}
+                  title={translateText('First page')}
                 >
                   <ChevronsLeft className="h-4 w-4" />
                 </Button>
@@ -373,7 +373,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                   className="h-8 w-8 cursor-pointer"
                   onClick={() => onPageChange(currentPage - 1)}
                   disabled={currentPage <= 1 || isProcessing}
-                  title={t('Previous page')}
+                  title={translateText('Previous page')}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -419,7 +419,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                   disabled={
                     (lastPage ? currentPage >= lastPage : !tableData.links?.next) || isProcessing
                   }
-                  title={t('Next page')}
+                  title={translateText('Next page')}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -432,7 +432,7 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                   disabled={
                     (lastPage ? currentPage >= lastPage : !tableData.links?.last) || isProcessing
                   }
-                  title={t('Last page')}
+                  title={translateText('Last page')}
                 >
                   <ChevronsRight className="h-4 w-4" />
                 </Button>

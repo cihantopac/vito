@@ -34,7 +34,7 @@ export default function FieldUpdateDialog({
   trigger,
   children,
 }: FieldUpdateDialogProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm({
     [fieldName]: initialValue,
@@ -68,12 +68,12 @@ export default function FieldUpdateDialog({
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
 
           <Button form={`${fieldName}-form`} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

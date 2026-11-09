@@ -23,7 +23,7 @@ import { SharedData } from '@/types';
 import siteHelper from '@/lib/site-helper';
 
 export default function DeleteServer({ server, children }: { server: Server; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
   const [open, setOpen] = useState(false);
 
@@ -61,7 +61,7 @@ export default function DeleteServer({ server, children }: { server: Server; chi
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('Remove')} {server.name} from Pure</DialogTitle>
+          <DialogTitle>{translateText('Remove')} {server.name} from Pure</DialogTitle>
           <DialogDescription className="sr-only">Remove server from Pure.</DialogDescription>
         </DialogHeader>
 
@@ -81,7 +81,7 @@ export default function DeleteServer({ server, children }: { server: Server; chi
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
 
           <Button form="delete-server-form" variant="destructive" disabled={submitDisabled}>

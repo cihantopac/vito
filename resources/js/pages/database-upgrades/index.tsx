@@ -28,7 +28,7 @@ function gigabytes(bytes: number): string {
 }
 
 export default function DatabaseUpgrades() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
   const { server, upgrade, logs } = page.props;
@@ -74,20 +74,20 @@ export default function DatabaseUpgrades() {
       <Container>
         <HeaderContainer>
           <Heading
-            title="Version upgrade"
-            description="Move every database to a server running a newer PostgreSQL, with logical replication and a switch you control."
+            title={translateText("Version upgrade")}
+            description={translateText("Move every database to a server running a newer PostgreSQL, with logical replication and a switch you control.")}
           />
           <div className="flex items-center gap-2">
             {upgrade && <Badge variant={upgrade.status_color}>{upgrade.status}</Badge>}
             {!upgrade && isSource && (
               <Button onClick={() => dialog.databaseUpgradeCreate.open({ server })}>
                 <PlusIcon />
-                <span className="hidden lg:block">Upgrade PostgreSQL</span>
+                <span className="hidden lg:block">{translateText("Upgrade PostgreSQL")}</span>
               </Button>
             )}
             {upgrade && !isSource && (
               <Button variant="outline" asChild>
-                <Link href={`/servers/${upgrade.source_server_id}/database-upgrades`}>Go to the old server</Link>
+                <Link href={`/servers/${upgrade.source_server_id}/database-upgrades`}>{translateText("Go to the old server")}</Link>
               </Button>
             )}
           </div>
@@ -97,13 +97,11 @@ export default function DatabaseUpgrades() {
           <Card>
             <CardContent className="text-muted-foreground flex flex-col gap-2 p-4 text-sm">
               <p>
-                An upgrade creates a server with the PostgreSQL version you pick, copies the roles, schemas and rows of every database onto it, and then keeps
-                it in sync. {server.name} keeps serving reads and writes the whole time.
+                {translateText("An upgrade creates a server with the PostgreSQL version you pick, copies the roles, schemas and rows of every database onto it, and then keeps it in sync.")} {server.name} {translateText("keeps serving reads and writes the whole time.")}
               </p>
               <p>
-                When the new server has caught up, you press <span className="text-foreground font-medium">Finish</span>: Pure stops new writes on{' '}
-                {server.name}, waits for the last rows, copies the sequence values and stops the copy. Pointing your applications at the new server is then up
-                to you.
+                {translateText("When the new server has caught up, you press")} <span className="text-foreground font-medium">{translateText("Finish")}</span>{translateText(": Pure stops new writes on")}{' '}
+                {server.name}{translateText(", waits for the last rows, copies the sequence values and stops the copy. Pointing your applications at the new server is then up to you.")}
               </p>
             </CardContent>
           </Card>
@@ -113,12 +111,10 @@ export default function DatabaseUpgrades() {
           <>
             {upgrade.state === 'streaming' && (
               <Alert>
-                <AlertTitle>{upgrade.target_server_name} holds every database and keeps up with the changes</AlertTitle>
+                <AlertTitle>{upgrade.target_server_name} {translateText("holds every database and keeps up with the changes")}</AlertTitle>
                 <AlertDescription className="flex flex-col gap-2">
                   <span>
-                    Check the data on the new server, then finish the upgrade. Finishing stops writes on {upgrade.source_server_name}, disconnects its
-                    applications, waits for the last rows, copies the sequence values and stops the copy. {upgrade.source_server_name} stays read-only
-                    afterwards, so nothing writes to the old database by accident.
+                    {translateText("Check the data on the new server, then finish the upgrade. Finishing stops writes on")} {upgrade.source_server_name}{translateText(", disconnects its applications, waits for the last rows, copies the sequence values and stops the copy.")} {upgrade.source_server_name} {translateText("stays read-only afterwards, so nothing writes to the old database by accident.")}
                   </span>
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -134,7 +130,7 @@ export default function DatabaseUpgrades() {
                       }
                     >
                       <ArrowRightIcon />
-                      Finish the upgrade
+                      {translateText("Finish the upgrade")}
                     </Button>
                   </div>
                 </AlertDescription>
@@ -150,10 +146,10 @@ export default function DatabaseUpgrades() {
 
             {upgrade.state === 'completed' && (
               <Alert>
-                <AlertTitle>{upgrade.databases.length} databases now live on {upgrade.target_server_name}</AlertTitle>
+                <AlertTitle>{upgrade.databases.length} {translateText("databases now live on")} {upgrade.target_server_name}</AlertTitle>
                 <AlertDescription>
-                  Point your applications at {upgrade.target_server_name}. {upgrade.source_server_name} no longer takes writes; run{' '}
-                  <span className="font-mono">ALTER SYSTEM RESET default_transaction_read_only</span> there if you ever need it back.
+                  {translateText("Point your applications at")} {upgrade.target_server_name}. {upgrade.source_server_name} {translateText("no longer takes writes; run")}{' '}
+                  <span className="font-mono">ALTER SYSTEM RESET default_transaction_read_only</span> {translateText("there if you ever need it back.")}
                 </AlertDescription>
               </Alert>
             )}
@@ -184,7 +180,7 @@ export default function DatabaseUpgrades() {
             {upgrade.warnings.length > 0 && upgrade.active && (
               <Card>
                 <CardContent className="flex flex-col gap-2 p-4 text-sm">
-                  <p className="font-medium">What this copy does not move</p>
+                  <p className="font-medium">{translateText("What this copy does not move")}</p>
                   <ul className="text-muted-foreground list-disc pl-4">
                     {upgrade.warnings.map((warning) => (
                       <li key={warning}>{warning}</li>
@@ -197,7 +193,7 @@ export default function DatabaseUpgrades() {
             <Card>
               <CardContent className="flex flex-col gap-3 p-4 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium">{t('Activity')}</p>
+                  <p className="font-medium">{translateText('Activity')}</p>
                   {upgrade.target_server_id && (
                     <Button variant="outline" size="sm" onClick={showOutput} disabled={loadingOutput}>
                       {loadingOutput ? 'Reading the copy output…' : 'Copy output'}
@@ -206,7 +202,7 @@ export default function DatabaseUpgrades() {
                 </div>
 
                 {upgrade.events.length === 0 ? (
-                  <p className="text-muted-foreground">Nothing recorded yet.</p>
+                  <p className="text-muted-foreground">{translateText("Nothing recorded yet.")}</p>
                 ) : (
                   <ol className="flex max-h-80 flex-col gap-1 overflow-y-auto">
                     {[...upgrade.events].reverse().map((event) => (
@@ -226,7 +222,7 @@ export default function DatabaseUpgrades() {
 
                 {logs.length > 0 && (
                   <div className="flex flex-col gap-1 border-t pt-3">
-                    <p className="text-muted-foreground">Commands Pure ran on the servers</p>
+                    <p className="text-muted-foreground">{translateText("Commands Pure ran on the servers")}</p>
                     <div className="flex max-h-56 flex-col gap-1 overflow-y-auto">
                       {logs.map((log) => (
                         <button
@@ -250,7 +246,7 @@ export default function DatabaseUpgrades() {
             <div className="flex flex-wrap gap-2">
               {upgrade.target_server_id && (
                 <Button variant="outline" asChild>
-                  <Link href={`/servers/${upgrade.target_server_id}`}>Open {upgrade.target_server_name}</Link>
+                  <Link href={`/servers/${upgrade.target_server_id}`}>{translateText("Open")} {upgrade.target_server_name}</Link>
                 </Button>
               )}
               {!upgrade.busy && upgrade.state !== 'completed' && upgrade.state !== 'cancelled' && (
@@ -266,7 +262,7 @@ export default function DatabaseUpgrades() {
                     })
                   }
                 >
-                  Cancel the upgrade
+                  {translateText("Cancel the upgrade")}
                 </Button>
               )}
               {!upgrade.active && !upgrade.busy && (
@@ -282,7 +278,7 @@ export default function DatabaseUpgrades() {
                     })
                   }
                 >
-                  {t('Remove')}
+                  {translateText('Remove')}
                 </Button>
               )}
             </div>

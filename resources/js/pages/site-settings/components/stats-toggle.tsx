@@ -17,7 +17,7 @@ import { LoaderCircleIcon } from 'lucide-react';
 import FormSuccessful from '@/components/form-successful';
 
 export default function StatsToggle({ site, children }: { site: Site; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const enabled = site.stats_enabled;
   const form = useForm({ enabled: !enabled });
@@ -40,7 +40,7 @@ export default function StatsToggle({ site, children }: { site: Site; children: 
         <div className="space-y-2 p-4 text-sm">
           {enabled ? (
             <p>
-              This stops processing logs for <span className="font-medium">{site.domain}</span> {t('and')}{' '}
+              This stops processing logs for <span className="font-medium">{site.domain}</span> {translateText('and')}{' '}
               <span className="font-medium">permanently erases all historical statistics</span> for this site. This cannot be undone.
             </p>
           ) : (
@@ -51,7 +51,7 @@ export default function StatsToggle({ site, children }: { site: Site; children: 
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button variant={enabled ? 'destructive' : 'default'} disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

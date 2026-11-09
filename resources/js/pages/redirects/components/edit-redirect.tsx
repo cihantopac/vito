@@ -9,7 +9,7 @@ import { Redirect } from '@/types/redirect';
 import RedirectFormFields, { RedirectForm } from './redirect-form-fields';
 
 export default function EditRedirect({ open, onOpenChange, redirect }: { open: boolean; onOpenChange: (open: boolean) => void; redirect: Redirect }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<RedirectForm>({
     mode: String(redirect.mode),
     from: redirect.from,
@@ -28,8 +28,8 @@ export default function EditRedirect({ open, onOpenChange, redirect }: { open: b
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Edit Redirect</DialogTitle>
-          <DialogDescription className="sr-only">Edit Redirect</DialogDescription>
+          <DialogTitle>{translateText("Edit Redirect")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Edit Redirect")}</DialogDescription>
         </DialogHeader>
         <Form className="p-4" id="edit-redirect-form" onSubmit={submit}>
           <RedirectFormFields form={form} />
@@ -37,12 +37,12 @@ export default function EditRedirect({ open, onOpenChange, redirect }: { open: b
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button form="edit-redirect-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

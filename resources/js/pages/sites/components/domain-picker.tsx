@@ -58,7 +58,7 @@ export default function DomainPicker({
   error?: string;
   hideLabel?: boolean;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [dnsDialogOpen, setDnsDialogOpen] = useState(false);
   const [dnsProviders, setDnsProviders] = useState<DNSProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(false);
@@ -175,7 +175,7 @@ export default function DomainPicker({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        {!hideLabel && <Label htmlFor="domain">{t('Domain')}</Label>}
+        {!hideLabel && <Label htmlFor="domain">{translateText('Domain')}</Label>}
         {connectedProviders.length > 0 && (
           <button
             type="button"
@@ -249,7 +249,7 @@ export default function DomainPicker({
             {connectedProviders.length > 1 && (
               <div className="space-y-1.5">
                 <Label htmlFor="dns_provider_modal_id" className="text-xs font-medium">
-                  {t('DNS Provider')}
+                  {translateText('DNS Provider')}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Select value={tempProviderId} onValueChange={handleProviderSelect}>
@@ -267,7 +267,7 @@ export default function DomainPicker({
                     </SelectContent>
                   </Select>
                   <ConnectDNSProvider onProviderAdded={fetchProviders}>
-                    <Button variant="outline" size="icon" type="button" className="h-9 w-9 shrink-0" aria-label={t('Connect DNS Provider')}>
+                    <Button variant="outline" size="icon" type="button" className="h-9 w-9 shrink-0" aria-label={translateText('Connect DNS Provider')}>
                       <CloudIcon className="size-4" />
                     </Button>
                   </ConnectDNSProvider>
@@ -280,7 +280,7 @@ export default function DomainPicker({
                 <div className="sm:col-span-5 space-y-1.5">
                   <Label htmlFor="subdomain_modal" className="text-xs font-medium flex items-center justify-between">
                     <span>Subdomain</span>
-                    <span className="text-[10px] text-muted-foreground font-normal">{t('Optional')}</span>
+                    <span className="text-[10px] text-muted-foreground font-normal">{translateText('Optional')}</span>
                   </Label>
                   <Input
                     type="text"
@@ -352,7 +352,7 @@ export default function DomainPicker({
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50 text-xs">
                     <span className="text-muted-foreground flex items-center gap-1.5">
                       <ServerIcon className="size-3.5" />
-                      <span>DNS A Record:</span>
+                      <span>{translateText("DNS A Record:")}</span>
                     </span>
                     <div className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground bg-background/80 px-2 py-0.5 rounded border">
                       <span>{computedDialogDomain}</span>
@@ -424,7 +424,7 @@ export default function DomainPicker({
 
           <DialogFooter className="border-t px-6 py-3.5 bg-muted/20 gap-2">
             <Button variant="outline" type="button" onClick={() => setDnsDialogOpen(false)}>
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
             <Button type="button" onClick={handleApplyDns} disabled={!tempZoneId}>
               Use Domain

@@ -61,7 +61,7 @@ export default function SiteResourceDiagram({
   defaultOpen = false,
   collapsible = false,
 }: SiteResourceDiagramProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [isOpen, setIsOpen] = useState(collapsible ? defaultOpen : true);
   const [selectedResource, setSelectedResource] = useState<SiteResource | null>(null);
   const [isDetailed, setIsDetailed] = useState(false);
@@ -182,7 +182,7 @@ export default function SiteResourceDiagram({
                 </div>
                 <div className="flex flex-wrap items-center gap-2 min-w-0">
                   <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {t('Infrastructure Topology')}
+                    {translateText('Infrastructure Topology')}
                   </span>
                   {badges}
                 </div>
@@ -198,7 +198,7 @@ export default function SiteResourceDiagram({
               </div>
               <div className="flex flex-wrap items-center gap-2 min-w-0">
                 <span className="text-sm font-semibold text-foreground">
-                  {t('Infrastructure Topology')}
+                  {translateText('Infrastructure Topology')}
                 </span>
                 {badges}
               </div>
@@ -231,7 +231,7 @@ export default function SiteResourceDiagram({
             >
               <Link href={resourcesUrl} onClick={(e) => e.stopPropagation()}>
                 <ExternalLinkIcon className="size-3" />
-                <span>{t('Resources')}</span>
+                <span>{translateText('Resources')}</span>
               </Link>
             </Button>
           </div>
@@ -242,7 +242,7 @@ export default function SiteResourceDiagram({
             <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto_1.1fr_auto_1.15fr] items-stretch gap-3 lg:gap-0">
               <div className="rounded-xl border border-border/50 bg-muted/15 p-3 flex flex-col gap-2.5 relative z-10">
                 <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-0.5">
-                  <span>{t('Network')}</span>
+                  <span>{translateText('Network')}</span>
                   <InfoIcon className="size-3 text-muted-foreground/60" />
                 </div>
 
@@ -254,7 +254,7 @@ export default function SiteResourceDiagram({
                       className="flex items-center gap-2 text-left group cursor-pointer"
                     >
                       <BoxesIcon className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                      <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">Edge network</span>
+                      <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">{translateText("Edge network")}</span>
                     </button>
                     <div className="flex items-center gap-1.5">
                       <button
@@ -291,7 +291,7 @@ export default function SiteResourceDiagram({
                       >
                         <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                           <ShieldCheckIcon className="size-3 text-muted-foreground/70" />
-                          <span>DDoS protection</span>
+                          <span>{translateText("DDoS protection")}</span>
                         </span>
                         <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                           <span
@@ -319,7 +319,7 @@ export default function SiteResourceDiagram({
                       >
                         <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                           <RadioIcon className="size-3 text-muted-foreground/70" />
-                          <span>CDN &amp; Routing</span>
+                          <span>{translateText("CDN & Routing")}</span>
                         </span>
                         <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                           <span
@@ -373,7 +373,7 @@ export default function SiteResourceDiagram({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <GlobeIcon className="size-4 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-foreground">{t('Domains')}</span>
+                      <span className="text-xs font-semibold text-foreground">{translateText('Domains')}</span>
                     </div>
                     <button
                       type="button"
@@ -381,7 +381,7 @@ export default function SiteResourceDiagram({
                       className="text-primary hover:underline flex items-center gap-1 font-medium text-[11px] cursor-pointer"
                     >
                       <PlusIcon className="size-3" />
-                      <span>{t('Add')}</span>
+                      <span>{translateText('Add')}</span>
                     </button>
                   </div>
 
@@ -424,7 +424,7 @@ export default function SiteResourceDiagram({
                             <span>{!primaryProxyKnown ? 'Not checked' : isPrimaryProxied ? 'Protected' : 'DNS only'}</span>
                           </button>
                         ) : (
-                          <span className="text-[10px] font-mono text-muted-foreground">{t('Not checked')}</span>
+                          <span className="text-[10px] font-mono text-muted-foreground">{translateText('Not checked')}</span>
                         )}
                       </div>
 
@@ -479,7 +479,7 @@ export default function SiteResourceDiagram({
                         </div>
                       ) : (
                         <div className="text-[11px] text-muted-foreground pl-2 italic">
-                          No custom domains added
+                          {translateText("No custom domains added")}
                         </div>
                       )}
                     </div>
@@ -541,7 +541,7 @@ export default function SiteResourceDiagram({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <ServerIcon className="size-4 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-foreground">App server</span>
+                      <span className="text-xs font-semibold text-foreground">{translateText("App server")}</span>
                     </div>
                     <span className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
                       <span className="size-1.5 rounded-full bg-neutral-500" />
@@ -574,7 +574,7 @@ export default function SiteResourceDiagram({
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                           <GlobeIcon className="size-3 text-muted-foreground/70" />
-                          <span>Web server</span>
+                          <span>{translateText("Web server")}</span>
                         </span>
                         <span className="font-mono text-[11px] font-medium text-foreground">
                           {site.webserver || 'Nginx'}
@@ -598,7 +598,7 @@ export default function SiteResourceDiagram({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Layers3Icon className="size-4 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-foreground">Queues & Cron</span>
+                      <span className="text-xs font-semibold text-foreground">{translateText("Queues & Cron")}</span>
                     </div>
                     <span className="size-1.5 rounded-full bg-neutral-500" />
                   </div>
@@ -612,7 +612,7 @@ export default function SiteResourceDiagram({
                         >
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <CpuIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Workers')}</span>
+                            <span>{translateText('Workers')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
                             {workersCount}
@@ -620,7 +620,7 @@ export default function SiteResourceDiagram({
                         </Link>
                         <button
                           type="button"
-                          aria-label={t('Create worker')}
+                          aria-label={translateText('Create worker')}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -639,7 +639,7 @@ export default function SiteResourceDiagram({
                         >
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <Layers3Icon className="size-3 text-muted-foreground/70" />
-                            <span>Crons</span>
+                            <span>{translateText("Crons")}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
                             {cronJobsCount}
@@ -647,7 +647,7 @@ export default function SiteResourceDiagram({
                         </Link>
                         <button
                           type="button"
-                          aria-label={t('Create cron job')}
+                          aria-label={translateText('Create cron job')}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -667,7 +667,7 @@ export default function SiteResourceDiagram({
                         </Link>
                         <button
                           type="button"
-                          aria-label={t('Create worker')}
+                          aria-label={translateText('Create worker')}
                           onClick={() => dialog.workerForm.open({ serverId: server.id, site })}
                           className="hover:bg-accent hover:text-foreground rounded p-0.5 cursor-pointer"
                         >
@@ -680,7 +680,7 @@ export default function SiteResourceDiagram({
                         </Link>
                         <button
                           type="button"
-                          aria-label={t('Create cron job')}
+                          aria-label={translateText('Create cron job')}
                           onClick={() => dialog.cronjobForm.open({ serverId: server.id, site })}
                           className="hover:bg-accent hover:text-foreground rounded p-0.5 cursor-pointer"
                         >
@@ -705,10 +705,10 @@ export default function SiteResourceDiagram({
 
               <div className="rounded-xl border border-border/50 bg-muted/15 p-3 flex flex-col gap-2.5 relative z-10">
                 <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-0.5">
-                  <span>{t('Resources')}</span>
+                  <span>{translateText('Resources')}</span>
                   <Link href={resourcesUrl} className="text-primary hover:underline text-[11px] font-medium flex items-center gap-1">
                     <PlusIcon className="size-2.5" />
-                    <span>{t('Manage')}</span>
+                    <span>{translateText('Manage')}</span>
                   </Link>
                 </div>
 
@@ -718,7 +718,7 @@ export default function SiteResourceDiagram({
                       <div className="flex items-center gap-2 min-w-0">
                         <DatabaseIcon className="size-4 text-muted-foreground shrink-0" />
                         <div className="flex items-center gap-1.5 truncate">
-                          <span className="text-xs font-semibold text-foreground">{t('Database')}</span>
+                          <span className="text-xs font-semibold text-foreground">{translateText('Database')}</span>
                           <span className="text-[11px] text-muted-foreground font-normal truncate">
                             {dbResource.server?.name || dbResource.server?.ip || 'Attached'}
                           </span>
@@ -739,7 +739,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <ServerIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Server')}</span>
+                            <span>{translateText('Server')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
                             {dbResource.server?.name || dbResource.server?.ip || 'Local'}
@@ -749,7 +749,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <ShieldCheckIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Status')}</span>
+                            <span>{translateText('Status')}</span>
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                             <span className="size-1.5 rounded-full bg-neutral-500" />
@@ -766,11 +766,11 @@ export default function SiteResourceDiagram({
                   >
                     <div className="flex items-center gap-2 text-muted-foreground text-xs">
                       <DatabaseIcon className="size-3.5" />
-                      <span>{t('Database')}</span>
+                      <span>{translateText('Database')}</span>
                     </div>
                     <span className="text-primary text-[11px] font-medium flex items-center gap-0.5">
                       <PlusIcon className="size-2.5" />
-                      {t('Attach')}
+                      {translateText('Attach')}
                     </span>
                   </Link>
                 )}
@@ -802,7 +802,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <ServerIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Server')}</span>
+                            <span>{translateText('Server')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
                             {cacheResource.server?.name || cacheResource.server?.ip || 'Local'}
@@ -812,7 +812,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <ZapIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Status')}</span>
+                            <span>{translateText('Status')}</span>
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                             <span className="size-1.5 rounded-full bg-neutral-500" />
@@ -833,7 +833,7 @@ export default function SiteResourceDiagram({
                     </div>
                     <span className="text-primary text-[11px] font-medium flex items-center gap-0.5">
                       <PlusIcon className="size-2.5" />
-                      {t('Attach')}
+                      {translateText('Attach')}
                     </span>
                   </Link>
                 )}
@@ -865,7 +865,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <HardDriveIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Provider')}</span>
+                            <span>{translateText('Provider')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
                             {storageResource.storage_provider?.name || 'S3 Storage'}
@@ -875,7 +875,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                             <ZapIcon className="size-3 text-muted-foreground/70" />
-                            <span>{t('Status')}</span>
+                            <span>{translateText('Status')}</span>
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                             <span className="size-1.5 rounded-full bg-neutral-500" />
@@ -896,7 +896,7 @@ export default function SiteResourceDiagram({
                     </div>
                     <span className="text-primary text-[11px] font-medium flex items-center gap-0.5">
                       <PlusIcon className="size-2.5" />
-                      {t('Attach')}
+                      {translateText('Attach')}
                     </span>
                   </Link>
                 )}

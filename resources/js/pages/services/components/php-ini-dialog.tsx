@@ -24,7 +24,7 @@ export default function PhpIniDialog({
   service: Service;
   type: 'fpm' | 'cli';
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<{
     ini: string;
     type: 'fpm' | 'cli';
@@ -64,8 +64,8 @@ export default function PhpIniDialog({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-5xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
-          <SheetTitle>{t('Edit')} {type} ini</SheetTitle>
-          <SheetDescription className="sr-only">You can edit the {type} ini file for this service. Make sure to save your changes.</SheetDescription>
+          <SheetTitle>{translateText('Edit')} {type} ini</SheetTitle>
+          <SheetDescription className="sr-only">{translateText("You can edit the")} {type} ini file for this service. Make sure to save your changes.</SheetDescription>
         </SheetHeader>
         <Form id="update-ini-form" className="h-full" onSubmit={submit}>
           {query.isSuccess ? (
@@ -86,10 +86,10 @@ export default function PhpIniDialog({
           <div className="flex items-center gap-2">
             <Button form="update-ini-form" type="submit" disabled={form.processing || query.isLoading} className="ml-2">
               {(form.processing || query.isLoading) && <LoaderCircleIcon className="animate-spin" />}
-              {t('Save')}
+              {translateText('Save')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

@@ -4,13 +4,13 @@ import { Badge } from '@/components/ui/badge';
 import { useClipboard } from '@/hooks/use-clipboard';
 
 export default function CopyableBadge({ text, tooltip }: { text: string | null | undefined; tooltip?: boolean }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { copied, copy } = useClipboard();
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button type="button" aria-label={t('Copy')} className="inline-flex cursor-pointer justify-start space-x-2 truncate" onClick={() => copy(text || '')}>
+        <button type="button" aria-label={translateText('Copy')} className="inline-flex cursor-pointer justify-start space-x-2 truncate" onClick={() => copy(text || '')}>
           <Badge variant={copied ? 'success' : 'outline'} className="block max-w-[200px] overflow-hidden overflow-ellipsis">
             {text}
           </Badge>

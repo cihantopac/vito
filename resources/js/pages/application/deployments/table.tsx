@@ -102,7 +102,7 @@ const durationCell = ({ row }: CellRenderProps) => {
 };
 
 export default function DeploymentsTable({ deployments, showPagination = true }: { deployments: InertiaTableData; showPagination?: boolean }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   if (!deployments || !deployments.columns) {
@@ -138,14 +138,14 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
                   <Link
                     href={`/servers/${encodeURIComponent(String(deployment.server_id))}/sites/${deployment.site_id}/deployments/${deployment.id}`}
                   >
-                    View details
+                    {translateText("View details")}
                   </Link>
                 </DropdownMenuItem>
                 {deployment.log && (
                   <>
                     <View serverLog={deployment.log} />
                     <Download serverLog={deployment.log}>
-                      <DropdownMenuItem>{t('Download')}</DropdownMenuItem>
+                      <DropdownMenuItem>{translateText('Download')}</DropdownMenuItem>
                     </Download>
                   </>
                 )}
@@ -178,7 +178,7 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
                     })
                   }
                 >
-                  {t('Delete')}
+                  {translateText('Delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

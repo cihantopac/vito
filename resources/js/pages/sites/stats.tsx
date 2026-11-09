@@ -59,6 +59,7 @@ function formatDay(value: string): string {
 }
 
 export default function SiteStats() {
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const { server, site, hasStatsService, statsEnabled } = page.props;
 
@@ -71,7 +72,7 @@ export default function SiteStats() {
         ) : (
           <>
             <HeaderContainer>
-              <Heading title="Stats" description="Web statistics for this site" />
+              <Heading title={translateText("Stats")} description={translateText("Web statistics for this site")} />
             </HeaderContainer>
             <SiteBanners site={site} />
             <Card>
@@ -96,7 +97,7 @@ export default function SiteStats() {
 }
 
 function StatsView({ server, site }: { server: Server; site: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [month, setMonth] = useState<string | undefined>(undefined);
   const [refreshing, setRefreshing] = useState(false);
   const { data, isLoading, isError } = useSiteStats(server, site, month);
@@ -139,7 +140,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
   return (
     <>
       <HeaderContainer>
-        <Heading title="Stats" description="Web statistics for this site" />
+        <Heading title={translateText("Stats")} description={translateText("Web statistics for this site")} />
         <div className="flex items-center gap-2">
           {data && data.months.length > 0 && (
             <Select value={selectedMonth} onValueChange={setMonth}>
@@ -155,9 +156,9 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
               </SelectContent>
             </Select>
           )}
-          <Button variant="outline" onClick={refresh} disabled={refreshing} aria-label={t('Refresh')}>
+          <Button variant="outline" onClick={refresh} disabled={refreshing} aria-label={translateText('Refresh')}>
             <RefreshCwIcon className={refreshing ? 'animate-spin' : ''} />
-            <span className="hidden lg:block">{t('Refresh')}</span>
+            <span className="hidden lg:block">{translateText('Refresh')}</span>
           </Button>
         </div>
       </HeaderContainer>
@@ -199,7 +200,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
           <h3 className="text-foreground text-base font-medium">Growth (monthly)</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <StatsChart
-              title={t('Visitors')}
+              title={translateText('Visitors')}
               value={formatNumber(data.summary.reduce((t, m) => t + m.visitors, 0))}
               color="var(--color-chart-1)"
               dataKey="visitors"
@@ -209,7 +210,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
               valueFormatter={(v) => formatNumber(Number(v))}
             />
             <StatsChart
-              title={t('Hits')}
+              title={translateText('Hits')}
               value={formatNumber(data.summary.reduce((t, m) => t + m.hits, 0))}
               color="var(--color-chart-2)"
               dataKey="hits"
@@ -219,7 +220,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
               valueFormatter={(v) => formatNumber(Number(v))}
             />
             <StatsChart
-              title="Bandwidth"
+              title={translateText("Bandwidth")}
               value={formatBytes(data.summary.reduce((t, m) => t + m.bandwidth, 0))}
               color="var(--color-chart-3)"
               dataKey="bandwidth"
@@ -237,13 +238,13 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <h3 className="text-foreground text-base font-medium">{selectedMonth ? formatMonth(selectedMonth) : ''} detail</h3>
-              {detail.generated_at && <span className="text-muted-foreground text-xs">Updated {new Date(detail.generated_at).toLocaleString('en-US')}</span>}
+              {detail.generated_at && <span className="text-muted-foreground text-xs">{translateText("Updated")} {new Date(detail.generated_at).toLocaleString('en-US')}</span>}
             </div>
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <StatCard title={t('Visitors')} value={formatNumber(detail.totals.visitors)} />
-                <StatCard title={t('Hits')} value={formatNumber(detail.totals.hits)} />
-                <StatCard title="Bandwidth" value={formatBytes(detail.totals.bandwidth)} />
+                <StatCard title={translateText('Visitors')} value={formatNumber(detail.totals.visitors)} />
+                <StatCard title={translateText('Hits')} value={formatNumber(detail.totals.hits)} />
+                <StatCard title={translateText("Bandwidth")} value={formatBytes(detail.totals.bandwidth)} />
               </div>
               <StatsChart
                 title="Visitors per day"
@@ -304,7 +305,7 @@ function StatCard({ title, value }: { title: string; value: string }) {
 }
 
 function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const columns: ColumnDef<SiteStatsPanelRow>[] = [
     {
       accessorKey: 'name',
@@ -313,12 +314,12 @@ function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }
     },
     {
       accessorKey: 'hits',
-      header: () => <div className="text-right">{t('Hits')}</div>,
+      header: () => <div className="text-right">{translateText('Hits')}</div>,
       cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString('en-US')}</div>,
     },
     {
       accessorKey: 'visitors',
-      header: () => <div className="text-right">{t('Visitors')}</div>,
+      header: () => <div className="text-right">{translateText('Visitors')}</div>,
       cell: ({ row }) => <div className="text-right">{row.original.visitors.toLocaleString('en-US')}</div>,
     },
   ];
@@ -327,7 +328,7 @@ function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }
 }
 
 function StatusCodesCard({ rows }: { rows: SiteStatsStatusCode[] }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const columns: ColumnDef<SiteStatsStatusCode>[] = [
     {
       accessorKey: 'name',
@@ -335,7 +336,7 @@ function StatusCodesCard({ rows }: { rows: SiteStatsStatusCode[] }) {
     },
     {
       accessorKey: 'hits',
-      header: () => <div className="text-right">{t('Hits')}</div>,
+      header: () => <div className="text-right">{translateText('Hits')}</div>,
       cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString('en-US')}</div>,
     },
   ];

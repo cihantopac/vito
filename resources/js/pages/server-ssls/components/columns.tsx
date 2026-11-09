@@ -14,7 +14,7 @@ import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 
 function Delete({ ssl }: { ssl: SSL }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -31,7 +31,7 @@ function Delete({ ssl }: { ssl: SSL }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

@@ -21,7 +21,7 @@ type Page = {
 };
 
 export default function Databases() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
 
@@ -54,13 +54,13 @@ export default function Databases() {
                 })
               }
             >
-              {t('Sync')}
+              {translateText('Sync')}
             </Button>
             {!page.props.replicaOf && (
               <CreateDatabase server={page.props.server.id} defaultCharset={defaultCharset} defaultCollation={defaultCollation}>
                 <Button>
                   <PlusIcon />
-                  <span className="hidden lg:block">{t('Create')}</span>
+                  <span className="hidden lg:block">{translateText('Create')}</span>
                 </Button>
               </CreateDatabase>
             )}
@@ -70,32 +70,31 @@ export default function Databases() {
         {page.props.replicaOf && (
           <Alert>
             <InfoIcon />
-            <AlertTitle>{t('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
+            <AlertTitle>{translateText('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
-                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Pure imports the list when
-                the replica is built; use Sync to refresh it.
+                {translateText("Everything here is a copy of")} {page.props.replicaOf.name} {translateText("and is read-only, so create and delete on the primary. Pure imports the list when the replica is built; use Sync to refresh it.")}
               </p>
               {page.props.replicaOf.server_id && (
                 <Link href={`/servers/${page.props.replicaOf.server_id}/database`} className="text-foreground underline">
-                  Open the primary
+                  {translateText("Open the primary")}
                 </Link>
               )}
             </AlertDescription>
           </Alert>
         )}
 
-        {registeredDatabases.length > 0 && <section className="space-y-3" aria-label="Registered container databases">
-          <Heading title="Existing container databases" description="These connections preserve the running database. Table browsing is read only; server-level Sync and Create do not change container databases." />
+        {registeredDatabases.length > 0 && <section className="space-y-3" aria-label={translateText("Registered container databases")}>
+          <Heading title={translateText("Existing container databases")} description={translateText("These connections preserve the running database. Table browsing is read only; server-level Sync and Create do not change container databases.")} />
           <div className="grid gap-3 lg:grid-cols-2">{registeredDatabases.map((database) => <article key={`${database.container}|${database.name}`} className="space-y-3 rounded-lg border p-4">
             <div><h2 className="font-semibold break-all">{database.name}</h2><p className="text-muted-foreground break-all text-sm">Docker · PostgreSQL · {database.container}</p></div>
             {database.applications.map((application) => <div key={application.resources_url} className="flex flex-wrap items-center justify-between gap-2">
               <Link className="text-sm underline" href={application.resources_url}>{application.domain}</Link>
-              {application.can_browse && <Button variant="outline" size="sm" asChild><Link href={application.browse_url}>Browse tables</Link></Button>}
+              {application.can_browse && <Button variant="outline" size="sm" asChild><Link href={application.browse_url}>{translateText("Browse tables")}</Link></Button>}
             </div>)}
           </article>)}</div>
         </section>}
-        {dbType ? <VitoTable tableData={page.props.databases} /> : registeredDatabases.length === 0 && <Alert><InfoIcon /><AlertTitle>No database connections registered</AlertTitle><AlertDescription>Link an existing application database from its Resources page. This screen lists registered connections and does not automatically discover or install database services.</AlertDescription></Alert>}
+        {dbType ? <VitoTable tableData={page.props.databases} /> : registeredDatabases.length === 0 && <Alert><InfoIcon /><AlertTitle>{translateText("No database connections registered")}</AlertTitle><AlertDescription>{translateText("Link an existing application database from its Resources page. This screen lists registered connections and does not automatically discover or install database services.")}</AlertDescription></Alert>}
       </Container>
     </ServerLayout>
   );

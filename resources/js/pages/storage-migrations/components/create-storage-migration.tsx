@@ -17,6 +17,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 function TestConnectionButton({ storageId, label, mode }: { storageId: string; label: string; mode: 'read' | 'write' }) {
+  const translateText = useTranslate();
   const [testing, setTesting] = useState(false);
   const access = mode === 'read' ? 'read' : 'write';
 
@@ -43,13 +44,13 @@ function TestConnectionButton({ storageId, label, mode }: { storageId: string; l
   return (
     <Button type="button" variant="outline" size="sm" disabled={!storageId || testing} onClick={() => void test()}>
       {testing ? <LoaderCircle className="animate-spin" /> : <PlugZapIcon />}
-      Test connection
+      {translateText("Test connection")}
     </Button>
   );
 }
 
 export default function CreateStorageMigration({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [server, setServer] = useState<Server>();
   const form = useForm<{
     name: string;
@@ -78,13 +79,13 @@ export default function CreateStorageMigration({ open, onOpenChange }: { open: b
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-3xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
-          <SheetTitle>Migrate storage</SheetTitle>
+          <SheetTitle>{translateText("Migrate storage")}</SheetTitle>
           <SheetDescription>Copies everything under the source storage's path to the target, including data not created by Pure. New backups switch to the target immediately.</SheetDescription>
         </SheetHeader>
         <Form id="create-storage-migration-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -182,7 +183,7 @@ export default function CreateStorageMigration({ open, onOpenChange }: { open: b
               Start migration
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

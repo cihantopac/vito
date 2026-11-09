@@ -27,7 +27,7 @@ export default function StorageProviderEditDialog({
   onOpenChange: (open: boolean) => void;
   storageProvider: StorageProvider;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const configs = useConfigs()!;
   const [showOptional, setShowOptional] = useState(false);
 
@@ -60,7 +60,7 @@ export default function StorageProviderEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{t('Edit')} {storageProvider.name}</DialogTitle>
+          <DialogTitle>{translateText('Edit')} {storageProvider.name}</DialogTitle>
           <DialogDescription className="sr-only">Edit storage provider</DialogDescription>
         </DialogHeader>
         <Form
@@ -74,7 +74,7 @@ export default function StorageProviderEditDialog({
         >
           <FormFields>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input
                 type="text"
                 id="name"
@@ -131,7 +131,7 @@ export default function StorageProviderEditDialog({
                         onCheckedChange={(checked) => form.setData('global', Boolean(checked))}
                       />
                       <Label htmlFor="global" className="text-xs font-normal">
-                        {t('Is global (accessible in all projects)')}
+                        {translateText('Is global (accessible in all projects)')}
                       </Label>
                     </div>
                     <InputError message={form.errors.global} />
@@ -147,12 +147,12 @@ export default function StorageProviderEditDialog({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="edit-storage-provider-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

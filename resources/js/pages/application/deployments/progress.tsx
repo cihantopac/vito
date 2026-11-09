@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ReactNode, useEffect, useState } from 'react';
 import moment from 'moment';
 import {
@@ -180,6 +181,7 @@ export default function DeploymentProgress({
   selectedStep?: number;
   onStepSelect?: (index: number) => void;
 }) {
+  const translateText = useTranslate();
   const deploying = deployment.status === 'deploying';
   const failed = deployment.status === 'failed';
   const finished = deployment.status === 'finished';
@@ -263,7 +265,7 @@ export default function DeploymentProgress({
 
       <Progress
         value={percent}
-        aria-label="Deployment progress"
+        aria-label={translateText("Deployment progress")}
         className={cn(
           'h-1.5',
           failed && '[&>[data-slot=progress-indicator]]:bg-destructive',

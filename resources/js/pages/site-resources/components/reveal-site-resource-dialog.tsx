@@ -26,7 +26,7 @@ export default function RevealSiteResourceDialog({
   siteId: number;
   resource: SiteResource;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const query = useQuery({
     queryKey: ['site-resources.reveal', serverId, siteId, resource?.id],
     queryFn: async () => {
@@ -72,7 +72,7 @@ export default function RevealSiteResourceDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" size="sm">
-              {t('Close')}
+              {translateText('Close')}
             </Button>
           </DialogClose>
         </DialogFooter>

@@ -29,7 +29,7 @@ export default function PgBackRestRestore({
   backup: Backup;
   file?: BackupFile;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [target, setTarget] = useState('');
   const pointInTime = target.trim();
 
@@ -52,14 +52,14 @@ export default function PgBackRestRestore({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{t('Restore commands')}</DialogTitle>
+          <DialogTitle>{translateText('Restore commands')}</DialogTitle>
           <DialogDescription>
-            A restore replaces all data in the PostgreSQL cluster where you run it. Run these commands yourself over SSH.
+            {translateText("A restore replaces all data in the PostgreSQL cluster where you run it. Run these commands yourself over SSH.")}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-5 p-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="pgbackrest-target">Point in time (optional)</Label>
+            <Label htmlFor="pgbackrest-target">{translateText("Point in time (optional)")}</Label>
             <Input id="pgbackrest-target" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="2026-09-17 14:30:00+00" />
             <p className="text-muted-foreground text-sm">
               {file
@@ -69,22 +69,21 @@ export default function PgBackRestRestore({
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium">On this server</h3>
+            <h3 className="text-sm font-medium">{translateText("On this server")}</h3>
             <Commands commands={restore('')} />
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium">On another server</h3>
+            <h3 className="text-sm font-medium">{translateText("On another server")}</h3>
             <p className="text-muted-foreground text-sm">
-              Use a server with PostgreSQL {file?.database_version ?? 'of the same major version'}. Install pgBackRest, copy /etc/pgbackrest/pgbackrest.conf from
-              this server and set pg1-path to that server's data directory. --archive-mode=off stops the copy from archiving WAL into this backup's repository.
+              {translateText("Use a server with PostgreSQL")} {file?.database_version ?? 'of the same major version'}{translateText(". Install pgBackRest, copy /etc/pgbackrest/pgbackrest.conf from this server and set pg1-path to that server's data directory. --archive-mode=off stops the copy from archiving WAL into this backup's repository.")}
             </p>
             <Commands commands={restore(' --archive-mode=off')} />
           </div>
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

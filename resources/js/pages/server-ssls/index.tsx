@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import CreateServerSsl from '@/pages/server-ssls/components/create-server-ssl';
 
 export default function ServerSsls() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     ssls: PaginatedData<SSL>;
@@ -30,10 +30,10 @@ export default function ServerSsls() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('SSL certificates')} description="Certificates registered for this server and its applications. Review expiry dates and open the application's Domains page to manage a site certificate." />
+          <Heading title={translateText('SSL certificates')} description="Certificates registered for this server and its applications. Review expiry dates and open the application's Domains page to manage a site certificate." />
           <div className="flex items-center gap-2">
             <CreateServerSsl server={page.props.server} domains={page.props.domains}>
-              <Button>{t('Add')}</Button>
+              <Button>{translateText('Add')}</Button>
             </CreateServerSsl>
           </div>
         </HeaderContainer>

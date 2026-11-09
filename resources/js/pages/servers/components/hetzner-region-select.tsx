@@ -17,7 +17,7 @@ export default function HetznerRegionSelect({
   onChange: (value: string) => void;
   loading?: boolean;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const [testing, setTesting] = useState(false);
   const [latencies, setLatencies] = useState<Latencies>(() => getCachedLatencies() || {});
@@ -105,7 +105,7 @@ export default function HetznerRegionSelect({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t('Region')}</TableHead>
+                <TableHead>{translateText('Region')}</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Network Zone</TableHead>
                 <TableHead>Latency</TableHead>
@@ -146,7 +146,7 @@ export default function HetznerRegionSelect({
                       {selected && (
                         <Badge variant="success">
                           <CheckIcon className="size-3" />
-                          Selected
+                          {translateText("Selected")}
                         </Badge>
                       )}
                     </TableCell>
@@ -158,7 +158,7 @@ export default function HetznerRegionSelect({
         </div>
         <DialogFooter className="border-t px-6 py-4">
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            {t('Close')}
+            {translateText('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

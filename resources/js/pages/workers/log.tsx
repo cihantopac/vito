@@ -53,7 +53,7 @@ function StatusIcon({ status }: { status?: string }) {
 }
 
 function WorkerLogContent() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     worker: Worker;
@@ -144,7 +144,7 @@ function WorkerLogContent() {
             <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 shrink-0 text-muted-foreground hover:text-foreground">
               <Link href={backUrl}>
                 <ArrowLeftIcon className="size-3.5" />
-                <span>{t('Workers')}</span>
+                <span>{translateText('Workers')}</span>
               </Link>
             </Button>
 
@@ -180,7 +180,7 @@ function WorkerLogContent() {
                   ) : (
                     <RotateCwIcon className="size-3.5" />
                   )}
-                  <span>{t('Restart')}</span>
+                  <span>{translateText('Restart')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -194,7 +194,7 @@ function WorkerLogContent() {
                   ) : (
                     <PauseIcon className="size-3.5" />
                   )}
-                  <span>{t('Stop')}</span>
+                  <span>{translateText('Stop')}</span>
                 </Button>
               </>
             ) : (
@@ -210,7 +210,7 @@ function WorkerLogContent() {
                 ) : (
                   <PlayIcon className="size-3.5" />
                 )}
-                <span>{t('Start')}</span>
+                <span>{translateText('Start')}</span>
               </Button>
             )}
           </div>
@@ -223,11 +223,11 @@ function WorkerLogContent() {
                 <TabsList className="h-7 bg-muted/60 p-0.5">
                   <TabsTrigger value="output" className="h-6 text-xs px-2.5 gap-1.5">
                     <TerminalIcon className="size-3.5" />
-                    <span>{t('Output')}</span>
+                    <span>{translateText('Output')}</span>
                   </TabsTrigger>
                   <TabsTrigger value="history" className="h-6 text-xs px-2.5 gap-1.5">
                     <HistoryIcon className="size-3.5" />
-                    <span>{t('History')}</span>
+                    <span>{translateText('History')}</span>
                     {historyList.length > 0 && (
                       <span className="text-[10px] bg-background text-foreground px-1 py-0.2 rounded-full font-mono">
                         {historyList.length}
@@ -273,7 +273,7 @@ function WorkerLogContent() {
                 onClick={() => query.refetch()}
                 disabled={query.isFetching}
                 className="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
-                title={t('Refresh')}
+                title={translateText('Refresh')}
               >
                 <RefreshCwIcon className={cn('size-3.5', query.isFetching && 'animate-spin')} />
               </Button>
@@ -287,7 +287,7 @@ function WorkerLogContent() {
                   title="Clear all logs"
                 >
                   <Trash2Icon className="size-3.5" />
-                  <span>{t('Clear')}</span>
+                  <span>{translateText('Clear')}</span>
                 </Button>
               )}
             </div>
@@ -308,7 +308,7 @@ function WorkerLogContent() {
               {historyList.length === 0 ? (
                 <div className="text-muted-foreground flex flex-col items-center justify-center h-full py-12 gap-2">
                   <HistoryIcon className="size-8 stroke-1 text-muted-foreground/60" />
-                  <span className="text-sm">No start/stop history recorded for this worker yet.</span>
+                  <span className="text-sm">{translateText("No start/stop history recorded for this worker yet.")}</span>
                 </div>
               ) : (
                 <div className="divide-y divide-border border rounded-md overflow-hidden bg-card">

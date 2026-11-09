@@ -7,7 +7,7 @@ import { useMetrics } from '@/pages/monitoring/components/use-metrics';
 import { WifiOffIcon } from 'lucide-react';
 
 export default function MetricsCards({ server, filter, metric }: { server: Server; filter?: MetricsFilter; metric?: string }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const query = useMetrics(server, filter);
   const history = query.data?.history ?? [];
 
@@ -15,7 +15,7 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
     return (
       <div className="flex items-center gap-3 rounded-lg border border-dashed bg-muted/20 px-4 py-3.5 text-sm text-muted-foreground">
         <WifiOffIcon className="size-4 shrink-0" />
-        <span>Live metrics are paused while the server is disconnected.</span>
+        <span>{translateText("Live metrics are paused while the server is disconnected.")}</span>
       </div>
     );
   }
@@ -39,8 +39,8 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
         <>
           {(!metric || metric === 'load') && (
             <ResourceUsageChart
-              title={t('CPU Load')}
-              label="CPU load"
+              title={translateText('CPU Load')}
+              label={translateText("CPU load")}
               dataKey="load"
               color="var(--color-chart-1)"
               chartData={history}
@@ -50,8 +50,8 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
           )}
           {(!metric || metric === 'memory') && (
             <ResourceUsageChart
-              title={t('Memory Usage')}
-              label="Memory usage"
+              title={translateText('Memory Usage')}
+              label={translateText("Memory usage")}
               dataKey="memory_used_percent"
               color="var(--color-chart-2)"
               chartData={history}
@@ -63,8 +63,8 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
           )}
           {(!metric || metric === 'disk') && (
             <ResourceUsageChart
-              title={t('Disk Usage')}
-              label="Disk usage"
+              title={translateText('Disk Usage')}
+              label={translateText("Disk usage")}
               dataKey="disk_used_percent"
               color="var(--color-chart-3)"
               chartData={history}

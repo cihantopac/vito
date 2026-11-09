@@ -17,7 +17,7 @@ function InstallingLogs({ serverId, initialLogs }: { serverId: number; initialLo
 }
 
 export default function InstallingServer() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     logs: PaginatedData<ServerLog>;
@@ -25,7 +25,7 @@ export default function InstallingServer() {
 
   return (
     <Container>
-      <Heading title={t('Installing')} description="Here you can see the installation logs" />
+      <Heading title={translateText('Installing')} description="Here you can see the installation logs" />
       <Deferred data="logs" fallback={<TableSkeleton cells={4} rows={5} />}>
         <InstallingLogs serverId={page.props.server.id} initialLogs={page.props.logs} />
       </Deferred>

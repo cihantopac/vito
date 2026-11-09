@@ -30,7 +30,7 @@ function GenerateAppKeyButton({ site }: { site: Site }) {
 }
 
 function InstallationFailedBanner({ site }: { site: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -53,8 +53,8 @@ function InstallationFailedBanner({ site }: { site: Site }) {
           <OctagonAlertIcon className="text-destructive h-4 w-4" />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="text-sm leading-tight font-medium">Site installation failed{step ? ` while ${step.toLowerCase()}` : ''}</p>
-          <p className="text-muted-foreground text-sm">You can retry the installation; steps that have already completed will be skipped.</p>
+          <p className="text-sm leading-tight font-medium">{translateText("Site installation failed")}{step ? ` while ${step.toLowerCase()}` : ''}</p>
+          <p className="text-muted-foreground text-sm">{translateText("You can retry the installation; steps that have already completed will be skipped.")}</p>
         </div>
       </div>
 
@@ -74,21 +74,20 @@ function InstallationFailedBanner({ site }: { site: Site }) {
         >
           <DialogTrigger asChild>
             <Button variant="destructive" size="sm">
-              Retry installation
+              {translateText("Retry installation")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Retry site installation?</DialogTitle>
+              <DialogTitle>{translateText("Retry site installation?")}</DialogTitle>
               <DialogDescription>
-                This will re-run the installation for <strong>{site.domain}</strong>. Steps that already completed (isolated user, vhost, cloned
-                repository, deployed key) will be detected and skipped.
+                {translateText("This will re-run the installation for")} <strong>{site.domain}</strong>{translateText(". Steps that already completed (isolated user, vhost, cloned repository, deployed key) will be detected and skipped.")}
               </DialogDescription>
             </DialogHeader>
 
             {canEditComposerCommand && (
               <div className="space-y-1.5">
-                <Label htmlFor="composer-install-command">{t('Composer install command')}</Label>
+                <Label htmlFor="composer-install-command">{translateText('Composer install command')}</Label>
                 <Textarea
                   id="composer-install-command"
                   value={composerCommand}
@@ -97,7 +96,7 @@ function InstallationFailedBanner({ site }: { site: Site }) {
                   rows={2}
                 />
                 <p className="text-muted-foreground text-xs">
-                  This is what failed above. Edit it (e.g. add a flag, drop a package) and retry, or leave it as-is.
+                  {translateText("This is what failed above. Edit it (e.g. add a flag, drop a package) and retry, or leave it as-is.")}
                 </p>
               </div>
             )}
@@ -105,7 +104,7 @@ function InstallationFailedBanner({ site }: { site: Site }) {
             {submitError && <p className="text-destructive text-sm">{submitError}</p>}
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)} disabled={submitting}>
-                {t('Cancel')}
+                {translateText('Cancel')}
               </Button>
               <Button
                 variant="destructive"

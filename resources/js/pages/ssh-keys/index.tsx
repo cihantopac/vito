@@ -19,20 +19,20 @@ type Page = {
 };
 
 export default function SshKeys() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
 
   return (
     <SettingsLayout>
-      <Head title={t('SSH Keys')} />
+      <Head title={translateText('SSH Keys')} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={t('SSH Keys')} />
+          <Heading title={translateText('SSH Keys')} />
           <div className="flex items-center gap-2">
             <AddSshKey>
               <Button>
                 <PlusIcon />
-                {t('Add')}
+                {translateText('Add')}
               </Button>
             </AddSshKey>
           </div>

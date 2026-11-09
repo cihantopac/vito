@@ -18,6 +18,7 @@ import { ProjectUser } from '@/types/project-user';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 function ProjectCard({ project }: { project: Project }) {
+  const translateText = useTranslate();
   const starForm = useForm({ is_starred: project.is_starred });
   const { auth } = usePage<SharedData>().props;
   const members = project.users.filter((user) => user.type === 'user' && Boolean(user.name || user.email));
@@ -69,7 +70,7 @@ function ProjectCard({ project }: { project: Project }) {
                 <span className="truncate">{owner.name || owner.email}</span>
               </Badge>
             )}
-            {project.id === auth.currentProject?.id && <Badge variant="outline" className="rounded-full">Current</Badge>}
+            {project.id === auth.currentProject?.id && <Badge variant="outline" className="rounded-full">{translateText("Current")}</Badge>}
           </div>
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-border/50 bg-muted/30 px-3 py-1.5">
@@ -100,7 +101,7 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export default function Projects() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const page = usePage<{
     projects: PaginatedData<Project>;
@@ -109,15 +110,15 @@ export default function Projects() {
 
   return (
     <Layout>
-      <Head title={t('Projects')} />
+      <Head title={translateText('Projects')} />
 
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={t('Projects')} />
+          <Heading title={translateText('Projects')} />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.projectForm.open({})}>
               <PlusIcon />
-              Create project
+              {translateText("Create project")}
             </Button>
           </div>
         </div>
@@ -129,8 +130,8 @@ export default function Projects() {
                   <MailIcon className="size-4" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <CardTitle>Project invitations</CardTitle>
-                  <CardDescription>Accept an invitation to add the project to your workspace.</CardDescription>
+                  <CardTitle>{translateText("Project invitations")}</CardTitle>
+                  <CardDescription>{translateText("Accept an invitation to add the project to your workspace.")}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -148,15 +149,15 @@ export default function Projects() {
             className="text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted/30 flex min-h-36 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring"
           >
             <PlusIcon className="size-5" />
-            New project
+            {translateText("New project")}
           </button>
         </div>
         {(page.props.projects.links.prev || page.props.projects.links.next) && (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-muted-foreground text-sm">{t('Page')} {page.props.projects.meta.current_page}</span>
+            <span className="text-muted-foreground text-sm">{translateText('Page')} {page.props.projects.meta.current_page}</span>
             <div className="flex gap-2">
-              {page.props.projects.links.prev && <Button variant="outline" asChild><Link href={page.props.projects.links.prev} preserveScroll>{t('Previous')}</Link></Button>}
-              {page.props.projects.links.next && <Button variant="outline" asChild><Link href={page.props.projects.links.next} preserveScroll>{t('Next')}</Link></Button>}
+              {page.props.projects.links.prev && <Button variant="outline" asChild><Link href={page.props.projects.links.prev} preserveScroll>{translateText('Previous')}</Link></Button>}
+              {page.props.projects.links.next && <Button variant="outline" asChild><Link href={page.props.projects.links.next} preserveScroll>{translateText('Next')}</Link></Button>}
             </div>
           </div>
         )}

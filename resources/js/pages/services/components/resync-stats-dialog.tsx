@@ -9,7 +9,7 @@ import InputError from '@/components/ui/input-error';
 import type { DialogControlProps } from '@/components/dialogs/registry';
 
 export default function ResyncStatsDialog({ service, open, onOpenChange }: { service: Service } & DialogControlProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm();
 
   const submit = () => {
@@ -22,7 +22,7 @@ export default function ResyncStatsDialog({ service, open, onOpenChange }: { ser
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Re-sync stats scripts</DialogTitle>
+          <DialogTitle>{translateText("Re-sync stats scripts")}</DialogTitle>
           <DialogDescription className="sr-only">Re-sync GoAccess scripts and cron on the server</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 p-4">
@@ -36,7 +36,7 @@ export default function ResyncStatsDialog({ service, open, onOpenChange }: { ser
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

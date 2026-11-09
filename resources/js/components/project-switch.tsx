@@ -11,7 +11,7 @@ import { ProjectSelect } from '@/components/project-select';
 import { CommandGroup, CommandItem } from '@/components/ui/command';
 
 export function ProjectSwitch() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData & { siteScope?: string; serverScope?: string }>();
   const { auth } = page.props;
   const isAllProjects = (page.props.siteScope ?? page.props.serverScope) === 'all';
@@ -62,7 +62,7 @@ export function ProjectSwitch() {
     <CommandGroup>
       <CommandItem value="all-projects" onSelect={handleAllProjects}>
         <Layers3Icon />
-        {t('All Projects')}
+        {translateText('All Projects')}
         <CheckIcon className={selected === 'all' ? 'ml-auto opacity-100' : 'ml-auto opacity-0'} />
       </CommandItem>
     </CommandGroup>
@@ -80,7 +80,7 @@ export function ProjectSwitch() {
         >
           <div className="flex items-center">
             <PlusIcon size={5} />
-            <span className="ml-2">Create new project</span>
+            <span className="ml-2">{translateText("Create new project")}</span>
           </div>
         </CommandItem>
       </ProjectForm>

@@ -21,7 +21,7 @@ import { ServerLog } from '@/types/server-log';
 import { Server } from '@/types/server';
 
 export default function LogForm({ serverLog, children }: { serverLog?: ServerLog; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const page = usePage<{ server: Server }>();
   const form = useForm<{
@@ -54,13 +54,13 @@ export default function LogForm({ serverLog, children }: { serverLog?: ServerLog
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{serverLog ? 'Edit' : 'Create'} remote log</DialogTitle>
-          <DialogDescription className="sr-only">{serverLog ? 'Edit' : 'Create new'} remote log</DialogDescription>
+          <DialogTitle>{serverLog ? 'Edit' : 'Create'} {translateText("remote log")}</DialogTitle>
+          <DialogDescription className="sr-only">{serverLog ? 'Edit' : 'Create new'} {translateText("remote log")}</DialogDescription>
         </DialogHeader>
         <Form id="remote-log-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="path">{t('Path')}</Label>
+              <Label htmlFor="path">{translateText('Path')}</Label>
               <Input type="text" id="path" value={form.data.path} onChange={(e) => form.setData('path', e.target.value)} />
               <InputError message={form.errors.path} />
             </FormField>
@@ -68,11 +68,11 @@ export default function LogForm({ serverLog, children }: { serverLog?: ServerLog
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           <Button form="remote-log-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

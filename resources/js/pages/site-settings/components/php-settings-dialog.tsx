@@ -47,7 +47,7 @@ function SettingField({
 }
 
 export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: boolean; onOpenChange: (open: boolean) => void; site: Site }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<PhpSettingsForm>({
     max_upload_size: site.php_settings.max_upload_size?.toString() ?? '',
     max_execution_time: site.php_settings.max_execution_time?.toString() ?? '',
@@ -73,7 +73,7 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Configure PHP settings</DialogTitle>
+          <DialogTitle>{translateText("Configure PHP settings")}</DialogTitle>
           <DialogDescription>Per-site PHP runtime limits. Leave a field empty to use the server default.</DialogDescription>
         </DialogHeader>
 
@@ -124,11 +124,11 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="php-settings-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -27,19 +27,19 @@ export function WorkerAction({ type, worker }: { type: 'start' | 'stop' | 'resta
 }
 
 export function WorkerLogs({ worker }: { worker: Worker }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <DropdownMenuItem asChild>
       <Link href={`/servers/${worker.server_id}/workers/${worker.id}/log`}>
-        {t('Logs')}
+        {translateText('Logs')}
       </Link>
     </DropdownMenuItem>
   );
 }
 
 export function WorkerEnvironment({ worker }: { worker: Worker }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.workerEnv.open({ serverId: worker.server_id, workerId: worker.id })}>{t('Environment')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.workerEnv.open({ serverId: worker.server_id, workerId: worker.id })}>{translateText('Environment')}</DropdownMenuItem>;
 }

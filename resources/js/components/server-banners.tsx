@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import ServerOfflineBanner from '@/components/server-offline-banner';
 import { withQuery } from '@/lib/url';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { BannerItem, WarningsBlock } from '@/components/banners';
 import { Link } from '@inertiajs/react';
 
 export default function ServerBanners({ server }: { server: Server }) {
+  const translateText = useTranslate();
   const warnings: ServerWarning[] = server.warnings ?? [];
   const items: BannerItem[] = [];
 
@@ -22,7 +24,7 @@ export default function ServerBanners({ server }: { server: Server }) {
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={`/servers/${server.id}/restart`}>
-            Review restart
+            {translateText("Review restart")}
           </Link>
         </Button>
       ),
@@ -33,11 +35,11 @@ export default function ServerBanners({ server }: { server: Server }) {
     items.push({
       key: 'server-updating',
       title: 'Package update in progress',
-      description: <>Pure is applying package updates to this server. You can monitor the progress and view live console logs.</>,
+      description: <>{translateText("Pure is applying package updates to this server. You can monitor the progress and view live console logs.")}</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={`/servers/${server.id}/update`}>
-            View progress
+            {translateText("View progress")}
           </Link>
         </Button>
       ),
@@ -49,11 +51,11 @@ export default function ServerBanners({ server }: { server: Server }) {
     items.push({
       key: 'package-updates',
       title: `${updatesCount} package ${updatesCount === 1 ? 'update' : 'updates'} available`,
-      description: <>Install pending OS package updates to keep this server patched.</>,
+      description: <>{translateText("Install pending OS package updates to keep this server patched.")}</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={`/servers/${server.id}/update`}>
-            Review updates
+            {translateText("Review updates")}
           </Link>
         </Button>
       ),
@@ -65,11 +67,11 @@ export default function ServerBanners({ server }: { server: Server }) {
     items.push({
       key: 'kernel-update',
       title: `Kernel update available`,
-      description: <>Install the pending kernel {kernelCount === 1 ? 'package' : 'packages'} and restart to apply the new kernel.</>,
+      description: <>{translateText("Install the pending kernel")} {kernelCount === 1 ? 'package' : 'packages'} {translateText("and restart to apply the new kernel.")}</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={withQuery(`/servers/${server.id}/update`, { type: 'kernel' })}>
-            Review kernel update
+            {translateText("Review kernel update")}
           </Link>
         </Button>
       ),
@@ -83,7 +85,7 @@ export default function ServerBanners({ server }: { server: Server }) {
       description: 'A backup failed, stopped running on schedule, or pgBackRest reported a WAL or repository problem.',
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
-          <Link href={`/servers/${server.id}/backups`}>View backups</Link>
+          <Link href={`/servers/${server.id}/backups`}>{translateText("View backups")}</Link>
         </Button>
       ),
     });

@@ -50,7 +50,7 @@ function isActive(currentPath: string, item: SiteNavItem): boolean {
 }
 
 export function SiteHeaderNav() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
   const initialSite = page.props.site;
   const initialServer = page.props.server;
@@ -94,7 +94,7 @@ export function SiteHeaderNav() {
   const otherActive = otherItems.some((item) => isActive(currentPath, item));
 
   return (
-    <nav aria-label="Site navigation" className="bg-muted/30 flex h-11 shrink-0 items-center gap-1 overflow-x-auto border-b px-2">
+    <nav aria-label={translateText("Site navigation")} className="bg-muted/30 flex h-11 shrink-0 items-center gap-1 overflow-x-auto border-b px-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
@@ -108,7 +108,7 @@ export function SiteHeaderNav() {
           </Link>
         </TooltipTrigger>
         <TooltipContent side="bottom">
-          Back to server · {server.ip} · {server.status}
+          {translateText("Back to server ·")} {server.ip} · {server.status}
         </TooltipContent>
       </Tooltip>
 
@@ -126,7 +126,7 @@ export function SiteHeaderNav() {
             asChild
           >
             <Link href={item.href} aria-current={active ? 'page' : undefined}>
-              <span>{t(item.title)}</span>
+              <span>{translateText(item.title)}</span>
               {typeof item.count === 'number' && item.count > 0 && (
                 <span className="text-muted-foreground ml-1 text-xs">({item.count})</span>
               )}
@@ -142,7 +142,7 @@ export function SiteHeaderNav() {
             size="sm"
             className={cn('relative shrink-0 rounded-none px-3', otherActive && 'text-foreground after:bg-primary after:absolute after:inset-x-2 after:bottom-[-7px] after:h-0.5')}
           >
-            {t('Others')}
+            {translateText('Others')}
             <ChevronDownIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -154,7 +154,7 @@ export function SiteHeaderNav() {
                 aria-current={isActive(currentPath, item) ? 'page' : undefined}
                 className={cn(isActive(currentPath, item) && 'bg-accent font-medium')}
               >
-                {t(item.title)}
+                {translateText(item.title)}
               </Link>
             </DropdownMenuItem>
           ))}
@@ -166,7 +166,7 @@ export function SiteHeaderNav() {
         <Button variant="outline" size="sm" className="h-8" asChild>
           <a href={site.url} target="_blank" rel="noopener noreferrer">
             <ExternalLinkIcon className="size-3.5" />
-            <span className="hidden sm:inline">{t('Open site')}</span>
+            <span className="hidden sm:inline">{translateText('Open site')}</span>
           </a>
         </Button>
       </div>

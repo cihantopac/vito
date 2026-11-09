@@ -10,7 +10,7 @@ import { registerCaddyLanguage, registerNginxLanguage } from '@/lib/editor';
 import { Site } from '@/types/site';
 
 export default function VHostPreview({ site, children }: { site: Site; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
 
   const query = useQuery({
@@ -61,7 +61,7 @@ export default function VHostPreview({ site, children }: { site: Site; children:
         </div>
         <SheetFooter>
           <SheetClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>

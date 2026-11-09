@@ -4,7 +4,7 @@ import { StorageProvider } from '@/types/storage-provider';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ storageProvider }: { storageProvider: StorageProvider }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Delete({ storageProvider }: { storageProvider: StoragePr
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

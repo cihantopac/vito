@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useMemo, useState } from 'react';
 import { ChevronRightIcon, FileTextIcon, ListIcon, LoaderCircleIcon, SearchIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +16,7 @@ export default function ServiceLogViewer({ content, isLoading, error, hasSelecti
   error: string | null;
   hasSelection: boolean;
 }) {
+  const translateText = useTranslate();
   const [search, setSearch] = useState('');
   const [level, setLevel] = useState('all');
   const [order, setOrder] = useState('newest');
@@ -38,7 +40,7 @@ export default function ServiceLogViewer({ content, isLoading, error, hasSelecti
             <div className="flex flex-wrap items-center gap-2 text-sm" role="status">
               <span className="font-medium">{entries.length} records</span>
               {errorCount > 0 && <Badge variant="danger">{errorCount} errors</Badge>}
-              {view === 'entries' && <span className="text-muted-foreground">· {filtered.length} shown</span>}
+              {view === 'entries' && <span className="text-muted-foreground">· {filtered.length} {translateText("shown")}</span>}
             </div>
             <div className="flex items-center gap-1 rounded-md border p-1" aria-label="Log display">
               <Button size="sm" variant={view === 'entries' ? 'secondary' : 'ghost'} aria-pressed={view === 'entries'} onClick={() => setView('entries')}>

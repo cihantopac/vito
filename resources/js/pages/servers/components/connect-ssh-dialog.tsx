@@ -10,7 +10,7 @@ import { KeyRoundIcon, TerminalIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ConnectSshDialog({ server, children }: { server: Server; children?: React.ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
 
   const availableUsers = server.ssh_users && server.ssh_users.length > 0 ? server.ssh_users : [server.ssh_user || 'root'];
@@ -28,7 +28,7 @@ export default function ConnectSshDialog({ server, children }: { server: Server;
         {children || (
           <Button variant="outline" size="sm" className="gap-1.5">
             <KeyRoundIcon className="size-4" />
-            {t('Connect')}
+            {translateText('Connect')}
           </Button>
         )}
       </DialogTrigger>
@@ -68,7 +68,7 @@ export default function ConnectSshDialog({ server, children }: { server: Server;
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-muted-foreground text-xs">{t('Command')}</Label>
+            <Label className="text-muted-foreground text-xs">{translateText('Command')}</Label>
             <div className="flex items-center gap-2">
               <CopyableField value={command} className="h-9 flex-1 font-mono text-xs" />
               <Button size="sm" className="h-9 gap-1.5 shrink-0 cursor-pointer" asChild>
@@ -86,7 +86,7 @@ export default function ConnectSshDialog({ server, children }: { server: Server;
             <Link href={`/servers/${server.id}/ssh-keys`}>Manage SSH keys</Link>
           </Button>
           <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
-            {t('Close')}
+            {translateText('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

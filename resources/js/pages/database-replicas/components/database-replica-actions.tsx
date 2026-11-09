@@ -9,7 +9,7 @@ import { DatabaseReplica } from '@/types/database-replica';
 const BUSY = ['pending', 'configuring', 'promoting', 'deleting'];
 
 export default function DatabaseReplicaActions({ replica, failoverEnabled = false }: { replica: DatabaseReplica; failoverEnabled?: boolean }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const server = replica.primary_server_id;
 
@@ -17,7 +17,7 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
     return (
       <div className="flex items-center justify-end gap-1">
         <Link href={`${`/servers/${server}/database-replicas/${replica.id}`}#logs`} className="text-muted-foreground text-xs underline">
-          {t('Logs')}
+          {translateText('Logs')}
         </Link>
         <span className="flex h-8 w-8 items-center justify-center" aria-label={`Replica is ${replica.status}`}>
           <LoaderCircleIcon className="text-muted-foreground h-4 w-4 animate-spin" />
@@ -34,10 +34,10 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
-            <Link href={`/servers/${server}/database-replicas/${replica.id}`}>{t('View')}</Link>
+            <Link href={`/servers/${server}/database-replicas/${replica.id}`}>{translateText('View')}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`${`/servers/${server}/database-replicas/${replica.id}`}#logs`}>{t('View logs')}</Link>
+            <Link href={`${`/servers/${server}/database-replicas/${replica.id}`}#logs`}>{translateText('View logs')}</Link>
           </DropdownMenuItem>
           {['ready', 'failed', 'needs_rebuild'].includes(replica.status) && (
             <DropdownMenuItem
@@ -52,11 +52,11 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
                 })
               }
             >
-              Rebuild
+              {translateText("Rebuild")}
             </DropdownMenuItem>
           )}
           {failoverEnabled && replica.status === 'ready' && (
-            <DropdownMenuItem onSelect={() => dialog.databaseReplicaPromote.open({ replica })}>Fail over to this replica</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => dialog.databaseReplicaPromote.open({ replica })}>{translateText("Fail over to this replica")}</DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -73,7 +73,7 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
               })
             }
           >
-            {t('Delete')}
+            {translateText('Delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

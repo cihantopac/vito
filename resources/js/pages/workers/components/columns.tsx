@@ -12,7 +12,7 @@ import ErrorIndicator from '@/components/error-indicator';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Delete({ worker }: { worker: Worker }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -29,7 +29,7 @@ function Delete({ worker }: { worker: Worker }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }
@@ -50,7 +50,7 @@ function BootstrapLockedItem({ label, destructive }: { label: string; destructiv
 }
 
 function Actions({ worker }: { worker: Worker }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const locked = worker.is_site_bootstrap;
 
@@ -62,9 +62,9 @@ function Actions({ worker }: { worker: Worker }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           {locked ? (
-            <BootstrapLockedItem label={t('Edit')} />
+            <BootstrapLockedItem label={translateText('Edit')} />
           ) : (
-            <DropdownMenuItem onSelect={() => dialog.workerForm.open({ serverId: worker.server_id, worker })}>{t('Edit')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => dialog.workerForm.open({ serverId: worker.server_id, worker })}>{translateText('Edit')}</DropdownMenuItem>
           )}
           <WorkerAction type="start" worker={worker} />
           <WorkerAction type="stop" worker={worker} />
@@ -72,7 +72,7 @@ function Actions({ worker }: { worker: Worker }) {
           <WorkerLogs worker={worker} />
           <WorkerEnvironment worker={worker} />
           <DropdownMenuSeparator />
-          {locked ? <BootstrapLockedItem label={t('Delete')} destructive /> : <Delete worker={worker} />}
+          {locked ? <BootstrapLockedItem label={translateText('Delete')} destructive /> : <Delete worker={worker} />}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

@@ -22,7 +22,7 @@ type Page = {
 };
 
 export default function ShowSite() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const [logs] = useRealtime<ServerLog>(page.props.logs, 'server-log', { site_id: page.props.site.id });
 
@@ -32,7 +32,7 @@ export default function ShowSite() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Logs')} description="Here you can see your site's logs" />
+          <Heading title={translateText('Logs')} description="Here you can see your site's logs" />
           {page.props.site.php_version && (
             <Button variant="outline" asChild>
               <Link

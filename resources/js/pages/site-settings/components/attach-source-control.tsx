@@ -9,7 +9,7 @@ import SelectBranch from '@/pages/source-controls/components/select-branch';
 import FieldUpdateDialog from '@/components/field-update-dialog';
 
 export default function AttachSourceControl({ site, children }: { site: Site; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <FieldUpdateDialog
       title="Attach source control"
@@ -22,7 +22,7 @@ export default function AttachSourceControl({ site, children }: { site: Site; ch
       {(form) => (
         <>
           <div>
-            <Label htmlFor="source_control">{t('Source control')}</Label>
+            <Label htmlFor="source_control">{translateText('Source control')}</Label>
             <SourceControlSelect
               value={form.data.source_control}
               onValueChange={(value) => form.setData('source_control', value)}
@@ -32,7 +32,7 @@ export default function AttachSourceControl({ site, children }: { site: Site; ch
           </div>
 
           <div>
-            <Label htmlFor="repository">{t('Repository')}</Label>
+            <Label htmlFor="repository">{translateText('Repository')}</Label>
             <SelectRepo
               sourceControlId={form.data.source_control}
               value={form.data.repository || ''}

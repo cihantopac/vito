@@ -22,7 +22,7 @@ import AddSshKey from '@/pages/ssh-keys/components/add-ssh-key';
 import { cn } from '@/lib/utils';
 
 export default function DeployKey({ children }: { children?: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const page = usePage<{ server: Server }>();
   const server = page.props.server;
@@ -57,13 +57,13 @@ export default function DeployKey({ children }: { children?: ReactNode }) {
         {children || (
           <Button size="sm" className="gap-1.5">
             <KeyRoundIcon className="size-3.5" />
-            {t('Deploy SSH key')}
+            {translateText('Deploy SSH key')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t('Deploy SSH key')}</DialogTitle>
+          <DialogTitle>{translateText('Deploy SSH key')}</DialogTitle>
           <DialogDescription>
             Select a key and a user to deploy on {server.name}.
           </DialogDescription>
@@ -72,11 +72,11 @@ export default function DeployKey({ children }: { children?: ReactNode }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 pb-2">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-medium text-muted-foreground">{t('SSH Keys')}</h4>
+              <h4 className="text-xs font-medium text-muted-foreground">{translateText('SSH Keys')}</h4>
               <AddSshKey onKeyAdded={() => query.refetch()}>
                 <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1">
                   <PlusIcon className="size-3" />
-                  {t('Add')}
+                  {translateText('Add')}
                 </Button>
               </AddSshKey>
             </div>
@@ -148,7 +148,7 @@ export default function DeployKey({ children }: { children?: ReactNode }) {
         <DialogFooter className="border-t pt-3">
           <DialogClose asChild>
             <Button type="button" variant="outline" size="sm">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button size="sm" onClick={submit} disabled={!form.data.key || !form.data.user || form.processing}>

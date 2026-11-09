@@ -12,8 +12,9 @@ import { useDialog } from '@/hooks/use-dialog';
 import { ProjectUser } from '@/types/project-user';
 
 const CurrentProject = ({ project }: { project: Project }) => {
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
-  return <>{project.id === page.props.auth.currentProject?.id && <Badge variant="default">current</Badge>}</>;
+  return <>{project.id === page.props.auth.currentProject?.id && <Badge variant="default">{translateText("current")}</Badge>}</>;
 };
 
 function getActiveRegisteredUsers(project: Project): ProjectUser[] {
@@ -21,7 +22,7 @@ function getActiveRegisteredUsers(project: Project): ProjectUser[] {
 }
 
 export function ProjectActions({ project }: { project: Project }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const page = usePage<SharedData>();
   const canDelete = project.role === 'owner' || page.props.auth.user.is_admin;
@@ -32,7 +33,7 @@ export function ProjectActions({ project }: { project: Project }) {
         <TableActionTrigger />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={() => dialog.projectForm.open({ project })}>{t('Edit')}</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => dialog.projectForm.open({ project })}>{translateText('Edit')}</DropdownMenuItem>
         <DropdownMenuItem onSelect={() => dialog.projectUsers.open({ project })}>
           <UsersIcon className="size-3.5 mr-2" />
           <span>{project.role === 'user' ? 'View access' : 'Manage access'}</span>
@@ -48,7 +49,7 @@ export function ProjectActions({ project }: { project: Project }) {
               url: `/settings/projects/${project.id}/leave`,
             })}
           >
-            Leave project
+            {translateText("Leave project")}
           </DropdownMenuItem>
         )}
         {canDelete && (
@@ -67,7 +68,7 @@ export function ProjectActions({ project }: { project: Project }) {
                 })
               }
             >
-              {t('Delete')}
+              {translateText('Delete')}
             </DropdownMenuItem>
           </>
         )}

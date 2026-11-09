@@ -10,7 +10,7 @@ import AuthLayout from '@/layouts/auth/layout';
 import TextLink from '@/components/text-link';
 
 export default function TwoFactor() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<{ code: string; recovery_code: string }>({
     code: '',
     recovery_code: '',
@@ -25,18 +25,18 @@ export default function TwoFactor() {
   };
 
   return (
-    <AuthLayout title="Two factor challenge" description="Please enter the two-factor authentication code to continue.">
-      <Head title={t('Confirm password')} />
+    <AuthLayout title={translateText("Two factor challenge")} description={translateText("Please enter the two-factor authentication code to continue.")}>
+      <Head title={translateText('Confirm password')} />
 
       <form id="two-factor-form" onSubmit={submit}>
         <div className="grid gap-6">
           <div className="grid gap-2">
-            <Label htmlFor="code">Code</Label>
+            <Label htmlFor="code">{translateText("Code")}</Label>
             <Input
               id="code"
               type="text"
               name="code"
-              placeholder="Two factor code"
+              placeholder={translateText("Two factor code")}
               value={form.data.code}
               autoFocus
               tabIndex={1}
@@ -47,12 +47,12 @@ export default function TwoFactor() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="recovery_code">Recovery Code</Label>
+            <Label htmlFor="recovery_code">{translateText("Recovery Code")}</Label>
             <Input
               id="recovery_code"
               type="text"
               name="recovery_code"
-              placeholder="Or enter your recovery code"
+              placeholder={translateText("Or enter your recovery code")}
               tabIndex={3}
               value={form.data.recovery_code}
               onChange={(e) => form.setData('recovery_code', e.target.value)}
@@ -63,13 +63,13 @@ export default function TwoFactor() {
 
           <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Confirm')}
+            {translateText('Confirm')}
           </Button>
         </div>
 
         <div className="text-muted-foreground mt-4 text-center text-sm">
           <TextLink href="/login" tabIndex={6}>
-            Back to login
+            {translateText("Back to login")}
           </TextLink>
         </div>
       </form>

@@ -72,7 +72,7 @@ function getServiceIcon(type: string) {
 }
 
 export default function InstallService({ name, children }: { name?: string; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{ server: Server }>();
   const configs = useConfigs()!;
 
@@ -272,7 +272,7 @@ export default function InstallService({ name, children }: { name?: string; chil
           <div className="flex items-center gap-2">
             <DialogClose asChild>
               <Button variant="outline" size="sm" className="h-8 text-xs">
-                {t('Cancel')}
+                {translateText('Cancel')}
               </Button>
             </DialogClose>
             <Button
@@ -284,7 +284,7 @@ export default function InstallService({ name, children }: { name?: string; chil
               {form.processing ? (
                 <>
                   <LoaderCircleIcon className="size-3.5 animate-spin mr-1" />
-                  {t('Installing...')}
+                  {translateText('Installing...')}
                 </>
               ) : (
                 'Install'

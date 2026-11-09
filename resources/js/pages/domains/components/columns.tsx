@@ -9,7 +9,7 @@ import { router } from '@inertiajs/react';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Remove({ domain }: { domain: Domain }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -26,7 +26,7 @@ function Remove({ domain }: { domain: Domain }) {
         })
       }
     >
-      {t('Remove')}
+      {translateText('Remove')}
     </DropdownMenuItem>
   );
 }

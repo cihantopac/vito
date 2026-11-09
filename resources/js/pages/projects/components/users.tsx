@@ -91,7 +91,7 @@ export default function Users({
   onOpenChange: (open: boolean) => void;
   project: Project;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const canManageAccess = project.role === 'owner' || project.role === 'admin';
@@ -101,22 +101,22 @@ export default function Users({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="sm:max-w-2xl" onCloseAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader>
-            <SheetTitle>Project users</SheetTitle>
-            <SheetDescription className="sr-only">Here you can manage project users</SheetDescription>
+            <SheetTitle>{translateText("Project users")}</SheetTitle>
+            <SheetDescription className="sr-only">{translateText("Here you can manage project users")}</SheetDescription>
           </SheetHeader>
           <div className="p-4">
             <DataTable columns={canManageAccess ? columns : columns.filter((column) => column.id !== 'actions')} data={project.users || []} />
           </div>
           <SheetFooter>
             <div className="flex items-center justify-between w-full">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>{t('Close')}</Button>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>{translateText('Close')}</Button>
               {canManageAccess && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" onClick={() => setShowQuickCreate(true)}>
                     <UserPlusIcon className="size-3.5 mr-1.5" />
-                    {t('Create user')}
+                    {translateText('Create user')}
                   </Button>
-                  <Button onClick={() => dialog.projectInvite.open({ project })}>{t('Add user')}</Button>
+                  <Button onClick={() => dialog.projectInvite.open({ project })}>{translateText('Add user')}</Button>
                 </div>
               )}
             </div>

@@ -63,7 +63,7 @@ export default function ProvisionServerFields({
   onFitChange?: (fit: PlanFit) => void;
   warningSuffix?: string;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [providers, setProviders] = useState<ServerProvider[]>([]);
   const [regions, setRegions] = useState<Record<string, string>>({});
   const [plans, setPlans] = useState<Record<string, Plan>>({});
@@ -112,7 +112,7 @@ export default function ProvisionServerFields({
       </FormField>
 
       <FormField>
-        <Label>{t('Provider')}</Label>
+        <Label>{translateText('Provider')}</Label>
         <Select value={data.server_provider} onValueChange={selectProvider}>
           <SelectTrigger>
             <SelectValue placeholder="Select a server provider" />
@@ -129,10 +129,10 @@ export default function ProvisionServerFields({
       </FormField>
 
       <FormField>
-        <Label>{t('Region')}</Label>
+        <Label>{translateText('Region')}</Label>
         <Select value={data.region} onValueChange={selectRegion} disabled={Object.keys(regions).length === 0}>
           <SelectTrigger>
-            <SelectValue placeholder={t('Select a region')} />
+            <SelectValue placeholder={translateText('Select a region')} />
           </SelectTrigger>
           <SelectContent>
             {Object.entries(regions).map(([key, label]) => (

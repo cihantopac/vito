@@ -26,7 +26,7 @@ interface RecordFormProps {
 }
 
 export default function RecordForm({ open, onOpenChange, domain, record }: RecordFormProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const configs = useConfigs()!;
 
   const providerKey = domain.dns_provider?.provider;
@@ -128,10 +128,10 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
         <Form id={record ? 'edit-record-form' : 'create-record-form'} onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="type">{t('Type')}</Label>
+              <Label htmlFor="type">{translateText('Type')}</Label>
               <Select value={form.data.type} onValueChange={(value) => form.setData('type', value)}>
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select record type" />
+                  <SelectValue placeholder={translateText("Select record type")} />
                 </SelectTrigger>
                 <SelectContent>
                   {recordTypes.map((type) => (
@@ -144,20 +144,20 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
               <InputError message={form.errors.type} />
             </FormField>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input
                 type="text"
                 id="name"
                 name="name"
                 value={form.data.name}
                 onChange={(e) => form.setData('name', e.target.value)}
-                placeholder="subdomain or @ for root"
+                placeholder={translateText("subdomain or @ for root")}
               />
-              <div className="text-muted-foreground text-xs">Use @ for the root domain or enter a subdomain (e.g., www, api)</div>
+              <div className="text-muted-foreground text-xs">{translateText("Use @ for the root domain or enter a subdomain (e.g., www, api)")}</div>
               <InputError message={form.errors.name} />
             </FormField>
             <FormField>
-              <Label htmlFor="content">Content</Label>
+              <Label htmlFor="content">{translateText("Content")}</Label>
               {form.data.type === 'TXT' ? (
                 <Textarea
                   id="content"
@@ -181,7 +181,7 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
             </FormField>
             {form.data.type === 'MX' && (
               <FormField>
-                <Label htmlFor="priority">Priority</Label>
+                <Label htmlFor="priority">{translateText("Priority")}</Label>
                 <Input
                   type="number"
                   id="priority"
@@ -192,7 +192,7 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
                   min={0}
                   max={65535}
                 />
-                <div className="text-muted-foreground text-xs">Lower values have higher priority (default: 10)</div>
+                <div className="text-muted-foreground text-xs">{translateText("Lower values have higher priority (default: 10)")}</div>
                 <InputError message={form.errors.priority} />
               </FormField>
             )}
@@ -211,20 +211,20 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
                 }}
               >
                 <SelectTrigger id="ttl">
-                  <SelectValue placeholder="Select TTL" />
+                  <SelectValue placeholder={translateText("Select TTL")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">Auto</SelectItem>
-                  <SelectItem value="300">300 (5 minutes)</SelectItem>
-                  <SelectItem value="600">600 (10 minutes)</SelectItem>
-                  <SelectItem value="1800">1800 (30 minutes)</SelectItem>
-                  <SelectItem value="3600">3600 (1 hour)</SelectItem>
-                  <SelectItem value="7200">7200 (2 hours)</SelectItem>
-                  <SelectItem value="14400">14400 (4 hours)</SelectItem>
-                  <SelectItem value="28800">28800 (8 hours)</SelectItem>
-                  <SelectItem value="43200">43200 (12 hours)</SelectItem>
-                  <SelectItem value="86400">86400 (1 day)</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem value="1">{translateText("Auto")}</SelectItem>
+                  <SelectItem value="300">{translateText("300 (5 minutes)")}</SelectItem>
+                  <SelectItem value="600">{translateText("600 (10 minutes)")}</SelectItem>
+                  <SelectItem value="1800">{translateText("1800 (30 minutes)")}</SelectItem>
+                  <SelectItem value="3600">{translateText("3600 (1 hour)")}</SelectItem>
+                  <SelectItem value="7200">{translateText("7200 (2 hours)")}</SelectItem>
+                  <SelectItem value="14400">{translateText("14400 (4 hours)")}</SelectItem>
+                  <SelectItem value="28800">{translateText("28800 (8 hours)")}</SelectItem>
+                  <SelectItem value="43200">{translateText("43200 (12 hours)")}</SelectItem>
+                  <SelectItem value="86400">{translateText("86400 (1 day)")}</SelectItem>
+                  <SelectItem value="manual">{translateText("Manual")}</SelectItem>
                 </SelectContent>
               </Select>
               {manualTtl && (
@@ -238,14 +238,14 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
                   className="mt-2"
                 />
               )}
-              <div className="text-muted-foreground text-xs">How long DNS servers should cache this record</div>
+              <div className="text-muted-foreground text-xs">{translateText("How long DNS servers should cache this record")}</div>
               <InputError message={form.errors.ttl} />
             </FormField>
             {proxyTypes.includes(form.data.type) && (
               <FormField>
                 <div className="flex items-center space-x-3">
                   <Checkbox id="proxied" name="proxied" checked={form.data.proxied} onClick={() => form.setData('proxied', !form.data.proxied)} />
-                  <Label htmlFor="proxied">Proxied (CDN enabled)</Label>
+                  <Label htmlFor="proxied">{translateText("Proxied (CDN enabled)")}</Label>
                 </div>
                 <InputError message={form.errors.proxied} />
               </FormField>
@@ -255,7 +255,7 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>

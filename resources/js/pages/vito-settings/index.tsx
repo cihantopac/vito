@@ -9,14 +9,14 @@ import ExportVito from '@/pages/vito-settings/components/export';
 import ImportVito from '@/pages/vito-settings/components/import';
 
 export default function VitoSettings() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <SettingsLayout>
-      <Head title={t('Pure Settings')} />
+      <Head title={translateText('Pure Settings')} />
 
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={t('Pure Settings')} description="Here you can manage general Pure settings" />
+          <Heading title={translateText('Pure Settings')} description="Here you can manage general Pure settings" />
         </div>
 
         <Card>
@@ -27,7 +27,7 @@ export default function VitoSettings() {
             </CardRow>
             <Separator />
             <CardRow>
-              <span>{t('Import')}</span>
+              <span>{translateText('Import')}</span>
               <ImportVito />
             </CardRow>
           </CardContent>

@@ -4,7 +4,7 @@ import { ServerIpAddress } from '@/types/server-ip';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ ipAddress }: { ipAddress: ServerIpAddress }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Delete({ ipAddress }: { ipAddress: ServerIpAddress }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

@@ -4,7 +4,7 @@ import { SshKey } from '@/types/ssh-key';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ sshKey }: { sshKey: SshKey }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Delete({ sshKey }: { sshKey: SshKey }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

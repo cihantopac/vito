@@ -26,7 +26,7 @@ export default function DeploymentScript({
   description?: string;
   children: ReactNode;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
 
   const availableCommands = site.available_tooling_commands ?? [];
 
@@ -59,7 +59,7 @@ export default function DeploymentScript({
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="sm:max-w-5xl">
         <SheetHeader>
-          <SheetTitle className="capitalize">{script.name} script</SheetTitle>
+          <SheetTitle className="capitalize">{script.name} {translateText("script")}</SheetTitle>
           <SheetDescription>{description || 'Update script'}</SheetDescription>
         </SheetHeader>
         <Form id="update-script-form" className="relative h-full flex-col gap-0" onSubmit={submit}>
@@ -79,16 +79,16 @@ export default function DeploymentScript({
                   <AlertDescription className="flex items-center gap-2">
                     <StatusRipple variant="default" />
                     <p>
-                      Using{' '}
+                      {translateText("Using")}{' '}
                       {(availableCommands ?? []).map((cmd, i) => (
                         <Fragment key={cmd}>
                           {i > 0 && ', '}
                           <code>`{cmd}`</code>
                         </Fragment>
                       ))}{' '}
-                      command(s) in your script will use the version installed for this site. Install or change tooling via the{' '}
+                      {translateText("command(s) in your script will use the version installed for this site. Install or change tooling via the")}{' '}
                       <Link href={`/servers/${site.server_id}/sites/${site.id}/tooling`} className="underline">
-                        Tooling area
+                        {translateText("Tooling area")}
                       </Link>
                       .
                     </p>
@@ -106,7 +106,7 @@ export default function DeploymentScript({
                     checked={form.data.restart_workers}
                     onCheckedChange={(value) => form.setData('restart_workers', value)}
                   />
-                  <Label htmlFor="restart_workers">Restart workers after deployment</Label>
+                  <Label htmlFor="restart_workers">{translateText("Restart workers after deployment")}</Label>
                   <InputError message={form.errors.restart_workers} />
                 </div>
               </FormField>
@@ -117,10 +117,10 @@ export default function DeploymentScript({
           <div className="flex items-center gap-2">
             <Button form="update-script-form" disabled={form.processing} onClick={submit}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              {t('Save')}
+              {translateText('Save')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">{t('Cancel')}</Button>
+              <Button variant="outline">{translateText('Cancel')}</Button>
             </SheetClose>
             <InputError message={form.errors.script} />
           </div>

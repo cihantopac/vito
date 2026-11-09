@@ -26,7 +26,7 @@ type Page = {
 };
 
 export default function DatabaseUsers() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
   const usesHost = page.props.usesHost;
@@ -58,13 +58,13 @@ export default function DatabaseUsers() {
                 })
               }
             >
-              {t('Sync')}
+              {translateText('Sync')}
             </Button>
             {!page.props.replicaOf && (
               <CreateDatabaseUser server={page.props.server.id} usesHost={usesHost}>
                 <Button>
                   <PlusIcon />
-                  <span className="hidden lg:block">{t('Create')}</span>
+                  <span className="hidden lg:block">{translateText('Create')}</span>
                 </Button>
               </CreateDatabaseUser>
             )}
@@ -74,15 +74,14 @@ export default function DatabaseUsers() {
         {page.props.replicaOf && (
           <Alert>
             <InfoIcon />
-            <AlertTitle>{t('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
+            <AlertTitle>{translateText('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
-                Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Pure imports the list when
-                the replica is built; use Sync to refresh it.
+                {translateText("Everything here is a copy of")} {page.props.replicaOf.name} {translateText("and is read-only, so create and delete on the primary. Pure imports the list when the replica is built; use Sync to refresh it.")}
               </p>
               {page.props.replicaOf.server_id && (
                 <Link href={`/servers/${page.props.replicaOf.server_id}/database/users`} className="text-foreground underline">
-                  Open the primary
+                  {translateText("Open the primary")}
                 </Link>
               )}
             </AlertDescription>
@@ -100,8 +99,8 @@ export default function DatabaseUsers() {
                     <TableActionTrigger />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onSelect={() => dialog.databaseUserEdit.open({ databaseUser, usesHost })}>{t('Edit')}</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => dialog.databaseUserLink.open({ databaseUser })}>Link</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => dialog.databaseUserEdit.open({ databaseUser, usesHost })}>{translateText('Edit')}</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => dialog.databaseUserLink.open({ databaseUser })}>{translateText("Link")}</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
@@ -116,7 +115,7 @@ export default function DatabaseUsers() {
                         })
                       }
                     >
-                      {t('Delete')}
+                      {translateText('Delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

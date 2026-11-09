@@ -14,7 +14,7 @@ import { User } from '@/types/user';
 import DateTime from '@/components/date-time';
 
 export default function UserForm({ user, open, onOpenChange }: { user?: User; open: boolean; onOpenChange: (open: boolean) => void }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { projects } = usePage<{ projects: { id: number; name: string }[] }>().props;
   const [search, setSearch] = useState('');
   const form = useForm({
@@ -57,12 +57,12 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
               <h3 className="font-semibold">Account & security</h3>
               <FormFields className="gap-5">
                 <FormField>
-                  <Label htmlFor="name">{t('Name')}</Label>
+                  <Label htmlFor="name">{translateText('Name')}</Label>
                   <Input id="name" required value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} />
                   <InputError message={form.errors.name} />
                 </FormField>
                 <FormField>
-                  <Label htmlFor="email">{t('Email')}</Label>
+                  <Label htmlFor="email">{translateText('Email')}</Label>
                   <Input type="email" id="email" required value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} />
                   <InputError message={form.errors.email} />
                 </FormField>
@@ -70,7 +70,7 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
                   <Label htmlFor="password">{user ? 'New password' : 'Password'}</Label>
                   <Input type="password" id="password" autoComplete="new-password" required={!user} minLength={8}
                     pattern={String.raw`(?=.*\p{Lu})(?=.*[\p{P}\p{S}]).{8,}`} aria-describedby="user-password-hint"
-                    title="Use at least 8 characters, an uppercase letter and a special character."
+                    title={translateText("Use at least 8 characters, an uppercase letter and a special character.")}
                     value={form.data.password} onChange={(event) => form.setData('password', event.target.value)} />
                   <InputError message={form.errors.password} />
                   <p id="user-password-hint" className="text-muted-foreground text-xs">At least 8 characters, one uppercase letter and one special character.{user && ' Leave blank to keep the current password.'}</p>
@@ -126,7 +126,7 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
                 <SelectTrigger id="role" className="w-full sm:max-w-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">Selected projects</SelectItem>
-                  <SelectItem value="admin">System administrator</SelectItem>
+                  <SelectItem value="admin">{translateText("System administrator")}</SelectItem>
                 </SelectContent>
               </Select>
               <InputError message={form.errors.role} />
@@ -158,8 +158,8 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
                           <SelectTrigger id={`project-${project.id}`} className="w-44" aria-label={`Access to ${project.name}`}><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">No access</SelectItem>
-                            <SelectItem value="user">Project access</SelectItem>
-                            <SelectItem value="owner">Project owner</SelectItem>
+                            <SelectItem value="user">{translateText("Project access")}</SelectItem>
+                            <SelectItem value="owner">{translateText("Project owner")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -174,8 +174,8 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
           </section>
         </Form>
         <DialogFooter className="p-6">
-          <DialogClose asChild><Button type="button" variant="outline">{t('Cancel')}</Button></DialogClose>
-          <Button form="user-form" type="submit" disabled={form.processing}>{form.processing && <LoaderCircle className="animate-spin" />}{t('Save changes')}</Button>
+          <DialogClose asChild><Button type="button" variant="outline">{translateText('Cancel')}</Button></DialogClose>
+          <Button form="user-form" type="submit" disabled={form.processing}>{form.processing && <LoaderCircle className="animate-spin" />}{translateText('Save changes')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -38,7 +38,7 @@ export default function EditHostedDomain({
   hostedDomain: HostedDomain;
   installSsl?: boolean;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { site } = usePage<{ site: Site }>().props;
   const isPrimary = hostedDomain.type === 'primary';
 
@@ -85,7 +85,7 @@ export default function EditHostedDomain({
         <Form className="p-4" id="edit-hosted-domain-form" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="edit-domain">{t('Domain')}</Label>
+              <Label htmlFor="edit-domain">{translateText('Domain')}</Label>
               <Input
                 type="text"
                 id="edit-domain"
@@ -98,21 +98,20 @@ export default function EditHostedDomain({
               <InputError message={form.errors.domain} />
             </FormField>
             <FormField>
-              <Label htmlFor="edit-type">{t('Type')}</Label>
+              <Label htmlFor="edit-type">{translateText('Type')}</Label>
               <Select onValueChange={(value) => form.setData('type', value)} value={form.data.type} disabled={isPrimary}>
                 <SelectTrigger id="edit-type">
-                  <SelectValue placeholder={t('Select type')} />
+                  <SelectValue placeholder={translateText('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {isPrimary && <SelectItem value="primary">{t('Primary')}</SelectItem>}
+                  {isPrimary && <SelectItem value="primary">{translateText('Primary')}</SelectItem>}
                   <SelectItem value="alias">Alias</SelectItem>
-                  <SelectItem value="redirect">{t('Redirect')}</SelectItem>
+                  <SelectItem value="redirect">{translateText('Redirect')}</SelectItem>
                 </SelectContent>
               </Select>
               {!isPrimary && (
                 <p className="text-muted-foreground text-sm">
-                  <strong>Alias</strong> serves the same site content under another domain. <strong>{t('Redirect')}</strong> sends visitors to the primary
-                  domain via an HTTP redirect.
+                  <strong>Alias</strong> {translateText("serves the same site content under another domain.")} <strong>{translateText('Redirect')}</strong> {translateText("sends visitors to the primary domain via an HTTP redirect.")}
                 </p>
               )}
               <InputError message={form.errors.type} />
@@ -135,7 +134,7 @@ export default function EditHostedDomain({
             </FormField>
             {form.data.ssl_method === 'custom' && (
               <FormField>
-                <Label htmlFor="edit-ssl_id">SSL Certificate</Label>
+                <Label htmlFor="edit-ssl_id">{translateText("SSL Certificate")}</Label>
                 <Select onValueChange={(value) => form.setData('ssl_id', value)} value={form.data.ssl_id}>
                   <SelectTrigger id="edit-ssl_id">
                     <SelectValue placeholder={loadingSsls ? 'Loading...' : 'Select a certificate'} />
@@ -149,7 +148,7 @@ export default function EditHostedDomain({
                   </SelectContent>
                 </Select>
                 <p className="text-muted-foreground text-sm">
-                  Only server-level SSL certificates that match the domain you entered will appear here. Add certificates via the server SSL settings.
+                  {translateText("Only server-level SSL certificates that match the domain you entered will appear here. Add certificates via the server SSL settings.")}
                 </p>
                 <InputError message={form.errors.ssl_id} />
               </FormField>
@@ -159,13 +158,13 @@ export default function EditHostedDomain({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing || loadingSsls || sslStale}>
             {(form.processing || loadingSsls || sslStale) && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -75,7 +75,7 @@ const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 export default function ServerSettings() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const configs = useConfigs()!;
   const page = usePage<{
     server: Server;
@@ -143,7 +143,7 @@ export default function ServerSettings() {
       <Container>
         <HeaderContainer>
           <div className="flex flex-col gap-1">
-            <Heading title={t('Settings')} description="Manage server configuration, network settings, and project assignment." />
+            <Heading title={translateText('Settings')} description="Manage server configuration, network settings, and project assignment." />
           </div>
           <div className="flex items-center gap-2">
             <TooltipProvider delayDuration={0}>
@@ -179,7 +179,7 @@ export default function ServerSettings() {
                       <SlidersIcon className="size-4" />
                     </div>
                     <div>
-                      <CardTitle className="text-base">{t('Configuration')}</CardTitle>
+                      <CardTitle className="text-base">{translateText('Configuration')}</CardTitle>
                       <CardDescription>Update server details and network settings</CardDescription>
                     </div>
                   </div>
@@ -188,7 +188,7 @@ export default function ServerSettings() {
                 <CardContent className="space-y-5 p-6 pt-2">
                   <div className="grid gap-2">
                     <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Server Name
+                      {translateText("Server Name")}
                     </Label>
                     <Input
                       id="name"
@@ -238,7 +238,7 @@ export default function ServerSettings() {
 
                     <div className="grid gap-2">
                       <Label htmlFor="role" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Server Role
+                        {translateText("Server Role")}
                       </Label>
                       <Select
                         value={form.data.role}
@@ -322,7 +322,7 @@ export default function ServerSettings() {
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="port">SSH Port</Label>
+                      <Label htmlFor="port">{translateText("SSH Port")}</Label>
                       <Input
                         id="port"
                         value={form.data.port}
@@ -337,7 +337,7 @@ export default function ServerSettings() {
                   <div className="grid gap-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="local_ip">Private / Local IP</Label>
-                      <span className="text-[11px] text-muted-foreground">{t('Optional')}</span>
+                      <span className="text-[11px] text-muted-foreground">{translateText('Optional')}</span>
                     </div>
                     <Input
                       id="local_ip"
@@ -358,7 +358,7 @@ export default function ServerSettings() {
                     {form.isDirty ? (
                       <span className="flex items-center gap-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
                         <span className="size-2 rounded-full bg-neutral-500 animate-pulse" />
-                        Unsaved changes
+                        {translateText("Unsaved changes")}
                       </span>
                     ) : (
                       <span className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -375,7 +375,7 @@ export default function ServerSettings() {
                         size="sm"
                         onClick={() => form.reset()}
                       >
-                        {t('Reset')}
+                        {translateText('Reset')}
                       </Button>
                     )}
                     <Button type="submit" size="sm" disabled={!form.isDirty || form.processing}>
@@ -406,7 +406,7 @@ export default function ServerSettings() {
 
               <CardContent className="divide-y p-0 text-sm">
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">{t('Status')}</span>
+                  <span className="text-muted-foreground">{translateText('Status')}</span>
                   <div className="flex items-center gap-2">
                     <ServerStatus server={server} />
                   </div>
@@ -437,7 +437,7 @@ export default function ServerSettings() {
                 </div>
 
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">{t('Provider')}</span>
+                  <span className="text-muted-foreground">{translateText('Provider')}</span>
                   <Badge variant="outline" className="gap-1.5 capitalize font-medium">
                     <CloudIcon className="size-3 text-muted-foreground" />
                     {server.provider}
@@ -446,7 +446,7 @@ export default function ServerSettings() {
 
                 {server.os && (
                   <div className="flex items-center justify-between px-6 py-3">
-                    <span className="text-muted-foreground">Operating System</span>
+                    <span className="text-muted-foreground">{translateText("Operating System")}</span>
                     <span className="text-xs font-medium text-foreground">{server.os}</span>
                   </div>
                 )}
@@ -499,7 +499,7 @@ export default function ServerSettings() {
                   <ConnectSshDialog server={server}>
                     <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs cursor-pointer">
                       <KeyRoundIcon className="size-3.5" />
-                      <span>{t('Connect')}</span>
+                      <span>{translateText('Connect')}</span>
                     </Button>
                   </ConnectSshDialog>
                 </div>
@@ -548,7 +548,7 @@ export default function ServerSettings() {
                   </div>
                   <TransferServer server={server}>
                     <Button variant="outline" size="sm" className="shrink-0">
-                      Transfer
+                      {translateText("Transfer")}
                     </Button>
                   </TransferServer>
                 </div>
@@ -569,7 +569,7 @@ export default function ServerSettings() {
                   ) : (
                     <DeleteServer server={server}>
                       <Button variant="destructive" size="sm" className="shrink-0">
-                        {t('Remove')}
+                        {translateText('Remove')}
                       </Button>
                     </DeleteServer>
                   )}

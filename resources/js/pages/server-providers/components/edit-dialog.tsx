@@ -21,7 +21,7 @@ export default function ServerProviderEditDialog({
   onOpenChange: (open: boolean) => void;
   serverProvider: ServerProvider;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm({
     name: serverProvider.name,
     global: serverProvider.global,
@@ -38,13 +38,13 @@ export default function ServerProviderEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{t('Edit')} {serverProvider.name}</DialogTitle>
+          <DialogTitle>{translateText('Edit')} {serverProvider.name}</DialogTitle>
           <DialogDescription className="sr-only">Edit server provider</DialogDescription>
         </DialogHeader>
         <Form id="edit-server-provider-form" className="p-4" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input type="text" id="name" name="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -56,7 +56,7 @@ export default function ServerProviderEditDialog({
                   checked={form.data.global}
                   onCheckedChange={(checked) => form.setData('global', Boolean(checked))}
                 />
-                <Label htmlFor="global">{t('Is global (accessible in all projects)')}</Label>
+                <Label htmlFor="global">{translateText('Is global (accessible in all projects)')}</Label>
               </div>
               <InputError message={form.errors.global} />
             </FormField>
@@ -64,12 +64,12 @@ export default function ServerProviderEditDialog({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="edit-server-provider-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -4,8 +4,8 @@ import { ServerProvider } from '@/types/server-provider';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Edit({ serverProvider }: { serverProvider: ServerProvider }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.serverProviderEdit.open({ serverProvider })}>{t('Edit')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.serverProviderEdit.open({ serverProvider })}>{translateText('Edit')}</DropdownMenuItem>;
 }

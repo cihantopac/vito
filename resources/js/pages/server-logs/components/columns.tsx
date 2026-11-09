@@ -27,7 +27,7 @@ export function Download({ serverLog, children }: { serverLog: ServerLog; childr
 }
 
 function Clear({ serverLog }: { serverLog: ServerLog }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -42,13 +42,13 @@ function Clear({ serverLog }: { serverLog: ServerLog }) {
         })
       }
     >
-      {t('Clear')}
+      {translateText('Clear')}
     </DropdownMenuItem>
   );
 }
 
 function Delete({ serverLog }: { serverLog: ServerLog }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -65,7 +65,7 @@ function Delete({ serverLog }: { serverLog: ServerLog }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

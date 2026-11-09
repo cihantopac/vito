@@ -32,7 +32,7 @@ type CreateForm = {
 };
 
 export default function CreateServerSsl({ server, domains, children }: { server: Server; domains: Domain[]; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const page = usePage<SharedData>();
 
@@ -83,7 +83,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
         <Form id="create-server-ssl-form" className="p-4" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="type">{t('Type')}</Label>
+              <Label htmlFor="type">{translateText('Type')}</Label>
               <Select
                 onValueChange={(value) => {
                   if (value === 'letsencrypt' && !form.data.email) {
@@ -95,7 +95,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
                 value={form.data.type}
               >
                 <SelectTrigger id="type">
-                  <SelectValue placeholder={t('Select type')} />
+                  <SelectValue placeholder={translateText('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="csr">CSR (Certificate Signing Request)</SelectItem>
@@ -108,7 +108,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
             {form.data.type === 'custom' && (
               <>
                 <FormField>
-                  <Label htmlFor="certificate">Certificate (PEM)</Label>
+                  <Label htmlFor="certificate">{translateText("Certificate (PEM)")}</Label>
                   <Textarea
                     id="certificate"
                     name="certificate"
@@ -134,7 +134,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
                   <InputError message={form.errors.private_key} />
                 </FormField>
                 <FormField>
-                  <Label htmlFor="ca">CA Bundle (optional)</Label>
+                  <Label htmlFor="ca">{translateText("CA Bundle (optional)")}</Label>
                   <Textarea
                     id="ca"
                     name="ca"
@@ -151,7 +151,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
             {form.data.type === 'letsencrypt' && (
               <>
                 <FormField>
-                  <Label htmlFor="domain_id">{t('Domain')}</Label>
+                  <Label htmlFor="domain_id">{translateText('Domain')}</Label>
                   <p className="text-muted-foreground text-xs">
                     Only domains managed by Pure with a DNS provider are available, as wildcard SSL requires DNS verification.
                   </p>
@@ -170,7 +170,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
                   <InputError message={form.errors.domain_id} />
                 </FormField>
                 <FormField>
-                  <Label htmlFor="wildcard_email">{t('Email')}</Label>
+                  <Label htmlFor="wildcard_email">{translateText('Email')}</Label>
                   <Input
                     type="email"
                     id="wildcard_email"
@@ -303,11 +303,11 @@ export default function CreateServerSsl({ server, domains, children }: { server:
         <SheetFooter>
           <div className="flex items-center gap-2">
             <Button type="submit" form="create-server-ssl-form" disabled={form.processing}>
-              {form.processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} {t('Create')}
+              {form.processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} {translateText('Create')}
             </Button>
             <SheetClose asChild>
               <Button variant="outline" disabled={form.processing}>
-                {t('Cancel')}
+                {translateText('Cancel')}
               </Button>
             </SheetClose>
           </div>

@@ -9,7 +9,7 @@ import FeaturesCard from '@/components/features-card';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function ServerFeatures() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     features: {
@@ -24,7 +24,7 @@ export default function ServerFeatures() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Features')} description="Your server has some features enabled by Pure or other plugins" />
+          <Heading title={translateText('Features')} description="Your server has some features enabled by Pure or other plugins" />
         </HeaderContainer>
 
         <FeaturesCard

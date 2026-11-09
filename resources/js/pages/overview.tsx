@@ -164,13 +164,13 @@ function QuickAccessCard({
   count: number;
   children?: ReactNode;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <section className="min-w-0 rounded-xl border border-border/60 bg-card p-4">
       <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-3">
         <h2 className="text-base font-semibold tracking-tight">{title}</h2>
         <Link href={viewAllHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-info hover:underline">
-          {t('All')} <ArrowRightIcon className="size-4" />
+          {translateText('All')} <ArrowRightIcon className="size-4" />
         </Link>
       </div>
       {loading || count === 0 ? (
@@ -189,7 +189,7 @@ function prioritize<T extends { id: number }>(items: T[], ids: number[]): T[] {
 }
 
 export default function Overview() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
   const userId = page.props.auth.user.id;
   const [recentServerIds, setRecentServerIds] = useState<number[]>([]);
@@ -215,14 +215,14 @@ export default function Overview() {
 
   return (
     <Layout>
-      <Head title={t('Overview')} />
+      <Head title={translateText('Overview')} />
       <Container>
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-          <Heading title={t('Overview')} />
+          <Heading title={translateText('Overview')} />
           <Input
             type="search"
-            aria-label="Search servers and sites"
-            placeholder="Filter recent resources"
+            aria-label={translateText("Search servers and sites")}
+            placeholder={translateText("Filter recent resources")}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="w-full sm:max-w-xs"
@@ -231,7 +231,7 @@ export default function Overview() {
 
         <div className="grid items-start gap-3 md:grid-cols-2">
               <QuickAccessCard
-                title={t('Servers')}
+                title={translateText('Servers')}
                 viewAllHref={"/servers"}
                 emptyText={query ? 'No matching servers.' : 'No servers yet.'}
                 loading={isLoading}
@@ -254,7 +254,7 @@ export default function Overview() {
               </QuickAccessCard>
 
               <QuickAccessCard
-                title={t('Sites')}
+                title={translateText('Sites')}
                 viewAllHref={withQuery("/sites", { project: 'all' })}
                 emptyText={query ? 'No matching sites.' : 'No sites yet.'}
                 loading={isLoading}

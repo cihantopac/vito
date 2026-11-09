@@ -31,7 +31,7 @@ type PageProps = {
 };
 
 export default function SshKeys() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<PageProps>();
   const server = page.props.server;
   const dialog = useDialog();
@@ -64,7 +64,7 @@ export default function SshKeys() {
       <Container className="space-y-6">
         <HeaderContainer>
           <div>
-            <Heading title={t('SSH Keys')} />
+            <Heading title={translateText('SSH Keys')} />
             <p className="text-muted-foreground text-xs">
               Manage authorized SSH keys for {server.name} ({server.ip}).
             </p>
@@ -74,7 +74,7 @@ export default function SshKeys() {
             <DeployKey>
               <Button size="sm" className="gap-1.5">
                 <PlusIcon className="size-3.5" />
-                {t('Deploy SSH key')}
+                {translateText('Deploy SSH key')}
               </Button>
             </DeployKey>
           </div>
@@ -167,7 +167,7 @@ export default function SshKeys() {
                 <DeployKey>
                   <Button size="sm" className="gap-1.5">
                     <PlusIcon className="size-3.5" />
-                    {t('Deploy SSH key')}
+                    {translateText('Deploy SSH key')}
                   </Button>
                 </DeployKey>
               </CardContent>
@@ -184,11 +184,11 @@ export default function SshKeys() {
               >
                 {page.props.sshKeys.links.prev ? (
                   <Link href={page.props.sshKeys.links.prev}>
-                    <ChevronLeftIcon className="mr-1 size-3.5" /> {t('Previous')}
+                    <ChevronLeftIcon className="mr-1 size-3.5" /> {translateText('Previous')}
                   </Link>
                 ) : (
                   <span>
-                    <ChevronLeftIcon className="mr-1 size-3.5" /> {t('Previous')}
+                    <ChevronLeftIcon className="mr-1 size-3.5" /> {translateText('Previous')}
                   </span>
                 )}
               </Button>
@@ -200,11 +200,11 @@ export default function SshKeys() {
               >
                 {page.props.sshKeys.links.next ? (
                   <Link href={page.props.sshKeys.links.next}>
-                    {t('Next')} <ChevronRightIcon className="ml-1 size-3.5" />
+                    {translateText('Next')} <ChevronRightIcon className="ml-1 size-3.5" />
                   </Link>
                 ) : (
                   <span>
-                    {t('Next')} <ChevronRightIcon className="ml-1 size-3.5" />
+                    {translateText('Next')} <ChevronRightIcon className="ml-1 size-3.5" />
                   </span>
                 )}
               </Button>

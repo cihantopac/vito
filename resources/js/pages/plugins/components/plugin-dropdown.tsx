@@ -12,12 +12,12 @@ import DeleteLogs from '@/pages/plugins/components/delete-logs';
 import InstallPlugin from '@/pages/plugins/components/install';
 
 export default function PluginDropdown({ plugin }: { plugin: Plugin }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="w-8 p-0">
-          <span className="sr-only">{t('Open menu')}</span>
+          <span className="sr-only">{translateText('Open menu')}</span>
           <MoreVerticalIcon />
         </Button>
       </DropdownMenuTrigger>

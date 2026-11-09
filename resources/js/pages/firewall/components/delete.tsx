@@ -4,7 +4,7 @@ import { FirewallRule } from '@/types/firewall';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ firewallRule }: { firewallRule: FirewallRule }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -21,7 +21,7 @@ export default function Delete({ firewallRule }: { firewallRule: FirewallRule })
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 
 export default function ImportVito() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm({
     backup_file: null as File | null,
   });
@@ -34,12 +34,12 @@ export default function ImportVito() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <UploadIcon />
-          {t('Import')}
+          {translateText('Import')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('Import')}</DialogTitle>
+          <DialogTitle>{translateText('Import')}</DialogTitle>
           <DialogDescription className="sr-only">Import settings to Pure</DialogDescription>
         </DialogHeader>
         <Form id="import-vito-form" className="p-4" onSubmit={submit}>
@@ -59,11 +59,11 @@ export default function ImportVito() {
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="import-vito-form" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Import')}
+            {translateText('Import')}
           </Button>
         </DialogFooter>
       </DialogContent>

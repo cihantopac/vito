@@ -50,7 +50,7 @@ export default function ServerSelect({
   showIp = true,
   excludeSelf = false,
 }: ServerSelectProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -224,9 +224,9 @@ export default function ServerSelect({
                 {hasNextPage && (
                   <div ref={loadMoreRef} className="flex justify-center py-2">
                     {isFetchingNextPage ? (
-                      <span className="text-muted-foreground text-xs">{t('Loading more...')}</span>
+                      <span className="text-muted-foreground text-xs">{translateText('Loading more...')}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">{t('Scroll for more')}</span>
+                      <span className="text-muted-foreground text-xs">{translateText('Scroll for more')}</span>
                     )}
                   </div>
                 )}

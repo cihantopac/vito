@@ -21,7 +21,7 @@ export default function ServiceVersionSelect({
   
   autoSelectSingle?: boolean;
 } & SelectTriggerProps) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const query = useQuery<string[]>({
     queryKey: ['service', serverId, service],
     queryFn: async () => {
@@ -46,7 +46,7 @@ export default function ServiceVersionSelect({
       <SelectContent>
         {isEmpty ? (
           <div className="text-muted-foreground px-3 py-4 text-center text-sm">
-            <p>{t('No')} {service} is installed on this server.</p>
+            <p>{translateText('No')} {service} is installed on this server.</p>
             <Link href={`/servers/${serverId}/services`} className="text-primary mt-1 inline-block hover:underline">
               Go to Services to install {service}
             </Link>

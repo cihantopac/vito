@@ -24,7 +24,7 @@ import RadioCard from '@/components/radio-card';
 type ApplyChoice = '' | 'config' | 'restart';
 
 export default function StartCommand({ site, children }: { site: Site; children: ReactNode }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const groupLabelId = useId();
   const hasWorker = site.bootstrap_worker_id != null;
@@ -86,7 +86,7 @@ export default function StartCommand({ site, children }: { site: Site; children:
 
             {hasWorker && (
               <FormField>
-                <Label id={groupLabelId}>How should we apply this change?</Label>
+                <Label id={groupLabelId}>{translateText("How should we apply this change?")}</Label>
                 <RadioGroup
                   value={form.data.apply}
                   onValueChange={(value) => form.setData('apply', value as ApplyChoice)}
@@ -97,14 +97,14 @@ export default function StartCommand({ site, children }: { site: Site; children:
                     value="config"
                     selected={form.data.apply === 'config'}
                     onSelect={(value) => form.setData('apply', value as ApplyChoice)}
-                    title="Update config only"
+                    title={translateText("Update config only")}
                     description="The worker keeps running its current command. The change takes effect on the next restart or deploy."
                   />
                   <RadioCard
                     value="restart"
                     selected={form.data.apply === 'restart'}
                     onSelect={(value) => form.setData('apply', value as ApplyChoice)}
-                    title="Update and restart now"
+                    title={translateText("Update and restart now")}
                     description="Rewrites the config and restarts the worker immediately so the new command takes effect right away."
                   />
                 </RadioGroup>
@@ -115,11 +115,11 @@ export default function StartCommand({ site, children }: { site: Site; children:
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
           <Button form="start-command-form" disabled={form.processing || choiceMissing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

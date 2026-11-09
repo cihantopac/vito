@@ -12,7 +12,7 @@ import siteHelper from '@/lib/site-helper';
 import { useSidebar } from '@/components/ui/sidebar';
 
 export function SiteSwitch() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
   const { setOpenTransient: setPrimaryNavOpen } = useSidebar();
   const [open, setOpen] = useState(false);
@@ -57,7 +57,7 @@ export function SiteSwitch() {
       >
         <div className="flex items-center">
           <GlobeIcon size={16} />
-          <span className="ml-2">All Sites</span>
+          <span className="ml-2">{translateText("All Sites")}</span>
         </div>
       </CommandItem>
       <CommandItem
@@ -76,7 +76,7 @@ export function SiteSwitch() {
       >
         <div className="flex items-center">
           <PlusIcon size={16} />
-          <span className="ml-2">Create new site</span>
+          <span className="ml-2">{translateText("Create new site")}</span>
         </div>
       </CommandItem>
     </CommandGroup>
@@ -98,7 +98,7 @@ export function SiteSwitch() {
       ) : (
         <>
           <GlobeIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span className="hidden sm:flex">{t('Search sites...')}</span>
+          <span className="hidden sm:flex">{translateText('Search sites...')}</span>
         </>
       )}
       <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />

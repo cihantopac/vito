@@ -8,14 +8,14 @@ import { TableActionTrigger } from '@/components/table-action-trigger';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Edit({ sourceControl }: { sourceControl: SourceControl }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.sourceControlEdit.open({ sourceControl })}>{t('Edit')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.sourceControlEdit.open({ sourceControl })}>{translateText('Edit')}</DropdownMenuItem>;
 }
 
 function Delete({ sourceControl }: { sourceControl: SourceControl }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -32,7 +32,7 @@ function Delete({ sourceControl }: { sourceControl: SourceControl }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }

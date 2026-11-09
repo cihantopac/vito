@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { getHetznerPlan, hetznerPlans } from './hetzner-plans';
 
 export default function HetznerPlanSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const selectedPlan = getHetznerPlan(value);
@@ -51,7 +51,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
                 {selectedPlan.name}
                 {selectedPlan.deprecated && (
                   <Badge variant="outline" className="text-[10px] font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
-                    Deprecated
+                    {translateText("Deprecated")}
                   </Badge>
                 )}
               </span>
@@ -128,7 +128,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
                                     <span className="font-medium">{plan.name}</span>
                                     {plan.deprecated && (
                                       <Badge variant="outline" className="text-[10px] text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
-                                        Deprecated
+                                        {translateText("Deprecated")}
                                       </Badge>
                                     )}
                                   </div>
@@ -159,7 +159,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
                                 {selected && (
                                   <Badge variant="success">
                                     <CheckIcon className="size-3" />
-                                    Selected
+                                    {translateText("Selected")}
                                   </Badge>
                                 )}
                               </TableCell>
@@ -175,7 +175,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
         </ScrollArea>
         <DialogFooter className="border-t px-6 py-4">
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            {t('Close')}
+            {translateText('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

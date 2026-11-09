@@ -14,7 +14,7 @@ import ConnectSshDialog from './connect-ssh-dialog';
 import ServerActions from './actions';
 
 export default function ServerHeader({ server: initialServer }: { server: Server }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const server = useRealtimeRecord<Server>(initialServer, 'server')!;
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
                   )}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="bottom">{t('Status')}</TooltipContent>
+              <TooltipContent side="bottom">{translateText('Status')}</TooltipContent>
             </Tooltip>
           </>
         )}
@@ -115,7 +115,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
                 <Button variant="ghost" size="sm" asChild className="h-6 gap-1 px-1.5 text-xs text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 cursor-pointer">
                   <Link href={`/servers/${server.id}/update`}>
                     <LoaderCircleIcon className="size-3 animate-spin" />
-                    <span>Updating...</span>
+                    <span>{translateText("Updating...")}</span>
                   </Link>
                 </Button>
               </TooltipTrigger>
@@ -129,7 +129,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
         <ConnectSshDialog server={server}>
           <Button aria-label="Connect via SSH" variant="ghost" size="sm" className="h-6 text-[11px] gap-1 px-2 text-muted-foreground hover:text-foreground cursor-pointer">
             <KeyRoundIcon className="size-3" />
-            <span className="hidden sm:inline">{t('Connect')}</span>
+            <span className="hidden sm:inline">{translateText('Connect')}</span>
           </Button>
         </ConnectSshDialog>
       </div>

@@ -21,7 +21,7 @@ type Page = {
 };
 
 export default function ShowSite() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<Page>();
   const site = useRealtimeRecord<Site>(page.props.site, 'site')!;
 
@@ -31,7 +31,7 @@ export default function ShowSite() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={t('Application')} description="Here you can manage the deployed application" />
+          <Heading title={translateText('Application')} description="Here you can manage the deployed application" />
           <div className="flex items-center gap-2">
           </div>
         </HeaderContainer>

@@ -42,7 +42,7 @@ export default function PrivateIpSelect({
   disabled?: boolean;
   refreshSource?: RefreshSource;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [refreshing, setRefreshing] = useState(false);
 
   const refresh = () => {
@@ -79,7 +79,7 @@ export default function PrivateIpSelect({
           </SelectTrigger>
           <SelectContent>
             {ips.length === 0 ? (
-              <div className="text-muted-foreground px-2 py-1.5 text-sm">No private IPs available</div>
+              <div className="text-muted-foreground px-2 py-1.5 text-sm">{translateText("No private IPs available")}</div>
             ) : (
               <SelectGroup>
                 {ips.map((ip) => (
@@ -92,14 +92,14 @@ export default function PrivateIpSelect({
             )}
           </SelectContent>
         </Select>
-        <Button variant="outline" type="button" aria-label={t('Refresh')} disabled={disabled || refreshing || !serverId} onClick={refresh}>
+        <Button variant="outline" type="button" aria-label={translateText('Refresh')} disabled={disabled || refreshing || !serverId} onClick={refresh}>
           <RefreshCw className={refreshing ? 'animate-spin' : ''} />
         </Button>
       </div>
       {primaryChosen && (
         <Alert>
           <TriangleAlertIcon />
-          <AlertDescription>This is the server&apos;s primary IP. Make sure you intend to use it for this network.</AlertDescription>
+          <AlertDescription>{translateText("This is the server's primary IP. Make sure you intend to use it for this network.")}</AlertDescription>
         </Alert>
       )}
     </div>

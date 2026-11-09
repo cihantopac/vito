@@ -33,7 +33,7 @@ type Milestone = {
 };
 
 export default function ServerRestart() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const { server: initialServer, csrf_token } = usePage<PageProps & SharedData>().props;
   const server = useRealtimeRecord<Server>(initialServer, 'server') ?? initialServer;
 
@@ -148,7 +148,7 @@ export default function ServerRestart() {
           <Button variant="ghost" size="sm" asChild className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2 cursor-pointer">
             <Link href={`/servers/${server.id}`}>
               <ArrowLeftIcon className="size-3.5" />
-              <span>{t('Overview')}</span>
+              <span>{translateText('Overview')}</span>
             </Link>
           </Button>
 
@@ -222,7 +222,7 @@ export default function ServerRestart() {
             ) : phase === 'idle' ? (
               <Button size="sm" onClick={triggerReboot} className="gap-1.5 cursor-pointer h-7.5 text-xs">
                 <PowerIcon className="size-3.5" />
-                <span>Restart server</span>
+                <span>{translateText("Restart server")}</span>
               </Button>
             ) : null}
           </CardContent>

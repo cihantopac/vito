@@ -16,7 +16,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Network, NetworkFirewallRule } from '@/types/network';
 
 export default function NetworkFirewall() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     network: Network;
     rules: InertiaTableData;
@@ -32,12 +32,12 @@ export default function NetworkFirewall() {
         <HeaderContainer>
           <Heading
             title="Firewall"
-            description="Rules allow traffic from the network. The default 'Allow all' rule permits everything - delete it to lock the network down"
+            description={translateText("Rules allow traffic from the network. The default 'Allow all' rule permits everything - delete it to lock the network down")}
           />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.networkFirewallForm.open({ networkId: network.id })}>
               <PlusIcon />
-              <span className="hidden lg:block">Rule</span>
+              <span className="hidden lg:block">{translateText("Rule")}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -53,7 +53,7 @@ export default function NetworkFirewall() {
                     <TableActionTrigger />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onSelect={() => dialog.networkFirewallForm.open({ networkId: network.id, rule })}>{t('Edit')}</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => dialog.networkFirewallForm.open({ networkId: network.id, rule })}>{translateText('Edit')}</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
@@ -68,7 +68,7 @@ export default function NetworkFirewall() {
                         })
                       }
                     >
-                      {t('Delete')}
+                      {translateText('Delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

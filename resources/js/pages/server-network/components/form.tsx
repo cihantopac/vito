@@ -22,7 +22,7 @@ export default function ServerIpForm({
   serverId: number;
   interfaces?: string[];
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [customMask, setCustomMask] = useState(false);
   const [addRange, setAddRange] = useState(false);
   const form = useForm<{
@@ -142,11 +142,11 @@ export default function ServerIpForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           <Button form="server-ip-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            {t('Save')}
+            {translateText('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

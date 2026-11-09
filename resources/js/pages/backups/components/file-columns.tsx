@@ -17,7 +17,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 function Download({ file }: { file: BackupFile }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<SharedData & { backup: Backup }>();
 
   if (!page.props.auth.user?.is_admin || page.props.backup.storage?.provider !== 's3' || ['failed', 'delete_failed'].includes(file.status)) {
@@ -35,18 +35,18 @@ function Download({ file }: { file: BackupFile }) {
     }
   };
 
-  return <DropdownMenuItem onSelect={() => void download()}>{t('Download')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => void download()}>{translateText('Download')}</DropdownMenuItem>;
 }
 
 function Restore({ backup, file }: { backup: Backup; file: BackupFile }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.backupRestore.open({ backup, file })}>{t('Restore')}</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.backupRestore.open({ backup, file })}>{translateText('Restore')}</DropdownMenuItem>;
 }
 
 function Delete({ file }: { file: BackupFile }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -63,7 +63,7 @@ function Delete({ file }: { file: BackupFile }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }
@@ -178,7 +178,7 @@ export const columns: ColumnDef<BackupFile>[] = [
 ];
 
 function FileActions({ file }: { file: BackupFile }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const backup = usePage<{ backup: Backup }>().props.backup;
 
@@ -195,8 +195,8 @@ function FileActions({ file }: { file: BackupFile }) {
         <DropdownMenuContent align="start">
           {backup.type === 'pgbackrest' ? (
             <>
-              <DropdownMenuItem onSelect={() => dialog.backupRestoreToServer.open({ backup, file })}>{t('Restore to a new server')}</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => dialog.pgBackRestRestore.open({ backup, file })}>{t('Restore commands')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => dialog.backupRestoreToServer.open({ backup, file })}>{translateText('Restore to a new server')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => dialog.pgBackRestRestore.open({ backup, file })}>{translateText('Restore commands')}</DropdownMenuItem>
             </>
           ) : (
             <>

@@ -40,7 +40,7 @@ type PendingConnect = {
 };
 
 export default function SiteResources() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -283,7 +283,7 @@ export default function SiteResources() {
       <Container>
         <HeaderContainer>
           <div className="flex items-center gap-2.5">
-            <Heading title={t('Resources')} />
+            <Heading title={translateText('Resources')} />
             <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
               {connectedCount} resources registered
             </Badge>
@@ -318,7 +318,7 @@ export default function SiteResources() {
                 </div>
                 <div className="min-w-0 space-y-0.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold">{t('Database')}</span>
+                    <span className="text-sm font-semibold">{translateText('Database')}</span>
                     {dbResource ? (
                       <Badge variant={dbResource.status_color}>
                         {dbResource.status === 'connecting' && <LoaderCircleIcon className="mr-1 size-3 animate-spin" />}
@@ -327,7 +327,7 @@ export default function SiteResources() {
                     ) : isDbInstalling ? (
                       <Badge variant="warning" className="text-xs">
                         <LoaderCircleIcon className="mr-1 size-3 animate-spin" />
-                        {t('Installing...')}
+                        {translateText('Installing...')}
                       </Badge>
                     ) : isDbReady ? (
                       <Badge variant="outline" className="text-xs font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
@@ -335,7 +335,7 @@ export default function SiteResources() {
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-                        Not installed
+                        {translateText("Not installed")}
                       </Badge>
                     )}
                   </div>
@@ -356,7 +356,7 @@ export default function SiteResources() {
                     onClick={() => copyEnv(dbResource)}
                   >
                     <CopyIcon className="size-3.5" />
-                    <span>{t('Details')}</span>
+                    <span>{translateText('Details')}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -367,16 +367,16 @@ export default function SiteResources() {
                     {!collapsedIds[dbResource.id] ? (
                       <>
                         <ChevronUpIcon className="size-3.5" />
-                        <span>{t('Hide')}</span>
+                        <span>{translateText('Hide')}</span>
                       </>
                     ) : (
                       <>
                         <ChevronDownIcon className="size-3.5" />
-                        <span>{t('Credentials')}</span>
+                        <span>{translateText('Credentials')}</span>
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" size="sm" asChild><Link href={`/servers/${page.props.server.id}/sites/${page.props.site.id}/resources/${dbResource.id}/browse`}>Browse tables</Link></Button>
+                  <Button variant="outline" size="sm" asChild><Link href={`/servers/${page.props.server.id}/sites/${page.props.site.id}/resources/${dbResource.id}/browse`}>{translateText("Browse tables")}</Link></Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -393,7 +393,7 @@ export default function SiteResources() {
                   {dbServers.length > 1 && (
                     <Select value={selectedDbServerId} onValueChange={setSelectedDbServerId}>
                       <SelectTrigger className="w-auto min-w-[160px] sm:min-w-[200px] h-8 text-xs">
-                        <SelectValue placeholder="Select server" />
+                        <SelectValue placeholder={translateText("Select server")} />
                       </SelectTrigger>
                       <SelectContent>
                         {dbServers.map((s) => (
@@ -476,7 +476,7 @@ export default function SiteResources() {
                     ) : isCacheInstalling ? (
                       <Badge variant="warning" className="text-xs">
                         <LoaderCircleIcon className="mr-1 size-3 animate-spin" />
-                        {t('Installing...')}
+                        {translateText('Installing...')}
                       </Badge>
                     ) : isCacheReady ? (
                       <Badge variant="outline" className="text-xs font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
@@ -484,7 +484,7 @@ export default function SiteResources() {
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-                        Not installed
+                        {translateText("Not installed")}
                       </Badge>
                     )}
                   </div>
@@ -505,7 +505,7 @@ export default function SiteResources() {
                     onClick={() => copyEnv(cacheResource)}
                   >
                     <CopyIcon className="size-3.5" />
-                    <span>{t('Details')}</span>
+                    <span>{translateText('Details')}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -516,12 +516,12 @@ export default function SiteResources() {
                     {!collapsedIds[cacheResource.id] ? (
                       <>
                         <ChevronUpIcon className="size-3.5" />
-                        <span>{t('Hide')}</span>
+                        <span>{translateText('Hide')}</span>
                       </>
                     ) : (
                       <>
                         <ChevronDownIcon className="size-3.5" />
-                        <span>{t('Credentials')}</span>
+                        <span>{translateText('Credentials')}</span>
                       </>
                     )}
                   </Button>
@@ -541,7 +541,7 @@ export default function SiteResources() {
                   {cacheServers.length > 1 && (
                     <Select value={selectedCacheServerId} onValueChange={setSelectedCacheServerId}>
                       <SelectTrigger className="w-auto min-w-[160px] sm:min-w-[200px] h-8 text-xs">
-                        <SelectValue placeholder="Select server" />
+                        <SelectValue placeholder={translateText("Select server")} />
                       </SelectTrigger>
                       <SelectContent>
                         {cacheServers.map((s) => (
@@ -644,7 +644,7 @@ export default function SiteResources() {
                     onClick={() => copyEnv(storageResource)}
                   >
                     <CopyIcon className="size-3.5" />
-                    <span>{t('Details')}</span>
+                    <span>{translateText('Details')}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -655,12 +655,12 @@ export default function SiteResources() {
                     {!collapsedIds[storageResource.id] ? (
                       <>
                         <ChevronUpIcon className="size-3.5" />
-                        <span>{t('Hide')}</span>
+                        <span>{translateText('Hide')}</span>
                       </>
                     ) : (
                       <>
                         <ChevronDownIcon className="size-3.5" />
-                        <span>{t('Credentials')}</span>
+                        <span>{translateText('Credentials')}</span>
                       </>
                     )}
                   </Button>

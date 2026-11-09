@@ -22,7 +22,7 @@ function SimpleAction({ storageMigration, action, label, phase = 'all' }: { stor
 }
 
 function Cancel({ storageMigration }: { storageMigration: StorageMigration }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -39,13 +39,13 @@ function Cancel({ storageMigration }: { storageMigration: StorageMigration }) {
         })
       }
     >
-      {t('Cancel')}
+      {translateText('Cancel')}
     </DropdownMenuItem>
   );
 }
 
 function Delete({ storageMigration }: { storageMigration: StorageMigration }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -62,13 +62,13 @@ function Delete({ storageMigration }: { storageMigration: StorageMigration }) {
         })
       }
     >
-      {t('Delete')}
+      {translateText('Delete')}
     </DropdownMenuItem>
   );
 }
 
 export default function StorageMigrationActions({ storageMigration }: { storageMigration: StorageMigration }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const dialog = useDialog();
   const isOpen = ['pending', 'scanning', 'running', 'verifying', 'paused'].includes(storageMigration.status);
   const isSettled = !isOpen;
@@ -81,7 +81,7 @@ export default function StorageMigrationActions({ storageMigration }: { storageM
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem asChild>
-            <Link href={`/storage-migrations/${storageMigration.id}`}>{t('View')}</Link>
+            <Link href={`/storage-migrations/${storageMigration.id}`}>{translateText('View')}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => dialog.storageMigrationRename.open({ storageMigration })}>Rename</DropdownMenuItem>
 

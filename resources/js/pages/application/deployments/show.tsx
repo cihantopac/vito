@@ -30,7 +30,7 @@ import {
 import moment from 'moment';
 
 export default function DeploymentShow() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{ server: Server; site: Site; deployment: Deployment }>();
   const { server, site } = page.props;
   const deployment = useRealtimeRecord<Deployment>(page.props.deployment, 'deployment')!;
@@ -91,20 +91,20 @@ export default function DeploymentShow() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2.5 flex-wrap text-sm text-muted-foreground">
             <Button variant="outline" size="icon" asChild className="size-8 cursor-pointer">
-              <Link href={`/servers/${server.id}/sites/${site.id}/deployments`} title="Back to deployments">
+              <Link href={`/servers/${server.id}/sites/${site.id}/deployments`} title={translateText("Back to deployments")}>
                 <ArrowLeftIcon className="size-4" />
               </Link>
             </Button>
 
             <h1 className="text-base font-semibold text-foreground">
-              Deployment #{deployment.id}
+              {translateText("Deployment #")}{deployment.id}
             </h1>
 
             <Badge variant={deployment.status_color}>{deployment.status}</Badge>
-            {deployment.active && <Badge variant="outline">active</Badge>}
+            {deployment.active && <Badge variant="outline">{translateText("active")}</Badge>}
             {deployment.is_duplicate && (
               <Badge variant="outline" className="text-neutral-500 border-neutral-500/30 bg-neutral-500/10 uppercase font-mono text-[10px]">
-                duplicate
+                {translateText("duplicate")}
               </Badge>
             )}
 
@@ -129,7 +129,7 @@ export default function DeploymentShow() {
                   size="icon"
                   className="size-5 cursor-pointer"
                   onClick={() => copySha(deployment.commit_id || deployment.commit_id_short)}
-                  title="Copy commit SHA"
+                  title={translateText("Copy commit SHA")}
                 >
                   {copiedSha ? <CheckIcon className="size-3 text-neutral-500" /> : <CopyIcon className="size-3" />}
                 </Button>
@@ -144,12 +144,12 @@ export default function DeploymentShow() {
 
             {deployment.commit_data.date && (
               <span title={`Committed on ${moment(deployment.commit_data.date).format('YYYY-MM-DD HH:mm:ss')}`}>
-                · Committed <DateTime date={deployment.commit_data.date} relative />
+                {translateText("· Committed")} <DateTime date={deployment.commit_data.date} relative />
               </span>
             )}
 
             <span>
-              · by {deployment.deployed_by ?? 'System'}
+              {translateText("· by")} {deployment.deployed_by ?? 'System'}
             </span>
 
             <span title={moment(deployment.created_at).format('YYYY-MM-DD HH:mm:ss')}>
@@ -197,8 +197,8 @@ export default function DeploymentShow() {
           <div className="flex items-center justify-between border-b px-3.5 py-2 bg-muted/20">
             <div className="flex items-center gap-2">
               <TerminalIcon className="size-3.5 text-muted-foreground" />
-              <span className="text-sm font-medium">{t('Output')}</span>
-              {selectedStep !== null && <Button variant="ghost" size="sm" onClick={() => setSelectedStep(null)}>Follow current command</Button>}
+              <span className="text-sm font-medium">{translateText('Output')}</span>
+              {selectedStep !== null && <Button variant="ghost" size="sm" onClick={() => setSelectedStep(null)}>{translateText("Follow current command")}</Button>}
             </div>
 
             <div className="flex items-center gap-1">
@@ -222,7 +222,7 @@ export default function DeploymentShow() {
                     rel="noopener noreferrer"
                   >
                     <DownloadIcon className="size-3.5" />
-                    <span>{t('Download')}</span>
+                    <span>{translateText('Download')}</span>
                   </a>
                 </Button>
               )}
@@ -234,7 +234,7 @@ export default function DeploymentShow() {
             {error && <span className="text-destructive">{error}</span>}
             {!deployment.log && (
               <span className="text-muted-foreground flex items-center gap-2">
-                <TerminalIcon className="size-4" /> No deployment output was recorded.
+                <TerminalIcon className="size-4" /> {translateText("No deployment output was recorded.")}
               </span>
             )}
             {!isLoading &&

@@ -91,7 +91,7 @@ export default function ConnectStorageProvider({
   onProviderAdded?: () => void;
   children: ReactNode;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(null);
@@ -285,7 +285,7 @@ export default function ConnectStorageProvider({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t('Connect to storage provider')}</DialogTitle>
+          <DialogTitle>{translateText('Connect to storage provider')}</DialogTitle>
           <DialogDescription className="sr-only">Connect to a new storage provider</DialogDescription>
         </DialogHeader>
         <Form
@@ -301,12 +301,12 @@ export default function ConnectStorageProvider({
             {providerError && (
               <Alert variant="destructive">
                 <AlertCircleIcon className="size-4" />
-                <AlertTitle>{t('Connection failed')}</AlertTitle>
+                <AlertTitle>{translateText('Connection failed')}</AlertTitle>
                 <AlertDescription>{providerError}</AlertDescription>
               </Alert>
             )}
             <FormField>
-              <Label htmlFor="provider">{t('Provider')}</Label>
+              <Label htmlFor="provider">{translateText('Provider')}</Label>
               <Select
                 value={form.data.provider}
                 onValueChange={(value) => {
@@ -316,7 +316,7 @@ export default function ConnectStorageProvider({
                 }}
               >
                 <SelectTrigger id="provider">
-                  <SelectValue placeholder={t('Select a provider')} />
+                  <SelectValue placeholder={translateText('Select a provider')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -374,7 +374,7 @@ export default function ConnectStorageProvider({
             )}
 
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input
                 type="text"
                 name="name"
@@ -489,7 +489,7 @@ export default function ConnectStorageProvider({
                         onClick={() => form.setData('global', !form.data.global)}
                       />
                       <Label htmlFor="global" className="text-xs font-normal">
-                        {t('Is global (accessible in all projects)')}
+                        {translateText('Is global (accessible in all projects)')}
                       </Label>
                     </div>
                     <InputError message={form.errors.global} />
@@ -502,12 +502,12 @@ export default function ConnectStorageProvider({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            {t('Connect')}
+            {translateText('Connect')}
           </Button>
         </DialogFooter>
       </DialogContent>

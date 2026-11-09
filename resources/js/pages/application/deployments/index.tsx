@@ -19,7 +19,7 @@ import { Server } from '@/types/server';
 import { Site } from '@/types/site';
 
 export default function DeploymentsIndex() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -72,7 +72,7 @@ export default function DeploymentsIndex() {
       <Head title={`Deployments - ${site.domain}`} />
       <Container className="flex flex-col gap-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <Heading title={t('Deployments')} description={`Complete deployment history for ${site.domain}.`} />
+          <Heading title={translateText('Deployments')} description={`Complete deployment history for ${site.domain}.`} />
           <Deploy site={site} />
         </div>
 
@@ -95,7 +95,7 @@ export default function DeploymentsIndex() {
 
                   <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 text-xs cursor-pointer">
                     <Link href={`/servers/${server.id}/sites/${site.id}/deployments/${activeDeployment.id}`}>
-                      <span>{t('Details')}</span>
+                      <span>{translateText('Details')}</span>
                       <ExternalLinkIcon className="size-3.5" />
                     </Link>
                   </Button>
@@ -106,8 +106,8 @@ export default function DeploymentsIndex() {
                       size="icon"
                       className="size-8 cursor-pointer"
                       onClick={() => setDismissed(true)}
-                      aria-label={t('Dismiss')}
-                      title={t('Dismiss')}
+                      aria-label={translateText('Dismiss')}
+                      title={translateText('Dismiss')}
                     >
                       <XIcon className="size-4" />
                     </Button>

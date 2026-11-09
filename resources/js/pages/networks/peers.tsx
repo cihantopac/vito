@@ -16,7 +16,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Network, NetworkPeer } from '@/types/network';
 
 export default function NetworkPeers() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const page = usePage<{
     network: Network;
     peers: InertiaTableData;
@@ -30,11 +30,11 @@ export default function NetworkPeers() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Peers" description="Devices that connect to this network, such as laptops or CI runners" />
+          <Heading title="Peers" description={translateText("Devices that connect to this network, such as laptops or CI runners")} />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.networkAddPeer.open({ networkId: network.id })}>
               <PlusIcon />
-              <span className="hidden lg:block">{t('Add peer')}</span>
+              <span className="hidden lg:block">{translateText('Add peer')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -54,7 +54,7 @@ export default function NetworkPeers() {
                     <DropdownMenuItem
                       onSelect={() => dialog.networkPeerConfig.open({ networkId: network.id, peerId: peer.id, byo: peer.byo, name: peer.name })}
                     >
-                      Show config
+                      {translateText("Show config")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={() =>
@@ -68,7 +68,7 @@ export default function NetworkPeers() {
                         })
                       }
                     >
-                      Regenerate keys
+                      {translateText("Regenerate keys")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={() =>
@@ -100,7 +100,7 @@ export default function NetworkPeers() {
                         })
                       }
                     >
-                      {t('Remove')}
+                      {translateText('Remove')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

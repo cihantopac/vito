@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth/layout';
 
 export default function ConfirmPassword() {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const form = useForm<{ password: string }>({
     password: '',
   });
@@ -23,19 +23,19 @@ export default function ConfirmPassword() {
   };
 
   return (
-    <AuthLayout title="Confirm your password" description="This is a secure area of the application. Please confirm your password before continuing.">
-      <Head title={t('Confirm password')} />
+    <AuthLayout title={translateText("Confirm your password")} description={translateText("This is a secure area of the application. Please confirm your password before continuing.")}>
+      <Head title={translateText('Confirm password')} />
 
       <form id="confirm-password-form" onSubmit={submit}>
         <div className="grid gap-6">
           <div className="grid gap-2">
-            <Label htmlFor="password">{t('Password')}</Label>
+            <Label htmlFor="password">{translateText('Password')}</Label>
             <Input
               id="password"
               type="password"
               name="password"
               required
-              placeholder={t('Password')}
+              placeholder={translateText('Password')}
               autoComplete="current-password"
               value={form.data.password}
               autoFocus
@@ -47,7 +47,7 @@ export default function ConfirmPassword() {
           <div className="flex items-center">
             <Button className="w-full" disabled={form.processing}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              {t('Confirm password')}
+              {translateText('Confirm password')}
             </Button>
           </div>
         </div>

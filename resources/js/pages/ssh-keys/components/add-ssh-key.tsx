@@ -25,7 +25,7 @@ type SshKeyForm = {
 };
 
 export default function AddSshKey({ children, onKeyAdded }: { children: ReactNode; onKeyAdded?: () => void }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
 
   const form = useForm<Required<SshKeyForm>>({
@@ -56,7 +56,7 @@ export default function AddSshKey({ children, onKeyAdded }: { children: ReactNod
         <Form id="add-ssh-key-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">{t('Name')}</Label>
+              <Label htmlFor="name">{translateText('Name')}</Label>
               <Input type="text" name="name" id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -70,12 +70,12 @@ export default function AddSshKey({ children, onKeyAdded }: { children: ReactNod
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              {t('Cancel')}
+              {translateText('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            {t('Add')}
+            {translateText('Add')}
           </Button>
         </DialogFooter>
       </DialogContent>

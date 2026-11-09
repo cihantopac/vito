@@ -35,7 +35,7 @@ export default function PeerConfigDialog({
   byo: boolean;
   name: string;
 }) {
-  const t = useTranslate();
+  const translateText = useTranslate();
   const [config, setConfig] = useState<string>('');
   const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -115,15 +115,15 @@ export default function PeerConfigDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Peer configuration</DialogTitle>
-          <DialogDescription>Import this into the WireGuard client on {name}.</DialogDescription>
+          <DialogTitle>{translateText("Peer configuration")}</DialogTitle>
+          <DialogDescription>{translateText("Import this into the WireGuard client on")} {name}.</DialogDescription>
         </DialogHeader>
 
         <div className="max-h-[65vh] space-y-6 overflow-y-auto p-4">
           {loading && (
             <div className="text-muted-foreground flex items-center gap-2 py-6 text-sm">
               <LoaderCircleIcon className="size-4 animate-spin" />
-              Loading configuration…
+              {translateText("Loading configuration…")}
             </div>
           )}
 
@@ -143,7 +143,7 @@ export default function PeerConfigDialog({
                   <SectionHeader title="Private key" hint="Shown once - Pure deletes it when you confirm below.">
                     <Button type="button" variant="outline" size="sm" onClick={() => copy(privateKey, 'key', 'Private key')}>
                       {copied === 'key' ? <CheckIcon /> : <CopyIcon />}
-                      {t('Copy')}
+                      {translateText('Copy')}
                     </Button>
                   </SectionHeader>
                   <pre className="bg-muted/50 overflow-x-auto rounded-md border p-3 font-mono text-xs">{privateKey}</pre>
@@ -158,7 +158,7 @@ export default function PeerConfigDialog({
                       {byo
                         ? 'This peer uses a key you provided, so Pure never had its private key.'
                         : 'This private key was concealed and cannot be shown again.'}{' '}
-                      Set the <span className="font-mono">PrivateKey</span> line below to the peer's own private key
+                      {translateText("Set the")} <span className="font-mono">PrivateKey</span> {translateText("line below to the peer's own private key")}
                       {byo ? '.' : ', or regenerate the peer keys to issue a new one.'}
                     </p>
                   </AlertDescription>
@@ -166,10 +166,10 @@ export default function PeerConfigDialog({
               )}
 
               <section className="space-y-2">
-                <SectionHeader title={t('Configuration')} hint="Updates as servers join or leave - reopen this any time.">
+                <SectionHeader title={translateText('Configuration')} hint="Updates as servers join or leave - reopen this any time.">
                   <Button type="button" variant="outline" size="sm" onClick={() => copy(config, 'config', 'Configuration')}>
                     {copied === 'config' ? <CheckIcon /> : <CopyIcon />}
-                    {t('Copy')}
+                    {translateText('Copy')}
                   </Button>
                   <Button type="button" variant="outline" size="sm" onClick={download}>
                     <DownloadIcon />
@@ -184,12 +184,12 @@ export default function PeerConfigDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">{t('Close')}</Button>
+            <Button variant="outline">{translateText('Close')}</Button>
           </DialogClose>
           {privateKey && !error && (
             <Button disabled={loading || concealing} onClick={conceal}>
               {concealing && <LoaderCircleIcon className="animate-spin" />}
-              I've saved the private key
+              {translateText("I've saved the private key")}
             </Button>
           )}
         </DialogFooter>
