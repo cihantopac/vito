@@ -23,7 +23,7 @@ class BackupReport
             $overdue => 'warning',
             $state === 'running' && $started !== null && $started->gte($now->subHours($maxAgeHours)) => 'running',
             $success === null => 'unknown',
-            in_array($state, ['healthy', 'passed', 'success'], true) => 'healthy',
+            in_array($state, ['healthy', 'passed', 'success', 'finished'], true) => 'healthy',
             default => 'unknown',
         };
         $verification = match (true) {

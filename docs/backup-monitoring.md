@@ -19,7 +19,7 @@ Reports must be root-owned regular files smaller than 64 KiB, with no group/othe
 }
 ```
 
-`status` is accepted as an alternative to `state`; `last_success_at` takes precedence over `finished_at`. The latter is considered a success only for `healthy`, `passed` or `success`. A single `snapshot` or a list/map of snapshot identifiers is supported. Verification also accepts `sqlite_restore` and `checked_at`. Only whitelisted status, timestamps and snapshot identifiers are exposed; arbitrary errors, credentials and other report content are not shown.
+`status` is accepted as an alternative to `state`; `last_success_at` takes precedence over `finished_at`. The latter is considered a success only for `healthy`, `passed` or `success`. A `finished` status additionally requires an explicit valid `last_success_at`. A single `snapshot` or a list/map of snapshot identifiers is supported. Verification also accepts `sqlite_restore` and `checked_at`. Only whitelisted status, timestamps and snapshot identifiers are exposed; arbitrary errors, credentials and other report content are not shown.
 
 A missing/invalid/future success time cannot prove health. Successful backups older than the configured maximum age need attention, including when a stale report still says `running`. A running task needs a recent `started_at`. Recovery verification older than ten days, failed verification, or a stale running verification also needs attention. Unknown verification is not a successful recovery test. The page warns if the monitor itself has not refreshed in fifteen minutes.
 
