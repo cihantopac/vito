@@ -59,7 +59,7 @@ export default function RuntimeProcesses({ kind }: { kind?: 'worker' | 'schedule
     <section className="space-y-4 rounded-lg border p-4" aria-label={translateText("Existing runtime processes")}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-semibold">{translateText("Existing")} {kind === 'worker' ? 'workers' : kind === 'scheduler' ? 'schedulers' : kind === 'service' ? 'services' : 'runtime processes'}</h2>
+          <h2 className="font-semibold">{translateText("Existing")} {kind === 'worker' ? translateText("workers") : kind === 'scheduler' ? translateText("schedulers") : kind === 'service' ? translateText("services") : translateText("runtime processes")}</h2>
           <p className="text-muted-foreground text-sm">{translateText("Systemd, Docker and Supervisor connections, including user services and rootless containers. Registering a process preserves its existing configuration.")}</p>
           <p className="text-muted-foreground text-xs">{translateText("Status is checked every two minutes. A masked process remains isolated.")}</p>
         </div>
@@ -97,7 +97,7 @@ export default function RuntimeProcesses({ kind }: { kind?: 'worker' | 'schedule
       <div className="space-y-3">{inventory.data?.processes.map((process) => <article key={process.id} className="space-y-2 rounded-md border p-3">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-medium">{process.label}</h3><span className={`rounded px-2 py-1 text-xs ${process.status === 'running' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' : process.status === 'failed' ? 'bg-destructive/15 text-destructive' : 'bg-muted text-muted-foreground'}`}>{process.status_label}</span></div>
         <p className="text-muted-foreground break-all text-xs">{driverLabels[process.driver] ?? process.driver}{process.unix_user ? ` · ${process.unix_user}` : ''} · {process.kind} · {process.runtime_name}</p>
-        <p className="text-muted-foreground text-xs">{process.sites.map((application) => application.domain).join(', ') || 'Server-wide'} {translateText("· Checked:")} {process.last_checked_at ? new Date(process.last_checked_at).toLocaleString() : 'Pending'}</p>
+        <p className="text-muted-foreground text-xs">{process.sites.map((application) => application.domain).join(', ') || translateText("Server-wide")} {translateText("· Checked:")} {process.last_checked_at ? new Date(process.last_checked_at).toLocaleString() : translateText("Pending")}</p>
         {(process.details.error || process.details.command_result) && <p role="status" className="text-sm">{process.details.error || process.details.command_result}</p>}
         {inventory.data?.can_manage && <div className="flex flex-wrap gap-2">{['start', 'stop', 'restart', 'unlink'].map((operation) => <Button key={operation} size="sm" variant="outline" disabled={process.status === 'masked' && operation !== 'unlink'} onClick={() => command(process, operation)}>{operation[0].toUpperCase() + operation.slice(1)}</Button>)}</div>}
       </article>)}</div>

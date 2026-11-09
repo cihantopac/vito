@@ -54,7 +54,7 @@ export default function ShowDatabaseReplica() {
 
   return (
     <ServerLayout>
-      <Head title={`Replica ${replica.replica_server_name}`} />
+      <Head title={translateText("Replica :value", { value: (replica.replica_server_name ?? '—') })} />
 
       <Container>
         <HeaderContainer>

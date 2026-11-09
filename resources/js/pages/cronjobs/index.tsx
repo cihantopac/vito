@@ -38,13 +38,13 @@ export default function CronJobIndex() {
 
   return (
     <ServerLayout>
-      <Head title={`Cron jobs - ${page.props.server.name}`} />
+      <Head title={translateText("Cron jobs - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
           <Heading
             title={translateText("Cron jobs")}
-            description={page.props.site ? `Manage scheduled tasks and cron jobs for ${page.props.site.domain}` : "Manage server's cron jobs"}
+            description={page.props.site ? `Manage scheduled tasks and cron jobs for ${page.props.site.domain}` : translateText("Manage server's cron jobs")}
           />
           <div className="flex items-center gap-2">
             <Button

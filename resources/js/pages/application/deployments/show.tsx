@@ -83,7 +83,7 @@ export default function DeploymentShow() {
 
   return (
     <ServerLayout>
-      <Head title={`Deployment #${deployment.id} - ${site.domain}`} />
+      <Head title={translateText("Deployment #:value - :value2", { value: deployment.id, value2: site.domain })} />
 
       <Container className="gap-3 py-4 flex flex-col min-h-[calc(100vh-80px)]">
         <SiteBanners site={site} />
@@ -143,13 +143,13 @@ export default function DeploymentShow() {
             )}
 
             {deployment.commit_data.date && (
-              <span title={`Committed on ${moment(deployment.commit_data.date).format('YYYY-MM-DD HH:mm:ss')}`}>
+              <span title={translateText("Committed on :value", { value: moment(deployment.commit_data.date).format('YYYY-MM-DD HH:mm:ss') })}>
                 {translateText("· Committed")} <DateTime date={deployment.commit_data.date} relative />
               </span>
             )}
 
             <span>
-              {translateText("· by")} {deployment.deployed_by ?? 'System'}
+              {translateText("· by")} {deployment.deployed_by ?? translateText("System")}
             </span>
 
             <span title={moment(deployment.created_at).format('YYYY-MM-DD HH:mm:ss')}>
@@ -168,7 +168,7 @@ export default function DeploymentShow() {
                 onClick={() =>
                   dialog.confirm.open({
                     title: 'Rollback',
-                    description: `Are you sure you want to rollback your site to version [${deployment.release}]?`,
+                    description: translateText("Are you sure you want to rollback your site to version [:value]?", { value: (deployment.release ?? '—') }),
                     confirmLabel: 'Rollback',
                     method: 'post',
                     url: `/servers/${encodeURIComponent(String(server.id))}/sites/${site.id}/rollback/${deployment.id}`,
@@ -210,7 +210,7 @@ export default function DeploymentShow() {
                   onClick={() => copyLog(selectedOutput)}
                 >
                   {copiedLog ? <CheckIcon className="size-3.5 text-neutral-500" /> : <CopyIcon className="size-3.5" />}
-                  <span>{copiedLog ? 'Copied' : 'Copy'}</span>
+                  <span>{copiedLog ? translateText("Copied") : translateText("Copy")}</span>
                 </Button>
               )}
 
@@ -230,7 +230,7 @@ export default function DeploymentShow() {
           </div>
 
           <LogOutput key={`${deployment.id}-${displayedIndex}`} className="h-full min-h-0 w-full flex-1 rounded-none border-0 p-4">
-            {isLoading && 'Loading deployment output...'}
+            {isLoading && translateText("Loading deployment output...")}
             {error && <span className="text-destructive">{error}</span>}
             {!deployment.log && (
               <span className="text-muted-foreground flex items-center gap-2">
@@ -241,7 +241,7 @@ export default function DeploymentShow() {
               !error &&
               deployment.log &&
               (selectedOutput ||
-                (deployment.status === 'deploying' ? 'Waiting for output...' : 'No output was recorded.'))}
+                (deployment.status === 'deploying' ? translateText("Waiting for output...") : translateText("No output was recorded.")))}
           </LogOutput>
         </Card>
       </Container>

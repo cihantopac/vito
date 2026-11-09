@@ -65,7 +65,7 @@ export default function PhpIniDialog({
       <SheetContent className="sm:max-w-5xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
           <SheetTitle>{translateText('Edit')} {type} ini</SheetTitle>
-          <SheetDescription className="sr-only">{translateText("You can edit the")} {type} ini file for this service. Make sure to save your changes.</SheetDescription>
+          <SheetDescription className="sr-only">{translateText("You can edit the")} {type} {translateText("ini file for this service. Make sure to save your changes.")}</SheetDescription>
         </SheetHeader>
         <Form id="update-ini-form" className="h-full" onSubmit={submit}>
           {query.isSuccess ? (

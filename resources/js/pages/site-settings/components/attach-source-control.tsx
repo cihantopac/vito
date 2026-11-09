@@ -12,8 +12,8 @@ export default function AttachSourceControl({ site, children }: { site: Site; ch
   const translateText = useTranslate();
   return (
     <FieldUpdateDialog
-      title="Attach source control"
-      description="Connect this site to a Git repository."
+      title={translateText("Attach source control")}
+      description={translateText("Connect this site to a Git repository.")}
       initialValue=""
       fieldName="source_control"
       url={`/servers/${site.server_id}/sites/${site.id}/settings/attach-source-control`}

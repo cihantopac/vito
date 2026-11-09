@@ -80,8 +80,8 @@ export default function ConnectSourceControl({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Connect to source control</DialogTitle>
-          <DialogDescription className="sr-only">Connect to a new source control</DialogDescription>
+          <DialogTitle>{translateText("Connect to source control")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Connect to a new source control")}</DialogDescription>
         </DialogHeader>
         <Form id="create-source-control-form" onSubmit={submit} className="p-4">
           <FormFields>

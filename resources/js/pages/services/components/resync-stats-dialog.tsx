@@ -23,12 +23,11 @@ export default function ResyncStatsDialog({ service, open, onOpenChange }: { ser
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{translateText("Re-sync stats scripts")}</DialogTitle>
-          <DialogDescription className="sr-only">Re-sync GoAccess scripts and cron on the server</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Re-sync GoAccess scripts and cron on the server")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 p-4">
           <p>
-            This re-writes the GoAccess processing scripts and per-site configs on the server and ensures the cron is in place. Run this after a Pure
-            update.
+            {translateText("This re-writes the GoAccess processing scripts and per-site configs on the server and ensures the cron is in place. Run this after a Pure update.")}
           </p>
           {Object.entries(form.errors).map(([key, value]) => (
             <InputError key={key} message={value as string | undefined} />
@@ -41,7 +40,7 @@ export default function ResyncStatsDialog({ service, open, onOpenChange }: { ser
           <Button disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Re-sync
+            {translateText("Re-sync")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -48,7 +48,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
           <TooltipContent side="bottom">
             <div>
               <span className="lg:hidden">{server.provider}</span>
-              <span className="hidden lg:inline-flex">Server Provider</span>
+              <span className="hidden lg:inline-flex">{translateText("Server Provider")}</span>
             </div>
           </TooltipContent>
         </Tooltip>
@@ -73,12 +73,12 @@ export default function ServerHeader({ server: initialServer }: { server: Server
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <button type="button" className="cursor-pointer lg:inline-flex" onClick={() => copyIp(server.ip)} aria-label="Copy server IP">
+            <button type="button" className="cursor-pointer lg:inline-flex" onClick={() => copyIp(server.ip)} aria-label={translateText("Copy server IP")}>
               {server.ip}
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <span>Server IP</span>
+            <span>{translateText("Server IP")}</span>
           </TooltipContent>
         </Tooltip>
         {!['installing', 'installation_failed'].includes(server.status) && (
@@ -119,7 +119,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
                   </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Package update in progress. Click to view console logs.</TooltipContent>
+              <TooltipContent side="bottom">{translateText("Package update in progress. Click to view console logs.")}</TooltipContent>
             </Tooltip>
           </>
         )}
@@ -127,7 +127,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
 
       <div className="flex shrink-0 items-center gap-1.5">
         <ConnectSshDialog server={server}>
-          <Button aria-label="Connect via SSH" variant="ghost" size="sm" className="h-6 text-[11px] gap-1 px-2 text-muted-foreground hover:text-foreground cursor-pointer">
+          <Button aria-label={translateText("Connect via SSH")} variant="ghost" size="sm" className="h-6 text-[11px] gap-1 px-2 text-muted-foreground hover:text-foreground cursor-pointer">
             <KeyRoundIcon className="size-3" />
             <span className="hidden sm:inline">{translateText('Connect')}</span>
           </Button>

@@ -115,7 +115,7 @@ export default function Information() {
   if (info.error) {
     return (
       <ServerLayout>
-        <Head title={`Server Information - ${server.name}`} />
+        <Head title={translateText("Server Information - :value", { value: server.name })} />
         <Container>
           <HeaderContainer>
             <Heading title={translateText("Server Information")} />
@@ -132,7 +132,7 @@ export default function Information() {
 
   return (
     <ServerLayout>
-      <Head title={`Server Information - ${server.name}`} />
+      <Head title={translateText("Server Information - :value", { value: server.name })} />
 
       <Container>
         <HeaderContainer>
@@ -162,7 +162,7 @@ export default function Information() {
                   <h3 className="text-xs font-semibold">{translateText("Processor")}</h3>
                 </div>
                 <span className="text-[11px] text-muted-foreground font-mono">
-                  {info.total_processors} {translateText("core")}{info.total_processors !== 1 ? 's' : ''}
+                  {translateText(info.total_processors === 1 ? ':count core' : ':count cores', { count: info.total_processors })}
                 </span>
               </div>
               <div className="p-3.5 space-y-0.5">
@@ -283,7 +283,7 @@ export default function Information() {
                 onClick={() => copy(info.raw_report)}
               >
                 <ClipboardIcon className="size-3 mr-1" />
-                {copied ? 'Copied' : 'Copy'}
+                {copied ? translateText("Copied") : translateText("Copy")}
               </Button>
               <pre className="max-h-72 overflow-auto bg-muted/10 p-3 pt-8 font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-foreground/80">
                 {info.raw_report}

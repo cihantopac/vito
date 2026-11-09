@@ -36,12 +36,12 @@ export function ProjectActions({ project }: { project: Project }) {
         <DropdownMenuItem onSelect={() => dialog.projectForm.open({ project })}>{translateText('Edit')}</DropdownMenuItem>
         <DropdownMenuItem onSelect={() => dialog.projectUsers.open({ project })}>
           <UsersIcon className="size-3.5 mr-2" />
-          <span>{project.role === 'user' ? 'View access' : 'Manage access'}</span>
+          <span>{project.role === 'user' ? translateText("View access") : translateText("Manage access")}</span>
         </DropdownMenuItem>
         {project.role !== 'owner' && (
           <DropdownMenuItem
             onSelect={() => dialog.confirm.open({
-              title: `Leave ${project.name}`,
+              title: translateText("Leave :value", { value: project.name }),
               description: 'Are you sure you want to leave this project?',
               confirmLabel: 'Leave',
               variant: 'destructive',
@@ -59,8 +59,8 @@ export function ProjectActions({ project }: { project: Project }) {
               variant="destructive"
               onSelect={() =>
                 dialog.confirm.open({
-                  title: `Delete ${project.name}`,
-                  description: `Are you sure you want to delete ${project.name}?`,
+                  title: translateText("Delete :value", { value: project.name }),
+                  description: translateText("Are you sure you want to delete :value?", { value: project.name }),
                   variant: 'destructive',
                   confirmLabel: 'Delete',
                   method: 'delete',

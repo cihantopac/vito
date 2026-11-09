@@ -23,8 +23,8 @@ function Delete({ sourceControl }: { sourceControl: SourceControl }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete ${sourceControl.name}`,
-          description: `Are you sure you want to delete ${sourceControl.name}?`,
+          title: translateText("Delete :value", { value: sourceControl.name }),
+          description: translateText("Are you sure you want to delete :value?", { value: sourceControl.name }),
           variant: 'destructive',
           confirmLabel: 'Delete',
           method: 'delete',

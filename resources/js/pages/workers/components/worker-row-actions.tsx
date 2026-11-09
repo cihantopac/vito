@@ -5,6 +5,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Link } from '@inertiajs/react';
 
 export function WorkerAction({ type, worker }: { type: 'start' | 'stop' | 'restart'; worker: Worker }) {
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -12,8 +13,8 @@ export function WorkerAction({ type, worker }: { type: 'start' | 'stop' | 'resta
       className="capitalize"
       onSelect={() =>
         dialog.confirm.open({
-          title: `${type} worker`,
-          description: `Are you sure you want to ${type} the worker?`,
+          title: translateText(":value worker", { value: translateText(type) }),
+          description: translateText("Are you sure you want to :value the worker?", { value: translateText(type) }),
           variant: type === 'stop' ? 'destructive' : 'default',
           confirmLabel: type,
           method: 'post',
@@ -21,7 +22,7 @@ export function WorkerAction({ type, worker }: { type: 'start' | 'stop' | 'resta
         })
       }
     >
-      {type}
+      {translateText(type)}
     </DropdownMenuItem>
   );
 }

@@ -136,7 +136,7 @@ export default function SiteResourceDiagram({
               : 'bg-muted-foreground/40',
           )}
         />
-        {hasCloudflare ? (isPrimaryProxied ? 'Cloudflare (Proxied)' : 'Cloudflare') : anyConnectedDns ? 'DNS' : 'Provider not linked'}
+        {hasCloudflare ? (isPrimaryProxied ? translateText("Cloudflare (Proxied)") : 'Cloudflare') : anyConnectedDns ? 'DNS' : translateText("Provider not linked")}
       </span>
 
       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium bg-muted/50 text-muted-foreground border border-border/40 font-mono">
@@ -147,7 +147,7 @@ export default function SiteResourceDiagram({
       {attachedResourcesCount > 0 && (
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium bg-muted/50 text-muted-foreground border border-border/40">
           <DatabaseIcon className="size-2.5" />
-          {attachedResourcesCount} {attachedResourcesCount === 1 ? 'resource' : 'resources'}
+          {attachedResourcesCount} {attachedResourcesCount === 1 ? translateText("resource") : translateText("resources")}
         </span>
       )}
 
@@ -218,7 +218,7 @@ export default function SiteResourceDiagram({
                 className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
               >
                 <LayersIcon className="size-3" />
-                <span>{isDetailed ? 'Overview mode' : 'Detailed mode'}</span>
+                <span>{isDetailed ? translateText("Overview mode") : translateText("Detailed mode")}</span>
               </Button>
             )}
 
@@ -274,7 +274,7 @@ export default function SiteResourceDiagram({
                               : 'bg-muted-foreground/40',
                           )}
                         />
-                        {hasCloudflare ? (!primaryProxyKnown ? 'Cloudflare (Not checked)' : isPrimaryProxied ? 'Cloudflare (Proxied)' : 'Cloudflare (DNS Only)') : anyConnectedDns ? 'DNS' : 'Provider not linked'}
+                        {hasCloudflare ? (!primaryProxyKnown ? translateText("Cloudflare (Not checked)") : isPrimaryProxied ? translateText("Cloudflare (Proxied)") : translateText("Cloudflare (DNS Only)")) : anyConnectedDns ? 'DNS' : translateText("Provider not linked")}
                         <SettingsIcon className="size-2.5 opacity-60 ml-0.5" />
                       </button>
                     </div>
@@ -301,12 +301,12 @@ export default function SiteResourceDiagram({
                             )}
                           />
                           {!primaryProxyKnown
-                            ? 'Not checked'
+                            ? translateText("Not checked")
                             : isPrimaryProxied
-                            ? 'Active (Cloudflare)'
+                            ? translateText("Active (Cloudflare)")
                             : hasCloudflare
-                            ? 'DNS Only'
-                            : 'Not verified'}
+                            ? translateText("DNS Only")
+                            : translateText("Not verified")}
                         </span>
                       </div>
 
@@ -329,12 +329,12 @@ export default function SiteResourceDiagram({
                             )}
                           />
                           {!primaryProxyKnown
-                            ? 'Not checked'
+                            ? translateText("Not checked")
                             : isPrimaryProxied
-                            ? 'Edge Proxied'
+                            ? translateText("Edge Proxied")
                             : hasCloudflare
-                            ? 'DNS Only'
-                            : 'Proxy not verified'}
+                            ? translateText("DNS Only")
+                            : translateText("Proxy not verified")}
                         </span>
                       </div>
 
@@ -357,12 +357,12 @@ export default function SiteResourceDiagram({
                             )}
                           />
                           {!primaryProxyKnown
-                            ? 'Not checked'
+                            ? translateText("Not checked")
                             : isPrimaryProxied
                             ? 'Edge SSL + Origin'
                             : site.ssl_enabled
                             ? 'Origin HTTPS'
-                            : 'Disabled'}
+                            : translateText("Disabled")}
                         </span>
                       </div>
                     </div>
@@ -412,7 +412,7 @@ export default function SiteResourceDiagram({
                                 : 'bg-muted/40 text-muted-foreground border-border/50 hover:text-foreground hover:bg-muted',
                               togglingDomain === site.domain && 'opacity-60 pointer-events-none',
                             )}
-                            title={!primaryProxyKnown ? 'Sync DNS records to verify proxy status' : isPrimaryProxied ? 'Cloudflare Proxy & Security Active' : 'Cloudflare proxy disabled'}
+                            title={!primaryProxyKnown ? translateText("Sync DNS records to verify proxy status") : isPrimaryProxied ? translateText("Cloudflare Proxy & Security Active") : translateText("Cloudflare proxy disabled")}
                           >
                             {togglingDomain === site.domain ? (
                               <LoaderCircleIcon className="size-2.5 animate-spin" />
@@ -421,7 +421,7 @@ export default function SiteResourceDiagram({
                             ) : (
                               <ShieldAlertIcon className="size-2.5 text-muted-foreground" />
                             )}
-                            <span>{!primaryProxyKnown ? 'Not checked' : isPrimaryProxied ? 'Protected' : 'DNS only'}</span>
+                            <span>{!primaryProxyKnown ? translateText("Not checked") : isPrimaryProxied ? translateText("Protected") : translateText("DNS only")}</span>
                           </button>
                         ) : (
                           <span className="text-[10px] font-mono text-muted-foreground">{translateText('Not checked')}</span>
@@ -454,7 +454,7 @@ export default function SiteResourceDiagram({
                                         : 'bg-muted/40 text-muted-foreground border-border/50 hover:text-foreground hover:bg-muted',
                                       isUpdating && 'opacity-60 pointer-events-none',
                                     )}
-                                    title={!isKnown ? 'Sync DNS records to verify proxy status' : isProxied ? 'Cloudflare Proxy & Security Active' : 'Cloudflare proxy disabled'}
+                                    title={!isKnown ? translateText("Sync DNS records to verify proxy status") : isProxied ? translateText("Cloudflare Proxy & Security Active") : translateText("Cloudflare proxy disabled")}
                                   >
                                     {isUpdating ? (
                                       <LoaderCircleIcon className="size-2.5 animate-spin" />
@@ -463,7 +463,7 @@ export default function SiteResourceDiagram({
                                     ) : (
                                       <ShieldAlertIcon className="size-2.5 text-muted-foreground" />
                                     )}
-                                    <span>{!isKnown ? 'Not checked' : isProxied ? 'Protected' : 'DNS only'}</span>
+                                    <span>{!isKnown ? translateText("Not checked") : isProxied ? translateText("Protected") : translateText("DNS only")}</span>
                                   </button>
                                 ) : (
                                   <span
@@ -545,7 +545,7 @@ export default function SiteResourceDiagram({
                     </div>
                     <span className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
                       <span className="size-1.5 rounded-full bg-neutral-500" />
-                      {site.status || 'Ready'}
+                      {site.status || translateText("Ready")}
                     </span>
                   </div>
 
@@ -663,7 +663,7 @@ export default function SiteResourceDiagram({
                     <div className="mt-2 flex items-center justify-between border-t border-border/40 pt-1.5 text-[11px] text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Link href={`/servers/${server.id}/sites/${site.id}/workers`} className="hover:text-foreground hover:underline">
-                          {workersCount} {workersCount === 1 ? 'Worker' : 'Workers'}
+                          {workersCount} {workersCount === 1 ? 'Worker' : translateText("Workers")}
                         </Link>
                         <button
                           type="button"
@@ -676,7 +676,7 @@ export default function SiteResourceDiagram({
                       </span>
                       <span className="flex items-center gap-1">
                         <Link href={`/servers/${server.id}/sites/${site.id}/cronjobs`} className="hover:text-foreground hover:underline">
-                          {cronJobsCount} {cronJobsCount === 1 ? 'Cron' : 'Crons'}
+                          {cronJobsCount} {cronJobsCount === 1 ? 'Cron' : translateText("Crons")}
                         </Link>
                         <button
                           type="button"
@@ -720,7 +720,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center gap-1.5 truncate">
                           <span className="text-xs font-semibold text-foreground">{translateText('Database')}</span>
                           <span className="text-[11px] text-muted-foreground font-normal truncate">
-                            {dbResource.server?.name || dbResource.server?.ip || 'Attached'}
+                            {dbResource.server?.name || dbResource.server?.ip || translateText("Attached")}
                           </span>
                         </div>
                       </div>
@@ -742,7 +742,7 @@ export default function SiteResourceDiagram({
                             <span>{translateText('Server')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
-                            {dbResource.server?.name || dbResource.server?.ip || 'Local'}
+                            {dbResource.server?.name || dbResource.server?.ip || translateText("Local")}
                           </span>
                         </div>
 
@@ -753,7 +753,7 @@ export default function SiteResourceDiagram({
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                             <span className="size-1.5 rounded-full bg-neutral-500" />
-                            {dbResource.status === 'ready' ? 'Connected' : dbResource.status}
+                            {dbResource.status === 'ready' ? translateText("Connected") : dbResource.status}
                           </span>
                         </div>
                       </div>
@@ -783,7 +783,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center gap-1.5 truncate">
                           <span className="text-xs font-semibold text-foreground">Cache</span>
                           <span className="text-[11px] text-muted-foreground font-normal truncate">
-                            {cacheResource.server?.name || cacheResource.server?.ip || 'Attached'}
+                            {cacheResource.server?.name || cacheResource.server?.ip || translateText("Attached")}
                           </span>
                         </div>
                       </div>
@@ -805,7 +805,7 @@ export default function SiteResourceDiagram({
                             <span>{translateText('Server')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
-                            {cacheResource.server?.name || cacheResource.server?.ip || 'Local'}
+                            {cacheResource.server?.name || cacheResource.server?.ip || translateText("Local")}
                           </span>
                         </div>
 
@@ -816,7 +816,7 @@ export default function SiteResourceDiagram({
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                             <span className="size-1.5 rounded-full bg-neutral-500" />
-                            {cacheResource.status === 'ready' ? 'Connected' : cacheResource.status}
+                            {cacheResource.status === 'ready' ? translateText("Connected") : cacheResource.status}
                           </span>
                         </div>
                       </div>
@@ -846,7 +846,7 @@ export default function SiteResourceDiagram({
                         <div className="flex items-center gap-1.5 truncate">
                           <span className="text-xs font-semibold text-foreground">Storage</span>
                           <span className="text-[11px] text-muted-foreground font-normal truncate">
-                            {storageResource.storage_provider?.name || 'Attached'}
+                            {storageResource.storage_provider?.name || translateText("Attached")}
                           </span>
                         </div>
                       </div>
@@ -868,7 +868,7 @@ export default function SiteResourceDiagram({
                             <span>{translateText('Provider')}</span>
                           </span>
                           <span className="font-mono text-[11px] font-medium text-foreground">
-                            {storageResource.storage_provider?.name || 'S3 Storage'}
+                            {storageResource.storage_provider?.name || translateText("S3 Storage")}
                           </span>
                         </div>
 
@@ -879,7 +879,7 @@ export default function SiteResourceDiagram({
                           </span>
                           <span className="flex items-center gap-1 text-[11px] font-medium text-foreground">
                             <span className="size-1.5 rounded-full bg-neutral-500" />
-                            {storageResource.status === 'ready' ? 'Connected' : storageResource.status}
+                            {storageResource.status === 'ready' ? translateText("Connected") : storageResource.status}
                           </span>
                         </div>
                       </div>

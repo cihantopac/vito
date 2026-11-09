@@ -104,7 +104,7 @@ export default function GithubAppIndex() {
                       <div className="flex items-center gap-3">
                         <GithubIcon className="h-4 w-4" />
                         <span className="font-medium">{sc.github_app?.account_login || sc.name}</span>
-                        <Badge variant="outline">{sc.github_app?.account_type || 'Account'}</Badge>
+                        <Badge variant="outline">{sc.github_app?.account_type || translateText("Account")}</Badge>
                         {sc.global ? <Badge variant="success">global</Badge> : <Badge variant="danger">{translateText("project")}</Badge>}
                       </div>
                       {sc.github_app?.html_url && (
@@ -149,8 +149,7 @@ function CreateAppCard({ manifest, manualSetup }: { manifest: Manifest; manualSe
 
             <TabsContent value="automatic" className="space-y-4 pt-4">
               <p className="text-muted-foreground text-sm">
-                We&apos;ll send a pre-filled manifest to GitHub. GitHub creates the app, generates credentials, and redirects you back here. Requires
-                a publicly reachable hostname (not <code>.test</code> / <code>.localhost</code>).
+                {translateText("We'll send a pre-filled manifest to GitHub. GitHub creates the app, generates credentials, and redirects you back here. Requires a publicly reachable hostname (not")} <code>.test</code> / <code>.localhost</code>).
               </p>
               <form method="post" action={manifest.submit_url}>
                 <input type="hidden" name="manifest" value={manifest.manifest} />

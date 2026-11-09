@@ -87,10 +87,10 @@ export default function Layout({
     for (const type of ['success', 'error', 'warning', 'info'] as const) {
       const message = page.props.flash?.[type];
       if (message) {
-        toast[type](<div className="flex items-center gap-2">{message}</div>);
+        toast[type](<div className="flex items-center gap-2">{translateText(message)}</div>);
       }
     }
-  }, [page.props.flash]);
+  }, [page.props.flash, translateText]);
 
   const showBootstrapError = bootstrapStatus === 'error' && !bootstrapConfigsLoaded;
 

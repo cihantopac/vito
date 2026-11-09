@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { RequestFeedback } from '@/components/request-feedback';
 import AppLogo from '@/components/app-logo';
 import { Link, usePage } from '@inertiajs/react';
@@ -12,6 +13,7 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children, title, description, showFooter = true }: PropsWithChildren<AuthLayoutProps>) {
+  const translateText = useTranslate();
   const page = usePage<SharedData>();
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -21,7 +23,7 @@ export default function AuthLayout({ children, title, description, showFooter = 
           <div className="flex flex-col items-center gap-4">
             <Link href="/" className="flex flex-col items-center gap-2 font-medium">
               <AppLogo className="text-2xl" />
-              <span className="sr-only">{title ?? 'Home'}</span>
+              <span className="sr-only">{title ?? translateText("Home")}</span>
             </Link>
 
             {(title || description) && (

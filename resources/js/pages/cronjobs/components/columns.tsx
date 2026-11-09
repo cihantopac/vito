@@ -19,6 +19,7 @@ function getCronJobUrl(cronJob: CronJob, site?: Site): string {
 }
 
 function Action({ type, cronJob }: { type: 'enable' | 'disable'; cronJob: CronJob; site?: Site }) {
+  const translateText = useTranslate();
   const form = useForm();
 
   const submit = () => {
@@ -29,7 +30,7 @@ function Action({ type, cronJob }: { type: 'enable' | 'disable'; cronJob: CronJo
     <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={submit} disabled={form.processing}>
       {form.processing && <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />}
       <FormSuccessful successful={form.recentlySuccessful} />
-      {type === 'enable' ? 'Enable' : 'Disable'}
+      {type === 'enable' ? translateText("Enable") : translateText("Disable")}
     </DropdownMenuItem>
   );
 }

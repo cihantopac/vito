@@ -40,8 +40,8 @@ export default function ToolingTable({ site, tools, installedVersions, statuses,
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search tools…"
-          aria-label="Search tools"
+          placeholder={translateText("Search tools…")}
+          aria-label={translateText("Search tools")}
           className="pl-9"
         />
       </div>
@@ -51,7 +51,7 @@ export default function ToolingTable({ site, tools, installedVersions, statuses,
           <TableHeader>
             <TableRow>
               <TableHead className="w-[180px]">{translateText('Actions')}</TableHead>
-              <TableHead className="w-[180px]">Tool</TableHead>
+              <TableHead className="w-[180px]">{translateText("Tool")}</TableHead>
               <TableHead>{translateText('Description')}</TableHead>
               <TableHead className="w-[180px]">{translateText('Version')}</TableHead>
             </TableRow>
@@ -60,7 +60,7 @@ export default function ToolingTable({ site, tools, installedVersions, statuses,
             {filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-muted-foreground py-6 text-center">
-                  No tools match "{query}".
+                  {translateText("No tools match \"")}{query}".
                 </TableCell>
               </TableRow>
             ) : (
@@ -162,18 +162,18 @@ function ToolingRow({
             aria-busy={installing}
             aria-label={installing ? `Installing ${tool.label}` : undefined}
           >
-            {installing || submittingInstall ? <LoaderCircleIcon className="size-4 animate-spin" /> : 'Install'}
+            {installing || submittingInstall ? <LoaderCircleIcon className="size-4 animate-spin" /> : translateText("Install")}
           </Button>
           {required ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={0}>
-                  <Button type="button" variant="outline" size="icon" disabled aria-label={`Uninstall ${tool.label}`}>
+                  <Button type="button" variant="outline" size="icon" disabled aria-label={translateText("Uninstall :value", { value: tool.label })}>
                     <TrashIcon className="text-destructive size-4" />
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>Required by {requiredBy} site type</TooltipContent>
+              <TooltipContent>{translateText("Required by")} {requiredBy} {translateText("site type")}</TooltipContent>
             </Tooltip>
           ) : (
             <Button
@@ -198,16 +198,15 @@ function ToolingRow({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{translateText('Uninstall')} {tool.label}</DialogTitle>
-              <DialogDescription>This will remove {tool.label} from the isolated user.</DialogDescription>
+              <DialogDescription>{translateText("This will remove")} {tool.label} {translateText("from the isolated user.")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-2 p-4 text-sm">
               {siblingCount > 0 && (
                 <p>
-                  This isolated user is shared with <strong>{siblingCount}</strong> other site{siblingCount === 1 ? '' : 's'}. Uninstalling will
-                  affect them all.
+                  {translateText(siblingCount === 1 ? 'This isolated user is shared with :count other site. Uninstalling will affect them all.' : 'This isolated user is shared with :count other sites. Uninstalling will affect them all.', { count: siblingCount })}
                 </p>
               )}
-              <p>Are you sure you want to uninstall {tool.label}?</p>
+              <p>{translateText("Are you sure you want to uninstall")} {tool.label}?</p>
             </div>
             <DialogFooter className="gap-2">
               <DialogClose asChild>
@@ -225,9 +224,9 @@ function ToolingRow({
         <span className="inline-flex items-center gap-2">
           {tool.label}
           {installed ? (
-            <CircleCheckIcon className="text-success size-4" aria-label={`${tool.label} is installed`} />
+            <CircleCheckIcon className="text-success size-4" aria-label={translateText(":value is installed", { value: tool.label })} />
           ) : (
-            <CircleIcon className="text-muted-foreground/40 size-4" aria-label={`${tool.label} is not installed`} />
+            <CircleIcon className="text-muted-foreground/40 size-4" aria-label={translateText(":value is not installed", { value: tool.label })} />
           )}
           {(installFailed || uninstallFailed) && (
             <TriangleAlertIcon
@@ -241,7 +240,7 @@ function ToolingRow({
       <TableCell className="align-middle">
         <Select value={selected} onValueChange={setSelected} disabled={busy || submitting}>
           <SelectTrigger id={`${tool.id}-version`} className="w-[160px]">
-            <SelectValue placeholder="Select version" />
+            <SelectValue placeholder={translateText("Select version")} />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>

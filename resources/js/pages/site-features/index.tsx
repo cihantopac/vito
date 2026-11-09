@@ -25,11 +25,11 @@ export default function SiteFeatures() {
 
   return (
     <ServerLayout>
-      <Head title={`Features - ${page.props.site.domain}`} />
+      <Head title={translateText("Features - :value", { value: page.props.site.domain })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Features')} description="Your site has some features enabled by Pure or other plugins" />
+          <Heading title={translateText('Features')} description={translateText("Your site has some features enabled by Pure or other plugins")} />
         </HeaderContainer>
 
         <SiteBanners site={page.props.site} />
@@ -37,16 +37,16 @@ export default function SiteFeatures() {
         <Alert>
           <TriangleAlertIcon className="text-warning!" />
           <AlertDescription className="flex gap-1">
-            Pure now uses the new plugins system. If the feature you're looking for is not here, check the
+            {translateText("Pure now uses the new plugins system. If the feature you're looking for is not here, check the")}
             <Link className="text-primary" href={"/admin/plugins"}>
-              plugins
+              {translateText("plugins")}
             </Link>
-            and install the required one.
+            {translateText("and install the required one.")}
           </AlertDescription>
         </Alert>
 
         <FeaturesCard
-          title="Site features"
+          title={translateText("Site features")}
           features={page.props.features}
           onActionSelect={(featureId, actionId, action) => 
             dialog.siteFeatureAction.open({ site: page.props.site, featureId, actionId, action })

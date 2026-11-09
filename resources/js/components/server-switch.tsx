@@ -74,7 +74,7 @@ export function ServerSwitch() {
       className="px-1!"
       role="combobox"
       aria-expanded={open}
-      aria-label={`Switch server. Current server: ${page.props.server?.name ?? 'none'}`}
+      aria-label={translateText("Switch server. Current server: :value", { value: page.props.server?.name ?? 'none' })}
     >
       {page.props.server ? (
         <>

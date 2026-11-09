@@ -12,7 +12,7 @@ export default function EnablePlugin({ plugin }: { plugin: Plugin }) {
       onSelect={() =>
         dialog.confirm.open({
           title: 'Enable plugin',
-          description: `Are you sure you want to enable the plugin ${plugin.name ?? plugin.folder}?`,
+          description: translateText("Are you sure you want to enable the plugin :value?", { value: plugin.name ?? plugin.folder }),
           confirmLabel: 'Enable',
           method: 'patch',
           url: "/admin/plugins/enable",

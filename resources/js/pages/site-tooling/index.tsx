@@ -59,11 +59,11 @@ export default function SiteTooling() {
 
   return (
     <ServerLayout>
-      <Head title={`Tooling - ${site.domain}`} />
+      <Head title={translateText("Tooling - :value", { value: site.domain })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Tooling')} description={`Manage developer tooling installed for isolated user ${isolated_user}.`} />
+          <Heading title={translateText('Tooling')} description={translateText("Manage developer tooling installed for isolated user :value.", { value: isolated_user })} />
         </HeaderContainer>
 
         <SiteBanners site={site} />
@@ -73,8 +73,7 @@ export default function SiteTooling() {
             <TriangleAlertIcon className="text-warning!" />
             <AlertDescription className="block">
               <p>
-                Changing settings will affect all sites sharing the same isolated user (<strong>{isolated_user}</strong>). Changes could break other
-                sites.
+                {translateText("Changing settings will affect all sites sharing the same isolated user (")}<strong>{isolated_user}</strong>{translateText("). Changes could break other sites.")}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Badge variant="success">{site.domain}</Badge>

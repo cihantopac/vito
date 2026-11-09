@@ -34,18 +34,18 @@ export default function StatsToggle({ site, children }: { site: Site; children: 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{enabled ? 'Disable statistics' : 'Enable statistics'}</DialogTitle>
-          <DialogDescription className="sr-only">{enabled ? 'Disable' : 'Enable'} site statistics</DialogDescription>
+          <DialogTitle>{enabled ? translateText("Disable statistics") : translateText("Enable statistics")}</DialogTitle>
+          <DialogDescription className="sr-only">{enabled ? translateText("Disable") : translateText("Enable")} {translateText("site statistics")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 p-4 text-sm">
           {enabled ? (
             <p>
-              This stops processing logs for <span className="font-medium">{site.domain}</span> {translateText('and')}{' '}
-              <span className="font-medium">permanently erases all historical statistics</span> for this site. This cannot be undone.
+              {translateText("This stops processing logs for")} <span className="font-medium">{site.domain}</span> {translateText('and')}{' '}
+              <span className="font-medium">{translateText("permanently erases all historical statistics")}</span> {translateText("for this site. This cannot be undone.")}
             </p>
           ) : (
             <p>
-              Statistics collection will resume for <span className="font-medium">{site.domain}</span> from now on. Previous history is not recovered.
+              {translateText("Statistics collection will resume for")} <span className="font-medium">{site.domain}</span> {translateText("from now on. Previous history is not recovered.")}
             </p>
           )}
         </div>
@@ -56,7 +56,7 @@ export default function StatsToggle({ site, children }: { site: Site; children: 
           <Button variant={enabled ? 'destructive' : 'default'} disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            {enabled ? 'Disable' : 'Enable'}
+            {enabled ? translateText("Disable") : translateText("Enable")}
           </Button>
         </DialogFooter>
       </DialogContent>

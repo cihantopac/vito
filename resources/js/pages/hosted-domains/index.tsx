@@ -96,12 +96,12 @@ export default function HostedDomains() {
 
   return (
     <ServerLayout>
-      <Head title={`Domains - ${page.props.server.name}`} />
+      <Head title={translateText("Domains - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
           <Heading
-            title={`Domains${typeof domainsCount === 'number' && domainsCount > 0 ? ` (${domainsCount})` : ''}`}
+            title={translateText("Domains:value", { value: typeof domainsCount === 'number' && domainsCount > 0 ? ` (${domainsCount})` : '' })}
             description={translateText("Manage domains and SSL assignments for this site")}
           />
           <div className="flex items-center gap-2">
@@ -254,7 +254,7 @@ export default function HostedDomains() {
                           onSelect={() =>
                             dialog.confirm.open({
                               title: 'Force Validate Domain',
-                              description: `The domain ${hd.domain} is currently pending because we could not confirm that it resolves to this server. If you force validate this domain, the server configuration will be updated regardless. This may impact your ability to generate an SSL certificate if the domain does not actually point to this server. Are you sure you want to continue?`,
+                              description: translateText("The domain :value is currently pending because we could not confirm that it resolves to this server. If you force validate this domain, the server configuration will be updated regardless. This may impact your ability to generate an SSL certificate if the domain does not actually point to this server. Are you sure you want to continue?", { value: hd.domain }),
                               variant: 'destructive',
                               confirmLabel: 'Force Validate',
                               method: 'post',
@@ -302,7 +302,7 @@ export default function HostedDomains() {
                           onSelect={() =>
                             dialog.confirm.open({
                               title: 'Delete Domain',
-                              description: `Are you sure you want to delete ${hd.domain}?`,
+                              description: translateText("Are you sure you want to delete :value?", { value: hd.domain }),
                               variant: 'destructive',
                               confirmLabel: 'Delete',
                               method: 'delete',

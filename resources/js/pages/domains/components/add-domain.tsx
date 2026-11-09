@@ -147,7 +147,7 @@ export default function AddDomain({ children }: { children: ReactNode }) {
                   disabled={!form.data.dns_provider_id || loadingDomains}
                 >
                   <SelectTrigger id="provider_domain_id">
-                    <SelectValue placeholder={loadingDomains ? 'Loading domains...' : 'Select a domain'} />
+                    <SelectValue placeholder={loadingDomains ? translateText("Loading domains...") : translateText("Select a domain")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>

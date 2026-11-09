@@ -14,6 +14,7 @@ import { TrashIcon, UserPlusIcon } from 'lucide-react';
 import { useState } from 'react';
 
 function RemoveUserAction({ user }: { user: ProjectUser }) {
+  const translateText = useTranslate();
   const dialog = useDialog();
   const page = usePage<SharedData>();
 
@@ -26,11 +27,11 @@ function RemoveUserAction({ user }: { user: ProjectUser }) {
       variant="outline"
       size="sm"
       className="size-7"
-      aria-label={`Remove ${user.email} from project`}
+      aria-label={translateText("Remove :value from project", { value: user.email })}
       onClick={() =>
         dialog.confirm.open({
           title: 'Remove user',
-          description: `Are you sure you want to remove ${user.email} from this project?`,
+          description: translateText("Are you sure you want to remove :value from this project?", { value: user.email }),
           variant: 'destructive',
           confirmLabel: 'Remove',
           method: 'delete',

@@ -141,7 +141,7 @@ export default function ServerRestart() {
 
   return (
     <ServerLayout>
-      <Head title={`Restart Server - ${server.name}`} />
+      <Head title={translateText("Restart Server - :value", { value: server.name })} />
 
       <Container className="max-w-md space-y-4 py-8">
         <div className="flex items-center justify-between">
@@ -156,12 +156,12 @@ export default function ServerRestart() {
             {phase === 'online' ? (
               <Badge variant="outline" className="gap-1 text-xs text-neutral-600 border-neutral-500/30 dark:text-neutral-400">
                 <CheckCircle2Icon className="size-3 text-neutral-500" />
-                <span>Online</span>
+                <span>{translateText("Online")}</span>
               </Badge>
             ) : phase === 'probing' || phase === 'rebooting' ? (
               <Badge variant="warning" className="gap-1.5 text-xs">
                 <LoaderCircleIcon className="size-3 animate-spin" />
-                <span>Restarting...</span>
+                <span>{translateText("Restarting...")}</span>
               </Badge>
             ) : (
               <Badge variant="outline" className="text-xs">
@@ -190,21 +190,21 @@ export default function ServerRestart() {
             <div className="space-y-1">
               <h2 className="text-sm font-semibold text-foreground">
                 {phase === 'online'
-                  ? 'Server is back online'
+                  ? translateText("Server is back online")
                   : phase === 'probing' || phase === 'rebooting'
-                  ? 'Restarting server...'
-                  : 'Restart server'}
+                  ? translateText("Restarting server...")
+                  : translateText("Restart server")}
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {phase === 'online'
                   ? uptime
                     ? `System is responsive (${uptime}).`
-                    : 'SSH connection re-established.'
+                    : translateText("SSH connection re-established.")
                   : phase === 'probing' || phase === 'rebooting'
                   ? probeAttempt > 0
                     ? `Reconnecting (attempt #${probeAttempt})...`
-                    : 'Waiting for server to reconnect...'
-                  : 'Reboot the system and reload all running services.'}
+                    : translateText("Waiting for server to reconnect...")
+                  : translateText("Reboot the system and reload all running services.")}
               </p>
             </div>
 
@@ -212,11 +212,11 @@ export default function ServerRestart() {
               <div className="flex items-center gap-2 pt-1">
                 <Button asChild size="sm" className="h-7.5 text-xs cursor-pointer">
                   <Link href={`/servers/${server.id}`}>
-                    Return to overview
+                    {translateText("Return to overview")}
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" onClick={triggerReboot} className="h-7.5 text-xs cursor-pointer">
-                  Restart again
+                  {translateText("Restart again")}
                 </Button>
               </div>
             ) : phase === 'idle' ? (
@@ -236,7 +236,7 @@ export default function ServerRestart() {
               className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors cursor-pointer py-1"
             >
               <TerminalIcon className="size-3" />
-              <span>{showDetails ? 'Hide details' : 'Show details'}</span>
+              <span>{showDetails ? translateText("Hide details") : translateText("Show details")}</span>
             </button>
 
             {showDetails && (

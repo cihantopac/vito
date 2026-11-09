@@ -74,8 +74,8 @@ export default function ProjectForm({
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{project ? 'Edit Project' : 'Create Project'}</DialogTitle>
-          <DialogDescription className="sr-only">{project ? 'Edit the project details.' : 'Here you can create a new project.'}</DialogDescription>
+          <DialogTitle>{project ? translateText("Edit Project") : translateText("Create Project")}</DialogTitle>
+          <DialogDescription className="sr-only">{project ? translateText("Edit the project details.") : translateText("Here you can create a new project.")}</DialogDescription>
         </DialogHeader>
         <Form id="project-form" onSubmit={submit} className="p-4">
           <FormFields>

@@ -91,6 +91,7 @@ function SizeCell({ entry }: { entry: LogEntry }) {
 }
 
 function ClearAction({ entry, serverId }: { entry: LogEntry; serverId: number }) {
+  const translateText = useTranslate();
   const dialog = useDialog();
 
   if (!entry.exists || !entry.clearable) {
@@ -106,11 +107,11 @@ function ClearAction({ entry, serverId }: { entry: LogEntry; serverId: number })
       variant="ghost"
       size="icon"
       className="size-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-      title={`Clear ${entry.label}`}
+      title={translateText("Clear :value", { value: entry.label })}
       onClick={() =>
         dialog.confirm.open({
           title: 'Clear Log File',
-          description: `The log file "${entry.label}" will be cleared. This action cannot be undone.`,
+          description: translateText("The log file \":value\" will be cleared. This action cannot be undone.", { value: entry.label }),
           confirmLabel: 'Clear',
           method: 'post',
           url: `/servers/${serverId}/monitoring/log-rotation/clear`,
@@ -190,7 +191,7 @@ function CleanupSuggestions({ serverId }: { serverId: number }) {
         <div className="flex items-center gap-2">
           {categories && categories.length > 0 && (
             <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={selectAll}>
-              {selected.length === categories.length ? 'Deselect all' : 'Select all'}
+              {selected.length === categories.length ? translateText("Deselect all") : translateText("Select all")}
             </Button>
           )}
           <Button variant="outline" size="sm" className="h-8" onClick={() => query.refetch()} disabled={query.isFetching}>
@@ -269,7 +270,7 @@ function CleanupSuggestions({ serverId }: { serverId: number }) {
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground text-[10px]">
-                      {category.count} {translateText("file")}{category.count !== 1 ? 's' : ''}
+                      {translateText(category.count === 1 ? ':count file' : ':count files', { count: category.count })}
                     </span>
                   )}
 
@@ -391,7 +392,7 @@ export default function LogRotation() {
     if (clearable.length === 0) return;
     dialog.confirm.open({
       title: 'Clear All Log Files',
-      description: `${clearable.length} log files will be cleared (total ${formatBytes(totalSize)}). This action cannot be undone.`,
+      description: translateText(":value log files will be cleared (total :value2). This action cannot be undone.", { value: clearable.length, value2: formatBytes(totalSize) }),
       confirmLabel: 'Clear All',
       method: 'post',
       url: `/servers/${server.id}/monitoring/log-rotation/clear-all`,
@@ -401,7 +402,7 @@ export default function LogRotation() {
 
   return (
     <ServerLayout>
-      <Head title={`Log Rotation - ${server.name}`} />
+      <Head title={translateText("Log Rotation - :value", { value: server.name })} />
 
       <Container>
         <HeaderContainer>
@@ -503,11 +504,11 @@ export default function LogRotation() {
                   onClick={() => setSortBySize(!sortBySize)}
                 >
                   <ArrowUpDownIcon className="size-3" />
-                  <span>{sortBySize ? 'Largest first' : 'Default order'}</span>
+                  <span>{sortBySize ? translateText("Largest first") : translateText("Default order")}</span>
                 </Button>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">
-                  Showing <strong>{filteredLogs.length}</strong> of {logs.length} (<strong>{formatBytes(filteredTotalSize)}</strong>)
+                  {translateText('Showing :count of :total', { count: filteredLogs.length, total: logs.length })} (<strong>{formatBytes(filteredTotalSize)}</strong>)
                 </span>
               </div>
             </div>

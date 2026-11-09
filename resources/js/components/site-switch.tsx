@@ -88,7 +88,7 @@ export function SiteSwitch() {
       className="px-1!"
       role="combobox"
       aria-expanded={open}
-      aria-label={`Search all sites. Current site: ${currentSite?.domain ?? 'none'}`}
+      aria-label={translateText("Search all sites. Current site: :value", { value: currentSite?.domain ?? 'none' })}
     >
       {currentSite ? (
         <>

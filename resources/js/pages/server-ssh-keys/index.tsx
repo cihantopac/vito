@@ -49,8 +49,8 @@ export default function SshKeys() {
 
   const deleteKey = (key: DeployedKeyRow) => {
     dialog.confirm.open({
-      title: `Remove ${key.name} from ${server.name}?`,
-      description: `This key will be removed from authorized_keys for user "${key.deployment_user || server.ssh_user}" on ${server.name} and will no longer be able to authenticate.`,
+      title: translateText("Remove :value from :value2?", { value: key.name, value2: server.name }),
+      description: translateText("This key will be removed from authorized_keys for user \":value\" on :value2 and will no longer be able to authenticate.", { value: key.deployment_user || server.ssh_user, value2: server.name }),
       variant: 'destructive',
       confirmLabel: 'Remove key',
       method: 'delete',
@@ -60,13 +60,13 @@ export default function SshKeys() {
 
   return (
     <ServerLayout>
-      <Head title={`SSH Keys - ${server.name}`} />
+      <Head title={translateText("SSH Keys - :value", { value: server.name })} />
       <Container className="space-y-6">
         <HeaderContainer>
           <div>
             <Heading title={translateText('SSH Keys')} />
             <p className="text-muted-foreground text-xs">
-              Manage authorized SSH keys for {server.name} ({server.ip}).
+              {translateText("Manage authorized SSH keys for")} {server.name} ({server.ip}).
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -82,9 +82,9 @@ export default function SshKeys() {
 
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-foreground">Authorized SSH Keys</h3>
+            <h3 className="text-sm font-semibold text-foreground">{translateText("Authorized SSH Keys")}</h3>
             <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-              {deployedKeys.length} registered
+              {deployedKeys.length} {translateText("registered")}
             </Badge>
           </div>
 
@@ -105,7 +105,7 @@ export default function SshKeys() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-semibold text-sm text-foreground truncate">{key.name}</span>
                             <Badge variant={key.deployment_status === 'added' ? 'outline' : 'destructive'}>
-                              {key.deployment_status === 'added' ? 'Confirmed' : key.deployment_status === 'failed' ? 'Could not confirm' : 'Pending verification'}
+                              {key.deployment_status === 'added' ? translateText("Confirmed") : key.deployment_status === 'failed' ? translateText("Could not confirm") : translateText("Pending verification")}
                             </Badge>
                             <Badge variant="outline" className="font-mono text-xs gap-1 font-normal">
                               <UserIcon className="size-3" />
@@ -115,12 +115,12 @@ export default function SshKeys() {
                           <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                             {key.owner && (
                               <span>
-                                Owner: <span className="text-foreground font-medium">{key.owner}</span>
+                                {translateText("Owner:")} <span className="text-foreground font-medium">{key.owner}</span>
                               </span>
                             )}
-                            {key.created_at && <span>Added {key.created_at}</span>}
+                            {key.created_at && <span>{translateText("Added")} {key.created_at}</span>}
                             {key.deployment_status && key.deployment_status !== 'added' && (
-                              <span>Check the SSH user and connection, then retry the operation. Access may still be active.</span>
+                              <span>{translateText("Check the SSH user and connection, then retry the operation. Access may still be active.")}</span>
                             )}
                           </div>
                         </div>
@@ -132,10 +132,10 @@ export default function SshKeys() {
                           size="sm"
                           className="h-8 text-xs gap-1.5 font-mono"
                           onClick={() => copyCommand(keyCmd)}
-                          title="Copy SSH command"
+                          title={translateText("Copy SSH command")}
                         >
                           <CopyIcon className="size-3.5" />
-                          Copy ssh
+                          {translateText("Copy ssh")}
                         </Button>
 
                         <Button
@@ -143,8 +143,8 @@ export default function SshKeys() {
                           size="icon"
                           className="size-8 text-muted-foreground hover:text-destructive"
                           onClick={() => deleteKey(key)}
-                          aria-label={`Remove ${key.name} from server`}
-                          title="Remove from server"
+                          aria-label={translateText("Remove :value from server", { value: key.name })}
+                          title={translateText("Remove from server")}
                         >
                           <TrashIcon className="size-3.5" />
                         </Button>
@@ -160,9 +160,9 @@ export default function SshKeys() {
                 <div className="bg-muted/60 text-muted-foreground flex size-12 items-center justify-center rounded-full mb-3">
                   <KeyRoundIcon className="size-6" />
                 </div>
-                <h4 className="text-sm font-semibold text-foreground mb-1">No SSH keys deployed yet</h4>
+                <h4 className="text-sm font-semibold text-foreground mb-1">{translateText("No SSH keys deployed yet")}</h4>
                 <p className="text-xs text-muted-foreground max-w-sm mb-4">
-                  Deploy an SSH key to enable passwordless authentication and connect securely from your terminal.
+                  {translateText("Deploy an SSH key to enable passwordless authentication and connect securely from your terminal.")}
                 </p>
                 <DeployKey>
                   <Button size="sm" className="gap-1.5">

@@ -110,8 +110,8 @@ export default function ResourceCredentialsView({
               className="size-6 text-muted-foreground hover:text-foreground"
               onClick={() => redacted ? onReveal?.() : setMasked((m) => !m)}
               disabled={redacted && !onReveal}
-              aria-label={masked ? 'Reveal secret values' : 'Hide secret values'}
-              title={masked ? 'Reveal values' : 'Hide values'}
+              aria-label={masked ? translateText("Reveal secret values") : translateText("Hide secret values")}
+              title={masked ? translateText("Reveal values") : translateText("Hide values")}
             >
               {masked ? <EyeIcon className="size-3" /> : <EyeOffIcon className="size-3" />}
             </Button>
@@ -166,7 +166,7 @@ export default function ResourceCredentialsView({
             className="size-6 shrink-0 text-muted-foreground hover:text-foreground"
             onClick={copyDeeplink}
             disabled={redacted}
-            aria-label={`Copy ${deeplinkLabel}`}
+            aria-label={translateText("Copy :value", { value: deeplinkLabel })}
             title={translateText('Copy')}
           >
             {copiedDeeplink ? <CheckIcon className="text-success size-3" /> : <CopyIcon className="size-3" />}

@@ -51,7 +51,7 @@ function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onT
           <DialogTitle>{translateText("Delete template")}</DialogTitle>
           <DialogDescription className="sr-only">{translateText("Delete template")}</DialogDescription>
         </DialogHeader>
-        <p className="p-4">Are you sure you want to delete this template?</p>
+        <p className="p-4">{translateText("Are you sure you want to delete this template?")}</p>
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">{translateText('Cancel')}</Button>
@@ -139,20 +139,20 @@ function Save({
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Save template</DialogTitle>
-          <DialogDescription className="sr-only">Save as template</DialogDescription>
+          <DialogTitle>{translateText("Save template")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Save as template")}</DialogDescription>
         </DialogHeader>
         <Form className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Template Name</Label>
+              <Label htmlFor="name">{translateText("Template Name")}</Label>
               <Input id="name" type="text" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
             <FormField>
               <div className="flex items-center space-x-2">
                 <Switch id="new" checked={form.data.new} onCheckedChange={(value) => form.setData('new', value)} />
-                <Label htmlFor="new">Save as new template</Label>
+                <Label htmlFor="new">{translateText("Save as new template")}</Label>
                 <InputError message={form.errors.new} />
               </div>
             </FormField>
@@ -179,6 +179,7 @@ export default function ServerTemplates({
   services: Service[];
   onTemplateChanged: (template: ServerTemplate | null) => void;
 }) {
+  const translateText = useTranslate();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<ServerTemplate | null>(null);
 
@@ -218,16 +219,16 @@ export default function ServerTemplates({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button type="button" variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
-            {query.isFetching && 'Loading...'}
-            {!query.isFetching && (value ? value.name : 'Select template...')}
+            {query.isFetching && translateText("Loading...")}
+            {!query.isFetching && (value ? value.name : translateText("Select template..."))}
             <ChevronsUpDownIcon className="opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
           <Command>
-            <CommandInput placeholder="Search template..." className="h-9" />
+            <CommandInput placeholder={translateText("Search template...")} className="h-9" />
             <CommandList>
-              <CommandEmpty>No template found.</CommandEmpty>
+              <CommandEmpty>{translateText("No template found.")}</CommandEmpty>
               <CommandGroup>
                 {query.data &&
                   query.data.map((template: ServerTemplate) => (

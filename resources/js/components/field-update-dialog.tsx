@@ -54,9 +54,9 @@ export default function FieldUpdateDialog({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{translateText(title)}</DialogTitle>
           <DialogDescription className={typeof description === 'string' && description === 'sr-only' ? 'sr-only' : undefined}>
-            {description !== 'sr-only' ? description : "Update field"}
+            {description === 'sr-only' ? translateText('Update field') : typeof description === 'string' ? translateText(description) : description}
           </DialogDescription>
         </DialogHeader>
 

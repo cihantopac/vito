@@ -50,8 +50,8 @@ export default function NetworkFirewallRuleForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{rule ? 'Edit' : 'Create'} {translateText('firewall rule')}</DialogTitle>
-          <DialogDescription className="sr-only">{rule ? 'Edit' : 'Create new'} {translateText("network firewall rule")}</DialogDescription>
+          <DialogTitle>{rule ? translateText("Edit") : translateText("Create")} {translateText('firewall rule')}</DialogTitle>
+          <DialogDescription className="sr-only">{rule ? translateText("Edit") : translateText("Create new")} {translateText("network firewall rule")}</DialogDescription>
         </DialogHeader>
         <Form id="network-firewall-rule-form" onSubmit={submit} className="p-4">
           <FormFields>

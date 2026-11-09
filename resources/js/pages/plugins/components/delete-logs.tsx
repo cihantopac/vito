@@ -12,7 +12,7 @@ export default function DeleteLogs({ plugin }: { plugin: Plugin }) {
       onSelect={() =>
         dialog.confirm.open({
           title: 'Delete Error Logs',
-          description: `Are you sure you want to delete the error logs for the plugin ${plugin.name ?? plugin.folder}?`,
+          description: translateText("Are you sure you want to delete the error logs for the plugin :value?", { value: plugin.name ?? plugin.folder }),
           variant: 'destructive',
           confirmLabel: 'Delete Logs',
           method: 'delete',

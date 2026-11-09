@@ -12,8 +12,8 @@ export default function Delete({ ipAddress }: { ipAddress: ServerIpAddress }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete IP [${ipAddress.ip}]`,
-          description: `Are you sure you want to remove ${ipAddress.ip} from this server? This action cannot be undone.`,
+          title: translateText("Delete IP [:value]", { value: ipAddress.ip }),
+          description: translateText("Are you sure you want to remove :value from this server? This action cannot be undone.", { value: ipAddress.ip }),
           variant: 'destructive',
           confirmLabel: 'Delete',
           method: 'delete',

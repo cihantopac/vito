@@ -44,7 +44,7 @@ export default function NetworkOverview() {
 
   return (
     <NetworkLayout>
-      <Head title={`Overview - ${network.name}`} />
+      <Head title={translateText("Overview - :value", { value: network.name })} />
 
       <Container>
         <HeaderContainer>

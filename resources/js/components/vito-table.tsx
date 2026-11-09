@@ -1,5 +1,5 @@
 import { useTranslate } from '@/hooks/use-translate';
-import { Fragment, ReactNode, useEffect, useMemo } from 'react';
+import { type ComponentProps, Fragment, ReactNode, useEffect, useMemo } from 'react';
 import { useTable, type InertiaTableData, type InertiaTableProps, type CellRenderProps } from '@forjedio/inertia-table-react';
 import { Link, router } from '@inertiajs/react';
 import { SOCKET_EVENT, type SocketEventData } from '@/stores/socket-store';
@@ -68,6 +68,11 @@ function resolveHref(display: CellRenderProps['displays'][number], row: CellRend
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+function TranslatedBadge({ children, ...props }: ComponentProps<typeof Badge> & { children: string }) {
+  const translateText = useTranslate();
+  return <Badge {...props}>{translateText(children)}</Badge>;
+}
+
 function vitoCellRenderer({ row, value, displays, defaultRender }: CellRenderProps & { defaultRender: () => ReactNode }): ReactNode {
   if (displays.length === 1 && displays[0].type === 'badge') {
     if (value == null || value === '') {
@@ -75,7 +80,7 @@ function vitoCellRenderer({ row, value, displays, defaultRender }: CellRenderPro
     }
     const display = displays[0];
     const color = display.color_field ? (row[display.color_field] as string) : display.variant;
-    return <Badge variant={(color ?? 'default') as 'default'}>{String(value)}</Badge>;
+    return <TranslatedBadge variant={(color ?? 'default') as 'default'}>{String(value)}</TranslatedBadge>;
   }
 
   if (displays.some((d) => d.type === 'link')) {

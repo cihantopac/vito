@@ -16,13 +16,13 @@ export default function VitoSettings() {
 
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={translateText('Pure Settings')} description="Here you can manage general Pure settings" />
+          <Heading title={translateText('Pure Settings')} description={translateText("Here you can manage general Pure settings")} />
         </div>
 
         <Card>
           <CardContent>
             <CardRow>
-              <span>Export all data</span>
+              <span>{translateText("Export all data")}</span>
               <ExportVito />
             </CardRow>
             <Separator />

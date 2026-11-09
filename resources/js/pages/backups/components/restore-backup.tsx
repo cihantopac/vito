@@ -62,14 +62,14 @@ export default function RestoreBackup({
                 <div className="text-muted-foreground text-sm">
                   {file.database_engine
                     ? `Source: ${file.database_engine} ${file.database_version ?? ''}`.trim()
-                    : 'Source database engine/version unknown - this file can only be restored to its original server.'}
+                    : translateText("Source database engine/version unknown - this file can only be restored to its original server.")}
                 </div>
                 <FormField>
                   <Label htmlFor="target-server">{translateText("To server")}</Label>
                   <ServerSelect
                     id="target-server"
                     value={String(targetServerId)}
-                    placeholder={targetServerName ?? 'Select server...'}
+                    placeholder={targetServerName ?? translateText("Select server...")}
                     onValueChange={(server) => {
                       if (server) {
                         setTargetServerId(server.id);

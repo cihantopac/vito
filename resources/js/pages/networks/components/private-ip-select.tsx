@@ -75,7 +75,7 @@ export default function PrivateIpSelect({
       <div className="flex items-center gap-2">
         <Select value={value ? String(value) : ''} onValueChange={(v) => onValueChange(Number(v))} disabled={disabled || !serverId}>
           <SelectTrigger className="flex-1">
-            <SelectValue placeholder={serverId ? 'Select a private IP' : 'Select a server first'} />
+            <SelectValue placeholder={serverId ? translateText("Select a private IP") : translateText("Select a server first")} />
           </SelectTrigger>
           <SelectContent>
             {ips.length === 0 ? (
@@ -85,7 +85,7 @@ export default function PrivateIpSelect({
                 {ips.map((ip) => (
                   <SelectItem key={ip.id} value={String(ip.id)}>
                     {ip.ip}
-                    {ip.is_primary ? ' (primary)' : ''}
+                    {ip.is_primary ? translateText(" (primary)") : ''}
                   </SelectItem>
                 ))}
               </SelectGroup>

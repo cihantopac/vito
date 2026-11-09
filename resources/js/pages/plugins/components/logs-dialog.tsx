@@ -39,9 +39,8 @@ export default function PluginLogsDialog({ open, onOpenChange, name, errors }: P
         <DialogHeader>
           <DialogTitle>{translateText("Error Logs -")} {name}</DialogTitle>
           <DialogDescription>
-            {errors.length}
-            {errors.length === 10 && '+'} {translateText("error")}{errors.length !== 1 ? 's' : ''} {translateText("found in this plugin.")}
-            {errors.length === 10 && 'The most recent 10 will be shown below.'}
+            {translateText(errors.length === 1 ? ':count error found in this plugin.' : ':count errors found in this plugin.', { count: errors.length === 10 ? '10+' : errors.length })}
+            {errors.length === 10 && translateText("The most recent 10 will be shown below.")}
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto p-4">

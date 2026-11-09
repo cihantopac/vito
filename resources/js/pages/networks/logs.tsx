@@ -19,7 +19,7 @@ export default function NetworkLogs() {
 
   return (
     <NetworkLayout>
-      <Head title={`Logs - ${network.name}`} />
+      <Head title={translateText("Logs - :value", { value: network.name })} />
 
       <Container>
         <HeaderContainer>

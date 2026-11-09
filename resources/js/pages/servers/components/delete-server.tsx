@@ -61,18 +61,18 @@ export default function DeleteServer({ server, children }: { server: Server; chi
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{translateText('Remove')} {server.name} from Pure</DialogTitle>
-          <DialogDescription className="sr-only">Remove server from Pure.</DialogDescription>
+          <DialogTitle>{translateText('Remove')} {server.name} {translateText("from Pure")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Remove server from Pure.")}</DialogDescription>
         </DialogHeader>
 
         <p className="p-4 text-sm text-muted-foreground">
-          Are you sure you want to remove <strong className="text-foreground">{server.name}</strong> from Pure? The server and its infrastructure will remain running on your cloud provider, but it will no longer be managed by Pure.
+          {translateText("Are you sure you want to remove")} <strong className="text-foreground">{server.name}</strong> {translateText("from Pure? The server and its infrastructure will remain running on your cloud provider, but it will no longer be managed by Pure.")}
         </p>
 
         <Form id="delete-server-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="server-name">Confirm server name</Label>
+              <Label htmlFor="server-name">{translateText("Confirm server name")}</Label>
               <Input id="server-name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -86,7 +86,7 @@ export default function DeleteServer({ server, children }: { server: Server; chi
 
           <Button form="delete-server-form" variant="destructive" disabled={submitDisabled}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Remove from Pure
+            {translateText("Remove from Pure")}
           </Button>
         </DialogFooter>
       </DialogContent>

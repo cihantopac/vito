@@ -108,8 +108,8 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
               data-1p-ignore="true"
               data-lpignore="true"
               data-bwignore="true"
-              placeholder={isMultiLine ? 'Reveal to edit this value' : 'Enter value...'}
-              title={isMultiLine ? 'This value spans several lines. Reveal it to edit.' : undefined}
+              placeholder={isMultiLine ? translateText("Reveal to edit this value") : translateText("Enter value...")}
+              title={isMultiLine ? translateText("This value spans several lines. Reveal it to edit.") : undefined}
               aria-describedby={isMultiLine ? hintId : undefined}
               className="h-9 w-full pr-10"
             />
@@ -171,7 +171,7 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
             {variable.isSecret ? <LockIcon className="size-4" /> : <UnlockIcon className="size-4" />}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{variable.isSecret ? 'Secret (click to make normal)' : 'Normal (click to make secret)'}</TooltipContent>
+        <TooltipContent>{variable.isSecret ? translateText("Secret (click to make normal)") : translateText("Normal (click to make secret)")}</TooltipContent>
       </Tooltip>
     );
   };

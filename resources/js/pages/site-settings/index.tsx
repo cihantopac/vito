@@ -49,11 +49,11 @@ export default function SiteSettings() {
 
   return (
     <ServerLayout>
-      <Head title={`Settings - ${page.props.site.domain}`} />
+      <Head title={translateText("Settings - :value", { value: page.props.site.domain })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Settings')} description="Here you can manage your site's settings" />
+          <Heading title={translateText('Settings')} description={translateText("Here you can manage your site's settings")} />
           <div className="flex items-center gap-2">
           </div>
         </HeaderContainer>
@@ -64,7 +64,7 @@ export default function SiteSettings() {
           <CardHeader className="flex-row items-center justify-between gap-2">
             <div className="space-y-2">
               <CardTitle>{translateText('Site details')}</CardTitle>
-              <CardDescription>Update site details</CardDescription>
+              <CardDescription>{translateText("Update site details")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="bg-background p-0">
@@ -87,7 +87,7 @@ export default function SiteSettings() {
                 <span className="text-muted-foreground">{page.props.site.type}</span>
               </Field>
 
-              <Field label="Web directory">
+              <Field label={translateText("Web directory")}>
                 <WebDirectory site={page.props.site}>
                   <Button variant="outline" className="h-6">
                     {page.props.site.web_directory || '/'}
@@ -134,7 +134,7 @@ export default function SiteSettings() {
               <Field label="VHost">
                 <VHostPreview site={page.props.site}>
                   <Button variant="outline" className="h-6">
-                    View VHost
+                    {translateText("View VHost")}
                   </Button>
                 </VHostPreview>
               </Field>
@@ -142,14 +142,14 @@ export default function SiteSettings() {
               <Field
                 label={
                   <div className="flex items-center gap-2">
-                    <span>VHost Template</span>
+                    <span>{translateText("VHost Template")}</span>
                     {page.props.site.has_custom_vhost_template && (
                       <TooltipProvider delayDuration={0}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <TriangleAlertIcon className="text-destructive h-4 w-4" />
                           </TooltipTrigger>
-                          <TooltipContent>You are using a custom vhost template</TooltipContent>
+                          <TooltipContent>{translateText("You are using a custom vhost template")}</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     )}
@@ -158,7 +158,7 @@ export default function SiteSettings() {
               >
                 <VHost site={page.props.site}>
                   <Button variant="outline" className="h-6">
-                    Edit Template
+                    {translateText("Edit Template")}
                   </Button>
                 </VHost>
               </Field>
@@ -167,17 +167,17 @@ export default function SiteSettings() {
                 <Field label="Basic Auth">
                   <BasicAuth site={page.props.site}>
                     <Button variant="outline" className="h-6">
-                      {page.props.site.basic_auth?.enabled ? `Enabled (${page.props.site.basic_auth.users.length})` : 'Disabled'}
+                      {page.props.site.basic_auth?.enabled ? `Enabled (${page.props.site.basic_auth.users.length})` : translateText("Disabled")}
                     </Button>
                   </BasicAuth>
                 </Field>
               )}
 
               {page.props.server.services['log_analysis'] && (
-                <Field label="Statistics">
+                <Field label={translateText("Statistics")}>
                   <StatsToggle site={page.props.site}>
                     <Button variant="outline" className="h-6">
-                      {page.props.site.stats_enabled ? 'Enabled' : 'Disabled'}
+                      {page.props.site.stats_enabled ? translateText("Enabled") : translateText("Disabled")}
                     </Button>
                   </StatsToggle>
                 </Field>
@@ -220,11 +220,11 @@ export default function SiteSettings() {
           <Card className="border-destructive/50 overflow-hidden">
             <CardHeader>
               <CardTitle>{translateText('Delete site')}</CardTitle>
-              <CardDescription>Here you can delete the site.</CardDescription>
+              <CardDescription>{translateText("Here you can delete the site.")}</CardDescription>
             </CardHeader>
             <CardContent className="bg-background">
               <div className="space-y-2 p-4">
-                <p>please note that this action is irreversible and will delete all data associated with the site.</p>
+                <p>{translateText("Removing a site cannot be undone. Review the deletion dialog for the resources that will be removed.")}</p>
 
                 <DeleteSite site={page.props.site}>
                   <Button variant="destructive">{translateText('Delete site')}</Button>

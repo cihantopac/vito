@@ -28,7 +28,7 @@ export default function Redirects() {
 
   return (
     <ServerLayout>
-      <Head title={`Redirect - ${page.props.server.name}`} />
+      <Head title={translateText("Redirect - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
@@ -37,7 +37,7 @@ export default function Redirects() {
             <CreateRedirect site={page.props.site}>
               <Button>
                 <PlusIcon />
-                <span className="hidden lg:block">Create redirect</span>
+                <span className="hidden lg:block">{translateText("Create redirect")}</span>
               </Button>
             </CreateRedirect>
           </div>

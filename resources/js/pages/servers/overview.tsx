@@ -53,7 +53,7 @@ export default function ServerOverview() {
         <CardContent className="p-0">
           {resources.isError ? (
             <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
-              <span className="text-destructive text-sm">Recent sites could not be loaded.</span>
+              <span className="text-destructive text-sm">{translateText("Recent sites could not be loaded.")}</span>
               <Button variant="outline" size="sm" onClick={() => void resources.refetch()}>
                 {translateText('Retry')}
               </Button>
@@ -91,7 +91,7 @@ export default function ServerOverview() {
                       href={site.domain.includes('.') ? `https://${site.domain}` : '/'}
                       target="_blank"
                       rel="noreferrer"
-                      aria-label={`Open ${site.domain}`}
+                      aria-label={translateText("Open :value", { value: site.domain })}
                       className="text-muted-foreground hover:text-foreground rounded p-1 transition-colors"
                     >
                       <ExternalLinkIcon className="size-3.5" />

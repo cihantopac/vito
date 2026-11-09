@@ -156,7 +156,7 @@ export function AppSidebar({
               href={"/overview"}
               prefetch
               className="flex min-w-0 items-center gap-2 group-data-[state=collapsed]:hidden"
-              aria-label={`Pure ${page.props.version}`}
+              aria-label={translateText("Pure :value", { value: page.props.version })}
             >
               <AppLogo />
             </Link>

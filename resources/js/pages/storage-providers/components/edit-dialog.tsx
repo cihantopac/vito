@@ -61,7 +61,7 @@ export default function StorageProviderEditDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{translateText('Edit')} {storageProvider.name}</DialogTitle>
-          <DialogDescription className="sr-only">Edit storage provider</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Edit storage provider")}</DialogDescription>
         </DialogHeader>
         <Form
           id="edit-storage-provider-form"
@@ -108,7 +108,7 @@ export default function StorageProviderEditDialog({
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium py-1.5 transition-colors cursor-pointer"
               >
                 <ChevronDownIcon className={cn('size-3.5 transition-transform duration-200', showOptional && 'rotate-180')} />
-                <span>{showOptional ? 'Hide optional fields' : 'Show optional fields (Path, Global)'}</span>
+                <span>{showOptional ? translateText("Hide optional fields") : translateText("Show optional fields (Path, Global)")}</span>
               </button>
 
               {showOptional && (

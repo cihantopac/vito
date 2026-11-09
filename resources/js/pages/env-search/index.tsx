@@ -114,7 +114,7 @@ export default function EnvSearch() {
           </div>
           <Button type="submit" disabled={searching}>
             {searching && <LoaderCircleIcon className="size-3.5 animate-spin" />}
-            {searching ? 'Searching...' : 'Search'}
+            {searching ? translateText("Searching...") : translateText("Search")}
           </Button>
         </form>
 

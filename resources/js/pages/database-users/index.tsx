@@ -33,7 +33,7 @@ export default function DatabaseUsers() {
 
   return (
     <ServerLayout>
-      <Head title={`Users - ${page.props.server.name}`} />
+      <Head title={translateText("Users - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
@@ -41,7 +41,7 @@ export default function DatabaseUsers() {
             title={
               page.props.server.counts?.database_users !== undefined
                 ? `Users (${page.props.server.counts.database_users})`
-                : 'Users'
+                : translateText("Users")
             }
           />
           <div className="flex items-center gap-2">
@@ -106,8 +106,8 @@ export default function DatabaseUsers() {
                       variant="destructive"
                       onSelect={() =>
                         dialog.confirm.open({
-                          title: `Delete database user [${databaseUser.username}]`,
-                          description: `Are you sure you want to delete database user ${databaseUser.username}? This action cannot be undone.`,
+                          title: translateText("Delete database user [:value]", { value: databaseUser.username }),
+                          description: translateText("Are you sure you want to delete database user :value? This action cannot be undone.", { value: databaseUser.username }),
                           variant: 'destructive',
                           confirmLabel: 'Delete',
                           method: 'delete',

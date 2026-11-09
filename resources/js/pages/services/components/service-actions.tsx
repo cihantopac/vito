@@ -66,20 +66,20 @@ export default function ServiceActions({ service }: { service: Service }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => dialog.phpExtensions.open({ service })}>
-                Extensions
+                {translateText("Extensions")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => dialog.phpIni.open({ service, type: 'fpm' })}>
-                Edit FPM ini
+                {translateText("Edit FPM ini")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => dialog.phpIni.open({ service, type: 'cli' })}>
-                Edit CLI ini
+                {translateText("Edit CLI ini")}
               </DropdownMenuItem>
               {!service.is_default && (
                 <DropdownMenuItem
                   onSelect={() =>
                     dialog.confirm.open({
                       title: 'Make default CLI',
-                      description: `Are you sure you want to make PHP ${service.version} the default CLI?`,
+                      description: translateText("Are you sure you want to make PHP :value the default CLI?", { value: service.version }),
                       confirmLabel: 'Save',
                       method: 'post',
                       url: `/servers/${service.server_id}/php/${service.id}/default-cli`,
@@ -87,7 +87,7 @@ export default function ServiceActions({ service }: { service: Service }) {
                     })
                   }
                 >
-                  Make default CLI
+                  {translateText("Make default CLI")}
                 </DropdownMenuItem>
               )}
             </>

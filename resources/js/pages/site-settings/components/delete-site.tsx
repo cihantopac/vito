@@ -48,12 +48,11 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{translateText('Delete')} {site.domain}</DialogTitle>
-          <DialogDescription className="sr-only">Delete site and its resources.</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Delete site and its resources.")}</DialogDescription>
         </DialogHeader>
 
         <p className="p-4">
-          Are you sure you want to delete this site: <strong>{site.domain}</strong>? The site and its files will be deleted and this action cannot be
-          undone. Databases and database users are kept — delete them from the Databases page if you no longer need them.
+          {translateText("Are you sure you want to delete this site:")} <strong>{site.domain}</strong>{translateText("? The site and its files will be deleted and this action cannot be undone. Databases and database users are kept — delete them from the Databases page if you no longer need them.")}
         </p>
 
         <Form id="delete-site-form" onSubmit={submit} className="p-4">
@@ -69,7 +68,7 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
                 <Label htmlFor="force">{translateText('Force delete')}</Label>
               </div>
               <p className="text-muted-foreground text-sm">
-                Remove the site from Pure even if cleaning it up on the server fails (unreachable server, already removed files).
+                {translateText("Remove the site from Pure even if cleaning it up on the server fails (unreachable server, already removed files).")}
               </p>
               <InputError message={form.errors.force} />
             </FormField>

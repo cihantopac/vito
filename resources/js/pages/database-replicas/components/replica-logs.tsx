@@ -46,7 +46,7 @@ export default function ReplicaLogs({ replica }: { replica: DatabaseReplica }) {
       </div>
       {tab === 'restore' && (
         <LogOutput>
-          {restore.isError ? 'Unable to load the restore output.' : restore.isLoading ? 'Loading...' : (restore.data ?? '')}
+          {restore.isError ? translateText("Unable to load the restore output.") : restore.isLoading ? translateText("Loading...") : (restore.data ?? '')}
         </LogOutput>
       )}
       {tab === 'replica' && <Logs server={{ id: replica.replica_server_id } as Server} />}

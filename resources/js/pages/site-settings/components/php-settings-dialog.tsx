@@ -74,14 +74,14 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{translateText("Configure PHP settings")}</DialogTitle>
-          <DialogDescription>Per-site PHP runtime limits. Leave a field empty to use the server default.</DialogDescription>
+          <DialogDescription>{translateText("Per-site PHP runtime limits. Leave a field empty to use the server default.")}</DialogDescription>
         </DialogHeader>
 
         <Form id="php-settings-form" onSubmit={submit} className="p-4">
           <FormFields>
             <SettingField
               id="max_upload_size"
-              label="Max upload size (MB)"
+              label={translateText("Max upload size (MB)")}
               placeholder="e.g. 1024"
               hint="Default: 2 MB (nginx caps at 1 MB)"
               min={1}
@@ -91,7 +91,7 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
             />
             <SettingField
               id="max_execution_time"
-              label="Max execution time (seconds)"
+              label={translateText("Max execution time (seconds)")}
               placeholder="e.g. 120"
               hint="Default: 30s (nginx caps at 60s)"
               min={1}
@@ -101,7 +101,7 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
             />
             <SettingField
               id="memory_limit"
-              label="Memory limit (MB)"
+              label={translateText("Memory limit (MB)")}
               placeholder="e.g. 256"
               hint="Default: 128 MB"
               min={16}
@@ -111,7 +111,7 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
             />
             <SettingField
               id="max_input_vars"
-              label="Max input vars"
+              label={translateText("Max input vars")}
               placeholder="e.g. 5000"
               hint="Default: 1000"
               min={100}

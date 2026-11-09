@@ -36,11 +36,11 @@ export default function AutoDeployment({ site, children }: { site: Site; childre
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{site.auto_deploy ? 'Disable' : 'Enable'} {translateText('auto deployment')}</DialogTitle>
-          <DialogDescription className="sr-only">{site.auto_deploy ? 'Disable' : 'Enable'} {translateText('auto deployment')}</DialogDescription>
+          <DialogTitle>{site.auto_deploy ? translateText("Disable") : translateText("Enable")} {translateText('auto deployment')}</DialogTitle>
+          <DialogDescription className="sr-only">{site.auto_deploy ? translateText("Disable") : translateText("Enable")} {translateText('auto deployment')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 p-4">
-          <p>{translateText("Are you sure you want to")} {site.auto_deploy ? 'disable' : 'enable'} {translateText("auto deployment?")}</p>
+          <p>{translateText("Are you sure you want to")} {site.auto_deploy ? translateText("disable") : translateText("enable")} {translateText("auto deployment?")}</p>
         </div>
         <DialogFooter>
           <DialogClose asChild>

@@ -95,12 +95,12 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
                 <div className="flex flex-col gap-1 rounded-md border p-3 text-sm">
                   <p className="font-medium">{translateText("The new server needs")}</p>
                   <p>
-                    <span className="font-medium">{translateText("Storage: at least")} {requirements.storage_gb} GB.</span> The {requirements.databases.length} {translateText("databases of")}{' '}
+                    <span className="font-medium">{translateText("Storage: at least")} {requirements.storage_gb} GB.</span> {translateText("The")} {requirements.databases.length} {translateText("databases of")}{' '}
                     {requirements.source} {translateText("hold")} {gigabytes(requirements.database_size)}{translateText("; the rest covers indexes, growth and the operating system.")}
                   </p>
                   <p>
                     <span className="font-medium">
-                      vCPU: {requirements.cores ?? 'unknown'} {translateText("· Memory:")} {requirements.memory_gb !== null ? `${requirements.memory_gb} GB` : 'unknown'}
+                      vCPU: {requirements.cores ?? translateText("unknown")} {translateText("· Memory:")} {requirements.memory_gb !== null ? `${requirements.memory_gb} GB` : translateText("unknown")}
                     </span>{' '}
                     {translateText("or more, like")} {requirements.source}{translateText(". Any processor architecture works: the rows are copied, not the data files.")}
                   </p>
@@ -146,7 +146,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
                   {form.data.mode === 'seeded'
                     ? `Pure restores the backup of ${requirements.source} onto the new server, upgrades that copy to the version you pick, and then replays only the changes made since. For a large database this turns days of copying into hours, and the old server is never read for it — the rows come from the backup repository.`
                     : requirements.seed.available
-                      ? 'Every row travels over the private network. Simple, and fine up to tens of GB; past that, starting from the backup is far faster.'
+                      ? translateText("Every row travels over the private network. Simple, and fine up to tens of GB; past that, starting from the backup is far faster.")
                       : `Every row travels over the private network. ${requirements.seed.reason}`}
                 </p>
                 <InputError message={form.errors.mode} />
@@ -160,10 +160,10 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
                   <SelectValue
                     placeholder={
                       versions === null
-                        ? 'Reading the current version…'
+                        ? translateText("Reading the current version…")
                         : versions.versions.length === 0
                           ? `PostgreSQL ${versions.version} is already the newest`
-                          : 'Select a version'
+                          : translateText("Select a version")
                     }
                   />
                 </SelectTrigger>

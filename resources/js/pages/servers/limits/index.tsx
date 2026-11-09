@@ -103,11 +103,11 @@ export default function ServerLimits() {
 
   return (
     <ServerLayout>
-      <Head title={`Limits - ${server.name}`} />
+      <Head title={translateText("Limits - :value", { value: server.name })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title="Limits" description="Upload and request body limits for Nginx and PHP." />
+          <Heading title={translateText("Limits")} description={translateText("Upload and request body limits for Nginx and PHP.")} />
         </HeaderContainer>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -187,7 +187,7 @@ export default function ServerLimits() {
             </CardHeader>
             <CardContent className="p-6 pt-2">
               {limits.php_versions.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4">No PHP service installed.</p>
+                <p className="text-sm text-muted-foreground py-4">{translateText("No PHP service installed.")}</p>
               ) : (
                 <form onSubmit={submitPhp} className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -253,7 +253,7 @@ export default function ServerLimits() {
                       disabled={isOffline || phpForm.processing}
                       onClick={setRecommendedPhp}
                     >
-                      Set 210M / 220M
+                      {translateText("Set 210M / 220M")}
                     </Button>
 
                     <Button type="submit" size="sm" disabled={isOffline || phpForm.processing}>

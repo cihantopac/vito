@@ -253,7 +253,7 @@ export default function DeploymentProgress({
               size="icon"
               className="size-7 cursor-pointer"
               onClick={() => setShowSteps((prev) => !prev)}
-              aria-label={showSteps ? 'Hide steps' : 'Show steps'}
+              aria-label={showSteps ? translateText("Hide steps") : translateText("Show steps")}
             >
               {showSteps ? <ChevronUpIcon className="size-4" /> : <ChevronDownIcon className="size-4" />}
             </Button>

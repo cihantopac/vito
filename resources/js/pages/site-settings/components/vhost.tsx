@@ -106,8 +106,8 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="sm:max-w-5xl">
         <SheetHeader>
-          <SheetTitle>Edit webserver template</SheetTitle>
-          <SheetDescription className="sr-only">Edit the Mustache template used to generate the vhost config.</SheetDescription>
+          <SheetTitle>{translateText("Edit webserver template")}</SheetTitle>
+          <SheetDescription className="sr-only">{translateText("Edit the Mustache template used to generate the vhost config.")}</SheetDescription>
         </SheetHeader>
         <Form id="update-vhost-form" className="h-full" onSubmit={submit}>
           {query.isSuccess ? (
@@ -127,7 +127,7 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
             <Alert>
               <AlertDescription className="flex items-center gap-2">
                 <StatusRipple variant="info" />
-                <p>This is the Mustache template used to generate the vhost. Changes here persist across SSL, domain, and redirect updates.</p>
+                <p>{translateText("This is the Mustache template used to generate the vhost. Changes here persist across SSL, domain, and redirect updates.")}</p>
               </AlertDescription>
             </Alert>
           </div>
@@ -141,7 +141,7 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={previewTemplate} disabled={previewing || query.isLoading}>
                 {previewing ? <LoaderCircleIcon className="animate-spin" /> : <EyeIcon />}
-                Preview
+                {translateText("Preview")}
               </Button>
               <Button form="update-vhost-form" disabled={form.processing || query.isLoading} onClick={submit}>
                 {(form.processing || query.isLoading) && <LoaderCircleIcon className="animate-spin" />}
@@ -157,9 +157,9 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
       <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reset VHost template</DialogTitle>
+            <DialogTitle>{translateText("Reset VHost template")}</DialogTitle>
             <DialogDescription>
-              This will reset the template to the default and regenerate the VHost on the server. Any customizations will be lost.
+              {translateText("This will reset the template to the default and regenerate the VHost on the server. Any customizations will be lost.")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -176,8 +176,8 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
         <DialogContent className="h-[80vh] sm:max-w-5xl">
           <DialogHeader>
-            <DialogTitle>Template preview</DialogTitle>
-            <DialogDescription className="sr-only">Preview of the generated vhost config from the current template.</DialogDescription>
+            <DialogTitle>{translateText("Template preview")}</DialogTitle>
+            <DialogDescription className="sr-only">{translateText("Preview of the generated vhost config from the current template.")}</DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1">
             <Editor

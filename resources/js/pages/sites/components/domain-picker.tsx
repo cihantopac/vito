@@ -183,7 +183,7 @@ export default function DomainPicker({
             className="flex items-center gap-1 text-xs text-primary hover:underline font-normal cursor-pointer"
           >
             <CloudIcon className="size-3.5" />
-            <span>From Cloudflare / DNS Provider</span>
+            <span>{translateText("From Cloudflare / DNS Provider")}</span>
           </button>
         )}
       </div>
@@ -211,8 +211,8 @@ export default function DomainPicker({
           <div className="flex items-center gap-2">
             <CloudIcon className="size-4 text-primary shrink-0" />
             <span>
-              Connected to <strong className="text-foreground">{activeProviderName}</strong>
-              {value.create_dns_record && ' • Auto A-record'}
+              {translateText("Connected to")} <strong className="text-foreground">{activeProviderName}</strong>
+              {value.create_dns_record && translateText(" • Auto A-record")}
               {value.dns_record_proxied && ' • Cloudflare Proxy'}
             </span>
           </div>
@@ -222,7 +222,7 @@ export default function DomainPicker({
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground underline ml-2 cursor-pointer"
           >
             <UnlinkIcon className="size-3" />
-            Unlink
+            {translateText("Unlink")}
           </button>
         </div>
       )}
@@ -237,9 +237,9 @@ export default function DomainPicker({
                 <CloudIcon className="size-5" />
               </div>
               <div>
-                <DialogTitle className="text-base font-semibold">Select from DNS Provider</DialogTitle>
+                <DialogTitle className="text-base font-semibold">{translateText("Select from DNS Provider")}</DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                  Select a domain managed by your DNS provider to automatically configure DNS records for this site.
+                  {translateText("Select a domain managed by your DNS provider to automatically configure DNS records for this site.")}
                 </DialogDescription>
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function DomainPicker({
                 <div className="flex items-center gap-2">
                   <Select value={tempProviderId} onValueChange={handleProviderSelect}>
                     <SelectTrigger id="dns_provider_modal_id" className="h-9">
-                      <SelectValue placeholder={loadingProviders ? 'Loading providers...' : 'Select DNS Provider'} />
+                      <SelectValue placeholder={loadingProviders ? translateText("Loading providers...") : translateText("Select DNS Provider")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -279,7 +279,7 @@ export default function DomainPicker({
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div className="sm:col-span-5 space-y-1.5">
                   <Label htmlFor="subdomain_modal" className="text-xs font-medium flex items-center justify-between">
-                    <span>Subdomain</span>
+                    <span>{translateText("Subdomain")}</span>
                     <span className="text-[10px] text-muted-foreground font-normal">{translateText('Optional')}</span>
                   </Label>
                   <Input
@@ -298,7 +298,7 @@ export default function DomainPicker({
 
                 <div className="sm:col-span-6 space-y-1.5">
                   <Label htmlFor="provider_zone_id" className="text-xs font-medium">
-                    Domain / Zone
+                    {translateText("Domain / Zone")}
                   </Label>
                   <div className="flex items-center gap-1.5">
                     <Select
@@ -307,7 +307,7 @@ export default function DomainPicker({
                       disabled={!tempProviderId || loadingDomains}
                     >
                       <SelectTrigger id="provider_zone_id" className="h-9 flex-1">
-                        <SelectValue placeholder={loadingDomains ? 'Loading domains...' : 'Select a domain'} />
+                        <SelectValue placeholder={loadingDomains ? translateText("Loading domains...") : translateText("Select a domain")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -329,7 +329,7 @@ export default function DomainPicker({
                       className="h-9 w-9 shrink-0"
                       disabled={loadingDomains || !tempProviderId}
                       onClick={() => fetchDomainsForProvider(tempProviderId, true)}
-                      title="Refresh domain list"
+                      title={translateText("Refresh domain list")}
                     >
                       <RefreshCwIcon className={cn('size-3.5', loadingDomains && 'animate-spin')} />
                     </Button>
@@ -341,7 +341,7 @@ export default function DomainPicker({
             {computedDialogDomain && (
               <div className="rounded-xl border bg-muted/40 p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs text-muted-foreground font-medium">Site Domain:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{translateText("Site Domain:")}</span>
                   <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-foreground bg-background px-2.5 py-1 rounded-md border shadow-2xs">
                     <GlobeIcon className="size-3.5 text-primary shrink-0" />
                     <span>{computedDialogDomain}</span>
@@ -360,7 +360,7 @@ export default function DomainPicker({
                       <span className="font-semibold text-foreground">{serverIp}</span>
                       {tempDnsRecordProxied && (
                         <Badge variant="outline" className="text-[9px] px-1 py-0 text-neutral-600 dark:text-neutral-400 border-neutral-500/30 ml-1">
-                          Proxied
+                          {translateText("Proxied")}
                         </Badge>
                       )}
                     </div>
@@ -385,10 +385,10 @@ export default function DomainPicker({
                 />
                 <div className="grid gap-1">
                   <span className="text-xs font-medium leading-none text-foreground">
-                    Automatically create an A record
+                    {translateText("Automatically create an A record")}
                   </span>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Points <span className="font-mono text-foreground">{computedDialogDomain || 'domain'}</span> at server IP
+                    {translateText("Points")} <span className="font-mono text-foreground">{computedDialogDomain || translateText("domain")}</span> {translateText("at server IP")}
                     {serverIp ? <> (<span className="font-mono text-foreground font-medium">{serverIp}</span>)</> : ''}.
                   </p>
                 </div>
@@ -410,11 +410,11 @@ export default function DomainPicker({
                   />
                   <div className="grid gap-1">
                     <span className="text-xs font-medium leading-none text-foreground flex items-center gap-1.5">
-                      <span>Enable Cloudflare Proxy</span>
-                      <span className="text-[10px] font-normal text-muted-foreground">(CDN &amp; DDoS Protection)</span>
+                      <span>{translateText("Enable Cloudflare Proxy")}</span>
+                      <span className="text-[10px] font-normal text-muted-foreground">{translateText("(CDN & DDoS Protection)")}</span>
                     </span>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Routes web traffic through Cloudflare for caching, edge SSL, and DDoS mitigation.
+                      {translateText("Routes web traffic through Cloudflare for caching, edge SSL, and DDoS mitigation.")}
                     </p>
                   </div>
                 </label>
@@ -427,7 +427,7 @@ export default function DomainPicker({
               {translateText('Cancel')}
             </Button>
             <Button type="button" onClick={handleApplyDns} disabled={!tempZoneId}>
-              Use Domain
+              {translateText("Use Domain")}
             </Button>
           </DialogFooter>
         </DialogContent>

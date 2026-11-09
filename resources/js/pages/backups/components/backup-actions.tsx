@@ -27,6 +27,7 @@ function Passphrase({ backup }: { backup: Backup }) {
 }
 
 function ToggleEnabled({ backup }: { backup: Backup }) {
+  const translateText = useTranslate();
   const form = useForm();
 
   const submit = () => {
@@ -37,7 +38,7 @@ function ToggleEnabled({ backup }: { backup: Backup }) {
 
   return (
     <DropdownMenuItem onClick={submit} disabled={form.processing}>
-      {backup.enabled ? 'Disable' : 'Enable'}
+      {backup.enabled ? translateText("Disable") : translateText("Enable")}
     </DropdownMenuItem>
   );
 }
@@ -53,7 +54,7 @@ function Delete({ backup }: { backup: Backup }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete backup [${target}]`,
+          title: translateText("Delete backup [:value]", { value: target }),
           description:
             backup.type === 'pgbackrest'
               ? 'Pure stops pgBackRest backups and WAL archiving on this server. Backups already in S3 are kept. Save the encryption passphrase first, because without it they cannot be restored.'

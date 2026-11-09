@@ -87,7 +87,7 @@ export default function BasicAuth({ site, children }: { site: Site; children: Re
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Basic Auth</DialogTitle>
-          <DialogDescription>Protect this site with HTTP Basic Authentication.</DialogDescription>
+          <DialogDescription>{translateText("Protect this site with HTTP Basic Authentication.")}</DialogDescription>
         </DialogHeader>
 
         <Form id="basic-auth-form" onSubmit={submit} className="p-4">
@@ -95,9 +95,9 @@ export default function BasicAuth({ site, children }: { site: Site; children: Re
             <FormField>
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <Label htmlFor="basic-auth-enabled">Enable Basic Auth</Label>
+                  <Label htmlFor="basic-auth-enabled">{translateText("Enable Basic Auth")}</Label>
                   <p className="text-muted-foreground text-sm">
-                    {hasUsers ? 'Require credentials to access the site.' : 'Add at least one user to enable.'}
+                    {hasUsers ? translateText("Require credentials to access the site.") : translateText("Add at least one user to enable.")}
                   </p>
                 </div>
                 <Switch
@@ -113,16 +113,16 @@ export default function BasicAuth({ site, children }: { site: Site; children: Re
             <FormField>
               <Label>{translateText('Users')}</Label>
               <div className="space-y-2">
-                {form.data.users.length === 0 && <p className="text-muted-foreground text-sm">No users yet. Add a user to start using basic auth.</p>}
+                {form.data.users.length === 0 && <p className="text-muted-foreground text-sm">{translateText("No users yet. Add a user to start using basic auth.")}</p>}
                 {form.data.users.map((u, i) => (
                   <div key={u.id} className="flex items-start gap-2">
                     <div className="flex-1">
-                      <Input placeholder="username" value={u.username} onChange={(e) => setUser(i, { username: e.target.value })} />
+                      <Input placeholder={translateText("username")} value={u.username} onChange={(e) => setUser(i, { username: e.target.value })} />
                       <InputError message={(form.errors as Record<string, string>)[`users.${i}.username`]} />
                     </div>
                     <div className="flex-1">
                       <PasswordInput
-                        placeholder={u.existing ? 'Leave blank to keep current' : 'password'}
+                        placeholder={u.existing ? translateText("Leave blank to keep current") : translateText("password")}
                         value={u.password}
                         onChange={(e) => setUser(i, { password: e.target.value })}
                       />

@@ -17,7 +17,7 @@ export default function UserActions({ user }: { user: User }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onSelect={() => dialog.confirm.open({
           title: 'Delete user',
-          description: `Delete ${user.name}? This cannot be undone.`,
+          description: translateText("Delete :value? This cannot be undone.", { value: user.name }),
           confirmLabel: 'Delete',
           variant: 'destructive',
           method: 'delete',

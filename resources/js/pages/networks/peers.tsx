@@ -26,7 +26,7 @@ export default function NetworkPeers() {
 
   return (
     <NetworkLayout>
-      <Head title={`Peers - ${network.name}`} />
+      <Head title={translateText("Peers - :value", { value: network.name })} />
 
       <Container>
         <HeaderContainer>
@@ -84,7 +84,7 @@ export default function NetworkPeers() {
                         })
                       }
                     >
-                      {disabled ? 'Enable' : 'Disable'}
+                      {disabled ? translateText("Enable") : translateText("Disable")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem

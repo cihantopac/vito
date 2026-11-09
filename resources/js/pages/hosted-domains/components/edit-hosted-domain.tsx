@@ -79,8 +79,8 @@ export default function EditHostedDomain({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{installSsl ? `Install SSL for ${hostedDomain.domain}` : 'Edit Domain'}</DialogTitle>
-          <DialogDescription className="sr-only">{installSsl ? 'Install SSL certificate' : 'Edit hosted domain'}</DialogDescription>
+          <DialogTitle>{installSsl ? `Install SSL for ${hostedDomain.domain}` : translateText("Edit Domain")}</DialogTitle>
+          <DialogDescription className="sr-only">{installSsl ? translateText("Install SSL certificate") : translateText("Edit hosted domain")}</DialogDescription>
         </DialogHeader>
         <Form className="p-4" id="edit-hosted-domain-form" onSubmit={submit}>
           <FormFields>
@@ -137,7 +137,7 @@ export default function EditHostedDomain({
                 <Label htmlFor="edit-ssl_id">{translateText("SSL Certificate")}</Label>
                 <Select onValueChange={(value) => form.setData('ssl_id', value)} value={form.data.ssl_id}>
                   <SelectTrigger id="edit-ssl_id">
-                    <SelectValue placeholder={loadingSsls ? 'Loading...' : 'Select a certificate'} />
+                    <SelectValue placeholder={loadingSsls ? translateText("Loading...") : translateText("Select a certificate")} />
                   </SelectTrigger>
                   <SelectContent>
                     {matchingSsls.map((ssl) => (

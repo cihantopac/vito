@@ -26,7 +26,7 @@ export default function NetworkFirewall() {
 
   return (
     <NetworkLayout>
-      <Head title={`Firewall - ${network.name}`} />
+      <Head title={translateText("Firewall - :value", { value: network.name })} />
 
       <Container>
         <HeaderContainer>
@@ -59,7 +59,7 @@ export default function NetworkFirewall() {
                       variant="destructive"
                       onSelect={() =>
                         dialog.confirm.open({
-                          title: `Delete rule [${rule.name}]`,
+                          title: translateText("Delete rule [:value]", { value: rule.name }),
                           description: 'Are you sure you want to delete this firewall rule?',
                           variant: 'destructive',
                           confirmLabel: 'Delete',

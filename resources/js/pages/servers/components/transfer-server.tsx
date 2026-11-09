@@ -47,14 +47,14 @@ export default function TransferServer({ server, children }: { server: Server; c
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{translateText("Transfer")} {server.name}</DialogTitle>
-          <DialogDescription className="sr-only">Transfer server to another project</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Transfer server to another project")}</DialogDescription>
         </DialogHeader>
 
         <Form id="transfer-server-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
               <Label htmlFor="project_id">{translateText('Project')}</Label>
-              <ProjectSelect value={form.data.project_id} onValueChange={handleProjectChange} placeholder="Select project..." className="w-full" />
+              <ProjectSelect value={form.data.project_id} onValueChange={handleProjectChange} placeholder={translateText("Select project...")} className="w-full" />
               <InputError message={form.errors.project_id} />
             </FormField>
           </FormFields>
@@ -67,7 +67,7 @@ export default function TransferServer({ server, children }: { server: Server; c
 
           <Button form="transfer-server-form" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Transfer server
+            {translateText("Transfer server")}
           </Button>
         </DialogFooter>
       </DialogContent>

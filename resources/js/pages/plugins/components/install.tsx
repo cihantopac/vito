@@ -12,7 +12,7 @@ export default function InstallPlugin({ plugin }: { plugin: Plugin }) {
       onSelect={() =>
         dialog.confirm.open({
           title: 'Install plugin',
-          description: `Are you sure you want to install the plugin located at ${plugin.folder}?`,
+          description: translateText("Are you sure you want to install the plugin located at :value?", { value: plugin.folder }),
           confirmLabel: 'Install',
           method: 'patch',
           url: "/admin/plugins/install",

@@ -12,8 +12,8 @@ export default function Delete({ dnsProvider }: { dnsProvider: DNSProvider }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete ${dnsProvider.name}`,
-          description: `Are you sure you want to delete ${dnsProvider.name}?`,
+          title: translateText("Delete :value", { value: dnsProvider.name }),
+          description: translateText("Are you sure you want to delete :value?", { value: dnsProvider.name }),
           variant: 'destructive',
           confirmLabel: 'Delete',
           method: 'delete',

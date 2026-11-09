@@ -174,7 +174,7 @@ function QuickAccessCard({
         </Link>
       </div>
       {loading || count === 0 ? (
-        <p className="py-8 text-sm text-muted-foreground">{loading ? 'Loading…' : emptyText}</p>
+        <p className="py-8 text-sm text-muted-foreground">{loading ? translateText("Loading…") : emptyText}</p>
       ) : (
         <div className="flex flex-col divide-y divide-border/50">{children}</div>
       )}

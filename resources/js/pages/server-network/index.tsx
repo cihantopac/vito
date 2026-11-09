@@ -56,18 +56,18 @@ export default function ServerNetwork() {
 
   return (
     <ServerLayout>
-      <Head title={`Network - ${page.props.server.name}`} />
+      <Head title={translateText("Network - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Network')} description="Here you can manage the IP addresses configured on the server" />
+          <Heading title={translateText('Network')} description={translateText("Here you can manage the IP addresses configured on the server")} />
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" aria-label={translateText('Refresh')} disabled={refreshing} onClick={refresh}>
               <RefreshCwIcon className={refreshing ? 'animate-spin' : undefined} />
             </Button>
             <Button onClick={() => dialog.serverIpForm.open({ serverId: page.props.server.id, interfaces: page.props.interfaces })}>
               <PlusIcon />
-              <span className="hidden lg:block">Add IP</span>
+              <span className="hidden lg:block">{translateText("Add IP")}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -92,7 +92,7 @@ export default function ServerNetwork() {
                   {member.connected === null ? (
                     <Badge variant={member.status_color}>{member.status}</Badge>
                   ) : (
-                    <Badge variant={member.connected ? 'success' : 'danger'}>{member.connected ? 'connected' : 'no recent handshake'}</Badge>
+                    <Badge variant={member.connected ? 'success' : 'danger'}>{member.connected ? translateText("connected") : translateText("no recent handshake")}</Badge>
                   )}
                 </span>
               </div>

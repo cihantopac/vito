@@ -155,7 +155,7 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
                     onSelect={() =>
                       dialog.confirm.open({
                         title: 'Rollback',
-                        description: `Are you sure you want to rollback your site to version [${deployment.release}]?`,
+                        description: translateText("Are you sure you want to rollback your site to version [:value]?", { value: (deployment.release ?? '—') }),
                         confirmLabel: 'Rollback',
                         method: 'post',
                         url: `/servers/${encodeURIComponent(String(deployment.server_id))}/sites/${deployment.site_id}/rollback/${deployment.id}`,
@@ -169,8 +169,8 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
                   variant="destructive"
                   onSelect={() =>
                     dialog.confirm.open({
-                      title: `Delete release [${deployment.release || deployment.id}]`,
-                      description: `Are you sure you want to delete release ${deployment.release || deployment.id}? This will delete the release files from the server. This action cannot be undone.`,
+                      title: translateText("Delete release [:value]", { value: deployment.release || deployment.id }),
+                      description: translateText("Are you sure you want to delete release :value? This will delete the release files from the server. This action cannot be undone.", { value: deployment.release || deployment.id }),
                       variant: 'destructive',
                       confirmLabel: 'Delete',
                       method: 'delete',

@@ -46,11 +46,11 @@ export default function DomainShow() {
 
   return (
     <SettingsLayout>
-      <Head title={`DNS Records - ${page.props.domain.domain}`} />
+      <Head title={translateText("DNS Records - :value", { value: page.props.domain.domain })} />
       <Container>
         <HeaderContainer>
           <BreadcrumbHeader breadcrumbs={breadcrumbs}>
-            <Heading title={`DNS Records for ${page.props.domain.domain}`} />
+            <Heading title={translateText("DNS Records for :value", { value: page.props.domain.domain })} />
           </BreadcrumbHeader>
           <div className="flex items-center gap-2">
             <SyncRecords domain={page.props.domain} />

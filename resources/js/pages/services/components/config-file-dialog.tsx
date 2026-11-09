@@ -61,7 +61,7 @@ export default function ServiceConfigFileDialog({
         <SheetHeader>
           <SheetTitle>{translateText('Edit')} {configPath.name}</SheetTitle>
           <SheetDescription className="sr-only">
-            {translateText("You can edit the")} {configPath.name} file for this service. Make sure to save your changes.
+            {translateText("You can edit the")} {configPath.name} {translateText("file for this service. Make sure to save your changes.")}
           </SheetDescription>
         </SheetHeader>
         <Form id="update-config-form" className="h-full" onSubmit={submit}>

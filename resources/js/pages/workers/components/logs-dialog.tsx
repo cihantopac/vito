@@ -43,8 +43,8 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
       <DialogContent className="sm:max-w-5xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader className="flex flex-row items-center justify-between gap-4 pr-6">
           <div className="flex flex-col gap-1">
-            <DialogTitle>Worker logs</DialogTitle>
-            <DialogDescription className="sr-only">View worker logs and start/stop history</DialogDescription>
+            <DialogTitle>{translateText("Worker logs")}</DialogTitle>
+            <DialogDescription className="sr-only">{translateText("View worker logs and start/stop history")}</DialogDescription>
           </div>
           <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'output' | 'history')}>
             <TabsList className="h-7 bg-muted/60 p-0.5">
@@ -66,7 +66,7 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
         </DialogHeader>
 
         {activeTab === 'output' ? (
-          <LogOutput>{query.isLoading ? 'Loading...' : (query.data?.logs || 'No log output available.')}</LogOutput>
+          <LogOutput>{query.isLoading ? translateText("Loading...") : (query.data?.logs || translateText("No log output available."))}</LogOutput>
         ) : (
           <div className="max-h-[500px] min-h-[300px] overflow-y-auto flex flex-col gap-2 p-1">
             {historyList.length === 0 ? (
@@ -87,7 +87,7 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
                           {item.description || `Worker ${item.type}`}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          {item.user ? `by ${item.user.name} (${item.user.email})` : (item.user_name ? `by ${item.user_name}` : 'by System')}
+                          {item.user ? `by ${item.user.name} (${item.user.email})` : (item.user_name ? `by ${item.user_name}` : translateText("by System"))}
                         </span>
                       </div>
                     </div>
@@ -105,7 +105,7 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
           <Button variant="ghost" size="sm" asChild className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
             <Link href={`/servers/${serverId}/workers/${workerId}/log`}>
               <ExternalLinkIcon className="size-3.5" />
-              <span>Full page view</span>
+              <span>{translateText("Full page view")}</span>
             </Link>
           </Button>
           <DialogClose asChild>

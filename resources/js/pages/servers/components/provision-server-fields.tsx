@@ -106,7 +106,7 @@ export default function ProvisionServerFields({
   return (
     <>
       <FormField>
-        <Label htmlFor="provision-name">Server name</Label>
+        <Label htmlFor="provision-name">{translateText("Server name")}</Label>
         <Input id="provision-name" value={data.name} onChange={(e) => setData({ name: e.target.value })} />
         <InputError message={errors.name} />
       </FormField>
@@ -115,7 +115,7 @@ export default function ProvisionServerFields({
         <Label>{translateText('Provider')}</Label>
         <Select value={data.server_provider} onValueChange={selectProvider}>
           <SelectTrigger>
-            <SelectValue placeholder="Select a server provider" />
+            <SelectValue placeholder={translateText("Select a server provider")} />
           </SelectTrigger>
           <SelectContent>
             {providers.map((provider) => (
@@ -149,7 +149,7 @@ export default function ProvisionServerFields({
         <Label>Plan</Label>
         <Select value={data.plan} onValueChange={(plan) => setData({ plan })} disabled={Object.keys(plans).length === 0}>
           <SelectTrigger>
-            <SelectValue placeholder="Select a plan" />
+            <SelectValue placeholder={translateText("Select a plan")} />
           </SelectTrigger>
           <SelectContent>
             {Object.entries(plans).map(([name, plan]) => {
@@ -166,7 +166,7 @@ export default function ProvisionServerFields({
         </Select>
         {selected && selected.warnings.length > 0 && (
           <p className="text-warning text-sm">
-            This plan has {selected.warnings.join(' and ')}. {warningSuffix ?? `The new server may be slower than ${requirements?.source ?? 'the source'}.`}
+            {translateText("This plan has")} {selected.warnings.join(' and ')}. {warningSuffix ?? `The new server may be slower than ${requirements?.source ?? 'the source'}.`}
           </p>
         )}
         <InputError message={errors.plan} />

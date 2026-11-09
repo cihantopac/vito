@@ -119,12 +119,12 @@ export default function ServicesIndex() {
 
   return (
     <ServerLayout>
-      <Head title={`Services - ${server.name}`} />
+      <Head title={translateText("Services - :value", { value: server.name })} />
 
       <Container>
         <RuntimeProcesses kind="service" />
         <HeaderContainer>
-          <Heading title={translateText('Services')} description="Here you can manage server's services" />
+          <Heading title={translateText('Services')} description={translateText("Here you can manage server's services")} />
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={refresh} disabled={busy || isOffline}>
               <RefreshCwIcon className={cn(busy && 'animate-spin')} />
@@ -146,7 +146,7 @@ export default function ServicesIndex() {
             return (
               <div className="flex items-center gap-3">
                 {isOffline ? (
-                  <span className="text-muted-foreground text-xs">Live status unavailable</span>
+                  <span className="text-muted-foreground text-xs">{translateText("Live status unavailable")}</span>
                 ) : (
                   <>
                     <ServiceActions service={service} />

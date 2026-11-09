@@ -41,7 +41,7 @@ export default function CopyableField({
           variant="ghost"
           className="h-6 w-6 shrink-0"
           onClick={() => setRevealed((r) => !r)}
-          aria-label={revealed ? 'Hide value' : 'Show value'}
+          aria-label={revealed ? translateText("Hide value") : translateText("Show value")}
         >
           {revealed ? <EyeOffIcon className="size-3.5" /> : <EyeIcon className="size-3.5" />}
         </Button>

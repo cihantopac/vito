@@ -17,8 +17,8 @@ function Remove({ domain }: { domain: Domain }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Remove ${domain.domain}`,
-          description: `Are you sure you want to remove ${domain.domain} from Pure? This will only remove the domain from Pure, not from your DNS provider.`,
+          title: translateText("Remove :value", { value: domain.domain }),
+          description: translateText("Are you sure you want to remove :value from Pure? This will only remove the domain from Pure, not from your DNS provider.", { value: domain.domain }),
           variant: 'destructive',
           confirmLabel: 'Remove',
           method: 'delete',

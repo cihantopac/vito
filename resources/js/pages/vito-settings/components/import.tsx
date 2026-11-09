@@ -40,12 +40,12 @@ export default function ImportVito() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{translateText('Import')}</DialogTitle>
-          <DialogDescription className="sr-only">Import settings to Pure</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Import settings to Pure")}</DialogDescription>
         </DialogHeader>
         <Form id="import-vito-form" className="p-4" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="backup_file">Backup file</Label>
+              <Label htmlFor="backup_file">{translateText("Backup file")}</Label>
               <Input
                 type="file"
                 id="backup_file"

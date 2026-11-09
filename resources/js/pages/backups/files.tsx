@@ -60,26 +60,26 @@ export default function Files() {
 
   return (
     <ServerLayout>
-      <Head title={`Backup files - ${page.props.server.name}`} />
+      <Head title={translateText("Backup files - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
           <div className="space-y-0.5">
             <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight">
-              {isPgBackRest ? 'pgBackRest backups of' : 'Backup files of'}
+              {isPgBackRest ? translateText("pgBackRest backups of") : translateText("Backup files of")}
               {page.props.backup.type === 'database' && <CopyableBadge text={page.props.backup.database?.name} />}
               {page.props.backup.type === 'file' && <CopyableBadge text={page.props.backup.path} tooltip />}
               {isPgBackRest && <CopyableBadge text={page.props.backup.pgbackrest?.stanza ?? undefined} />}
             </h2>
             <p className="text-muted-foreground text-sm">
               {isPgBackRest
-                ? 'Each backup covers the whole PostgreSQL cluster and runs on a healthy replica when there is one. pgBackRest removes expired backups based on the strategy.'
-                : 'Here you can manage the backup files'}
+                ? translateText("Each backup covers the whole PostgreSQL cluster and runs on a healthy replica when there is one. pgBackRest removes expired backups based on the strategy.")
+                : translateText("Here you can manage the backup files")}
             </p>
             {isPgBackRest && page.props.backup.pgbackrest && (
               <p className="text-muted-foreground text-sm">
-                {page.props.backup.pgbackrest.strategy === 'standard' ? 'Standard strategy' : 'Custom strategy'} {translateText("· last verify:")}{' '}
-                {page.props.backup.pgbackrest.last_verify_result ?? 'not yet'} {translateText("· last check:")} {page.props.backup.pgbackrest.last_check_result ?? 'not yet'}
+                {page.props.backup.pgbackrest.strategy === 'standard' ? translateText("Standard strategy") : translateText("Custom strategy")} {translateText("· last verify:")}{' '}
+                {page.props.backup.pgbackrest.last_verify_result ?? translateText("not yet")} {translateText("· last check:")} {page.props.backup.pgbackrest.last_check_result ?? translateText("not yet")}
               </p>
             )}
           </div>
@@ -96,7 +96,7 @@ export default function Files() {
             )}
             <Button variant="outline" onClick={() => setShowLogs((visible) => !visible)} aria-expanded={showLogs} aria-controls="backup-server-logs">
               <FileTextIcon />
-              {showLogs ? 'Hide logs' : 'View logs'}
+              {showLogs ? translateText("Hide logs") : translateText("View logs")}
             </Button>
             <Button onClick={runBackup}>
               {runBackupForm.processing ? <LoaderCircleIcon className="animate-spin" /> : <CloudUploadIcon />}
@@ -131,7 +131,7 @@ export default function Files() {
                         ? `backup ${restore.backup_file_name ?? ''}`
                         : restore.target === 'time' && restore.target_time
                           ? `point in time ${new Date(restore.target_time).toLocaleString('en-US')}`
-                          : 'latest'}{' '}
+                          : translateText("latest")}{' '}
                       {translateText("· started")} {new Date(restore.created_at).toLocaleString('en-US')}
                     </span>
                   </span>

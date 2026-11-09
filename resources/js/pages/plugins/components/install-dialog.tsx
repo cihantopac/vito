@@ -46,7 +46,7 @@ export default function InstallDialog({ repo }: { repo?: Repo }) {
       <DialogTrigger asChild>
         <Button disabled={repo && page.props.plugins.filter((plugin) => plugin.name === repo.full_name).length > 0}>
           <DownloadIcon />
-          {repo && page.props.plugins.filter((plugin) => plugin.name === repo.full_name).length > 0 ? 'Installed' : 'Install'}
+          {repo && page.props.plugins.filter((plugin) => plugin.name === repo.full_name).length > 0 ? translateText("Installed") : translateText("Install")}
         </Button>
       </DialogTrigger>
       <DialogContent>

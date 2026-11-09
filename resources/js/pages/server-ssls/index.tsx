@@ -26,11 +26,11 @@ export default function ServerSsls() {
 
   return (
     <ServerLayout>
-      <Head title={`SSL - ${page.props.server.name}`} />
+      <Head title={translateText("SSL - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('SSL certificates')} description="Certificates registered for this server and its applications. Review expiry dates and open the application's Domains page to manage a site certificate." />
+          <Heading title={translateText('SSL certificates')} description={translateText("Certificates registered for this server and its applications. Review expiry dates and open the application's Domains page to manage a site certificate.")} />
           <div className="flex items-center gap-2">
             <CreateServerSsl server={page.props.server} domains={page.props.domains}>
               <Button>{translateText('Add')}</Button>

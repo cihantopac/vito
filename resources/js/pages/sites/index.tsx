@@ -55,12 +55,13 @@ const siteCell = ({ row, value }: CellRenderProps) => (
 );
 
 function SiteWarnings({ row }: { row: Row }) {
-  const warningItems = getSiteWarningItems(row as unknown as Site);
+  const translateText = useTranslate();
+  const warningItems = getSiteWarningItems(row as unknown as Site, false, translateText);
 
   return (
     <>
       {row.status && row.status !== 'ready' && (
-        <Badge variant={(row.status_color as 'default') ?? 'default'}>{String(row.status)}</Badge>
+        <Badge variant={(row.status_color as 'default') ?? 'default'}>{translateText(String(row.status))}</Badge>
       )}
       {warningItems.length > 0 && <WarningsPopover items={warningItems} />}
     </>
@@ -68,6 +69,7 @@ function SiteWarnings({ row }: { row: Row }) {
 }
 
 function CreatedAtCell({ value }: CellRenderProps) {
+  const translateText = useTranslate();
   if (typeof value !== 'string' || !value) {
     return null;
   }
@@ -75,7 +77,7 @@ function CreatedAtCell({ value }: CellRenderProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button type="button" className="text-muted-foreground hover:text-foreground cursor-pointer whitespace-nowrap text-xs" aria-label="Show exact creation date">
+        <button type="button" className="text-muted-foreground hover:text-foreground cursor-pointer whitespace-nowrap text-xs" aria-label={translateText("Show exact creation date")}>
           <DateTime date={value} relative />
         </button>
       </PopoverTrigger>
@@ -103,7 +105,7 @@ export default function Sites() {
 
   return (
     <Comp>
-      <Head title={`Sites ${page.props.server ? ' - ' + page.props.server.name : ''}`} />
+      <Head title={translateText("Sites :value", { value: page.props.server ? ' - ' + page.props.server.name : '' })} />
       <Container className="py-3">
         <VitoTable
           fitContent
@@ -138,7 +140,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by project">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label={translateText("Filter sites by project")}>
                         <SelectValue placeholder={translateText('Select a project')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -167,7 +169,7 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter sites by server">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label={translateText("Filter sites by server")}>
                         <SelectValue placeholder={translateText('All Servers')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -196,13 +198,13 @@ export default function Sites() {
                         router.get(url.toString(), {}, { preserveScroll: true, preserveState: true, replace: true });
                       }}
                     >
-                      <SelectTrigger className="h-8 w-36 text-sm" aria-label="Group sites by">
+                      <SelectTrigger className="h-8 w-36 text-sm" aria-label={translateText("Group sites by")}>
                         <SelectValue placeholder={translateText('No grouping')} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">{translateText('No grouping')}</SelectItem>
                         <SelectItem value="project">{translateText("Group by Project")}</SelectItem>
-                        <SelectItem value="server">Group by Server</SelectItem>
+                        <SelectItem value="server">{translateText("Group by Server")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

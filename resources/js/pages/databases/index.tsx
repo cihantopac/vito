@@ -33,12 +33,12 @@ export default function Databases() {
 
   return (
     <ServerLayout>
-      <Head title={`Databases - ${page.props.server.name}`} />
+      <Head title={translateText("Databases - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
           <Heading
-            title={`Databases (${databaseCount})`}
+            title={translateText("Databases (:value)", { value: databaseCount })}
           />
           {dbType && <div className="flex items-center gap-2">
             <Button

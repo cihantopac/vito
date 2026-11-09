@@ -42,7 +42,7 @@ export default function Logs({ server, site }: { server: Server; site?: Site }) 
     <>
       {query.isError ? (
         <div role="alert" className="flex items-center gap-2 text-sm">
-          <span>Unable to load server logs.</span>
+          <span>{translateText("Unable to load server logs.")}</span>
           <button type="button" className="underline" onClick={() => void query.refetch()}>{translateText('Try again')}</button>
         </div>
       ) : query.isLoading ? (

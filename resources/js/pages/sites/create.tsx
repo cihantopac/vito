@@ -318,15 +318,15 @@ export default function CreateSitePage({
             <Button variant="ghost" size="sm" asChild className="h-7 px-2 -ml-2 text-muted-foreground hover:text-foreground">
               <Link href={backRoute}>
                 <ArrowLeftIcon className="mr-1 size-3.5" />
-                Back to sites
+                {translateText("Back to sites")}
               </Link>
             </Button>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Create a new site</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{translateText("Create a new site")}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             {step === 1
-              ? 'Select the type of site you want to create. Each type has different configurations and features.'
-              : 'Configure repository, runtime, and domain settings for your new site.'}
+              ? translateText("Select the type of site you want to create. Each type has different configurations and features.")
+              : translateText("Configure repository, runtime, and domain settings for your new site.")}
           </p>
         </div>
 
@@ -336,7 +336,7 @@ export default function CreateSitePage({
               {!server && (
                 <div className="p-6 pb-2 border-b bg-muted/20">
                   <FormField>
-                    <Label htmlFor="server">Target Server</Label>
+                    <Label htmlFor="server">{translateText("Target Server")}</Label>
                     <ServerSelect
                       value={form.data.server}
                       excludeSelf
@@ -367,7 +367,7 @@ export default function CreateSitePage({
                             </span>
                             {type === 'vito' && (
                               <Badge variant="outline" className="text-[10px] py-0 bg-primary/10 text-primary border-primary/30">
-                                Auto-Detect
+                                {translateText("Auto-Detect")}
                               </Badge>
                             )}
                           </div>
@@ -396,7 +396,7 @@ export default function CreateSitePage({
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-foreground">
-                      {isVitoType ? 'Install with Pure Config' : `Install a ${selectedTypeLabel} application`}
+                      {isVitoType ? translateText("Install with Pure Config") : `Install a ${selectedTypeLabel} application`}
                     </h2>
                   </div>
                 </div>
@@ -409,7 +409,7 @@ export default function CreateSitePage({
                   className="gap-1.5 text-xs cursor-pointer"
                 >
                   <ArrowLeftIcon className="size-3.5" />
-                  <span>Change type</span>
+                  <span>{translateText("Change type")}</span>
                 </Button>
               </div>
 
@@ -418,7 +418,7 @@ export default function CreateSitePage({
                   {generalErrors.length > 0 && (
                     <Alert variant="destructive">
                       <TriangleAlertIcon />
-                      <AlertTitle>Site could not be created</AlertTitle>
+                      <AlertTitle>{translateText("Site could not be created")}</AlertTitle>
                       <AlertDescription>
                         {generalErrors.map(([key, message]) => (
                           <p key={key} className="whitespace-pre-line">
@@ -492,14 +492,14 @@ export default function CreateSitePage({
                       {vitoScanning && (
                         <div className="flex items-center gap-2.5 text-xs text-muted-foreground p-3.5 rounded-xl border border-primary/20 bg-primary/5">
                           <LoaderCircleIcon className="size-4 animate-spin text-primary shrink-0" />
-                          <span>Scanning repository for vito.json configuration...</span>
+                          <span>{translateText("Scanning repository for vito.json configuration...")}</span>
                         </div>
                       )}
 
                       {!vitoScanning && form.data.repository && vitoDetected && !vitoDetected.exists && (
                         <Alert variant="destructive">
                           <TriangleAlertIcon className="size-4" />
-                          <AlertTitle>vito.json not found</AlertTitle>
+                          <AlertTitle>{translateText("vito.json not found")}</AlertTitle>
                           <AlertDescription>
                             {vitoDetected.error || `Could not find vito.json or .vito.json in ${form.data.repository} (${form.data.branch || 'main'}). Please verify that the file exists in the repository root.`}
                           </AlertDescription>
@@ -513,7 +513,7 @@ export default function CreateSitePage({
                               <div className="flex items-center gap-2">
                                 <CheckCircle2Icon className="size-4 text-neutral-500" />
                                 <span className="text-xs font-semibold text-foreground">
-                                  vito.json recognized ({vitoDetected.path})
+                                  {translateText("vito.json recognized (")}{vitoDetected.path})
                                 </span>
                               </div>
                               <Badge variant="outline" className="text-[11px] uppercase font-mono">
@@ -528,15 +528,15 @@ export default function CreateSitePage({
                                 </div>
                               )}
                               <div className="bg-background/80 rounded p-2 border">
-                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">Web Dir</div>
+                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">{translateText("Web Dir")}</div>
                                 <div className="font-mono text-foreground">{vitoDetected.config.web_directory || 'public'}</div>
                               </div>
                               <div className="bg-background/80 rounded p-2 border">
                                 <div className="text-[10px] uppercase font-semibold text-muted-foreground">{translateText('Commands')}</div>
-                                <div className="font-mono text-foreground">{vitoDetected.config.commands?.length ?? 0} step(s)</div>
+                                <div className="font-mono text-foreground">{vitoDetected.config.commands?.length ?? 0} {translateText("step(s)")}</div>
                               </div>
                               <div className="bg-background/80 rounded p-2 border">
-                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">Crons / Workers</div>
+                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">{translateText("Crons / Workers")}</div>
                                 <div className="font-mono text-foreground">
                                   {(vitoDetected.config.crons?.length ?? 0) + (vitoDetected.config.workers?.length ?? 0)}
                                 </div>
@@ -652,7 +652,7 @@ export default function CreateSitePage({
                             <ChevronRightIcon
                               className={cn('size-3.5 transition-transform duration-200', showAdvanced && 'rotate-90')}
                             />
-                            <span>Advanced Settings</span>
+                            <span>{translateText("Advanced Settings")}</span>
                             {hasAdvancedErrors && (
                               <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
                                 {translateText('Error')}

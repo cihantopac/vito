@@ -17,8 +17,8 @@ function Delete({ apiKey }: { apiKey: ApiKey }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete ${apiKey.name}`,
-          description: `Are you sure you want to delete ${apiKey.name}?`,
+          title: translateText("Delete :value", { value: apiKey.name }),
+          description: translateText("Are you sure you want to delete :value?", { value: apiKey.name }),
           variant: 'destructive',
           confirmLabel: 'Delete',
           method: 'delete',

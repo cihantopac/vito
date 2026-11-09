@@ -34,7 +34,7 @@ export default function Backups() {
 
   return (
     <Comp>
-      <Head title={`Backups${page.props.server ? ' - ' + page.props.server.name : ''}`} />
+      <Head title={translateText("Backups:value", { value: page.props.server ? ' - ' + page.props.server.name : '' })} />
 
       <Container>
         <HeaderContainer>

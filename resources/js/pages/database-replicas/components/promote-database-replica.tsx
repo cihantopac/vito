@@ -51,7 +51,7 @@ export default function PromoteDatabaseReplica({
                 <li>{translateText("Mark")} {replica.primary_server_name} {translateText("as needing a rebuild, so you can add it back as a replica.")}</li>
               </ol>
               <p>
-                {translateText("Lag at the last check:")} <strong>{lag != null ? formatBytes(lag) : 'unknown'}</strong>{translateText(". Commits that did not reach the replica are lost. This cannot be undone.")}
+                {translateText("Lag at the last check:")} <strong>{lag != null ? formatBytes(lag) : translateText("unknown")}</strong>{translateText(". Commits that did not reach the replica are lost. This cannot be undone.")}
               </p>
               <p className="text-muted-foreground">{translateText("Pure does not change your applications. Point them at the new primary afterwards.")}</p>
             </div>

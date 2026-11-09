@@ -334,7 +334,7 @@ function EnvironmentEditorContent() {
 
   return (
     <>
-      <Head title={`.env Editor - ${site.domain}`} />
+      <Head title={translateText(".env Editor - :value", { value: site.domain })} />
 
       <Container className="gap-4 py-5 flex flex-col min-h-[calc(100vh-80px)]">
         <div style={{ position: 'absolute', opacity: 0, height: 0, width: 0, overflow: 'hidden', zIndex: -1 }} aria-hidden="true">
@@ -378,7 +378,7 @@ function EnvironmentEditorContent() {
                 className="h-9 gap-1.5 cursor-pointer text-xs"
               >
                 <HistoryIcon className="size-3.5" />
-                <span>{showHistory ? 'Back to Editor' : 'History'}</span>
+                <span>{showHistory ? translateText("Back to Editor") : translateText("History")}</span>
               </Button>
             )}
 
@@ -398,7 +398,7 @@ function EnvironmentEditorContent() {
                 ) : (
                   <SlidersHorizontalIcon className="size-3.5" />
                 )}
-                <span>{mode === 'variables' ? 'Classic Editor' : 'Variables Mode'}</span>
+                <span>{mode === 'variables' ? translateText("Classic Editor") : translateText("Variables Mode")}</span>
               </Button>
             )}
 
@@ -463,7 +463,7 @@ function EnvironmentEditorContent() {
                 onClick={() => setFilterDuplicatesOnly((prev) => !prev)}
                 className="h-7 text-xs bg-background/80 hover:bg-background border-neutral-500/30 cursor-pointer"
               >
-                {filterDuplicatesOnly ? 'Show all variables' : `Filter duplicates (${duplicateKeys.size})`}
+                {filterDuplicatesOnly ? translateText("Show all variables") : `Filter duplicates (${duplicateKeys.size})`}
               </Button>
               <Button
                 type="button"
@@ -582,7 +582,7 @@ function EnvironmentEditorContent() {
                 </div>
               ) : filteredVariables.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground text-sm">
-                  {searchFilter ? 'No variables match your filter.' : 'This file has no variables.'}
+                  {searchFilter ? translateText("No variables match your filter.") : translateText("This file has no variables.")}
                 </div>
               ) : (
                 <fieldset disabled={isSwitching || canEdit === false} className="flex flex-col gap-3 py-2">
@@ -618,7 +618,7 @@ function EnvironmentEditorContent() {
                               variant="outline"
                               onClick={generateAppKey}
                               disabled={generatingKey || isDirty}
-                              title={isDirty ? 'Save or discard your changes first' : 'Run php artisan key:generate'}
+                              title={isDirty ? translateText("Save or discard your changes first") : translateText("Run php artisan key:generate")}
                               className="shrink-0"
                             >
                               {generatingKey ? <LoaderCircleIcon className="size-4 animate-spin" /> : <KeyRoundIcon className="size-4" />}
@@ -677,7 +677,7 @@ function EnvironmentEditorContent() {
                             #{idx + 1}: {displayVal}
                           </span>
                           <span className="text-[10px] shrink-0 uppercase tracking-wider font-sans font-medium">
-                            {isLast ? 'Effective value' : 'Overridden'}
+                            {isLast ? translateText("Effective value") : translateText("Overridden")}
                           </span>
                         </div>
                       );

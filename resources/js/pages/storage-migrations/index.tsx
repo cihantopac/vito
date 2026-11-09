@@ -41,7 +41,7 @@ export default function StorageMigrations() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText("Storage Migrations")} description="Move backup objects between storage providers" />
+          <Heading title={translateText("Storage Migrations")} description={translateText("Move backup objects between storage providers")} />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.storageMigrationCreate.open({})}>
               <ArrowLeftRightIcon />

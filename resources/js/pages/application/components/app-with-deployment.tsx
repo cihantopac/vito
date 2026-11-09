@@ -46,13 +46,14 @@ function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label: stri
 }
 
 function StatusDetail({ icon: Icon, label, enabled }: { icon: LucideIcon; label: string; enabled: boolean }) {
+  const translateText = useTranslate();
   return (
     <div className="flex min-w-0 flex-col gap-2 p-4">
       <div className="text-muted-foreground flex items-center gap-2 text-xs">
         <Icon className="size-3.5" />
         {label}
       </div>
-      <Badge variant={enabled ? 'success' : 'outline'}>{enabled ? 'Enabled' : 'Disabled'}</Badge>
+      <Badge variant={enabled ? 'success' : 'outline'}>{enabled ? translateText("Enabled") : translateText("Disabled")}</Badge>
     </div>
   );
 }
@@ -188,7 +189,7 @@ export default function AppWithDeployment() {
                           <DropdownMenuContent align="end">
                             <AutoDeployment site={site}>
                               <DropdownMenuItem onSelect={(e) => e.preventDefault()} disabled={!site.source_control_id}>
-                                {site.auto_deploy ? 'Disable' : 'Enable'} {translateText("auto deploy")}
+                                {site.auto_deploy ? translateText("Disable") : translateText("Enable")} {translateText("auto deploy")}
                               </DropdownMenuItem>
                             </AutoDeployment>
                             {!site.modern_deployment && (
@@ -243,7 +244,7 @@ export default function AppWithDeployment() {
                               onClick={() => setShowLog((prev) => !prev)}
                             >
                               {showLog ? <ChevronUpIcon className="size-3.5" /> : <ChevronDownIcon className="size-3.5" />}
-                              <span>{showLog ? 'Hide log' : 'Show log'}</span>
+                              <span>{showLog ? translateText("Hide log") : translateText("Show log")}</span>
                             </Button>
 
                             <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 text-xs cursor-pointer">
@@ -271,8 +272,8 @@ export default function AppWithDeployment() {
                       {showLog && (
                         <Card className="overflow-hidden border">
                           <LogOutput className="h-64 w-full rounded-none border-0 p-4 font-mono text-xs">
-                            {isLoading && 'Loading deployment output...'}
-                            {!isLoading && (content || (activeDeployment.status === 'deploying' ? 'Waiting for output...' : 'No output was recorded.'))}
+                            {isLoading && translateText("Loading deployment output...")}
+                            {!isLoading && (content || (activeDeployment.status === 'deploying' ? translateText("Waiting for output...") : translateText("No output was recorded.")))}
                           </LogOutput>
                         </Card>
                       )}
@@ -288,7 +289,7 @@ export default function AppWithDeployment() {
                       >
                         <div className="min-w-0 flex-1">
                           <p className="text-muted-foreground text-xs">{translateText("Latest deployment · #")}{latestDeployment.id}</p>
-                          <p className="break-words font-medium">{latestDeployment.commit_data?.message || latestDeployment.commit_id_short || 'Deployment'}</p>
+                          <p className="break-words font-medium">{latestDeployment.commit_data?.message || latestDeployment.commit_id_short || translateText("Deployment")}</p>
                         </div>
                         <Badge variant={latestDeployment.status_color}>{latestDeployment.status}</Badge>
                         <DateTime date={latestDeployment.created_at} relative className="text-muted-foreground text-xs" />
@@ -353,7 +354,7 @@ export default function AppWithDeployment() {
                       <p className="text-muted-foreground px-4 py-6 text-center text-sm">{translateText("No background processes yet.")}</p>
                     )}
                     {(page.props.overviewWorkersCount ?? 0) > (page.props.overviewWorkers?.length ?? 0) && (
-                      <p className="text-muted-foreground px-4 py-2 text-xs">Showing 3 of {page.props.overviewWorkersCount}</p>
+                      <p className="text-muted-foreground px-4 py-2 text-xs">{translateText('Showing 3 of :total', { total: page.props.overviewWorkersCount })}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -388,7 +389,7 @@ export default function AppWithDeployment() {
                       <p className="text-muted-foreground px-4 py-6 text-center text-sm">{translateText("No scheduled jobs yet.")}</p>
                     )}
                     {(page.props.overviewCronJobsCount ?? 0) > (page.props.overviewCronJobs?.length ?? 0) && (
-                      <p className="text-muted-foreground px-4 py-2 text-xs">Showing 3 of {page.props.overviewCronJobsCount}</p>
+                      <p className="text-muted-foreground px-4 py-2 text-xs">{translateText('Showing 3 of :total', { total: page.props.overviewCronJobsCount })}</p>
                     )}
                   </CardContent>
                 </Card>

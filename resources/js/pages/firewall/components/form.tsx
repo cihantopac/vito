@@ -70,8 +70,8 @@ export default function RuleForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{firewallRule ? 'Edit' : 'Create'} {translateText('firewall rule')}</DialogTitle>
-          <DialogDescription className="sr-only">{firewallRule ? 'Edit' : 'Create new'} {translateText('firewall rule')}</DialogDescription>
+          <DialogTitle>{firewallRule ? translateText("Edit") : translateText("Create")} {translateText('firewall rule')}</DialogTitle>
+          <DialogDescription className="sr-only">{firewallRule ? translateText("Edit") : translateText("Create new")} {translateText('firewall rule')}</DialogDescription>
         </DialogHeader>
         <Form id="firewall-rule-form" onSubmit={submit} className="p-4">
           <FormFields>

@@ -39,13 +39,13 @@ export default function WorkerIndex() {
 
   return (
     <ServerLayout>
-      <Head title={`Workers - ${page.props.server.name}`} />
+      <Head title={translateText("Workers - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
           <Heading
             title={translateText('Workers')}
-            description={page.props.site ? `Here you can manage ${page.props.site.domain}'s workers` : "Here you can manage server's workers"}
+            description={page.props.site ? `Here you can manage ${page.props.site.domain}'s workers` : translateText("Here you can manage server's workers")}
           />
           {page.props.server.services?.process_manager && <div className="flex items-center gap-2">
             <DropdownMenu>
@@ -60,7 +60,7 @@ export default function WorkerIndex() {
                   onSelect={() =>
                     dialog.confirm.open({
                       title: 'Resync workers',
-                      description: `Fetch the live status of ${scopeLabel} from the process manager and update Pure. Continue?`,
+                      description: translateText("Fetch the live status of :value from the process manager and update Pure. Continue?", { value: scopeLabel }),
                       confirmLabel: 'Resync',
                       method: 'post',
                       url: `/servers/${scope.server}/workers/resync${scope.site ? `/${scope.site}` : ''}`,
@@ -68,13 +68,13 @@ export default function WorkerIndex() {
                   }
                 >
                   <RefreshCwIcon />
-                  Resync
+                  {translateText("Resync")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() =>
                     dialog.confirm.open({
                       title: 'Restart all workers',
-                      description: `Are you sure you want to restart ${scopeLabel}?`,
+                      description: translateText("Are you sure you want to restart :value?", { value: scopeLabel }),
                       confirmLabel: 'Restart All',
                       method: 'post',
                       url: `/servers/${scope.server}/workers/restart-all${scope.site ? `/${scope.site}` : ''}`,
@@ -82,7 +82,7 @@ export default function WorkerIndex() {
                   }
                 >
                   <RotateCwIcon />
-                  Restart All
+                  {translateText("Restart All")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

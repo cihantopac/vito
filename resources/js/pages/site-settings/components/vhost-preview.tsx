@@ -40,8 +40,8 @@ export default function VHostPreview({ site, children }: { site: Site; children:
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="sm:max-w-5xl">
         <SheetHeader>
-          <SheetTitle>Generated VHost</SheetTitle>
-          <SheetDescription className="sr-only">Read-only view of the deployed vhost config.</SheetDescription>
+          <SheetTitle>{translateText("Generated VHost")}</SheetTitle>
+          <SheetDescription className="sr-only">{translateText("Read-only view of the deployed vhost config.")}</SheetDescription>
         </SheetHeader>
         <div className="h-full">
           {query.isSuccess ? (

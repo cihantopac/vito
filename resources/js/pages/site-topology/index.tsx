@@ -30,12 +30,12 @@ export default function SiteTopology() {
 
   return (
     <ServerLayout>
-      <Head title={`Topology - ${site.domain}`} />
+      <Head title={translateText("Topology - :value", { value: site.domain })} />
       <Container className="gap-6">
         <HeaderContainer>
           <Heading
             title={translateText('Infrastructure Topology')}
-            description="Interactive diagram of domain routing, runtime environment, connected databases, cache, storage, and background workers."
+            description={translateText("Interactive diagram of domain routing, runtime environment, connected databases, cache, storage, and background workers.")}
           />
           {site.status !== 'installation_failed' && <SiteBanners site={site} compact />}
         </HeaderContainer>

@@ -66,18 +66,18 @@ export default function PhpExtensionsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Install extension</DialogTitle>
-          <DialogDescription className="sr-only">Install php extension</DialogDescription>
+          <DialogTitle>{translateText("Install extension")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Install php extension")}</DialogDescription>
         </DialogHeader>
         <Form id="install-extension-form" className="p-4" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label>Installed extensions</Label>
+              <Label>{translateText("Installed extensions")}</Label>
               {query.isPending ? (
-                <p role="status" className="text-sm text-muted-foreground">Loading installed extensions…</p>
+                <p role="status" className="text-sm text-muted-foreground">{translateText("Loading installed extensions…")}</p>
               ) : query.isError ? (
                 <div role="alert" className="flex items-center gap-2">
-                  <p className="text-sm text-destructive">Could not load installed extensions.</p>
+                  <p className="text-sm text-destructive">{translateText("Could not load installed extensions.")}</p>
                   <Button type="button" variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
                     {translateText('Retry')}
                   </Button>
@@ -89,16 +89,16 @@ export default function PhpExtensionsDialog({
               )}
             </FormField>
             <FormField>
-              <Label htmlFor="extension">Extension</Label>
+              <Label htmlFor="extension">{translateText("Extension")}</Label>
               <Select value={form.data.extension} onValueChange={(value) => form.setData('extension', value)} disabled={!query.isSuccess}>
                 <SelectTrigger id="extension">
-                  <SelectValue placeholder="Select an extension" />
+                  <SelectValue placeholder={translateText("Select an extension")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {availableExtensions.map((extension: string) => (
                       <SelectItem key={`extension-${extension}`} value={extension} disabled={installedExtensions.includes(extension) || service.type_data?.extensions?.includes(extension)}>
-                        {extension} {installedExtensions.includes(extension) && <span>(installed)</span>}
+                        {extension} {installedExtensions.includes(extension) && <span>{translateText("(installed)")}</span>}
                       </SelectItem>
                     ))}
                   </SelectGroup>

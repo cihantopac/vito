@@ -63,14 +63,14 @@ export default function StartCommand({ site, children }: { site: Site; children:
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Update Start Command</DialogTitle>
-          <DialogDescription>The shell command supervisor uses to start your application worker.</DialogDescription>
+          <DialogTitle>{translateText("Update Start Command")}</DialogTitle>
+          <DialogDescription>{translateText("The shell command supervisor uses to start your application worker.")}</DialogDescription>
         </DialogHeader>
 
         <Form id="start-command-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="start_command">Start Command</Label>
+              <Label htmlFor="start_command">{translateText("Start Command")}</Label>
               <Input
                 id="start_command"
                 type="text"
@@ -79,7 +79,7 @@ export default function StartCommand({ site, children }: { site: Site; children:
                 onChange={(e) => form.setData('start_command', e.target.value)}
               />
               {!hasWorker && (
-                <p className="text-muted-foreground text-xs">The application worker will be created with this command on the next deploy.</p>
+                <p className="text-muted-foreground text-xs">{translateText("The application worker will be created with this command on the next deploy.")}</p>
               )}
               <InputError message={form.errors.start_command} />
             </FormField>
@@ -98,14 +98,14 @@ export default function StartCommand({ site, children }: { site: Site; children:
                     selected={form.data.apply === 'config'}
                     onSelect={(value) => form.setData('apply', value as ApplyChoice)}
                     title={translateText("Update config only")}
-                    description="The worker keeps running its current command. The change takes effect on the next restart or deploy."
+                    description={translateText("The worker keeps running its current command. The change takes effect on the next restart or deploy.")}
                   />
                   <RadioCard
                     value="restart"
                     selected={form.data.apply === 'restart'}
                     onSelect={(value) => form.setData('apply', value as ApplyChoice)}
                     title={translateText("Update and restart now")}
-                    description="Rewrites the config and restarts the worker immediately so the new command takes effect right away."
+                    description={translateText("Rewrites the config and restarts the worker immediately so the new command takes effect right away.")}
                   />
                 </RadioGroup>
               </FormField>

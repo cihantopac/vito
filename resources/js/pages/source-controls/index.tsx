@@ -110,7 +110,7 @@ export default function SourceControls() {
       <Head title={translateText("Source Controls")} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title={translateText("Source Controls")} description="Here you can manage all of the source control connections" />
+          <Heading title={translateText("Source Controls")} description={translateText("Here you can manage all of the source control connections")} />
           <div className="flex items-center gap-2">
             {githubAppInstalled && (
               <a href={"/admin/github-app/install"} title={translateText("Install GitHub App on an organization")}>
@@ -131,7 +131,7 @@ export default function SourceControls() {
             <SearchIcon className="text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 size-4" />
             <Input
               type="search"
-              placeholder="Search source controls..."
+              placeholder={translateText("Search source controls...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
@@ -146,7 +146,7 @@ export default function SourceControls() {
             }}
           >
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="All Providers" />
+              <SelectValue placeholder={translateText("All Providers")} />
             </SelectTrigger>
             <SelectContent>
               {page.props.providers?.map((p) => (
@@ -169,7 +169,7 @@ export default function SourceControls() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{translateText('All Projects')}</SelectItem>
-              <SelectItem value="global">Global Only</SelectItem>
+              <SelectItem value="global">{translateText("Global Only")}</SelectItem>
               {page.props.projects?.map((prj) => (
                 <SelectItem key={prj.id} value={String(prj.id)}>
                   {prj.name}

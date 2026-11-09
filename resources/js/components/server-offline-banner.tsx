@@ -23,8 +23,8 @@ export default function ServerOfflineBanner({ server }: { server: Server }) {
           size="sm"
           onClick={() =>
             dialog.confirm.open({
-              title: `Start ${server.name}?`,
-              description: `Power on this server via ${server.provider}? The server will boot up and reconnect.`,
+              title: translateText("Start :value?", { value: server.name }),
+              description: translateText("Power on this server via :value? The server will boot up and reconnect.", { value: server.provider }),
               confirmLabel: 'Start server',
               method: 'post',
               url: `/servers/${server.id}/start`,

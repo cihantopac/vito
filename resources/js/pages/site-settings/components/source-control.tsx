@@ -10,7 +10,7 @@ export default function ChangeSourceControl({ site, children }: { site: Site; ch
   const translateText = useTranslate();
   return (
     <FieldUpdateDialog
-      title="Change source control"
+      title={translateText("Change source control")}
       description="sr-only"
       initialValue={site.source_control_id?.toString() || ''}
       fieldName="source_control"

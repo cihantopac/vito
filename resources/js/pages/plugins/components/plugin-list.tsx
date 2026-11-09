@@ -63,7 +63,7 @@ export default function PluginList({ filter }: PluginListProps) {
                       {isOfficial ? (
                         <BadgeCheckIcon className="text-primary size-4" />
                       ) : (
-                        <Badge variant="outline">by {repo.owner.login}</Badge>
+                        <Badge variant="outline">{translateText("by")} {repo.owner.login}</Badge>
                       )}
                     </div>
                     <span className="text-muted-foreground text-xs">{repo.description}</span>

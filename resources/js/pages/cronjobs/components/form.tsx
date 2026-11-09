@@ -141,8 +141,8 @@ export default function CronJobForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{cronJob ? 'Edit' : 'Create'} {translateText("cron job")}</DialogTitle>
-          <DialogDescription className="sr-only">{cronJob ? 'Edit' : 'Create new'} {translateText("cron job")}</DialogDescription>
+          <DialogTitle>{cronJob ? translateText("Edit") : translateText("Create")} {translateText("cron job")}</DialogTitle>
+          <DialogDescription className="sr-only">{cronJob ? translateText("Edit") : translateText("Create new")} {translateText("cron job")}</DialogDescription>
         </DialogHeader>
         <Form id="cronjob-form" onSubmit={submit} className="min-h-0 overflow-y-auto p-4">
           <FormFields>

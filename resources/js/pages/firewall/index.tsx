@@ -30,7 +30,7 @@ export default function Firewall() {
 
   return (
     <ServerLayout>
-      <Head title={`Firewall - ${page.props.server.name}`} />
+      <Head title={translateText("Firewall - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>
@@ -72,7 +72,7 @@ export default function Firewall() {
             <div>
               <h2 className="text-base font-medium">{translateText("Private network rules")}</h2>
               <p className="text-muted-foreground text-sm">
-                These rules are applied by the private networks this server belongs to. They are read-only here &mdash; edit them from the network.
+                {translateText("These rules are applied by the private networks this server belongs to. They are read-only here — edit them from the network.")}
               </p>
             </div>
             <VitoTable tableData={page.props.networkRules} />

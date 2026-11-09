@@ -17,7 +17,7 @@ export default function CopyableBadge({ text, tooltip }: { text: string | null |
         </button>
       </TooltipTrigger>
       <TooltipContent side="top">
-        <span className="flex items-center space-x-2">{tooltip ? text : 'Copy'}</span>
+        <span className="flex items-center space-x-2">{tooltip ? text : translateText("Copy")}</span>
       </TooltipContent>
     </Tooltip>
   );

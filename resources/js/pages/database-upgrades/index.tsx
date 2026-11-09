@@ -69,7 +69,7 @@ export default function DatabaseUpgrades() {
 
   return (
     <ServerLayout>
-      <Head title={`Version upgrade - ${server.name}`} />
+      <Head title={translateText("Version upgrade - :value", { value: server.name })} />
 
       <Container>
         <HeaderContainer>
@@ -121,8 +121,8 @@ export default function DatabaseUpgrades() {
                       size="sm"
                       onClick={() =>
                         dialog.confirm.open({
-                          title: `Switch to ${upgrade.target_server_name}`,
-                          description: `${upgrade.source_server_name} stops taking writes now and its applications are disconnected. Point them at ${upgrade.target_server_name} once this finishes.`,
+                          title: translateText("Switch to :value", { value: (upgrade.target_server_name ?? '—') }),
+                          description: translateText(":value stops taking writes now and its applications are disconnected. Point them at :value2 once this finishes.", { value: (upgrade.source_server_name ?? '—'), value2: (upgrade.target_server_name ?? '—') }),
                           confirmLabel: 'Finish the upgrade',
                           method: 'post',
                           url: `/servers/${upgrade.source_server_id}/database-upgrades/${upgrade.id}/finish`,
@@ -139,7 +139,7 @@ export default function DatabaseUpgrades() {
 
             {upgrade.message && (
               <Alert variant={upgrade.state === 'failed' ? 'destructive' : 'default'}>
-                <AlertTitle>{upgrade.state === 'failed' ? 'The upgrade stopped' : 'Something needs attention'}</AlertTitle>
+                <AlertTitle>{upgrade.state === 'failed' ? translateText("The upgrade stopped") : translateText("Something needs attention")}</AlertTitle>
                 <AlertDescription>{upgrade.message}</AlertDescription>
               </Alert>
             )}
@@ -169,7 +169,7 @@ export default function DatabaseUpgrades() {
               <Card>
                 <CardContent className="flex flex-col gap-2 p-4 text-sm">
                   <div className="flex items-center justify-between gap-4">
-                    <span>{upgrade.step ?? 'Working…'}</span>
+                    <span>{upgrade.step ?? translateText("Working…")}</span>
                     {upgrade.progress !== null && <span className="text-muted-foreground">{upgrade.progress}%</span>}
                   </div>
                   {upgrade.progress !== null && <Progress value={upgrade.progress} />}
@@ -196,7 +196,7 @@ export default function DatabaseUpgrades() {
                   <p className="font-medium">{translateText('Activity')}</p>
                   {upgrade.target_server_id && (
                     <Button variant="outline" size="sm" onClick={showOutput} disabled={loadingOutput}>
-                      {loadingOutput ? 'Reading the copy output…' : 'Copy output'}
+                      {loadingOutput ? translateText("Reading the copy output…") : translateText("Copy output")}
                     </Button>
                   )}
                 </div>
@@ -229,7 +229,7 @@ export default function DatabaseUpgrades() {
                           key={log.id}
                           type="button"
                           className="flex items-center justify-between gap-4 rounded px-1 py-0.5 text-left hover:bg-accent"
-                          onClick={() => dialog.logViewer.open({ serverId: log.server_id, logId: log.id, title: `${log.name} on ${log.server_name ?? 'the server'}` })}
+                          onClick={() => dialog.logViewer.open({ serverId: log.server_id, logId: log.id, title: translateText(":value on :value2", { value: log.name, value2: log.server_name ?? 'the server' }) })}
                         >
                           <span className="font-mono text-xs">{log.name}</span>
                           <span className="text-muted-foreground shrink-0 text-xs">
@@ -255,7 +255,7 @@ export default function DatabaseUpgrades() {
                   onClick={() =>
                     dialog.confirm.open({
                       title: 'Cancel the upgrade',
-                      description: `Pure stops the copy, removes the publications, the replication user and the pg_hba rule from ${upgrade.source_server_name}, and lets it take writes again. ${upgrade.target_server_name ?? 'The new server'} is kept; delete it yourself when you no longer need it.`,
+                      description: translateText("Pure stops the copy, removes the publications, the replication user and the pg_hba rule from :value, and lets it take writes again. :value2 is kept; delete it yourself when you no longer need it.", { value: (upgrade.source_server_name ?? '—'), value2: upgrade.target_server_name ?? 'The new server' }),
                       confirmLabel: 'Cancel the upgrade',
                       method: 'post',
                       url: `/servers/${upgrade.source_server_id}/database-upgrades/${upgrade.id}/cancel`,

@@ -306,11 +306,11 @@ export function DataTable<TData, TValue>({
                           className="flex cursor-pointer items-center gap-2"
                           onClick={() => handleSort(sortKey)}
                         >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {typeof header.column.columnDef.header === 'string' ? translateText(header.column.columnDef.header) : flexRender(header.column.columnDef.header, header.getContext())}
                           <SortIndicator sortKey={sortKey} />
                         </button>
                       ) : (
-                        flexRender(header.column.columnDef.header, header.getContext())
+                        typeof header.column.columnDef.header === 'string' ? translateText(header.column.columnDef.header) : flexRender(header.column.columnDef.header, header.getContext())
                       )}
                     </TableHead>
                   );
@@ -347,8 +347,9 @@ export function DataTable<TData, TValue>({
             <div className="text-muted-foreground flex items-center text-sm">
               {paginatedData.meta.from && paginatedData.meta.to && (
                 <span>
-                  Showing {paginatedData.meta.from} to {paginatedData.meta.to}
-                  {paginatedData.meta.total && ` of ${paginatedData.meta.total}`} results
+                  {paginatedData.meta.total !== undefined
+                    ? translateText('Showing :from to :to of :total results', { from: paginatedData.meta.from, to: paginatedData.meta.to, total: paginatedData.meta.total })
+                    : translateText('Showing :from to :to', { from: paginatedData.meta.from, to: paginatedData.meta.to })}
                 </span>
               )}
             </div>

@@ -12,8 +12,8 @@ export default function Delete({ firewallRule }: { firewallRule: FirewallRule })
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete rule [${firewallRule.name}]`,
-          description: `Are you sure you want to delete rule ${firewallRule.name}? This action cannot be undone.`,
+          title: translateText("Delete rule [:value]", { value: firewallRule.name }),
+          description: translateText("Are you sure you want to delete rule :value? This action cannot be undone.", { value: firewallRule.name }),
           variant: 'destructive',
           confirmLabel: 'Delete',
           method: 'delete',

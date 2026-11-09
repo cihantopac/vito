@@ -12,7 +12,7 @@ export default function Delete({ sshKey }: { sshKey: SshKey }) {
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete ${sshKey.name}`,
+          title: translateText("Delete :value", { value: sshKey.name }),
           description: 'Are you sure you want to delete this key?',
           variant: 'destructive',
           confirmLabel: 'Delete',

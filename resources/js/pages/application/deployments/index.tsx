@@ -69,10 +69,10 @@ export default function DeploymentsIndex() {
 
   return (
     <ServerLayout>
-      <Head title={`Deployments - ${site.domain}`} />
+      <Head title={translateText("Deployments - :value", { value: site.domain })} />
       <Container className="flex flex-col gap-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <Heading title={translateText('Deployments')} description={`Complete deployment history for ${site.domain}.`} />
+          <Heading title={translateText('Deployments')} description={translateText("Complete deployment history for :value.", { value: site.domain })} />
           <Deploy site={site} />
         </div>
 
@@ -90,7 +90,7 @@ export default function DeploymentsIndex() {
                     onClick={() => setShowLog((prev) => !prev)}
                   >
                     {showLog ? <ChevronUpIcon className="size-3.5" /> : <ChevronDownIcon className="size-3.5" />}
-                    <span>{showLog ? 'Hide log' : 'Show log'}</span>
+                    <span>{showLog ? translateText("Hide log") : translateText("Show log")}</span>
                   </Button>
 
                   <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 text-xs cursor-pointer">
@@ -119,8 +119,8 @@ export default function DeploymentsIndex() {
             {showLog && (
               <Card className="overflow-hidden border">
                 <LogOutput className="h-64 w-full rounded-none border-0 p-4 font-mono text-xs">
-                  {isLoading && 'Loading deployment output...'}
-                  {!isLoading && (content || (activeDeployment.status === 'deploying' ? 'Waiting for output...' : 'No output was recorded.'))}
+                  {isLoading && translateText("Loading deployment output...")}
+                  {!isLoading && (content || (activeDeployment.status === 'deploying' ? translateText("Waiting for output...") : translateText("No output was recorded.")))}
                 </LogOutput>
               </Card>
             )}

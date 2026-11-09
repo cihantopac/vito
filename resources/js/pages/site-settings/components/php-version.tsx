@@ -10,7 +10,7 @@ export default function ChangePHPVersion({ site, children }: { site: Site; child
   const translateText = useTranslate();
   return (
     <FieldUpdateDialog
-      title="Change PHP version"
+      title={translateText("Change PHP version")}
       description="sr-only"
       initialValue={site.php_version || ''}
       fieldName="version"

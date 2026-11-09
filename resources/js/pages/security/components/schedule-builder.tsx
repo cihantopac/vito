@@ -44,8 +44,8 @@ export default function ScheduleBuilder({ value, onChange }: { value: Parsed; on
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
+              <SelectItem value="daily">{translateText("Daily")}</SelectItem>
+              <SelectItem value="weekly">{translateText("Weekly")}</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -53,7 +53,7 @@ export default function ScheduleBuilder({ value, onChange }: { value: Parsed; on
 
       {value.frequency === 'weekly' && (
         <div className="flex flex-col gap-2">
-          <Label htmlFor="weekday">Day</Label>
+          <Label htmlFor="weekday">{translateText("Day")}</Label>
           <Select value={value.weekday} onValueChange={(weekday) => onChange({ ...value, weekday })}>
             <SelectTrigger id="weekday" className="w-full">
               <SelectValue />
@@ -72,7 +72,7 @@ export default function ScheduleBuilder({ value, onChange }: { value: Parsed; on
       )}
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="time">Time (UTC)</Label>
+        <Label htmlFor="time">{translateText("Time (UTC)")}</Label>
         <Input
           id="time"
           type="time"

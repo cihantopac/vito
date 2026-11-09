@@ -156,10 +156,10 @@ export default function PeerConfigDialog({
                   <AlertDescription>
                     <p>
                       {byo
-                        ? 'This peer uses a key you provided, so Pure never had its private key.'
-                        : 'This private key was concealed and cannot be shown again.'}{' '}
+                        ? translateText("This peer uses a key you provided, so Pure never had its private key.")
+                        : translateText("This private key was concealed and cannot be shown again.")}{' '}
                       {translateText("Set the")} <span className="font-mono">PrivateKey</span> {translateText("line below to the peer's own private key")}
-                      {byo ? '.' : ', or regenerate the peer keys to issue a new one.'}
+                      {byo ? '.' : translateText(", or regenerate the peer keys to issue a new one.")}
                     </p>
                   </AlertDescription>
                 </Alert>

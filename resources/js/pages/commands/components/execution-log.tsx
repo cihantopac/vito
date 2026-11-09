@@ -55,9 +55,9 @@ export default function ExecutionLog({ execution, initiallyOpen = false }: { exe
           </div>
         )}
         <LogOutput className="h-80 rounded-none border-0">
-          {isLoading && 'Loading output...'}
+          {isLoading && translateText("Loading output...")}
           {error && <span className="text-destructive">{error}</span>}
-          {!isLoading && !error && (content || (execution.status === 'executing' ? 'Waiting for output...' : 'No output was recorded.'))}
+          {!isLoading && !error && (content || (execution.status === 'executing' ? translateText("Waiting for output...") : translateText("No output was recorded.")))}
         </LogOutput>
       </CollapsibleContent>
     </Collapsible>

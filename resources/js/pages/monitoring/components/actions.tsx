@@ -29,7 +29,7 @@ export default function Actions({ server }: { server: Server }) {
           onSelect={() =>
             dialog.confirm.open({
               title: 'Reset metrics',
-              description: `Are you sure you want to reset metrics? This will delete all existing monitoring metrics data for server ${server.name} and cannot be undone.`,
+              description: translateText("Are you sure you want to reset metrics? This will delete all existing monitoring metrics data for server :value and cannot be undone.", { value: server.name }),
               variant: 'destructive',
               confirmLabel: 'Reset',
               method: 'delete',

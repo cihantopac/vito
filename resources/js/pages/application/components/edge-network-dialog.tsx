@@ -149,16 +149,16 @@ export default function EdgeNetworkDialog({
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm">
-                  {hasCloudflare ? connectedCloudflare?.name || 'Cloudflare' : 'No Edge Provider'}
+                  {hasCloudflare ? connectedCloudflare?.name || 'Cloudflare' : translateText("No Edge Provider")}
                 </span>
                 <Badge variant={hasCloudflare ? 'default' : 'outline'} className="text-[10px] h-4 px-1.5 font-normal">
-                  {hasCloudflare ? 'Active' : 'Disabled'}
+                  {hasCloudflare ? translateText("Active") : translateText("Disabled")}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {hasCloudflare
-                  ? 'DDoS protection & CDN caching active'
-                  : 'Traffic reaches server directly without edge proxy'}
+                  ? translateText("DDoS protection & CDN caching active")
+                  : translateText("Traffic reaches server directly without edge proxy")}
               </p>
             </div>
 
@@ -216,13 +216,13 @@ export default function EdgeNetworkDialog({
                         <div className="flex items-center gap-2.5">
                           {isUpdating && <LoaderCircleIcon className="size-3.5 animate-spin text-muted-foreground" />}
                           <span className={isProxied ? 'text-xs font-medium text-foreground' : 'text-xs text-muted-foreground'}>
-                            {!isKnown ? 'Not checked' : isProxied ? 'Protected' : 'DNS only'}
+                            {!isKnown ? translateText("Not checked") : isProxied ? translateText("Protected") : translateText("DNS only")}
                           </span>
                           <Switch
                             checked={isProxied}
                             disabled={isUpdating || !isKnown}
                             onCheckedChange={() => handleToggleProxy(item.domain, isProxied)}
-                            aria-label={`Toggle protection for ${item.domain}`}
+                            aria-label={translateText("Toggle protection for :value", { value: item.domain })}
                           />
                         </div>
                       ) : (

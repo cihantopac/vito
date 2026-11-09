@@ -31,7 +31,7 @@ export default function NetworkServers() {
 
   return (
     <NetworkLayout>
-      <Head title={`Servers - ${network.name}`} />
+      <Head title={translateText("Servers - :value", { value: network.name })} />
 
       <Container>
         <HeaderContainer>
@@ -41,7 +41,7 @@ export default function NetworkServers() {
               variant="outline"
               onClick={() =>
                 dialog.confirm.open({
-                  title: `Sync network [${network.name}]`,
+                  title: translateText("Sync network [:value]", { value: network.name }),
                   description: isManaged
                     ? "Query the provider and update this network's members to match. The network is removed if it no longer exists at the provider."
                     : 'Re-apply configuration to every server in this network.',

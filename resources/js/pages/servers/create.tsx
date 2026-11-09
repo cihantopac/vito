@@ -132,7 +132,7 @@ function AddService() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{translateText("Add service")}</DialogTitle>
-          <DialogDescription className="sr-only">Add a new service to server installation</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Add a new service to server installation")}</DialogDescription>
         </DialogHeader>
 
         <Form id="add-service-form" onSubmit={add} className="p-4">
@@ -148,7 +148,7 @@ function AddService() {
                 }}
               >
                 <SelectTrigger id="name">
-                  <SelectValue placeholder="Select a service" />
+                  <SelectValue placeholder={translateText("Select a service")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -598,13 +598,13 @@ export default function CreateServerPage({
             <Button variant="ghost" size="sm" asChild className="h-7 px-2 -ml-2 text-muted-foreground hover:text-foreground">
               <Link href={"/servers"}>
                 <ArrowLeftIcon className="mr-1 size-3.5" />
-                Back to servers
+                {translateText("Back to servers")}
               </Link>
             </Button>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">{translateText('Create new server')}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Connect a pre-existing server or deploy a new instance on your cloud provider.
+            {translateText("Connect a pre-existing server or deploy a new instance on your cloud provider.")}
           </p>
         </div>
 
@@ -653,7 +653,7 @@ export default function CreateServerPage({
               {form.errors.provider && (
                 <Alert variant="destructive">
                   <TriangleAlertIcon />
-                  <AlertTitle>Server connection failed</AlertTitle>
+                  <AlertTitle>{translateText("Server connection failed")}</AlertTitle>
                   <AlertDescription>{form.errors.provider}</AlertDescription>
                 </Alert>
               )}
@@ -661,12 +661,12 @@ export default function CreateServerPage({
               {step === 0 && (
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Connection Type</Label>
+                    <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{translateText("Connection Type")}</Label>
                     <Tabs value={providerMode} onValueChange={(value) => selectProviderMode(value as 'cloud' | 'custom' | 'existing')}>
                       <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="cloud">{translateText("Cloud Provider")}</TabsTrigger>
-                        <TabsTrigger value="custom">Custom Server</TabsTrigger>
-                        <TabsTrigger value="existing">Existing Server</TabsTrigger>
+                        <TabsTrigger value="custom">{translateText("Custom Server")}</TabsTrigger>
+                        <TabsTrigger value="existing">{translateText("Existing Server")}</TabsTrigger>
                       </TabsList>
                     </Tabs>
                   </div>
@@ -676,9 +676,9 @@ export default function CreateServerPage({
                       {providers.length === 0 ? (
                         <div className="rounded-xl border border-dashed p-6 text-center">
                           <ServerIcon className="mx-auto size-8 text-muted-foreground/60 mb-2" />
-                          <p className="text-sm font-medium text-foreground">No cloud providers connected</p>
+                          <p className="text-sm font-medium text-foreground">{translateText("No cloud providers connected")}</p>
                           <p className="text-xs text-muted-foreground mt-1 mb-4">
-                            Connect your cloud provider account (Hetzner, DigitalOcean, AWS, etc.) to deploy servers.
+                            {translateText("Connect your cloud provider account (Hetzner, DigitalOcean, AWS, etc.) to deploy servers.")}
                           </p>
                           <ConnectServerProvider
                             defaultProvider="hetzner"
@@ -686,7 +686,7 @@ export default function CreateServerPage({
                           >
                             <Button type="button">
                               <PlusIcon className="mr-1.5 size-4" />
-                              Connect Cloud Provider
+                              {translateText("Connect Cloud Provider")}
                             </Button>
                           </ConnectServerProvider>
                           <InputError message={form.errors.server_provider} className="mt-2 text-center" />
@@ -702,7 +702,7 @@ export default function CreateServerPage({
                               >
                                 <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1.5 cursor-pointer">
                                   <PlusIcon className="size-3.5" />
-                                  <span>Connect new</span>
+                                  <span>{translateText("Connect new")}</span>
                                 </Button>
                               </ConnectServerProvider>
                             </div>
@@ -716,13 +716,13 @@ export default function CreateServerPage({
                                   className="w-full justify-between font-normal"
                                 >
                                   {providers.find((p) => p.id === form.data.server_provider)?.name ||
-                                    'Select cloud provider...'}
+                                    translateText("Select cloud provider...")}
                                   <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
                                 <Command>
-                                  <CommandInput placeholder="Search provider..." />
+                                  <CommandInput placeholder={translateText("Search provider...")} />
                                   <CommandList>
                                     <CommandGroup>
                                       {providers.map((provider) => (
@@ -765,7 +765,7 @@ export default function CreateServerPage({
                                   onClick={() => form.data.server_provider && fetchRegions(form.data.server_provider, form.data.provider)}
                                   disabled={regionLoading}
                                 >
-                                  {regionLoading ? <LoaderCircle className="size-3 animate-spin" /> : 'Retry'}
+                                  {regionLoading ? <LoaderCircle className="size-3 animate-spin" /> : translateText("Retry")}
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -791,7 +791,7 @@ export default function CreateServerPage({
                               >
                                 <span className="flex items-center gap-2">
                                   <LoaderCircle className="size-4 animate-spin" />
-                                  Loading regions...
+                                  {translateText("Loading regions...")}
                                 </span>
                               </Button>
                             ) : Object.keys(regions).length === 0 ? (
@@ -802,7 +802,7 @@ export default function CreateServerPage({
                                 disabled
                                 className="w-full justify-between font-normal text-muted-foreground"
                               >
-                                <span>No regions available</span>
+                                <span>{translateText("No regions available")}</span>
                               </Button>
                             ) : isHetzner ? (
                               <HetznerRegionSelect
@@ -824,13 +824,13 @@ export default function CreateServerPage({
                                     className="w-full justify-between font-normal"
                                     disabled={form.data.server_provider === 0}
                                   >
-                                    {form.data.region ? regions[form.data.region] || form.data.region : 'Select region'}
+                                    {form.data.region ? regions[form.data.region] || form.data.region : translateText("Select region")}
                                     <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
                                   <Command>
-                                    <CommandInput placeholder="Search region..." />
+                                    <CommandInput placeholder={translateText("Search region...")} />
                                     <CommandList>
                                       <CommandGroup>
                                         {Object.entries(regions).map(([key, value]) => (
@@ -861,7 +861,7 @@ export default function CreateServerPage({
                           </FormField>
 
                           <FormField>
-                            <Label htmlFor="plan">Server Plan</Label>
+                            <Label htmlFor="plan">{translateText("Server Plan")}</Label>
                             {!form.data.region ? (
                               <Button
                                 type="button"
@@ -870,7 +870,7 @@ export default function CreateServerPage({
                                 disabled
                                 className="w-full justify-between font-normal text-muted-foreground"
                               >
-                                <span>Select a region first</span>
+                                <span>{translateText("Select a region first")}</span>
                               </Button>
                             ) : planLoading ? (
                               <Button
@@ -882,7 +882,7 @@ export default function CreateServerPage({
                               >
                                 <span className="flex items-center gap-2">
                                   <LoaderCircle className="size-4 animate-spin" />
-                                  Loading plans...
+                                  {translateText("Loading plans...")}
                                 </span>
                               </Button>
                             ) : Object.keys(plans).length === 0 ? (
@@ -893,7 +893,7 @@ export default function CreateServerPage({
                                 disabled
                                 className="w-full justify-between font-normal text-muted-foreground"
                               >
-                                <span>No plans available</span>
+                                <span>{translateText("No plans available")}</span>
                               </Button>
                             ) : isHetzner ? (
                               <HetznerPlanSelect
@@ -918,13 +918,13 @@ export default function CreateServerPage({
                                       ? plans[form.data.plan]
                                         ? normalizePlan(plans[form.data.plan]).label
                                         : form.data.plan
-                                      : 'Select plan'}
+                                      : translateText("Select plan")}
                                     <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
                                   <Command>
-                                    <CommandInput placeholder="Search plan..." />
+                                    <CommandInput placeholder={translateText("Search plan...")} />
                                     <CommandList>
                                       <CommandGroup>
                                         {Object.entries(plans).map(([key, value]) => {
@@ -966,7 +966,7 @@ export default function CreateServerPage({
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                         <FormField className="sm:col-span-3">
-                          <Label htmlFor="ip">IP Address</Label>
+                          <Label htmlFor="ip">{translateText("IP Address")}</Label>
                           <Input
                             id="ip"
                             placeholder="e.g. 192.168.1.100"
@@ -990,7 +990,7 @@ export default function CreateServerPage({
 
                       {isExisting && (
                         <FormField>
-                          <Label htmlFor="ssh_user">SSH User</Label>
+                          <Label htmlFor="ssh_user">{translateText("SSH User")}</Label>
                           <Input
                             id="ssh_user"
                             placeholder="e.g. deploy"
@@ -999,7 +999,7 @@ export default function CreateServerPage({
                             autoComplete="username"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Use the account where you added Vito&apos;s public SSH key. Root is not required.
+                            {translateText("Use the account where you added Vito's public SSH key. Root is not required.")}
                           </p>
                           <InputError message={form.errors.ssh_user} />
                         </FormField>
@@ -1008,7 +1008,7 @@ export default function CreateServerPage({
                       {publicKey && (
                         <div className="space-y-1.5 rounded-xl border bg-muted/40 p-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-foreground">Pure Public SSH Key</span>
+                            <span className="text-xs font-semibold text-foreground">{translateText("Pure Public SSH Key")}</span>
                             <Button
                               type="button"
                               variant="outline"
@@ -1024,7 +1024,7 @@ export default function CreateServerPage({
                               ) : (
                                 <>
                                   <ClipboardIcon className="size-3" />
-                                  <span>Copy Command</span>
+                                  <span>{translateText("Copy Command")}</span>
                                 </>
                               )}
                             </Button>
@@ -1042,7 +1042,7 @@ export default function CreateServerPage({
               {step === 1 && (
                 <div className="space-y-5">
                   <div>
-                    <Label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Environment / Stage</Label>
+                    <Label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{translateText("Environment / Stage")}</Label>
                     <div className="mt-1.5 grid grid-cols-3 gap-2">
                       {(['prod', 'beta', 'alfa'] as const).map((s) => (
                         <button
@@ -1077,7 +1077,7 @@ export default function CreateServerPage({
               {step === 2 && (
                 <div className="space-y-5">
                   <div className="bg-muted/40 flex flex-wrap items-center gap-2 rounded-xl border p-3 text-xs">
-                    <span className="font-semibold text-foreground">{form.data.name || 'Unnamed'}</span>
+                    <span className="font-semibold text-foreground">{form.data.name || translateText("Unnamed")}</span>
                     <span className="text-muted-foreground">•</span>
                     <span className="text-muted-foreground uppercase">{form.data.stage}</span>
                     <span className="text-muted-foreground">•</span>
@@ -1095,7 +1095,7 @@ export default function CreateServerPage({
                   <div>
                     <Label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{translateText("Server Role")}</Label>
                     {!roleConfirmed && (
-                      <div className="text-muted-foreground mt-1 text-xs">Confirm the role for this server before continuing.</div>
+                      <div className="text-muted-foreground mt-1 text-xs">{translateText("Confirm the role for this server before continuing.")}</div>
                     )}
                     <div className="mt-1.5 grid grid-cols-5 gap-1.5">
                       {(['app', 'database', 'queue', 'cache', 'custom'] as const).map((r) => (
@@ -1200,7 +1200,7 @@ export default function CreateServerPage({
                 ) : (
                   <Button type="button" onClick={createServer} disabled={form.processing || !roleConfirmed}>
                     {form.processing && <LoaderCircle className="mr-1.5 animate-spin size-4" />}
-                    {isExisting ? 'Connect Server' : 'Create Server'}
+                    {isExisting ? translateText("Connect Server") : translateText("Create Server")}
                   </Button>
                 )}
               </div>

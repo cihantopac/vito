@@ -60,7 +60,7 @@ export default function DeploymentScript({
       <SheetContent className="sm:max-w-5xl">
         <SheetHeader>
           <SheetTitle className="capitalize">{script.name} {translateText("script")}</SheetTitle>
-          <SheetDescription>{description || 'Update script'}</SheetDescription>
+          <SheetDescription>{description || translateText("Update script")}</SheetDescription>
         </SheetHeader>
         <Form id="update-script-form" className="relative h-full flex-col gap-0" onSubmit={submit}>
           <div className="relative flex-1">

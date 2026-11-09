@@ -39,7 +39,7 @@ export default function ServerProviderEditDialog({
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{translateText('Edit')} {serverProvider.name}</DialogTitle>
-          <DialogDescription className="sr-only">Edit server provider</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Edit server provider")}</DialogDescription>
         </DialogHeader>
         <Form id="edit-server-provider-form" className="p-4" onSubmit={submit}>
           <FormFields>

@@ -147,15 +147,15 @@ export default function WorkerForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{worker ? 'Edit' : 'Create'} worker</DialogTitle>
-          <DialogDescription className="sr-only">{worker ? 'Edit' : 'Create new'} worker</DialogDescription>
+          <DialogTitle>{worker ? translateText("Edit") : translateText("Create")} worker</DialogTitle>
+          <DialogDescription className="sr-only">{worker ? translateText("Edit") : translateText("Create new")} worker</DialogDescription>
         </DialogHeader>
         <Form id="worker-form" onSubmit={submit} className="p-4">
           <FormFields>
             {!worker && (
               <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs font-medium text-foreground">Preset Templates</Label>
+                  <Label className="text-xs font-medium text-foreground">{translateText("Preset Templates")}</Label>
                   {selectedTemplate && (
                     <Button
                       type="button"
@@ -219,38 +219,38 @@ export default function WorkerForm({
             </FormField>
 
             <FormField>
-              <Label htmlFor="directory">Directory</Label>
+              <Label htmlFor="directory">{translateText("Directory")}</Label>
               <Input
                 type="text"
                 id="directory"
                 value={form.data.directory}
                 onChange={(e) => form.setData('directory', e.target.value)}
-                placeholder={site ? site.path : '/path/to/directory (optional)'}
+                placeholder={site ? site.path : translateText("/path/to/directory (optional)")}
               />
               <p className="text-muted-foreground text-xs">
-                {site ? `Optional. Leave blank to run in the site root directory (${site.path}).` : 'Optional. Leave blank to run in the default directory.'}
+                {site ? `Optional. Leave blank to run in the site root directory (${site.path}).` : translateText("Optional. Leave blank to run in the default directory.")}
               </p>
               <InputError message={form.errors.directory} />
             </FormField>
 
             {site && !worker && (
               <FormField>
-                <Label htmlFor="target_server_id">Run on</Label>
+                <Label htmlFor="target_server_id">{translateText("Run on")}</Label>
                 <Select
                   value={form.data.target_server_id || '__home__'}
                   onValueChange={(value) => form.setData('target_server_id', value === '__home__' ? '' : value)}
                   disabled={targetServersQuery.isFetching}
                 >
                   <SelectTrigger id="target_server_id">
-                    <SelectValue placeholder={targetServersQuery.isFetching ? 'Loading...' : 'Select where this worker runs'} />
+                    <SelectValue placeholder={targetServersQuery.isFetching ? translateText("Loading...") : translateText("Select where this worker runs")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="__home__">{page.props.server.name} (this site's server)</SelectItem>
+                      <SelectItem value="__home__">{page.props.server.name} {translateText("(this site's server)")}</SelectItem>
                       {targetServers.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id.toString()} disabled={!candidate.has_process_manager}>
                           {candidate.name} · {candidate.ip}
-                          {!candidate.has_process_manager ? ' (no process manager installed)' : ''}
+                          {!candidate.has_process_manager ? translateText(" (no process manager installed)") : ''}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -260,14 +260,13 @@ export default function WorkerForm({
                 {runningExternally && (
                   <Alert>
                     <AlertDescription>
-                      The site's code will be synced to this server (cloned, dependencies installed) before the worker starts, and kept up to date
-                      on every deploy.
+                      {translateText("The site's code will be synced to this server (cloned, dependencies installed) before the worker starts, and kept up to date on every deploy.")}
                     </AlertDescription>
                   </Alert>
                 )}
                 {targetServers.length === 0 && !targetServersQuery.isFetching && (
                   <p className="text-muted-foreground text-xs">
-                    No dedicated queue servers in this project yet. Create one with the "Queue" role to run workers elsewhere.
+                    {translateText("No dedicated queue servers in this project yet. Create one with the \"Queue\" role to run workers elsewhere.")}
                   </p>
                 )}
               </FormField>
@@ -282,7 +281,7 @@ export default function WorkerForm({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="0">Server (no site)</SelectItem>
+                      <SelectItem value="0">{translateText("Server (no site)")}</SelectItem>
                       {page.props.sites.map((siteOption) => (
                         <SelectItem key={`site-${siteOption.id}`} value={siteOption.id.toString()}>
                           {siteOption.domain}
@@ -330,7 +329,7 @@ export default function WorkerForm({
               <FormField>
                 <div className="flex items-center space-x-2">
                   <Switch id="auto_start" checked={form.data.auto_start} onCheckedChange={(value) => form.setData('auto_start', value)} />
-                  <Label htmlFor="auto_start">Auto start</Label>
+                  <Label htmlFor="auto_start">{translateText("Auto start")}</Label>
                   <InputError message={form.errors.auto_start} />
                 </div>
               </FormField>
@@ -338,7 +337,7 @@ export default function WorkerForm({
               <FormField>
                 <div className="flex items-center space-x-2">
                   <Switch id="auto_restart" checked={form.data.auto_restart} onCheckedChange={(value) => form.setData('auto_restart', value)} />
-                  <Label htmlFor="auto_restart">Auto restart</Label>
+                  <Label htmlFor="auto_restart">{translateText("Auto restart")}</Label>
                   <InputError message={form.errors.auto_restart} />
                 </div>
               </FormField>

@@ -54,7 +54,7 @@ export default function SourceControlEditDialog({
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{translateText('Edit')} {sourceControl.name}</DialogTitle>
-          <DialogDescription className="sr-only">Edit source control</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Edit source control")}</DialogDescription>
         </DialogHeader>
         <Form id="edit-source-control-form" className="p-4" onSubmit={submit}>
           <FormFields>
@@ -69,7 +69,7 @@ export default function SourceControlEditDialog({
                 disabled={isGithubApp}
                 readOnly={isGithubApp}
               />
-              {isGithubApp && <p className="text-muted-foreground text-xs">The name is the GitHub organization and cannot be changed.</p>}
+              {isGithubApp && <p className="text-muted-foreground text-xs">{translateText("The name is the GitHub organization and cannot be changed.")}</p>}
               <InputError message={form.errors.name as string | undefined} />
             </FormField>
             {editableFormFields.map((field) => (

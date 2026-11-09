@@ -63,11 +63,11 @@ export default function ConfirmationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{translateText(title)}</DialogTitle>
           {description ? (
-            <DialogDescription>{description}</DialogDescription>
+            <DialogDescription>{translateText(description)}</DialogDescription>
           ) : (
-            <DialogDescription className="sr-only">{title}</DialogDescription>
+            <DialogDescription className="sr-only">{translateText(title)}</DialogDescription>
           )}
         </DialogHeader>
         {errors.length > 0 && (
@@ -84,7 +84,7 @@ export default function ConfirmationDialog({
           <Button variant={variant} disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            {confirmLabel}
+            {translateText(confirmLabel)}
           </Button>
         </DialogFooter>
       </DialogContent>

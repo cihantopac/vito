@@ -81,7 +81,7 @@ export default function ConnectServerProvider({
       <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{translateText('Connect to server provider')}</DialogTitle>
-          <DialogDescription className="sr-only">Connect to a new server provider</DialogDescription>
+          <DialogDescription className="sr-only">{translateText("Connect to a new server provider")}</DialogDescription>
         </DialogHeader>
         <Form id="create-server-provider-form" onSubmit={submit} className="p-4">
           <FormFields>

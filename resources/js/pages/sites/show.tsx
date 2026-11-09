@@ -31,7 +31,7 @@ export default function ShowSite() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Application')} description="Here you can manage the deployed application" />
+          <Heading title={translateText('Application')} description={translateText("Here you can manage the deployed application")} />
           <div className="flex items-center gap-2">
           </div>
         </HeaderContainer>

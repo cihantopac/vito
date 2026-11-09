@@ -15,7 +15,7 @@ function ControlBadge({ status, color, secure }: { status: string; color: 'gray'
   return (
     <Badge variant={color} aria-busy={status === 'updating'}>
       {status === 'updating' && <LoaderCircleIcon className="animate-spin" />}
-      {status === 'active' ? 'applied' : status}
+      {status === 'active' ? translateText("applied") : status}
     </Badge>
   );
 }
@@ -56,7 +56,7 @@ export default function SecurityToggleCard({
       dialog.logViewer.open({
         serverId,
         logId: state.log_id,
-        title: `${title} - Log`,
+        title: translateText(":value - Log", { value: title }),
       });
     }
   };
@@ -69,7 +69,7 @@ export default function SecurityToggleCard({
             <CardTitle className="flex flex-wrap items-center gap-2">
               {title}
               <ControlBadge status={state.status} color={state.status_color} secure={secure} />
-              {drift && <Badge variant="warning">drift detected</Badge>}
+              {drift && <Badge variant="warning">{translateText("drift detected")}</Badge>}
             </CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>

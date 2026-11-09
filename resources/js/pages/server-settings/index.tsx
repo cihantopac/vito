@@ -138,12 +138,12 @@ export default function ServerSettings() {
 
   return (
     <ServerLayout>
-      <Head title={`Settings - ${server.name}`} />
+      <Head title={translateText("Settings - :value", { value: server.name })} />
 
       <Container>
         <HeaderContainer>
           <div className="flex flex-col gap-1">
-            <Heading title={translateText('Settings')} description="Manage server configuration, network settings, and project assignment." />
+            <Heading title={translateText('Settings')} description={translateText("Manage server configuration, network settings, and project assignment.")} />
           </div>
           <div className="flex items-center gap-2">
             <TooltipProvider delayDuration={0}>
@@ -158,11 +158,11 @@ export default function ServerSettings() {
                     onClick={checkStatus}
                   >
                     <RefreshCwIcon className={cn('size-3.5', statusForm.processing && 'animate-spin')} />
-                    <span>Check Connection</span>
+                    <span>{translateText("Check Connection")}</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  Probe SSH connection to verify server health
+                  {translateText("Probe SSH connection to verify server health")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -180,7 +180,7 @@ export default function ServerSettings() {
                     </div>
                     <div>
                       <CardTitle className="text-base">{translateText('Configuration')}</CardTitle>
-                      <CardDescription>Update server details and network settings</CardDescription>
+                      <CardDescription>{translateText("Update server details and network settings")}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -202,7 +202,7 @@ export default function ServerSettings() {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
                       <Label htmlFor="stage" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Environment Stage
+                        {translateText("Environment Stage")}
                       </Label>
                       <Select
                         value={form.data.stage}
@@ -281,16 +281,16 @@ export default function ServerSettings() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       <NetworkIcon className="size-3.5" />
-                      <span>Network & Connectivity</span>
+                      <span>{translateText("Network & Connectivity")}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Updating IP or Port will automatically test SSH connectivity.
+                      {translateText("Updating IP or Port will automatically test SSH connectivity.")}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div className="grid gap-2 sm:col-span-2">
-                      <Label htmlFor="ip">Public IP Address</Label>
+                      <Label htmlFor="ip">{translateText("Public IP Address")}</Label>
                       <div className="relative flex items-center">
                         <Input
                           id="ip"
@@ -313,7 +313,7 @@ export default function ServerSettings() {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent side="top">
-                              {ipCopied ? 'Copied!' : 'Copy IP address'}
+                              {ipCopied ? translateText("Copied!") : translateText("Copy IP address")}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -336,7 +336,7 @@ export default function ServerSettings() {
 
                   <div className="grid gap-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="local_ip">Private / Local IP</Label>
+                      <Label htmlFor="local_ip">{translateText("Private / Local IP")}</Label>
                       <span className="text-[11px] text-muted-foreground">{translateText('Optional')}</span>
                     </div>
                     <Input
@@ -347,7 +347,7 @@ export default function ServerSettings() {
                       className="font-mono text-sm"
                     />
                     <p className="text-[11px] text-muted-foreground">
-                      Used for VPC or private internal routing between servers on the same cloud provider network.
+                      {translateText("Used for VPC or private internal routing between servers on the same cloud provider network.")}
                     </p>
                     <InputError message={form.errors.local_ip} />
                   </div>
@@ -363,7 +363,7 @@ export default function ServerSettings() {
                     ) : (
                       <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                         <kbd className="rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">⌘S</kbd>
-                        <span>to save changes</span>
+                        <span>{translateText("to save changes")}</span>
                       </span>
                     )}
                   </div>
@@ -380,7 +380,7 @@ export default function ServerSettings() {
                     )}
                     <Button type="submit" size="sm" disabled={!form.isDirty || form.processing}>
                       {form.processing && <LoaderCircleIcon className="mr-1.5 size-4 animate-spin" />}
-                      Save Changes
+                      {translateText("Save Changes")}
                     </Button>
                   </div>
                 </CardFooter>
@@ -397,8 +397,8 @@ export default function ServerSettings() {
                       <ServerIcon className="size-3.5" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm font-semibold">System Overview</CardTitle>
-                      <CardDescription className="text-xs">Live status and server metadata</CardDescription>
+                      <CardTitle className="text-sm font-semibold">{translateText("System Overview")}</CardTitle>
+                      <CardDescription className="text-xs">{translateText("Live status and server metadata")}</CardDescription>
                     </div>
                   </div>
                 </div>
@@ -413,7 +413,7 @@ export default function ServerSettings() {
                 </div>
 
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">Server ID</span>
+                  <span className="text-muted-foreground">{translateText("Server ID")}</span>
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono text-xs font-semibold text-foreground">#{server.id}</span>
                     <TooltipProvider delayDuration={0}>
@@ -423,13 +423,13 @@ export default function ServerSettings() {
                             type="button"
                             className="cursor-pointer text-muted-foreground hover:text-foreground"
                             onClick={() => copyId(String(server.id))}
-                            aria-label="Copy server ID"
+                            aria-label={translateText("Copy server ID")}
                           >
                             {idCopied ? <CheckIcon className="size-3 text-success" /> : <CopyIcon className="size-3" />}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="top">
-                          {idCopied ? 'Copied!' : 'Copy server ID'}
+                          {idCopied ? translateText("Copied!") : translateText("Copy server ID")}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -452,32 +452,32 @@ export default function ServerSettings() {
                 )}
 
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">Created</span>
+                  <span className="text-muted-foreground">{translateText("Created")}</span>
                   <span className="text-xs text-muted-foreground">
                     <DateTime date={server.created_at} />
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">Last Update Check</span>
+                  <span className="text-muted-foreground">{translateText("Last Update Check")}</span>
                   <span className="text-xs text-muted-foreground">
-                    {server.last_update_check ? <DateTime date={server.last_update_check} /> : 'Never'}
+                    {server.last_update_check ? <DateTime date={server.last_update_check} /> : translateText("Never")}
                   </span>
                 </div>
 
                 {server.updates !== null && server.updates !== undefined && (
                   <div className="flex items-center justify-between px-6 py-3">
-                    <span className="text-muted-foreground">Available Updates</span>
+                    <span className="text-muted-foreground">{translateText("Available Updates")}</span>
                     {server.updates > 0 ? (
                       <Button variant="link" size="sm" className="h-auto p-0" asChild>
                         <Link href={withQuery(`/servers/${server.id}/update`, { start: 1 })}>
                           <Badge variant="warning" className="cursor-pointer hover:opacity-90">
-                            {server.updates} packages
+                            {server.updates} {translateText("packages")}
                           </Badge>
                         </Link>
                       </Button>
                     ) : (
-                      <Badge variant="outline">0 packages</Badge>
+                      <Badge variant="outline">{translateText("0 packages")}</Badge>
                     )}
                   </div>
                 )}
@@ -492,8 +492,8 @@ export default function ServerSettings() {
                       <TerminalIcon className="size-3.5" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm font-semibold">SSH Access</CardTitle>
-                      <CardDescription className="text-xs">Terminal connection and keys</CardDescription>
+                      <CardTitle className="text-sm font-semibold">{translateText("SSH Access")}</CardTitle>
+                      <CardDescription className="text-xs">{translateText("Terminal connection and keys")}</CardDescription>
                     </div>
                   </div>
                   <ConnectSshDialog server={server}>
@@ -507,16 +507,16 @@ export default function ServerSettings() {
 
               <CardContent className="space-y-3.5 p-6 pt-2">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground font-medium">Quick SSH Command</Label>
+                  <Label className="text-xs text-muted-foreground font-medium">{translateText("Quick SSH Command")}</Label>
                   <CopyableField value={sshCommand} className="h-9 font-mono text-xs" />
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground font-medium">Server Public Key</Label>
+                    <Label className="text-xs text-muted-foreground font-medium">{translateText("Server Public Key")}</Label>
                     <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground" asChild>
                       <Link href={`/servers/${server.id}/ssh-keys`}>
-                        Manage Keys →
+                        {translateText("Manage Keys →")}
                       </Link>
                     </Button>
                   </div>
@@ -532,8 +532,8 @@ export default function ServerSettings() {
                     <ShieldAlertIcon className="size-3.5" />
                   </div>
                   <div>
-                    <CardTitle className="text-sm font-semibold text-destructive">Danger Zone</CardTitle>
-                    <CardDescription className="text-xs">Transfer ownership or permanently remove this server</CardDescription>
+                    <CardTitle className="text-sm font-semibold text-destructive">{translateText("Danger Zone")}</CardTitle>
+                    <CardDescription className="text-xs">{translateText("Transfer ownership or permanently remove this server")}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -541,9 +541,9 @@ export default function ServerSettings() {
               <CardContent className="divide-y p-0 text-sm">
                 <div className="flex items-center justify-between gap-4 px-6 py-4">
                   <div className="space-y-0.5">
-                    <p className="font-medium text-foreground text-sm">Transfer to Project</p>
+                    <p className="font-medium text-foreground text-sm">{translateText("Transfer to Project")}</p>
                     <p className="text-muted-foreground text-xs">
-                      Move this server and all its attached sites and resources to another project.
+                      {translateText("Move this server and all its attached sites and resources to another project.")}
                     </p>
                   </div>
                   <TransferServer server={server}>
@@ -555,16 +555,16 @@ export default function ServerSettings() {
 
                 <div className="flex items-center justify-between gap-4 px-6 py-4">
                   <div className="space-y-0.5">
-                    <p className="font-medium text-destructive text-sm">Remove Server</p>
+                    <p className="font-medium text-destructive text-sm">{translateText("Remove Server")}</p>
                     <p className="text-muted-foreground text-xs">
                       {server.is_self
-                        ? 'This server hosts Pure itself and cannot be removed.'
-                        : 'Remove this server from Pure. The cloud instance remains active on your provider.'}
+                        ? translateText("This server hosts Pure itself and cannot be removed.")
+                        : translateText("Remove this server from Pure. The cloud instance remains active on your provider.")}
                     </p>
                   </div>
                   {server.is_self ? (
                     <Badge variant="outline" className="text-xs text-muted-foreground font-medium shrink-0">
-                      Protected
+                      {translateText("Protected")}
                     </Badge>
                   ) : (
                     <DeleteServer server={server}>

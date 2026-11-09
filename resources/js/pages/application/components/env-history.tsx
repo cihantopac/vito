@@ -69,7 +69,7 @@ export default function EnvHistory({
 
   const restore = (version: EnvVersion) => {
     dialog.confirm.open({
-      title: `Restore version #${version.id}?`,
+      title: translateText("Restore version #:value?", { value: version.id }),
       description: hasUnsavedChanges
         ? 'The .env file on the server will be replaced with this version. Your unsaved changes in the editor will be discarded.'
         : 'The .env file on the server will be replaced with this version. The current content stays in the history.',
@@ -125,7 +125,7 @@ export default function EnvHistory({
                     <Badge variant={version.source_color}>{version.source}</Badge>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {version.user_name ?? 'System'} · <DateTime date={version.created_at} relative />
+                    {version.user_name ?? translateText("System")} · <DateTime date={version.created_at} relative />
                   </span>
                   {version.restored_from_id && (
                     <span className="text-xs text-muted-foreground">{translateText("Restored from #")}{version.restored_from_id}</span>

@@ -42,7 +42,7 @@ function Browser({ databaseName, dataUrl, backUrl }: BrowserProps) {
 
   return (
     <Container>
-      <Head title={`Browse ${databaseName}`} />
+      <Head title={translateText("Browse :value", { value: databaseName })} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <Heading title={databaseName} description={translateText("Browse PostgreSQL tables and records without changing application data.")} />
         <div className="flex items-center gap-2">

@@ -26,7 +26,7 @@ export default function Monitoring() {
 
   return (
     <ServerLayout>
-      <Head title={`Monitoring - ${page.props.server.name}`} />
+      <Head title={translateText("Monitoring - :value", { value: page.props.server.name })} />
 
       <Container>
         <HeaderContainer>

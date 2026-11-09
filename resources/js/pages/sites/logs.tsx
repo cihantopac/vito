@@ -32,13 +32,13 @@ export default function ShowSite() {
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Logs')} description="Here you can see your site's logs" />
+          <Heading title={translateText('Logs')} description={translateText("Here you can see your site's logs")} />
           {page.props.site.php_version && (
             <Button variant="outline" asChild>
               <Link
                 href={withQuery(`/servers/${page.props.server.id}/logs/services`, { key: `site:${page.props.site.id}:laravel` })}
               >
-                Laravel Log
+                {translateText("Laravel Log")}
               </Link>
             </Button>
           )}

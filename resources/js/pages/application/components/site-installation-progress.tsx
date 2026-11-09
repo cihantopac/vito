@@ -231,7 +231,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-semibold tracking-tight">
-                {failed ? 'Site installation failed' : 'Installing application'}
+                {failed ? translateText("Site installation failed") : translateText("Installing application")}
               </h2>
               {failed && (
                 <Badge
@@ -244,7 +244,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
             </div>
             <p className="text-muted-foreground text-sm">
               {failed
-                ? 'The installation did not complete. Review the logs below or retry.'
+                ? translateText("The installation did not complete. Review the logs below or retry.")
                 : `Setting up ${site.domain} · ${completedCount} of ${totalSteps} steps completed`}
             </p>
           </div>
@@ -335,7 +335,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                         {translateText("Deleting Site...")}
                       </>
                     ) : (
-                      'Cancel & Delete Site'
+                      translateText("Cancel & Delete Site")
                     )}
                   </Button>
                 </DialogFooter>
@@ -387,7 +387,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                       onClick={handleRetry}
                       disabled={retrying}
                     >
-                      {retrying ? 'Starting...' : 'Resume Installation'}
+                      {retrying ? translateText("Starting...") : translateText("Resume Installation")}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -507,7 +507,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
             <div className="flex items-center gap-2 min-w-0">
               <Terminal className="size-4 text-muted-foreground shrink-0" />
               <CardTitle className="text-sm font-semibold truncate">
-                {activeLog ? activeLog.name : 'Installation Output'}
+                {activeLog ? activeLog.name : translateText("Installation Output")}
               </CardTitle>
             </div>
 
@@ -555,7 +555,7 @@ export default function SiteInstallationProgress({ server, site: initialSite }: 
                     <Loader2 className="size-6 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
-                  liveLogContent || 'No output recorded yet.'
+                  liveLogContent || translateText("No output recorded yet.")
                 )}
               </LogOutput>
             ) : (

@@ -129,7 +129,7 @@ export default function CreateDatabaseReplica({
                     <p className="text-muted-foreground">
                       {translateText("It needs")} <span className="text-foreground font-medium">{translateText("at least")} {requirements.storage_gb ?? '?'} {translateText("GB of disk")}</span>,{' '}
                       {requirements.cores ?? '?'} {translateText("vCPU and")} {requirements.memory_gb ?? '?'} {translateText("GB of memory to keep up with")} {server.name}{translateText(", on a")}{' '}
-                      {requirements.architecture ?? 'matching'} {translateText("processor — a streaming replica copies the data files byte for byte.")}
+                      {requirements.architecture ?? translateText("matching")} {translateText("processor — a streaming replica copies the data files byte for byte.")}
                     </p>
                   )}
                 </div>
@@ -149,7 +149,7 @@ export default function CreateDatabaseReplica({
                   <Label htmlFor="replica_server_id">{translateText('Server')}</Label>
                   <Select value={form.data.replica_server_id} onValueChange={(value) => form.setData((data) => ({ ...data, replica_server_id: value, confirmation: '' }))}>
                     <SelectTrigger id="replica_server_id">
-                      <SelectValue placeholder={candidates.length === 0 ? 'Loading the servers…' : 'Select a server'} />
+                      <SelectValue placeholder={candidates.length === 0 ? translateText("Loading the servers…") : translateText("Select a server")} />
                     </SelectTrigger>
                     <SelectContent>
                       {candidates.map((candidate) => (

@@ -61,7 +61,7 @@ export default function NetworkSettings() {
 
   return (
     <NetworkLayout>
-      <Head title={`Settings - ${network.name}`} />
+      <Head title={translateText("Settings - :value", { value: network.name })} />
 
       <Container>
         <HeaderContainer>
@@ -178,7 +178,7 @@ export default function NetworkSettings() {
               <Separator />
               <div className="flex items-center justify-between p-4">
                 <span>{translateText("Last synced")}</span>
-                <span className="text-muted-foreground">{network.last_synced_at ? formatDateString(network.last_synced_at) : 'Never'}</span>
+                <span className="text-muted-foreground">{network.last_synced_at ? formatDateString(network.last_synced_at) : translateText("Never")}</span>
               </div>
             </CardContent>
           </Card>
@@ -216,8 +216,8 @@ export default function NetworkSettings() {
                   variant="destructive"
                   onClick={() =>
                     dialog.confirm.open({
-                      title: `Delete network [${network.name}]`,
-                      description: `Are you sure you want to delete ${network.name}? This tears the network down on all of its servers.`,
+                      title: translateText("Delete network [:value]", { value: network.name }),
+                      description: translateText("Are you sure you want to delete :value? This tears the network down on all of its servers.", { value: network.name }),
                       variant: 'destructive',
                       confirmLabel: 'Delete',
                       method: 'delete',

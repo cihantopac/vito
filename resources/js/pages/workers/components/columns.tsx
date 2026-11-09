@@ -35,6 +35,7 @@ function Delete({ worker }: { worker: Worker }) {
 }
 
 function BootstrapLockedItem({ label, destructive }: { label: string; destructive?: boolean }) {
+  const translateText = useTranslate();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -44,7 +45,7 @@ function BootstrapLockedItem({ label, destructive }: { label: string; destructiv
           </DropdownMenuItem>
         </div>
       </TooltipTrigger>
-      <TooltipContent side="left">Site managed application worker</TooltipContent>
+      <TooltipContent side="left">{translateText("Site managed application worker")}</TooltipContent>
     </Tooltip>
   );
 }

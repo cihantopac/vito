@@ -50,7 +50,7 @@ export default function ServerBanners({ server }: { server: Server }) {
     const updatesCount = updatesWarning.count;
     items.push({
       key: 'package-updates',
-      title: `${updatesCount} package ${updatesCount === 1 ? 'update' : 'updates'} available`,
+      title: translateText(updatesCount === 1 ? ':count package update available' : ':count package updates available', { count: updatesCount }),
       description: <>{translateText("Install pending OS package updates to keep this server patched.")}</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
@@ -67,7 +67,7 @@ export default function ServerBanners({ server }: { server: Server }) {
     items.push({
       key: 'kernel-update',
       title: `Kernel update available`,
-      description: <>{translateText("Install the pending kernel")} {kernelCount === 1 ? 'package' : 'packages'} {translateText("and restart to apply the new kernel.")}</>,
+      description: <>{translateText("Install the pending kernel")} {kernelCount === 1 ? translateText("package") : translateText("packages")} {translateText("and restart to apply the new kernel.")}</>,
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
           <Link href={withQuery(`/servers/${server.id}/update`, { type: 'kernel' })}>
@@ -81,7 +81,7 @@ export default function ServerBanners({ server }: { server: Server }) {
   if (backupsWarning) {
     items.push({
       key: 'backups-need-attention',
-      title: `${backupsWarning.count} ${backupsWarning.count === 1 ? 'backup needs' : 'backups need'} attention`,
+      title: translateText(backupsWarning.count === 1 ? ':count backup needs attention' : ':count backups need attention', { count: backupsWarning.count }),
       description: 'A backup failed, stopped running on schedule, or pgBackRest reported a WAL or repository problem.',
       action: (
         <Button variant="outline" size="sm" asChild className="cursor-pointer">
@@ -97,7 +97,7 @@ export default function ServerBanners({ server }: { server: Server }) {
   return (
     <div className="flex flex-col gap-3">
       {server.status === 'disconnected' && <ServerOfflineBanner server={server} />}
-      <WarningsBlock items={items} summaryLabel={(count) => `${count} server warnings require your attention`} />
+      <WarningsBlock items={items} summaryLabel={(count) => translateText(':count server warnings require your attention', { count })} />
     </div>
   );
 }

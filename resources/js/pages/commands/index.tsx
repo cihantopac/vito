@@ -49,7 +49,7 @@ function CommandRow({ command }: { command: Command }) {
         </Button>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <TableActionTrigger iconOnly aria-label={`Manage ${command.name}`} />
+            <TableActionTrigger iconOnly aria-label={translateText("Manage :value", { value: command.name })} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild className="sm:hidden">
@@ -62,7 +62,7 @@ function CommandRow({ command }: { command: Command }) {
               onSelect={() =>
                 dialog.confirm.open({
                   title: 'Delete command',
-                  description: `Delete ${command.name}? Its execution history will also be removed.`,
+                  description: translateText("Delete :value? Its execution history will also be removed.", { value: command.name }),
                   variant: 'destructive',
                   confirmLabel: 'Delete',
                   method: 'delete',
@@ -104,7 +104,7 @@ export default function Commands() {
 
   return (
     <ServerLayout>
-      <Head title={`Commands - ${site.domain} - ${server.name}`} />
+      <Head title={translateText("Commands - :value - :value2", { value: site.domain, value2: server.name })} />
 
       <Container>
         <Heading title={translateText('Commands')} />

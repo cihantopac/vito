@@ -12,8 +12,8 @@ export default function Delete({ storageProvider }: { storageProvider: StoragePr
       variant="destructive"
       onSelect={() =>
         dialog.confirm.open({
-          title: `Delete ${storageProvider.name}`,
-          description: `Are you sure you want to delete ${storageProvider.name}?`,
+          title: translateText("Delete :value", { value: storageProvider.name }),
+          description: translateText("Are you sure you want to delete :value?", { value: storageProvider.name }),
           variant: 'destructive',
           confirmLabel: 'Delete',
           method: 'delete',

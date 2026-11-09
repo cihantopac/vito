@@ -34,8 +34,8 @@ export default function ActivateServerSslDialog({ open, onOpenChange, serverId, 
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full lg:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
-          <SheetTitle>Activate SSL</SheetTitle>
-          <SheetDescription>Install a signed certificate from your Certificate Authority.</SheetDescription>
+          <SheetTitle>{translateText("Activate SSL")}</SheetTitle>
+          <SheetDescription>{translateText("Install a signed certificate from your Certificate Authority.")}</SheetDescription>
         </SheetHeader>
         <Form id="activate-server-ssl-form" className="p-4" onSubmit={submit}>
           <FormFields>

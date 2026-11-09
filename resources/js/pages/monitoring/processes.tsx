@@ -110,7 +110,7 @@ export default function Processes() {
   const killProcess = (pid: number) => {
     dialog.confirm.open({
       title: 'Kill Process',
-      description: `Process #${pid} will be terminated. Do you want to proceed?`,
+      description: translateText("Process #:value will be terminated. Do you want to proceed?", { value: pid }),
       confirmLabel: 'Kill',
       method: 'post',
       url: `/servers/${server.id}/monitoring/processes/kill`,
@@ -121,8 +121,8 @@ export default function Processes() {
   const killUserProcesses = () => {
     if (selectedUser === 'all') return;
     dialog.confirm.open({
-      title: `Kill all processes for "${selectedUser}"`,
-      description: `All processes for user "${selectedUser}" will be terminated. Do you want to proceed?`,
+      title: translateText("Kill all processes for \":value\"", { value: selectedUser }),
+      description: translateText("All processes for user \":value\" will be terminated. Do you want to proceed?", { value: selectedUser }),
       confirmLabel: 'Kill All',
       method: 'post',
       url: `/servers/${server.id}/monitoring/processes/kill-user`,
@@ -145,7 +145,7 @@ export default function Processes() {
 
   return (
     <ServerLayout>
-      <Head title={`Processes - ${server.name}`} />
+      <Head title={translateText("Processes - :value", { value: server.name })} />
 
       <Container>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -189,7 +189,7 @@ export default function Processes() {
             {selectedUser !== 'all' && (
               <Button variant="destructive" size="sm" className="h-8 px-2 text-xs gap-1" onClick={killUserProcesses}>
                 <SkullIcon className="size-3.5" />
-                <span className="hidden sm:inline">{translateText("Kill")} {selectedUser}'s</span>
+                <span className="hidden sm:inline">{translateText('Kill processes for :user', { user: selectedUser })}</span>
                 <span className="sm:hidden">{translateText("Kill")}</span>
               </Button>
             )}
@@ -264,7 +264,7 @@ export default function Processes() {
               {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center text-xs text-muted-foreground">
-                    {search ? 'No processes match your filter.' : 'No processes found.'}
+                    {search ? translateText("No processes match your filter.") : translateText("No processes found.")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -278,7 +278,7 @@ export default function Processes() {
                             size="icon"
                             onClick={() => killProcess(p.pid)}
                             className="size-6 text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 opacity-40 group-hover:opacity-100 transition-opacity"
-                            aria-label={`Kill PID ${p.pid}`}
+                            aria-label={translateText("Kill PID :value", { value: p.pid })}
                           >
                             <SkullIcon className="size-3" />
                           </Button>
@@ -315,7 +315,7 @@ export default function Processes() {
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
-            {filtered.length} {translateText("process")}{filtered.length !== 1 ? 'es' : ''} {translateText("shown")}
+            {translateText(filtered.length === 1 ? ':count process shown' : ':count processes shown', { count: filtered.length })}
             {selectedUser !== 'all' && ` (user: ${selectedUser})`}
             {search && ` (filter: "${search}")`}
           </span>

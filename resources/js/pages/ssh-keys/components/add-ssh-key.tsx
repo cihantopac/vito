@@ -50,8 +50,8 @@ export default function AddSshKey({ children, onKeyAdded }: { children: ReactNod
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Add ssh key</DialogTitle>
-          <DialogDescription className="sr-only">Add new ssh key</DialogDescription>
+          <DialogTitle>{translateText("Add ssh key")}</DialogTitle>
+          <DialogDescription className="sr-only">{translateText("Add new ssh key")}</DialogDescription>
         </DialogHeader>
         <Form id="add-ssh-key-form" onSubmit={submit} className="p-4">
           <FormFields>

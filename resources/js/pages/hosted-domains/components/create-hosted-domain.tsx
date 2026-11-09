@@ -252,7 +252,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                   <div className="flex items-center gap-2">
                     <Select value={form.data.dns_provider_id} onValueChange={handleProviderChange}>
                       <SelectTrigger id="dns_provider_id">
-                        <SelectValue placeholder={loadingProviders ? 'Loading providers...' : 'Select DNS Provider'} />
+                        <SelectValue placeholder={loadingProviders ? translateText("Loading providers...") : translateText("Select DNS Provider")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -282,7 +282,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                       disabled={!form.data.dns_provider_id || loadingDomains}
                     >
                       <SelectTrigger id="provider_domain_id">
-                        <SelectValue placeholder={loadingDomains ? 'Loading domains...' : 'Select a domain zone'} />
+                        <SelectValue placeholder={loadingDomains ? translateText("Loading domains...") : translateText("Select a domain zone")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -360,7 +360,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                           {translateText("Automatically create A record on Cloudflare")}
                         </Label>
                         <p className="text-muted-foreground text-xs">
-                          {translateText("Creates an A record pointing")} <span className="font-mono font-medium">{computedDomain || 'this domain'}</span> {translateText("to server IP")}{' '}
+                          {translateText("Creates an A record pointing")} <span className="font-mono font-medium">{computedDomain || translateText("this domain")}</span> {translateText("to server IP")}{' '}
                           <span className="font-mono font-medium">{serverIp || 'N/A'}</span>.
                         </p>
                       </div>
@@ -438,7 +438,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                 <Label htmlFor="ssl_id">{translateText("SSL Certificate")}</Label>
                 <Select onValueChange={(value) => form.setData('ssl_id', value)} value={form.data.ssl_id}>
                   <SelectTrigger id="ssl_id">
-                    <SelectValue placeholder={loadingSsls ? 'Loading...' : 'Select a certificate'} />
+                    <SelectValue placeholder={loadingSsls ? translateText("Loading...") : translateText("Select a certificate")} />
                   </SelectTrigger>
                   <SelectContent>
                     {matchingSsls.map((ssl) => (

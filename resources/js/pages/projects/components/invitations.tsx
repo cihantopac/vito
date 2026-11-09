@@ -18,7 +18,7 @@ function Actions({ invitation }: { invitation: ProjectUser }) {
         size="sm"
         onClick={() =>
           dialog.confirm.open({
-            title: `Reject invitation to ${invitation.project_name}`,
+            title: translateText("Reject invitation to :value", { value: (invitation.project_name ?? '—') }),
             description: 'Are you sure you want to reject joining this project?',
             variant: 'destructive',
             confirmLabel: 'Reject',
