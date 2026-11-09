@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import {
   Dialog,
   DialogClose,
@@ -20,6 +21,7 @@ import { ServerLog } from '@/types/server-log';
 import { Server } from '@/types/server';
 
 export default function LogForm({ serverLog, children }: { serverLog?: ServerLog; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const page = usePage<{ server: Server }>();
   const form = useForm<{
@@ -58,7 +60,7 @@ export default function LogForm({ serverLog, children }: { serverLog?: ServerLog
         <Form id="remote-log-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="path">Path</Label>
+              <Label htmlFor="path">{t('Path')}</Label>
               <Input type="text" id="path" value={form.data.path} onChange={(e) => form.setData('path', e.target.value)} />
               <InputError message={form.errors.path} />
             </FormField>
@@ -66,11 +68,11 @@ export default function LogForm({ serverLog, children }: { serverLog?: ServerLog
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="remote-log-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

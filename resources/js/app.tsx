@@ -6,7 +6,6 @@ import { useBootstrapStore } from './stores/bootstrap-store';
 import './vito-table-setup';
 import { resolvePage } from '@/lib/resolve-page';
 import { ThemeProvider } from 'next-themes';
-import { RequestFeedback } from '@/components/request-feedback';
 import { Toaster } from '@/components/ui/sonner';
 
 const appName = 'Pure';
@@ -24,7 +23,6 @@ createInertiaApp({
     root.render(
       <ThemeProvider attribute="class" defaultTheme="dark" storageKey="vito-theme" disableTransitionOnChange>
         <App {...props} />
-        <RequestFeedback />
         <Toaster richColors position="bottom-center" />
       </ThemeProvider>,
     );

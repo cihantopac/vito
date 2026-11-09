@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SharedData } from '@/types';
@@ -20,6 +21,7 @@ function getActiveRegisteredUsers(project: Project): ProjectUser[] {
 }
 
 export function ProjectActions({ project }: { project: Project }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const page = usePage<SharedData>();
   const canDelete = project.role === 'owner' || page.props.auth.user.is_admin;
@@ -30,7 +32,7 @@ export function ProjectActions({ project }: { project: Project }) {
         <TableActionTrigger />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={() => dialog.projectForm.open({ project })}>Edit</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => dialog.projectForm.open({ project })}>{t('Edit')}</DropdownMenuItem>
         <DropdownMenuItem onSelect={() => dialog.projectUsers.open({ project })}>
           <UsersIcon className="size-3.5 mr-2" />
           <span>{project.role === 'user' ? 'View access' : 'Manage access'}</span>
@@ -65,7 +67,7 @@ export function ProjectActions({ project }: { project: Project }) {
                 })
               }
             >
-              Delete
+              {t('Delete')}
             </DropdownMenuItem>
           </>
         )}

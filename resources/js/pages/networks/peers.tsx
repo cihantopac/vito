@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -15,6 +16,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Network, NetworkPeer } from '@/types/network';
 
 export default function NetworkPeers() {
+  const t = useTranslate();
   const page = usePage<{
     network: Network;
     peers: InertiaTableData;
@@ -32,7 +34,7 @@ export default function NetworkPeers() {
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.networkAddPeer.open({ networkId: network.id })}>
               <PlusIcon />
-              <span className="hidden lg:block">Add peer</span>
+              <span className="hidden lg:block">{t('Add peer')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -98,7 +100,7 @@ export default function NetworkPeers() {
                         })
                       }
                     >
-                      Remove
+                      {t('Remove')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

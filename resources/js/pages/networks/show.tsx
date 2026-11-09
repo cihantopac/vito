@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -34,6 +35,7 @@ function MetaChip({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export default function NetworkOverview() {
+  const t = useTranslate();
   const page = usePage<{ network: Network; stats: NetworkStats; logs: PaginatedData<ServerLog> }>();
   const network = useRealtimeRecord<Network>(page.props.network, 'network')!;
   const { stats } = page.props;
@@ -47,7 +49,7 @@ export default function NetworkOverview() {
       <Container>
         <HeaderContainer>
           <div className="space-y-3">
-            <Heading title="Overview" description={network.name} />
+            <Heading title={t('Overview')} description={network.name} />
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant={network.type_color}>{network.kind}</Badge>
               <Badge variant={network.status_color}>{network.status}</Badge>
@@ -67,7 +69,7 @@ export default function NetworkOverview() {
         </HeaderContainer>
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-          <StatTile label="Servers">{stats.servers}</StatTile>
+          <StatTile label={t('Servers')}>{stats.servers}</StatTile>
           <StatTile label="Peers">{isWireGuard ? stats.peers : 'N/A'}</StatTile>
           <StatTile label="Firewall rules">{stats.firewall_rules}</StatTile>
         </div>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -9,6 +10,7 @@ import { registerCaddyLanguage, registerNginxLanguage } from '@/lib/editor';
 import { Site } from '@/types/site';
 
 export default function VHostPreview({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const query = useQuery({
@@ -59,7 +61,7 @@ export default function VHostPreview({ site, children }: { site: Site; children:
         </div>
         <SheetFooter>
           <SheetClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>

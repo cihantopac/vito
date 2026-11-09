@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { FormEvent, ReactNode, useMemo, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -71,6 +72,7 @@ function getServiceIcon(type: string) {
 }
 
 export default function InstallService({ name, children }: { name?: string; children: ReactNode }) {
+  const t = useTranslate();
   const page = usePage<{ server: Server }>();
   const configs = useConfigs()!;
 
@@ -270,7 +272,7 @@ export default function InstallService({ name, children }: { name?: string; chil
           <div className="flex items-center gap-2">
             <DialogClose asChild>
               <Button variant="outline" size="sm" className="h-8 text-xs">
-                Cancel
+                {t('Cancel')}
               </Button>
             </DialogClose>
             <Button
@@ -282,7 +284,7 @@ export default function InstallService({ name, children }: { name?: string; chil
               {form.processing ? (
                 <>
                   <LoaderCircleIcon className="size-3.5 animate-spin mr-1" />
-                  Installing...
+                  {t('Installing...')}
                 </>
               ) : (
                 'Install'

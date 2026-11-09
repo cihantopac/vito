@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useEffect, useMemo, useState, FormEvent } from 'react';
 import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export default function ToolingTable({ site, tools, installedVersions, statuses, requiredTooling, siblingCount, onSubmit }: Props) {
+  const t = useTranslate();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -48,10 +50,10 @@ export default function ToolingTable({ site, tools, installedVersions, statuses,
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[180px]">Actions</TableHead>
+              <TableHead className="w-[180px]">{t('Actions')}</TableHead>
               <TableHead className="w-[180px]">Tool</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-[180px]">Version</TableHead>
+              <TableHead>{t('Description')}</TableHead>
+              <TableHead className="w-[180px]">{t('Version')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -99,6 +101,7 @@ function ToolingRow({
   siblingCount: number;
   onSubmit?: () => void;
 }) {
+  const t = useTranslate();
   const [selected, setSelected] = useState<string>(installedVersion ?? tool.supported_versions[0] ?? '');
   const [submittingInstall, setSubmittingInstall] = useState(false);
   const [submittingUninstall, setSubmittingUninstall] = useState(false);
@@ -194,7 +197,7 @@ function ToolingRow({
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Uninstall {tool.label}</DialogTitle>
+              <DialogTitle>{t('Uninstall')} {tool.label}</DialogTitle>
               <DialogDescription>This will remove {tool.label} from the isolated user.</DialogDescription>
             </DialogHeader>
             <div className="space-y-2 p-4 text-sm">
@@ -208,11 +211,11 @@ function ToolingRow({
             </div>
             <DialogFooter className="gap-2">
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline">{t('Cancel')}</Button>
               </DialogClose>
               <Button variant="destructive" disabled={uninstallDisabled} onClick={submitUninstall}>
                 {(uninstalling || submitting) && <LoaderCircleIcon className="size-4 animate-spin" />}
-                Uninstall
+                {t('Uninstall')}
               </Button>
             </DialogFooter>
           </DialogContent>

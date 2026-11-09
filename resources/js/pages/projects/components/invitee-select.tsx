@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -22,6 +23,7 @@ export default function InviteeSelect({
   onCreateUserRequest?: (email: string) => void;
   id?: string;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -87,7 +89,7 @@ export default function InviteeSelect({
                       }}
                     >
                       <UserPlusIcon className="size-3.5" />
-                      <span>Create user</span>
+                      <span>{t('Create user')}</span>
                     </Button>
                   )}
                 </div>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import axios from 'axios';
@@ -20,6 +21,7 @@ function gigabytes(bytes: number): string {
 }
 
 export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { open: boolean; onOpenChange: (open: boolean) => void; server: Server }) {
+  const t = useTranslate();
   const [versions, setVersions] = useState<{ version: number; versions: string[]; source: string } | null>(null);
   const [requirements, setRequirements] = useState<UpgradeRequirements | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -249,7 +251,7 @@ export default function CreateDatabaseUpgrade({ open, onOpenChange, server }: { 
               Create server and start copying
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

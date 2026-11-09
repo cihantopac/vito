@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import { FirewallRule } from '@/types/firewall';
@@ -18,6 +19,7 @@ import { useDialog } from '@/hooks/use-dialog';
 const uppercaseCell = ({ value }: CellRenderProps) => <span className="uppercase">{value == null || value === '' ? '-' : String(value)}</span>;
 
 export default function Firewall() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     rules: InertiaTableData;
@@ -36,7 +38,7 @@ export default function Firewall() {
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.firewallForm.open({ serverId: page.props.server.id })}>
               <PlusIcon />
-              <span className="hidden lg:block">Create</span>
+              <span className="hidden lg:block">{t('Create')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -54,7 +56,7 @@ export default function Firewall() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
                     <DropdownMenuItem onSelect={() => dialog.firewallForm.open({ serverId: firewallRule.server_id, firewallRule })}>
-                      Edit
+                      {t('Edit')}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <Delete firewallRule={firewallRule} />

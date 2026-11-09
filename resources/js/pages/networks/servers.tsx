@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -15,6 +16,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Network, NetworkMemberIp, NetworkServer, NetworkServerOption } from '@/types/network';
 
 export default function NetworkServers() {
+  const t = useTranslate();
   const page = usePage<{
     network: Network;
     members: InertiaTableData;
@@ -33,7 +35,7 @@ export default function NetworkServers() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Servers" description="Servers connected to this network" />
+          <Heading title={t('Servers')} description="Servers connected to this network" />
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -50,7 +52,7 @@ export default function NetworkServers() {
               }
             >
               <RefreshCwIcon />
-              <span className="hidden lg:block">Sync</span>
+              <span className="hidden lg:block">{t('Sync')}</span>
             </Button>
             {!isManaged && (
               <Button onClick={() => dialog.networkAddServer.open({ networkId: network.id, isCustom, servers: page.props.servers })}>
@@ -87,7 +89,7 @@ export default function NetworkServers() {
                           }
                         }}
                       >
-                        Edit
+                        {t('Edit')}
                       </DropdownMenuItem>
                     )}
                     {isWireGuard && (
@@ -100,7 +102,7 @@ export default function NetworkServers() {
                           })
                         }
                       >
-                        Configuration
+                        {t('Configuration')}
                       </DropdownMenuItem>
                     )}
                     {isWireGuard && (
@@ -115,7 +117,7 @@ export default function NetworkServers() {
                           })
                         }
                       >
-                        Regenerate
+                        {t('Regenerate')}
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
@@ -132,7 +134,7 @@ export default function NetworkServers() {
                         })
                       }
                     >
-                      Remove
+                      {t('Remove')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

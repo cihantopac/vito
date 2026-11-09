@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEvent } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -20,6 +21,7 @@ export default function Fail2banForm({
   serverId: number;
   fail2ban?: Service | null;
 }) {
+  const t = useTranslate();
   const data = (fail2ban?.type_data ?? {}) as Record<string, string | number>;
   const isInstalled = !!fail2ban;
 
@@ -99,7 +101,7 @@ export default function Fail2banForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="fail2ban-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

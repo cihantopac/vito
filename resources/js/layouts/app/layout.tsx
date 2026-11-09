@@ -1,3 +1,5 @@
+import { RequestFeedback } from '@/components/request-feedback';
+import { useTranslate } from '@/hooks/use-translate';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppHeader } from '@/components/app-header';
 import { NavGroup, NavItem, SharedData } from '@/types';
@@ -28,6 +30,7 @@ export default function Layout({
   secondNavSubtitle?: string;
   defaultPrimaryNavOpen?: boolean;
 }>) {
+  const t = useTranslate();
   const page = usePage<SharedData & { server?: { id: number }; site?: { id: number } }>();
   const queryClient = getQueryClient(page.props.auth.user.id);
   const { status: socketStatus, reconnect: socketReconnect } = useSocketEvents();
@@ -93,6 +96,7 @@ export default function Layout({
 
   return (
     <QueryClientProvider client={queryClient}>
+      <RequestFeedback />
       <TooltipProvider>
         <SidebarProvider
           open={primaryNavOpen}
@@ -128,7 +132,7 @@ export default function Layout({
                         Check your connection and try again.
                       </p>
                     </div>
-                    <Button onClick={() => fetchBootstrap()}>Retry</Button>
+                    <Button onClick={() => fetchBootstrap()}>{t('Retry')}</Button>
                   </div>
                 </div>
               ) : bootstrapConfigsLoaded ? (

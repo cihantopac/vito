@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { type SharedData } from '@/types';
 import { type Site } from '@/types/site';
@@ -11,6 +12,7 @@ import siteHelper from '@/lib/site-helper';
 import { useSidebar } from '@/components/ui/sidebar';
 
 export function SiteSwitch() {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const { setOpenTransient: setPrimaryNavOpen } = useSidebar();
   const [open, setOpen] = useState(false);
@@ -67,7 +69,7 @@ export function SiteSwitch() {
           if (s) {
             router.visit(`/servers/${s.id}/sites/create`);
           } else {
-            router.visit("/sites/create");
+            router.visit('/sites/create');
           }
         }}
         className="gap-0 cursor-pointer"
@@ -96,7 +98,7 @@ export function SiteSwitch() {
       ) : (
         <>
           <GlobeIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span className="hidden sm:flex">Search sites...</span>
+          <span className="hidden sm:flex">{t('Search sites...')}</span>
         </>
       )}
       <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />

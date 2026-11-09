@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckIcon, CopyIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
@@ -27,6 +28,7 @@ export default function ResourceCredentialsView({
   redacted = false,
   onReveal,
 }: ResourceCredentialsViewProps) {
+  const t = useTranslate();
   const [masked, setMasked] = useState(true);
   const [copiedEnv, setCopiedEnv] = useState(false);
   const [copiedDeeplink, setCopiedDeeplink] = useState(false);
@@ -122,7 +124,7 @@ export default function ResourceCredentialsView({
               onClick={copyEnv}
               disabled={redacted}
               aria-label="Copy environment variables"
-              title="Copy to clipboard"
+              title={t('Copy to clipboard')}
             >
               {copiedEnv ? <CheckIcon className="text-success size-3" /> : <CopyIcon className="size-3" />}
             </Button>
@@ -165,7 +167,7 @@ export default function ResourceCredentialsView({
             onClick={copyDeeplink}
             disabled={redacted}
             aria-label={`Copy ${deeplinkLabel}`}
-            title="Copy"
+            title={t('Copy')}
           >
             {copiedDeeplink ? <CheckIcon className="text-success size-3" /> : <CopyIcon className="size-3" />}
           </Button>

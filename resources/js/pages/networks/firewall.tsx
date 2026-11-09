@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -15,6 +16,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Network, NetworkFirewallRule } from '@/types/network';
 
 export default function NetworkFirewall() {
+  const t = useTranslate();
   const page = usePage<{
     network: Network;
     rules: InertiaTableData;
@@ -51,7 +53,7 @@ export default function NetworkFirewall() {
                     <TableActionTrigger />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onSelect={() => dialog.networkFirewallForm.open({ networkId: network.id, rule })}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => dialog.networkFirewallForm.open({ networkId: network.id, rule })}>{t('Edit')}</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
@@ -66,7 +68,7 @@ export default function NetworkFirewall() {
                         })
                       }
                     >
-                      Delete
+                      {t('Delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

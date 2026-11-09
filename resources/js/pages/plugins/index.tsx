@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head, usePage } from '@inertiajs/react';
 import Heading from '@/components/heading';
@@ -12,6 +13,7 @@ import DiscoveredPlugins from '@/pages/plugins/components/discovered';
 import CheckForUpdates from '@/pages/plugins/components/check-updates';
 import PluginList from '@/pages/plugins/components/plugin-list';
 export default function Plugins() {
+  const t = useTranslate();
   const [tab, setTab] = useState('installed');
   const page = usePage<{
     plugins: Plugin[];
@@ -32,7 +34,7 @@ export default function Plugins() {
 
         <Tabs defaultValue={tab} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="installed">Installed</TabsTrigger>
+            <TabsTrigger value="installed">{t('Installed')}</TabsTrigger>
             <TabsTrigger value="discovered">Discovered</TabsTrigger>
             <TabsTrigger value="official">Official</TabsTrigger>
             <TabsTrigger value="community">Community</TabsTrigger>

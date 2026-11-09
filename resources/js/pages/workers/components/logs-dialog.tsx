@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ type WorkerLogsDialogProps = {
 };
 
 export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerId }: WorkerLogsDialogProps) {
+  const t = useTranslate();
   const [activeTab, setActiveTab] = useState<'output' | 'history'>('output');
 
   const query = useQuery({
@@ -48,11 +50,11 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
             <TabsList className="h-7 bg-muted/60 p-0.5">
               <TabsTrigger value="output" className="h-6 text-xs px-2.5 gap-1.5">
                 <TerminalIcon className="size-3.5" />
-                <span>Output</span>
+                <span>{t('Output')}</span>
               </TabsTrigger>
               <TabsTrigger value="history" className="h-6 text-xs px-2.5 gap-1.5">
                 <HistoryIcon className="size-3.5" />
-                <span>History</span>
+                <span>{t('History')}</span>
                 {historyList.length > 0 && (
                   <span className="text-[10px] bg-background text-foreground px-1 py-0.2 rounded-full font-mono">
                     {historyList.length}
@@ -107,7 +109,7 @@ export default function WorkerLogsDialog({ open, onOpenChange, serverId, workerI
             </Link>
           </Button>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

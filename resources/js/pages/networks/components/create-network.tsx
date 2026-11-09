@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEvent } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -33,6 +34,7 @@ export default function CreateNetwork({
   onOpenChange: (open: boolean) => void;
   servers: NetworkServerOption[];
 }) {
+  const t = useTranslate();
   const form = useForm<CreateNetworkForm>({
     name: '',
     type: 'wireguard',
@@ -77,19 +79,19 @@ export default function CreateNetwork({
         <Form id="create-network-form" onSubmit={submit} className="max-h-[70vh] overflow-y-auto p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
 
             <FormField>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t('Type')}</Label>
               <Select
                 value={form.data.type}
                 onValueChange={(value) => form.setData((prev) => ({ ...prev, type: value, servers: [], ip_addresses: {} }))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -160,7 +162,7 @@ export default function CreateNetwork({
                   keywords: [server.name],
                 }))}
                 value={primaryServerId ? String(primaryServerId) : ''}
-                placeholder="Select a server"
+                placeholder={t('Select a server')}
                 searchText="Filter servers..."
                 noneFoundText="No servers found."
                 onValueChange={(value) => selectPrimaryServer(Number(value))}
@@ -170,7 +172,7 @@ export default function CreateNetwork({
 
             {isCustom && (
               <FormField>
-                <Label htmlFor="primary-server-ip">Private IP</Label>
+                <Label htmlFor="primary-server-ip">{t('Private IP')}</Label>
                 <PrivateIpSelect
                   serverId={primaryServerId}
                   ips={primaryServer?.private_ips ?? []}
@@ -185,11 +187,11 @@ export default function CreateNetwork({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="create-network-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Create
+            {t('Create')}
           </Button>
         </DialogFooter>
       </DialogContent>

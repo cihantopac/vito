@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import RuntimeProcesses from '@/components/runtime-processes';
 import { Head, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -18,6 +19,7 @@ import { useRealtime } from '@/hooks/use-socket-events';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function WorkerIndex() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     workers: PaginatedData<Worker>;
@@ -42,7 +44,7 @@ export default function WorkerIndex() {
       <Container>
         <HeaderContainer>
           <Heading
-            title="Workers"
+            title={t('Workers')}
             description={page.props.site ? `Here you can manage ${page.props.site.domain}'s workers` : "Here you can manage server's workers"}
           />
           {page.props.server.services?.process_manager && <div className="flex items-center gap-2">
@@ -50,7 +52,7 @@ export default function WorkerIndex() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
                   <MoreHorizontalIcon className="size-4" />
-                  <span>Actions</span>
+                  <span>{t('Actions')}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -86,7 +88,7 @@ export default function WorkerIndex() {
             </DropdownMenu>
             <Button onClick={() => dialog.workerForm.open({ serverId: page.props.server.id, site: page.props.site })}>
               <PlusIcon />
-              <span className="hidden lg:block">Create</span>
+              <span className="hidden lg:block">{t('Create')}</span>
             </Button>
           </div>}
         </HeaderContainer>

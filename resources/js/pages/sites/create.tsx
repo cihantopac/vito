@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useState, FormEventHandler, useEffect, useMemo } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -79,6 +80,7 @@ export default function CreateSitePage({
 }: {
   server?: Server;
 }) {
+  const t = useTranslate();
   const page = usePage<SharedData & { server?: Server }>();
   const server = propServer || page.props.server;
   const isServerContext = Boolean(server && !server.is_self);
@@ -308,7 +310,7 @@ export default function CreateSitePage({
 
   return (
     <PageLayout>
-      <Head title="Create site" />
+      <Head title={t('Create site')} />
 
       <Container className="max-w-3xl py-8">
         <div className="mb-6">
@@ -379,7 +381,7 @@ export default function CreateSitePage({
 
               <div className="p-4 sm:p-5 border-t bg-muted/20 flex items-center justify-between">
                 <Button variant="outline" asChild>
-                  <Link href={backRoute}>Cancel</Link>
+                  <Link href={backRoute}>{t('Cancel')}</Link>
                 </Button>
               </div>
             </div>
@@ -431,7 +433,7 @@ export default function CreateSitePage({
                     <>
                       {server === undefined && (
                         <FormField>
-                          <Label htmlFor="server">Server</Label>
+                          <Label htmlFor="server">{t('Server')}</Label>
                           <ServerSelect
                             value={form.data.server}
                             excludeSelf
@@ -462,7 +464,7 @@ export default function CreateSitePage({
 
                           <FormField className="w-full">
                             <Label htmlFor="repository" className="text-xs">
-                              Repository
+                              {t('Repository')}
                             </Label>
                             <SelectRepo
                               sourceControlId={form.data.source_control}
@@ -530,7 +532,7 @@ export default function CreateSitePage({
                                 <div className="font-mono text-foreground">{vitoDetected.config.web_directory || 'public'}</div>
                               </div>
                               <div className="bg-background/80 rounded p-2 border">
-                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">Commands</div>
+                                <div className="text-[10px] uppercase font-semibold text-muted-foreground">{t('Commands')}</div>
                                 <div className="font-mono text-foreground">{vitoDetected.config.commands?.length ?? 0} step(s)</div>
                               </div>
                               <div className="bg-background/80 rounded p-2 border">
@@ -557,7 +559,7 @@ export default function CreateSitePage({
                     <>
                       {server === undefined && (
                         <FormField>
-                          <Label htmlFor="server">Server</Label>
+                          <Label htmlFor="server">{t('Server')}</Label>
                           <ServerSelect
                             value={form.data.server}
                             excludeSelf
@@ -598,7 +600,7 @@ export default function CreateSitePage({
 
                             <FormField className="w-full">
                               <Label htmlFor="repository" className="text-xs">
-                                Repository
+                                {t('Repository')}
                               </Label>
                               <SelectRepo
                                 sourceControlId={form.data.source_control}
@@ -626,7 +628,7 @@ export default function CreateSitePage({
 
                       {isPhpType && (
                         <FormField>
-                          <Label htmlFor="php_version">PHP version</Label>
+                          <Label htmlFor="php_version">{t('PHP version')}</Label>
                           <ServiceVersionSelect
                             id="php_version"
                             service="php"
@@ -653,7 +655,7 @@ export default function CreateSitePage({
                             <span>Advanced Settings</span>
                             {hasAdvancedErrors && (
                               <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">
-                                Error
+                                {t('Error')}
                               </Badge>
                             )}
                           </button>
@@ -671,12 +673,12 @@ export default function CreateSitePage({
 
                 <div className="pt-4 border-t flex items-center justify-between">
                   <Button type="button" variant="outline" onClick={() => setStep(1)} disabled={form.processing}>
-                    <ArrowLeftIcon className="mr-1.5 size-4" /> Back
+                    <ArrowLeftIcon className="mr-1.5 size-4" /> {t('Back')}
                   </Button>
 
                   <Button type="submit" disabled={form.processing}>
                     {form.processing && <LoaderCircleIcon className="mr-1.5 size-4 animate-spin" />}
-                    Create site
+                    {t('Create site')}
                   </Button>
                 </div>
               </Form>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode, useRef, useState } from 'react';
 import {
   Dialog,
@@ -45,6 +46,7 @@ export default function CreateDatabase({
   onDatabaseCreated?: () => void;
   children: ReactNode;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [charsets, setCharsets] = useState<string[]>([]);
   const [collations, setCollations] = useState<string[]>([]);
@@ -137,7 +139,7 @@ export default function CreateDatabase({
         <Form className="p-4" id="create-database-form" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input type="text" id="name" name="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -194,12 +196,12 @@ export default function CreateDatabase({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Create
+            {t('Create')}
           </Button>
         </DialogFooter>
       </DialogContent>

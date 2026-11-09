@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { ClipboardCheckIcon, ClipboardIcon, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ type ApiKeyForm = {
 };
 
 export default function CreateApiKey({ children, projects }: { children: ReactNode; projects: Project[] }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [token, setToken] = useState<string | undefined>();
   const tokenInputRef = useRef<HTMLInputElement>(null);
@@ -87,12 +89,12 @@ export default function CreateApiKey({ children, projects }: { children: ReactNo
           ) : (
             <FormFields>
               <FormField>
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('Name')}</Label>
                 <Input type="text" id="name" name="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
                 <InputError message={form.errors.name} />
               </FormField>
               <FormField>
-                <Label htmlFor="permission">Permission</Label>
+                <Label htmlFor="permission">{t('Permission')}</Label>
                 <Select name="permission" value={form.data.permission} onValueChange={(value) => form.setData('permission', value)}>
                   <SelectTrigger id="permission">
                     <SelectValue placeholder="Select a permission" />
@@ -100,10 +102,10 @@ export default function CreateApiKey({ children, projects }: { children: ReactNo
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem key="permission-read" value="read">
-                        read
+                        {t('read')}
                       </SelectItem>
                       <SelectItem key="permission-write" value="write">
-                        read & write
+                        {t('read & write')}
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>
@@ -111,7 +113,7 @@ export default function CreateApiKey({ children, projects }: { children: ReactNo
                 <InputError message={form.errors.permission} />
               </FormField>
               <FormField>
-                <Label htmlFor="projects">Projects</Label>
+                <Label htmlFor="projects">{t('Projects')}</Label>
                 <MultiSelect
                   options={projectOptions}
                   onValueChange={(value) => form.setData('projects', value)}
@@ -129,12 +131,12 @@ export default function CreateApiKey({ children, projects }: { children: ReactNo
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Cancel
+                {t('Cancel')}
               </Button>
             </DialogClose>
             <Button type="button" onClick={submit} disabled={form.processing || form.data.projects.length === 0}>
               {form.processing && <LoaderCircle className="animate-spin" />}
-              Create
+              {t('Create')}
             </Button>
           </DialogFooter>
         )}

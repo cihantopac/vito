@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Server } from '@/types/server';
@@ -28,6 +29,7 @@ type Page = {
 };
 
 export default function Files() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const [showLogs, setShowLogs] = useState(false);
   const [files] = useRealtime<BackupFile>(page.props.files, 'backup-file', { backup_id: page.props.backup.id });
@@ -85,10 +87,10 @@ export default function Files() {
             {isPgBackRest && (
               <>
                 <Button variant="outline" onClick={() => dialog.backupRestoreToServer.open({ backup: page.props.backup })}>
-                  Restore to a new server
+                  {t('Restore to a new server')}
                 </Button>
                 <Button variant="outline" onClick={() => dialog.pgBackRestRestore.open({ backup: page.props.backup })}>
-                  Restore commands
+                  {t('Restore commands')}
                 </Button>
               </>
             )}

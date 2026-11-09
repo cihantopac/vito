@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { FormEvent, Fragment, ReactNode, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import { Editor, useMonaco } from '@/components/ui/code-editor';
@@ -25,6 +26,7 @@ export default function DeploymentScript({
   description?: string;
   children: ReactNode;
 }) {
+  const t = useTranslate();
 
   const availableCommands = site.available_tooling_commands ?? [];
 
@@ -115,10 +117,10 @@ export default function DeploymentScript({
           <div className="flex items-center gap-2">
             <Button form="update-script-form" disabled={form.processing} onClick={submit}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              Save
+              {t('Save')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
             <InputError message={form.errors.script} />
           </div>

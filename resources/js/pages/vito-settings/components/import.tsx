@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { LoaderCircleIcon, UploadIcon } from 'lucide-react';
 import {
@@ -18,13 +19,14 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 
 export default function ImportVito() {
+  const t = useTranslate();
   const form = useForm({
     backup_file: null as File | null,
   });
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    form.post("/admin/vito/import");
+    form.post('/admin/vito/import');
   };
 
   return (
@@ -32,12 +34,12 @@ export default function ImportVito() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <UploadIcon />
-          Import
+          {t('Import')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Import</DialogTitle>
+          <DialogTitle>{t('Import')}</DialogTitle>
           <DialogDescription className="sr-only">Import settings to Pure</DialogDescription>
         </DialogHeader>
         <Form id="import-vito-form" className="p-4" onSubmit={submit}>
@@ -57,11 +59,11 @@ export default function ImportVito() {
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="import-vito-form" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Import
+            {t('Import')}
           </Button>
         </DialogFooter>
       </DialogContent>

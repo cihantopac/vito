@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
@@ -67,6 +68,7 @@ const preserveManagedVariables = (next: EnvVariable[], current: EnvVariable[]): 
 };
 
 function EnvironmentEditorContent() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -358,7 +360,7 @@ function EnvironmentEditorContent() {
                 )}
                 {saveSuccess && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-neutral-500/10 px-2 py-0.5 text-xs font-medium text-neutral-500 animate-in fade-in">
-                    <CheckIcon className="size-3" /> Saved
+                    <CheckIcon className="size-3" /> {t('Saved')}
                   </span>
                 )}
               </div>

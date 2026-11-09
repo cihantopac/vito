@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +16,7 @@ import { Site } from '@/types/site';
 import { Worker } from '@/types/worker';
 
 export default function ProxiedAppCard({ site, initialWorker }: { site: Site; initialWorker: Worker | null }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const worker = useRealtimeRecord<Worker>(initialWorker, 'worker');
 
@@ -83,7 +85,7 @@ export default function ProxiedAppCard({ site, initialWorker }: { site: Site; in
                   </>
                 ) : (
                   <DropdownMenuItem onSelect={() => dialog.workerEnv.open({ serverId: site.server_id, siteId: site.id })}>
-                    Environment
+                    {t('Environment')}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -20,6 +21,7 @@ type Page = {
 };
 
 export default function NotificationChannels() {
+  const t = useTranslate();
   const page = usePage<Page>();
 
   return (
@@ -30,7 +32,7 @@ export default function NotificationChannels() {
           <Heading title="Notification Channels" />
           <div className="flex items-center gap-2">
             <ConnectNotificationChannel>
-              <Button>Connect</Button>
+              <Button>{t('Connect')}</Button>
             </ConnectNotificationChannel>
           </div>
         </div>

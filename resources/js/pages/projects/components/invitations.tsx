@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
 import { CheckIcon, XIcon } from 'lucide-react';
@@ -7,6 +8,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Link } from '@inertiajs/react';
 
 function Actions({ invitation }: { invitation: ProjectUser }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -26,7 +28,7 @@ function Actions({ invitation }: { invitation: ProjectUser }) {
         }
       >
         <XIcon />
-        Reject
+        {t('Reject')}
       </Button>
       <Button size="sm" asChild>
         <Link href={`/settings/projects/${invitation.project_id}/invitations/accept`}>

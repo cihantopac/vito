@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Repo } from '@/types/repo';
 import {
   Dialog,
@@ -21,6 +22,7 @@ import { Plugin } from '@/types/plugin';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function InstallDialog({ repo }: { repo?: Repo }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const page = usePage<{
     plugins: Plugin[];
@@ -70,11 +72,11 @@ export default function InstallDialog({ repo }: { repo?: Repo }) {
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Install
+            {t('Install')}
           </Button>
         </DialogFooter>
       </DialogContent>

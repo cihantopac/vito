@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { Link, useForm } from '@inertiajs/react';
@@ -21,6 +22,7 @@ function SimpleAction({ storageMigration, action, label, phase = 'all' }: { stor
 }
 
 function Cancel({ storageMigration }: { storageMigration: StorageMigration }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -37,12 +39,13 @@ function Cancel({ storageMigration }: { storageMigration: StorageMigration }) {
         })
       }
     >
-      Cancel
+      {t('Cancel')}
     </DropdownMenuItem>
   );
 }
 
 function Delete({ storageMigration }: { storageMigration: StorageMigration }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -59,12 +62,13 @@ function Delete({ storageMigration }: { storageMigration: StorageMigration }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }
 
 export default function StorageMigrationActions({ storageMigration }: { storageMigration: StorageMigration }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const isOpen = ['pending', 'scanning', 'running', 'verifying', 'paused'].includes(storageMigration.status);
   const isSettled = !isOpen;
@@ -77,7 +81,7 @@ export default function StorageMigrationActions({ storageMigration }: { storageM
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem asChild>
-            <Link href={`/storage-migrations/${storageMigration.id}`}>View</Link>
+            <Link href={`/storage-migrations/${storageMigration.id}`}>{t('View')}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => dialog.storageMigrationRename.open({ storageMigration })}>Rename</DropdownMenuItem>
 

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Service } from '@/types/service';
 import { useForm } from '@inertiajs/react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -8,6 +9,7 @@ import InputError from '@/components/ui/input-error';
 import type { DialogControlProps } from '@/components/dialogs/registry';
 
 export default function ResyncStatsDialog({ service, open, onOpenChange }: { service: Service } & DialogControlProps) {
+  const t = useTranslate();
   const form = useForm();
 
   const submit = () => {
@@ -34,7 +36,7 @@ export default function ResyncStatsDialog({ service, open, onOpenChange }: { ser
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -22,6 +23,7 @@ type Page = {
 };
 
 export default function StorageProviders() {
+  const t = useTranslate();
   const page = usePage<Page>();
 
   return (
@@ -32,7 +34,7 @@ export default function StorageProviders() {
           <Heading title="Storage Providers" />
           <div className="flex items-center gap-2">
             <ConnectStorageProvider>
-              <Button>Connect</Button>
+              <Button>{t('Connect')}</Button>
             </ConnectStorageProvider>
           </div>
         </div>

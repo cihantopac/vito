@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -16,6 +17,7 @@ type ActivateServerSslDialogProps = {
 };
 
 export default function ActivateServerSslDialog({ open, onOpenChange, serverId, sslId }: ActivateServerSslDialogProps) {
+  const t = useTranslate();
   const form = useForm<{ certificate: string; ca: string }>({
     certificate: '',
     ca: '',
@@ -72,7 +74,7 @@ export default function ActivateServerSslDialog({ open, onOpenChange, serverId, 
             </Button>
             <SheetClose asChild>
               <Button variant="outline" disabled={form.processing}>
-                Cancel
+                {t('Cancel')}
               </Button>
             </SheetClose>
           </div>

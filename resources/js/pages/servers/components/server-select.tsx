@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { type Server } from '@/types/server';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
@@ -49,6 +50,7 @@ export default function ServerSelect({
   showIp = true,
   excludeSelf = false,
 }: ServerSelectProps) {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -222,9 +224,9 @@ export default function ServerSelect({
                 {hasNextPage && (
                   <div ref={loadMoreRef} className="flex justify-center py-2">
                     {isFetchingNextPage ? (
-                      <span className="text-muted-foreground text-xs">Loading more...</span>
+                      <span className="text-muted-foreground text-xs">{t('Loading more...')}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">Scroll for more</span>
+                      <span className="text-muted-foreground text-xs">{t('Scroll for more')}</span>
                     )}
                   </div>
                 )}

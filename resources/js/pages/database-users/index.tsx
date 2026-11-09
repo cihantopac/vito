@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import { DatabaseUser } from '@/types/database-user';
@@ -25,6 +26,7 @@ type Page = {
 };
 
 export default function DatabaseUsers() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
   const usesHost = page.props.usesHost;
@@ -56,13 +58,13 @@ export default function DatabaseUsers() {
                 })
               }
             >
-              Sync
+              {t('Sync')}
             </Button>
             {!page.props.replicaOf && (
               <CreateDatabaseUser server={page.props.server.id} usesHost={usesHost}>
                 <Button>
                   <PlusIcon />
-                  <span className="hidden lg:block">Create</span>
+                  <span className="hidden lg:block">{t('Create')}</span>
                 </Button>
               </CreateDatabaseUser>
             )}
@@ -72,7 +74,7 @@ export default function DatabaseUsers() {
         {page.props.replicaOf && (
           <Alert>
             <InfoIcon />
-            <AlertTitle>This server is a PostgreSQL replica of {page.props.replicaOf.name}</AlertTitle>
+            <AlertTitle>{t('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
                 Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Pure imports the list when
@@ -98,7 +100,7 @@ export default function DatabaseUsers() {
                     <TableActionTrigger />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onSelect={() => dialog.databaseUserEdit.open({ databaseUser, usesHost })}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => dialog.databaseUserEdit.open({ databaseUser, usesHost })}>{t('Edit')}</DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => dialog.databaseUserLink.open({ databaseUser })}>Link</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -114,7 +116,7 @@ export default function DatabaseUsers() {
                         })
                       }
                     >
-                      Delete
+                      {t('Delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

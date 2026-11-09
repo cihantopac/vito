@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage, usePoll } from '@inertiajs/react';
 import { ArrowRightIcon, PlusIcon } from 'lucide-react';
 import { Server } from '@/types/server';
@@ -27,6 +28,7 @@ function gigabytes(bytes: number): string {
 }
 
 export default function DatabaseUpgrades() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
   const { server, upgrade, logs } = page.props;
@@ -195,7 +197,7 @@ export default function DatabaseUpgrades() {
             <Card>
               <CardContent className="flex flex-col gap-3 p-4 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium">Activity</p>
+                  <p className="font-medium">{t('Activity')}</p>
                   {upgrade.target_server_id && (
                     <Button variant="outline" size="sm" onClick={showOutput} disabled={loadingOutput}>
                       {loadingOutput ? 'Reading the copy output…' : 'Copy output'}
@@ -280,7 +282,7 @@ export default function DatabaseUpgrades() {
                     })
                   }
                 >
-                  Remove
+                  {t('Remove')}
                 </Button>
               )}
             </div>

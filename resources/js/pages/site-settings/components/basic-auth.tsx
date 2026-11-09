@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode, useState } from 'react';
 import {
   Dialog,
@@ -24,6 +25,7 @@ import { rowId } from '@/lib/utils';
 type FormUser = { id: string; username: string; password: string; existing: boolean };
 
 export default function BasicAuth({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const initialUsers = (): FormUser[] =>
@@ -109,7 +111,7 @@ export default function BasicAuth({ site, children }: { site: Site; children: Re
             </FormField>
 
             <FormField>
-              <Label>Users</Label>
+              <Label>{t('Users')}</Label>
               <div className="space-y-2">
                 {form.data.users.length === 0 && <p className="text-muted-foreground text-sm">No users yet. Add a user to start using basic auth.</p>}
                 {form.data.users.map((u, i) => (
@@ -133,7 +135,7 @@ export default function BasicAuth({ site, children }: { site: Site; children: Re
                 ))}
                 <Button type="button" variant="outline" size="sm" onClick={addUser}>
                   <PlusIcon className="size-4" />
-                  Add user
+                  {t('Add user')}
                 </Button>
               </div>
               <InputError message={form.errors.users} />
@@ -143,11 +145,11 @@ export default function BasicAuth({ site, children }: { site: Site; children: Re
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="basic-auth-form" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

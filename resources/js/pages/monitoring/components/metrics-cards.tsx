@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { MetricsFilter } from '@/types/metric';
 import { ResourceUsageChart } from '@/pages/monitoring/components/resource-usage-chart';
@@ -6,6 +7,7 @@ import { useMetrics } from '@/pages/monitoring/components/use-metrics';
 import { WifiOffIcon } from 'lucide-react';
 
 export default function MetricsCards({ server, filter, metric }: { server: Server; filter?: MetricsFilter; metric?: string }) {
+  const t = useTranslate();
   const query = useMetrics(server, filter);
   const history = query.data?.history ?? [];
 
@@ -37,7 +39,7 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
         <>
           {(!metric || metric === 'load') && (
             <ResourceUsageChart
-              title="CPU Load"
+              title={t('CPU Load')}
               label="CPU load"
               dataKey="load"
               color="var(--color-chart-1)"
@@ -48,7 +50,7 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
           )}
           {(!metric || metric === 'memory') && (
             <ResourceUsageChart
-              title="Memory Usage"
+              title={t('Memory Usage')}
               label="Memory usage"
               dataKey="memory_used_percent"
               color="var(--color-chart-2)"
@@ -61,7 +63,7 @@ export default function MetricsCards({ server, filter, metric }: { server: Serve
           )}
           {(!metric || metric === 'disk') && (
             <ResourceUsageChart
-              title="Disk Usage"
+              title={t('Disk Usage')}
               label="Disk usage"
               dataKey="disk_used_percent"
               color="var(--color-chart-3)"

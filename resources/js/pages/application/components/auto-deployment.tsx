@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { ReactNode, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import {
@@ -16,6 +17,7 @@ import FormSuccessful from '@/components/form-successful';
 import { Site } from '@/types/site';
 
 export default function AutoDeployment({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm();
 
@@ -34,20 +36,20 @@ export default function AutoDeployment({ site, children }: { site: Site; childre
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{site.auto_deploy ? 'Disable' : 'Enable'} auto deployment</DialogTitle>
-          <DialogDescription className="sr-only">{site.auto_deploy ? 'Disable' : 'Enable'} auto deployment</DialogDescription>
+          <DialogTitle>{site.auto_deploy ? 'Disable' : 'Enable'} {t('auto deployment')}</DialogTitle>
+          <DialogDescription className="sr-only">{site.auto_deploy ? 'Disable' : 'Enable'} {t('auto deployment')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2 p-4">
           <p>Are you sure you want to {site.auto_deploy ? 'disable' : 'enable'} auto deployment?</p>
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Yes
+            {t('Yes')}
           </Button>
         </DialogFooter>
       </DialogContent>

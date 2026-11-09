@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import {
@@ -99,6 +100,7 @@ function SizeCell({ size, percentage }: { size: string; percentage: number }) {
 }
 
 export default function DiskUsage() {
+  const t = useTranslate();
   const {
     server,
     initialPath = '/',
@@ -254,7 +256,7 @@ export default function DiskUsage() {
 
       <Container className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <Heading title="Disk Usage" />
+          <Heading title={t('Disk Usage')} />
 
           <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1">
@@ -311,12 +313,12 @@ export default function DiskUsage() {
                     onClick={() => fetchDiskUsage(currentPath, limit)}
                     className="size-7 text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-50"
                     disabled={loading}
-                    aria-label="Refresh"
+                    aria-label={t('Refresh')}
                   >
                     <RefreshCwIcon className={cn('size-3.5', loading && 'animate-spin')} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Refresh</TooltipContent>
+                <TooltipContent>{t('Refresh')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -406,7 +408,7 @@ export default function DiskUsage() {
                     setIsEditing(true);
                   }}
                   className="p-1 rounded text-muted-foreground/40 hover:text-foreground transition-colors cursor-pointer shrink-0 ml-1 disabled:opacity-30"
-                  aria-label="Edit"
+                  aria-label={t('Edit')}
                 >
                   <PencilIcon className="size-2.5" />
                 </button>
@@ -448,7 +450,7 @@ export default function DiskUsage() {
               onClick={() => fetchDiskUsage(currentPath, limit)}
               disabled={loading}
             >
-              Retry
+              {t('Retry')}
             </Button>
           </div>
         )}
@@ -470,8 +472,8 @@ export default function DiskUsage() {
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-muted/5">
                   <TableRow className="h-7 border-b border-border/40 hover:bg-transparent">
-                    <TableHead className="h-7 px-3 text-[11px]">Name</TableHead>
-                    <TableHead className="h-7 w-32 px-3 text-right text-[11px] shrink-0">Size</TableHead>
+                    <TableHead className="h-7 px-3 text-[11px]">{t('Name')}</TableHead>
+                    <TableHead className="h-7 w-32 px-3 text-right text-[11px] shrink-0">{t('Size')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -529,7 +531,7 @@ export default function DiskUsage() {
                                 e.stopPropagation();
                                 handleCopy(folder.path);
                               }}
-                              aria-label="Copy"
+                              aria-label={t('Copy')}
                             >
                               {copiedPath === folder.path ? (
                                 <CheckIcon className="size-3 text-neutral-500" />
@@ -566,8 +568,8 @@ export default function DiskUsage() {
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-muted/5">
                   <TableRow className="h-7 border-b border-border/40 hover:bg-transparent">
-                    <TableHead className="h-7 px-3 text-[11px]">Name</TableHead>
-                    <TableHead className="h-7 w-32 px-3 text-right text-[11px] shrink-0">Size</TableHead>
+                    <TableHead className="h-7 px-3 text-[11px]">{t('Name')}</TableHead>
+                    <TableHead className="h-7 w-32 px-3 text-right text-[11px] shrink-0">{t('Size')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -646,7 +648,7 @@ export default function DiskUsage() {
                               type="button"
                               className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-muted-foreground/50 hover:text-foreground cursor-pointer ml-auto shrink-0 self-center"
                               onClick={() => handleCopy(file.path)}
-                              aria-label="Copy"
+                              aria-label={t('Copy')}
                             >
                               {copiedPath === file.path ? (
                                 <CheckIcon className="size-3 text-neutral-500" />

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import {
   Dialog,
@@ -28,6 +29,7 @@ export default function CreateCommand({
   serverId: number;
   siteId: number;
 }) {
+  const t = useTranslate();
   const form = useForm<{
     name: string;
     command: string;
@@ -53,13 +55,13 @@ export default function CreateCommand({
         <Form id="create-command-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" name="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
 
             <FormField>
-              <Label htmlFor="command">Command</Label>
+              <Label htmlFor="command">{t('Command')}</Label>
               <Textarea id="command" name="command" value={form.data.command} onChange={(e) => form.setData('command', e.target.value)} />
               <p className="text-muted-foreground text-sm">
                 You can use variables like {'${VARIABLE_NAME}'} in the command. The variables will be asked when executing the command
@@ -73,10 +75,10 @@ export default function CreateCommand({
           <div className="flex items-center gap-2">
             <Button form="create-command-form" type="submit" disabled={form.processing}>
               {form.processing && <LoaderCircle className="animate-spin" />}
-              Create
+              {t('Create')}
             </Button>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </DialogClose>
           </div>
         </DialogFooter>

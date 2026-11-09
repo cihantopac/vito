@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import CopyableField from '@/components/copyable-field';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -9,6 +10,7 @@ import { KeyRoundIcon, TerminalIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ConnectSshDialog({ server, children }: { server: Server; children?: React.ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const availableUsers = server.ssh_users && server.ssh_users.length > 0 ? server.ssh_users : [server.ssh_user || 'root'];
@@ -26,7 +28,7 @@ export default function ConnectSshDialog({ server, children }: { server: Server;
         {children || (
           <Button variant="outline" size="sm" className="gap-1.5">
             <KeyRoundIcon className="size-4" />
-            Connect
+            {t('Connect')}
           </Button>
         )}
       </DialogTrigger>
@@ -66,7 +68,7 @@ export default function ConnectSshDialog({ server, children }: { server: Server;
           )}
 
           <div className="space-y-1.5">
-            <Label className="text-muted-foreground text-xs">Command</Label>
+            <Label className="text-muted-foreground text-xs">{t('Command')}</Label>
             <div className="flex items-center gap-2">
               <CopyableField value={command} className="h-9 flex-1 font-mono text-xs" />
               <Button size="sm" className="h-9 gap-1.5 shrink-0 cursor-pointer" asChild>
@@ -84,7 +86,7 @@ export default function ConnectSshDialog({ server, children }: { server: Server;
             <Link href={`/servers/${server.id}/ssh-keys`}>Manage SSH keys</Link>
           </Button>
           <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
-            Close
+            {t('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

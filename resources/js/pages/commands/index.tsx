@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import Container from '@/components/container';
 import DateTime from '@/components/date-time';
 import Heading from '@/components/heading';
@@ -19,6 +20,7 @@ import { Clock3Icon, CornerDownLeftIcon, LoaderCircleIcon, PlayIcon, PlusIcon, T
 import { FormEvent } from 'react';
 
 function CommandRow({ command }: { command: Command }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -38,12 +40,12 @@ function CommandRow({ command }: { command: Command }) {
         <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
           <Link href={`/servers/${command.server_id}/sites/${command.site_id}/commands/${command.id}`}>
             <Clock3Icon />
-            Logs
+            {t('Logs')}
           </Link>
         </Button>
         <Button size="sm" onClick={() => dialog.commandExecute.open({ command })}>
           <PlayIcon />
-          <span className="hidden sm:inline">Run</span>
+          <span className="hidden sm:inline">{t('Run')}</span>
         </Button>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -51,9 +53,9 @@ function CommandRow({ command }: { command: Command }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild className="sm:hidden">
-              <Link href={`/servers/${command.server_id}/sites/${command.site_id}/commands/${command.id}`}>View logs</Link>
+              <Link href={`/servers/${command.server_id}/sites/${command.site_id}/commands/${command.id}`}>{t('View logs')}</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => dialog.commandEdit.open({ command })}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => dialog.commandEdit.open({ command })}>{t('Edit')}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
@@ -68,7 +70,7 @@ function CommandRow({ command }: { command: Command }) {
                 })
               }
             >
-              Delete
+              {t('Delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -78,6 +80,7 @@ function CommandRow({ command }: { command: Command }) {
 }
 
 export default function Commands() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -104,7 +107,7 @@ export default function Commands() {
       <Head title={`Commands - ${site.domain} - ${server.name}`} />
 
       <Container>
-        <Heading title="Commands" />
+        <Heading title={t('Commands')} />
 
         <SiteBanners site={site} />
 
@@ -125,7 +128,7 @@ export default function Commands() {
               </div>
               <Button type="submit" className="h-9 shrink-0" disabled={form.processing || !form.data.command.trim()}>
                 {form.processing ? <LoaderCircleIcon className="animate-spin" /> : <CornerDownLeftIcon />}
-                <span className="hidden sm:inline">Run</span>
+                <span className="hidden sm:inline">{t('Run')}</span>
               </Button>
             </form>
             <InputError message={form.errors.command} className="px-2 pt-2" />
@@ -180,11 +183,11 @@ export default function Commands() {
         {(commands.links.prev || commands.links.next) && (
           <div className="flex items-center justify-between gap-3">
             <Button variant="outline" disabled={!commands.links.prev} onClick={() => visitPage(commands.links.prev)}>
-              Previous
+              {t('Previous')}
             </Button>
-            <span className="text-muted-foreground text-sm">Page {commands.meta.current_page}</span>
+            <span className="text-muted-foreground text-sm">{t('Page')} {commands.meta.current_page}</span>
             <Button variant="outline" disabled={!commands.links.next} onClick={() => visitPage(commands.links.next)}>
-              Next
+              {t('Next')}
             </Button>
           </div>
         )}

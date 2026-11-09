@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { AlertCircleIcon, ChevronDownIcon, InfoIcon, LoaderCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -90,6 +91,7 @@ export default function ConnectStorageProvider({
   onProviderAdded?: () => void;
   children: ReactNode;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(null);
@@ -283,7 +285,7 @@ export default function ConnectStorageProvider({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Connect to storage provider</DialogTitle>
+          <DialogTitle>{t('Connect to storage provider')}</DialogTitle>
           <DialogDescription className="sr-only">Connect to a new storage provider</DialogDescription>
         </DialogHeader>
         <Form
@@ -299,12 +301,12 @@ export default function ConnectStorageProvider({
             {providerError && (
               <Alert variant="destructive">
                 <AlertCircleIcon className="size-4" />
-                <AlertTitle>Connection failed</AlertTitle>
+                <AlertTitle>{t('Connection failed')}</AlertTitle>
                 <AlertDescription>{providerError}</AlertDescription>
               </Alert>
             )}
             <FormField>
-              <Label htmlFor="provider">Provider</Label>
+              <Label htmlFor="provider">{t('Provider')}</Label>
               <Select
                 value={form.data.provider}
                 onValueChange={(value) => {
@@ -314,7 +316,7 @@ export default function ConnectStorageProvider({
                 }}
               >
                 <SelectTrigger id="provider">
-                  <SelectValue placeholder="Select a provider" />
+                  <SelectValue placeholder={t('Select a provider')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -372,7 +374,7 @@ export default function ConnectStorageProvider({
             )}
 
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input
                 type="text"
                 name="name"
@@ -487,7 +489,7 @@ export default function ConnectStorageProvider({
                         onClick={() => form.setData('global', !form.data.global)}
                       />
                       <Label htmlFor="global" className="text-xs font-normal">
-                        Is global (accessible in all projects)
+                        {t('Is global (accessible in all projects)')}
                       </Label>
                     </div>
                     <InputError message={form.errors.global} />
@@ -500,12 +502,12 @@ export default function ConnectStorageProvider({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Connect
+            {t('Connect')}
           </Button>
         </DialogFooter>
       </DialogContent>

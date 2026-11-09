@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -42,6 +43,7 @@ export default function QuickCreateUserDialog({
   defaultEmail?: string;
   onUserCreated?: (user: { id: number; name: string; email: string }) => void;
 }) {
+  const t = useTranslate();
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [email, setEmail] = useState(defaultEmail);
@@ -164,7 +166,7 @@ export default function QuickCreateUserDialog({
             <FormField>
               <div className="flex items-center justify-between">
                 <Label htmlFor="quick-user-password" className="text-xs font-medium">
-                  Password
+                  {t('Password')}
                 </Label>
                 <button
                   type="button"
@@ -213,7 +215,7 @@ export default function QuickCreateUserDialog({
         <DialogFooter className="p-4 pt-2 border-t bg-muted/10 flex items-center justify-between">
           <DialogClose asChild>
             <Button type="button" variant="outline" size="sm" className="text-xs">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button

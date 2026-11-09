@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useState } from 'react';
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -48,6 +49,7 @@ function TestConnectionButton({ storageId, label, mode }: { storageId: string; l
 }
 
 export default function CreateStorageMigration({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const t = useTranslate();
   const [server, setServer] = useState<Server>();
   const form = useForm<{
     name: string;
@@ -82,7 +84,7 @@ export default function CreateStorageMigration({ open, onOpenChange }: { open: b
         <Form id="create-storage-migration-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -180,7 +182,7 @@ export default function CreateStorageMigration({ open, onOpenChange }: { open: b
               Start migration
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

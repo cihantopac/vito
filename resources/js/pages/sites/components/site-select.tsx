@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { type Site } from '@/types/site';
 import { Fragment, useState, useEffect, useRef, type ReactNode } from 'react';
@@ -44,6 +45,7 @@ export default function SiteSelect({
   onOpenChange: controlledOnOpenChange,
   footer,
 }: SiteSelectProps) {
+  const t = useTranslate();
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -205,9 +207,9 @@ export default function SiteSelect({
                 {hasNextPage && (
                   <div ref={loadMoreRef} className="flex justify-center py-2">
                     {isFetchingNextPage ? (
-                      <span className="text-muted-foreground text-xs">Loading more...</span>
+                      <span className="text-muted-foreground text-xs">{t('Loading more...')}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">Scroll for more</span>
+                      <span className="text-muted-foreground text-xs">{t('Scroll for more')}</span>
                     )}
                   </div>
                 )}

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { useId, useState } from 'react';
 import { EyeIcon, EyeOffIcon, LockIcon, TrashIcon, UnlockIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ interface EnvVariableRowProps {
 }
 
 export default function EnvVariableRow({ variable, onChange, onDelete, revealable = false, error, duplicate, action }: EnvVariableRowProps) {
+  const t = useTranslate();
   const [showValue, setShowValue] = useState(false);
   const hintId = useId();
   const isMultiLine = variable.value.includes('\n');
@@ -58,7 +60,7 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
               data-1p-ignore="true"
               data-lpignore="true"
               data-bwignore="true"
-              placeholder="Enter new value to change..."
+              placeholder={t('Enter new value to change...')}
               className="h-9 w-full pr-10"
             />
             <button
@@ -68,7 +70,7 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
                 hasNewValue ? 'text-muted-foreground hover:text-foreground' : 'text-muted-foreground/50 pointer-events-none',
               )}
               onClick={() => hasNewValue && setShowValue(true)}
-              aria-label="Show value"
+              aria-label={t('Show value')}
               disabled={!hasNewValue}
             >
               <EyeIcon className="size-4" aria-hidden="true" />
@@ -79,12 +81,12 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
 
       return (
         <div className="relative min-h-9 flex-1">
-          <AutoGrowTextarea value={variable.value} onChange={handleValueChange} placeholder="Enter new value to change..." className="w-full pr-10" disabled={isManaged} />
+          <AutoGrowTextarea value={variable.value} onChange={handleValueChange} placeholder={t('Enter new value to change...')} className="w-full pr-10" disabled={isManaged} />
           <button
             type="button"
             className="text-muted-foreground hover:text-foreground absolute top-0 right-0 flex h-9 w-9 items-center justify-center"
             onClick={() => setShowValue(false)}
-            aria-label="Hide value"
+            aria-label={t('Hide value')}
           >
             <EyeOffIcon className="size-4" aria-hidden="true" />
           </button>
@@ -120,7 +122,7 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
               type="button"
               className="text-muted-foreground hover:text-foreground absolute top-0 right-0 flex h-9 w-9 items-center justify-center"
               onClick={() => setShowValue(true)}
-              aria-label="Show value"
+              aria-label={t('Show value')}
             >
               <EyeIcon className="size-4" aria-hidden="true" />
             </button>
@@ -130,12 +132,12 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
 
       return (
         <div className="relative min-h-9 flex-1">
-          <AutoGrowTextarea value={variable.value} onChange={handleValueChange} placeholder="Enter value..." className="w-full pr-10" disabled={isManaged} />
+          <AutoGrowTextarea value={variable.value} onChange={handleValueChange} placeholder={t('Enter value...')} className="w-full pr-10" disabled={isManaged} />
           <button
             type="button"
             className="text-muted-foreground hover:text-foreground absolute top-0 right-0 flex h-9 w-9 items-center justify-center"
             onClick={() => setShowValue(false)}
-            aria-label="Hide value"
+            aria-label={t('Hide value')}
           >
             <EyeOffIcon className="size-4" aria-hidden="true" />
           </button>
@@ -146,7 +148,7 @@ export default function EnvVariableRow({ variable, onChange, onDelete, revealabl
     
     return (
       <div className="min-h-9 flex-1">
-        <AutoGrowTextarea value={variable.value} onChange={handleValueChange} placeholder="Enter value..." className="w-full" disabled={isManaged} />
+        <AutoGrowTextarea value={variable.value} onChange={handleValueChange} placeholder={t('Enter value...')} className="w-full" disabled={isManaged} />
       </div>
     );
   };

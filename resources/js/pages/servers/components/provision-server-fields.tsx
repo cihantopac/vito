@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FormField } from '@/components/ui/form';
@@ -62,6 +63,7 @@ export default function ProvisionServerFields({
   onFitChange?: (fit: PlanFit) => void;
   warningSuffix?: string;
 }) {
+  const t = useTranslate();
   const [providers, setProviders] = useState<ServerProvider[]>([]);
   const [regions, setRegions] = useState<Record<string, string>>({});
   const [plans, setPlans] = useState<Record<string, Plan>>({});
@@ -110,7 +112,7 @@ export default function ProvisionServerFields({
       </FormField>
 
       <FormField>
-        <Label>Provider</Label>
+        <Label>{t('Provider')}</Label>
         <Select value={data.server_provider} onValueChange={selectProvider}>
           <SelectTrigger>
             <SelectValue placeholder="Select a server provider" />
@@ -127,10 +129,10 @@ export default function ProvisionServerFields({
       </FormField>
 
       <FormField>
-        <Label>Region</Label>
+        <Label>{t('Region')}</Label>
         <Select value={data.region} onValueChange={selectRegion} disabled={Object.keys(regions).length === 0}>
           <SelectTrigger>
-            <SelectValue placeholder="Select a region" />
+            <SelectValue placeholder={t('Select a region')} />
           </SelectTrigger>
           <SelectContent>
             {Object.entries(regions).map(([key, label]) => (

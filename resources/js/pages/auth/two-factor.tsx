@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircleIcon } from 'lucide-react';
 import { FormEvent } from 'react';
@@ -9,6 +10,7 @@ import AuthLayout from '@/layouts/auth/layout';
 import TextLink from '@/components/text-link';
 
 export default function TwoFactor() {
+  const t = useTranslate();
   const form = useForm<{ code: string; recovery_code: string }>({
     code: '',
     recovery_code: '',
@@ -24,7 +26,7 @@ export default function TwoFactor() {
 
   return (
     <AuthLayout title="Two factor challenge" description="Please enter the two-factor authentication code to continue.">
-      <Head title="Confirm password" />
+      <Head title={t('Confirm password')} />
 
       <form id="two-factor-form" onSubmit={submit}>
         <div className="grid gap-6">
@@ -61,7 +63,7 @@ export default function TwoFactor() {
 
           <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Confirm
+            {t('Confirm')}
           </Button>
         </div>
 

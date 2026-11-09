@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,6 +39,7 @@ export default function ConnectDNSProvider({
   onProviderAdded?: () => void;
   children: ReactNode;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const configs = useConfigs()!;
@@ -84,7 +86,7 @@ export default function ConnectDNSProvider({
         <Form id="create-dns-provider-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="provider">Provider</Label>
+              <Label htmlFor="provider">{t('Provider')}</Label>
               <Select
                 value={form.data.provider}
                 onValueChange={(value) => {
@@ -93,7 +95,7 @@ export default function ConnectDNSProvider({
                 }}
               >
                 <SelectTrigger id="provider">
-                  <SelectValue placeholder="Select a provider" />
+                  <SelectValue placeholder={t('Select a provider')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -130,7 +132,7 @@ export default function ConnectDNSProvider({
             <FormField>
               <div className="flex items-center space-x-3">
                 <Checkbox id="global" name="global" checked={form.data.global} onClick={() => form.setData('global', !form.data.global)} />
-                <Label htmlFor="global">Is global (accessible in all projects)</Label>
+                <Label htmlFor="global">{t('Is global (accessible in all projects)')}</Label>
               </div>
               <InputError message={form.errors.global} />
             </FormField>
@@ -139,12 +141,12 @@ export default function ConnectDNSProvider({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Connect
+            {t('Connect')}
           </Button>
         </DialogFooter>
       </DialogContent>

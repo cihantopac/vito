@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -25,6 +26,7 @@ interface RecordFormProps {
 }
 
 export default function RecordForm({ open, onOpenChange, domain, record }: RecordFormProps) {
+  const t = useTranslate();
   const configs = useConfigs()!;
 
   const providerKey = domain.dns_provider?.provider;
@@ -126,7 +128,7 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
         <Form id={record ? 'edit-record-form' : 'create-record-form'} onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t('Type')}</Label>
               <Select value={form.data.type} onValueChange={(value) => form.setData('type', value)}>
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select record type" />
@@ -142,7 +144,7 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
               <InputError message={form.errors.type} />
             </FormField>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input
                 type="text"
                 id="name"
@@ -253,7 +255,7 @@ export default function RecordForm({ open, onOpenChange, domain, record }: Recor
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>

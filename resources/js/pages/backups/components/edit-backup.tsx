@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { useForm } from '@inertiajs/react';
@@ -13,6 +14,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import PgBackRestFields, { PgBackRestSettings, pgBackRestDefaults } from '@/pages/backups/components/pgbackrest-fields';
 
 export default function EditBackup({ open, onOpenChange, backup }: { open: boolean; onOpenChange: (open: boolean) => void; backup: Backup }) {
+  const t = useTranslate();
   const configs = useConfigs()!;
 
   const isPgBackRest = backup.type === 'pgbackrest';
@@ -96,11 +98,11 @@ export default function EditBackup({ open, onOpenChange, backup }: { open: boole
         <DialogFooter>
           <div className="flex items-center gap-2">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </DialogClose>
             <Button form="edit-backup-form" type="submit" disabled={form.processing}>
               {form.processing && <LoaderCircle className="animate-spin" />}
-              Save
+              {t('Save')}
             </Button>
           </div>
         </DialogFooter>

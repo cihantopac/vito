@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
@@ -163,12 +164,13 @@ function QuickAccessCard({
   count: number;
   children?: ReactNode;
 }) {
+  const t = useTranslate();
   return (
     <section className="min-w-0 rounded-xl border border-border/60 bg-card p-4">
       <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-3">
         <h2 className="text-base font-semibold tracking-tight">{title}</h2>
         <Link href={viewAllHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-info hover:underline">
-          All <ArrowRightIcon className="size-4" />
+          {t('All')} <ArrowRightIcon className="size-4" />
         </Link>
       </div>
       {loading || count === 0 ? (
@@ -187,6 +189,7 @@ function prioritize<T extends { id: number }>(items: T[], ids: number[]): T[] {
 }
 
 export default function Overview() {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const userId = page.props.auth.user.id;
   const [recentServerIds, setRecentServerIds] = useState<number[]>([]);
@@ -212,10 +215,10 @@ export default function Overview() {
 
   return (
     <Layout>
-      <Head title="Overview" />
+      <Head title={t('Overview')} />
       <Container>
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-          <Heading title="Overview" />
+          <Heading title={t('Overview')} />
           <Input
             type="search"
             aria-label="Search servers and sites"
@@ -228,7 +231,7 @@ export default function Overview() {
 
         <div className="grid items-start gap-3 md:grid-cols-2">
               <QuickAccessCard
-                title="Servers"
+                title={t('Servers')}
                 viewAllHref={"/servers"}
                 emptyText={query ? 'No matching servers.' : 'No servers yet.'}
                 loading={isLoading}
@@ -251,7 +254,7 @@ export default function Overview() {
               </QuickAccessCard>
 
               <QuickAccessCard
-                title="Sites"
+                title={t('Sites')}
                 viewAllHref={withQuery("/sites", { project: 'all' })}
                 emptyText={query ? 'No matching sites.' : 'No sites yet.'}
                 loading={isLoading}

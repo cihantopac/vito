@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head, router, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -30,6 +31,7 @@ type Page = SharedData & {
 };
 
 export default function SourceControls() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const configs = useConfigs()!;
   const githubAppInstalled = configs.github_app.installed;
@@ -119,7 +121,7 @@ export default function SourceControls() {
               </a>
             )}
             <ConnectSourceControl>
-              <Button>Connect</Button>
+              <Button>{t('Connect')}</Button>
             </ConnectSourceControl>
           </div>
         </div>
@@ -163,10 +165,10 @@ export default function SourceControls() {
             }}
           >
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="All Projects" />
+              <SelectValue placeholder={t('All Projects')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Projects</SelectItem>
+              <SelectItem value="all">{t('All Projects')}</SelectItem>
               <SelectItem value="global">Global Only</SelectItem>
               {page.props.projects?.map((prj) => (
                 <SelectItem key={prj.id} value={String(prj.id)}>
@@ -199,7 +201,7 @@ export default function SourceControls() {
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground">
               <RotateCcwIcon className="mr-1.5 size-3.5" />
-              Reset
+              {t('Reset')}
             </Button>
           )}
         </div>

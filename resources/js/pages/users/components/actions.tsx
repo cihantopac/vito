@@ -1,9 +1,11 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { User } from '@/types/user';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function UserActions({ user }: { user: User }) {
+  const t = useTranslate();
   const dialog = useDialog();
   return (
     <DropdownMenu modal={false}>
@@ -11,7 +13,7 @@ export default function UserActions({ user }: { user: User }) {
         <TableActionTrigger />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem onSelect={() => dialog.userForm.open({ user })}>Edit</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => dialog.userForm.open({ user })}>{t('Edit')}</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onSelect={() => dialog.confirm.open({
           title: 'Delete user',
@@ -20,7 +22,7 @@ export default function UserActions({ user }: { user: User }) {
           variant: 'destructive',
           method: 'delete',
           url: `/admin/users/${user.id}`,
-        })}>Delete</DropdownMenuItem>
+        })}>{t('Delete')}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

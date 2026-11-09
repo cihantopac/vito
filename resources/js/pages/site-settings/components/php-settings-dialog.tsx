@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ function SettingField({
 }
 
 export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: boolean; onOpenChange: (open: boolean) => void; site: Site }) {
+  const t = useTranslate();
   const form = useForm<PhpSettingsForm>({
     max_upload_size: site.php_settings.max_upload_size?.toString() ?? '',
     max_execution_time: site.php_settings.max_execution_time?.toString() ?? '',
@@ -122,11 +124,11 @@ export default function PhpSettingsDialog({ open, onOpenChange, site }: { open: 
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="php-settings-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

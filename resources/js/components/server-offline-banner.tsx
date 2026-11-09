@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { WifiOffIcon } from 'lucide-react';
 import { Server } from '@/types/server';
@@ -7,6 +8,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import { withQuery } from '@/lib/url';
 
 export default function ServerOfflineBanner({ server }: { server: Server }) {
+  const t = useTranslate();
   const dialog = useDialog();
   return (
     <Alert className="border-warning/35 bg-warning/5 [&>svg]:text-warning">
@@ -34,7 +36,7 @@ export default function ServerOfflineBanner({ server }: { server: Server }) {
       ) : (
         <Button variant="outline" size="sm" asChild>
           <Link href={withQuery(`/servers/${server.id}/restart`, { start: 1 })}>
-            Restart
+            {t('Restart')}
           </Link>
         </Button>
       )}

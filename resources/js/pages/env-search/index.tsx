@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import axios from 'axios';
@@ -29,6 +30,7 @@ type SearchStatus =
 const POLL_INTERVAL_MS = 1500;
 
 export default function EnvSearch() {
+  const t = useTranslate();
   const [key, setKey] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<EnvSearchResult[] | null>(null);
@@ -135,7 +137,7 @@ export default function EnvSearch() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Site</TableHead>
-                  <TableHead>Server</TableHead>
+                  <TableHead>{t('Server')}</TableHead>
                   <TableHead>Value</TableHead>
                 </TableRow>
               </TableHeader>

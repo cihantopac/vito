@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEvent } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -23,6 +24,7 @@ export default function RuleForm({
   serverId: number;
   firewallRule?: FirewallRule;
 }) {
+  const t = useTranslate();
   const form = useForm<{
     name: string;
     type: string;
@@ -68,22 +70,22 @@ export default function RuleForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{firewallRule ? 'Edit' : 'Create'} firewall rule</DialogTitle>
-          <DialogDescription className="sr-only">{firewallRule ? 'Edit' : 'Create new'} firewall rule</DialogDescription>
+          <DialogTitle>{firewallRule ? 'Edit' : 'Create'} {t('firewall rule')}</DialogTitle>
+          <DialogDescription className="sr-only">{firewallRule ? 'Edit' : 'Create new'} {t('firewall rule')}</DialogDescription>
         </DialogHeader>
         <Form id="firewall-rule-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input type="text" id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
 
             <FormField>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t('Type')}</Label>
               <Select onValueChange={(value) => form.setData('type', value)} value={form.data.type}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -162,11 +164,11 @@ export default function RuleForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="firewall-rule-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

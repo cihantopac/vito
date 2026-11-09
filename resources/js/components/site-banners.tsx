@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Link, router, useForm } from '@inertiajs/react';
 import { OctagonAlertIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ function GenerateAppKeyButton({ site }: { site: Site }) {
 }
 
 function InstallationFailedBanner({ site }: { site: Site }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -86,7 +88,7 @@ function InstallationFailedBanner({ site }: { site: Site }) {
 
             {canEditComposerCommand && (
               <div className="space-y-1.5">
-                <Label htmlFor="composer-install-command">Composer install command</Label>
+                <Label htmlFor="composer-install-command">{t('Composer install command')}</Label>
                 <Textarea
                   id="composer-install-command"
                   value={composerCommand}
@@ -103,7 +105,7 @@ function InstallationFailedBanner({ site }: { site: Site }) {
             {submitError && <p className="text-destructive text-sm">{submitError}</p>}
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)} disabled={submitting}>
-                Cancel
+                {t('Cancel')}
               </Button>
               <Button
                 variant="destructive"

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEventHandler, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { User } from '@/types/user';
 import DateTime from '@/components/date-time';
 
 export default function UserForm({ user, open, onOpenChange }: { user?: User; open: boolean; onOpenChange: (open: boolean) => void }) {
+  const t = useTranslate();
   const { projects } = usePage<{ projects: { id: number; name: string }[] }>().props;
   const [search, setSearch] = useState('');
   const form = useForm({
@@ -55,12 +57,12 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
               <h3 className="font-semibold">Account & security</h3>
               <FormFields className="gap-5">
                 <FormField>
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t('Name')}</Label>
                   <Input id="name" required value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} />
                   <InputError message={form.errors.name} />
                 </FormField>
                 <FormField>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('Email')}</Label>
                   <Input type="email" id="email" required value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} />
                   <InputError message={form.errors.email} />
                 </FormField>
@@ -172,8 +174,8 @@ export default function UserForm({ user, open, onOpenChange }: { user?: User; op
           </section>
         </Form>
         <DialogFooter className="p-6">
-          <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-          <Button form="user-form" type="submit" disabled={form.processing}>{form.processing && <LoaderCircle className="animate-spin" />}Save changes</Button>
+          <DialogClose asChild><Button type="button" variant="outline">{t('Cancel')}</Button></DialogClose>
+          <Button form="user-form" type="submit" disabled={form.processing}>{form.processing && <LoaderCircle className="animate-spin" />}{t('Save changes')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

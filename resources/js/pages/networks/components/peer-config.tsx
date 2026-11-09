@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export default function PeerConfigDialog({
   byo: boolean;
   name: string;
 }) {
+  const t = useTranslate();
   const [config, setConfig] = useState<string>('');
   const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -141,7 +143,7 @@ export default function PeerConfigDialog({
                   <SectionHeader title="Private key" hint="Shown once - Pure deletes it when you confirm below.">
                     <Button type="button" variant="outline" size="sm" onClick={() => copy(privateKey, 'key', 'Private key')}>
                       {copied === 'key' ? <CheckIcon /> : <CopyIcon />}
-                      Copy
+                      {t('Copy')}
                     </Button>
                   </SectionHeader>
                   <pre className="bg-muted/50 overflow-x-auto rounded-md border p-3 font-mono text-xs">{privateKey}</pre>
@@ -164,10 +166,10 @@ export default function PeerConfigDialog({
               )}
 
               <section className="space-y-2">
-                <SectionHeader title="Configuration" hint="Updates as servers join or leave - reopen this any time.">
+                <SectionHeader title={t('Configuration')} hint="Updates as servers join or leave - reopen this any time.">
                   <Button type="button" variant="outline" size="sm" onClick={() => copy(config, 'config', 'Configuration')}>
                     {copied === 'config' ? <CheckIcon /> : <CopyIcon />}
-                    Copy
+                    {t('Copy')}
                   </Button>
                   <Button type="button" variant="outline" size="sm" onClick={download}>
                     <DownloadIcon />
@@ -182,7 +184,7 @@ export default function PeerConfigDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           {privateKey && !error && (
             <Button disabled={loading || concealing} onClick={conceal}>

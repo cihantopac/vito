@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,6 +39,7 @@ export default function ConnectNotificationChannel({
   onProviderAdded?: () => void;
   children: ReactNode;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const configs = useConfigs()!;
@@ -71,7 +73,7 @@ export default function ConnectNotificationChannel({
         <Form id="create-notification-channel-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="provider">Provider</Label>
+              <Label htmlFor="provider">{t('Provider')}</Label>
               <Select
                 value={form.data.provider}
                 onValueChange={(value) => {
@@ -80,7 +82,7 @@ export default function ConnectNotificationChannel({
                 }}
               >
                 <SelectTrigger id="provider">
-                  <SelectValue placeholder="Select a provider" />
+                  <SelectValue placeholder={t('Select a provider')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -95,12 +97,12 @@ export default function ConnectNotificationChannel({
               <InputError message={form.errors.provider} />
             </FormField>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input
                 type="text"
                 name="name"
                 id="name"
-                placeholder="Name"
+                placeholder={t('Name')}
                 value={form.data.name}
                 onChange={(e) => form.setData('name', e.target.value)}
               />
@@ -121,7 +123,7 @@ export default function ConnectNotificationChannel({
             <FormField>
               <div className="flex items-center space-x-3">
                 <Checkbox id="global" name="global" checked={form.data.global} onClick={() => form.setData('global', !form.data.global)} />
-                <Label htmlFor="global">Is global (accessible in all projects)</Label>
+                <Label htmlFor="global">{t('Is global (accessible in all projects)')}</Label>
               </div>
               <InputError message={form.errors.global} />
             </FormField>
@@ -130,12 +132,12 @@ export default function ConnectNotificationChannel({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Connect
+            {t('Connect')}
           </Button>
         </DialogFooter>
       </DialogContent>

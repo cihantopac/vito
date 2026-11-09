@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ColumnDef } from '@tanstack/react-table';
 import DateTime from '@/components/date-time';
 import { Domain } from '@/types/domain';
@@ -8,6 +9,7 @@ import { router } from '@inertiajs/react';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Remove({ domain }: { domain: Domain }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -24,7 +26,7 @@ function Remove({ domain }: { domain: Domain }) {
         })
       }
     >
-      Remove
+      {t('Remove')}
     </DropdownMenuItem>
   );
 }

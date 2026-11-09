@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardRow } from '@/components/ui/card';
@@ -15,6 +16,7 @@ type PluginLogsDialogProps = {
 };
 
 export default function PluginLogsDialog({ open, onOpenChange, name, errors }: PluginLogsDialogProps) {
+  const t = useTranslate();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (key: string) => {
@@ -117,7 +119,7 @@ export default function PluginLogsDialog({ open, onOpenChange, name, errors }: P
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {t('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

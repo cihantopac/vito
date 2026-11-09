@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { type Project } from '@/types/project';
 import { useState, useEffect, useRef } from 'react';
@@ -35,6 +36,7 @@ export function ProjectSelect({
   footer,
   prefetch = false,
 }: ProjectSelectProps) {
+  const t = useTranslate();
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -161,9 +163,9 @@ export function ProjectSelect({
                 {hasNextPage && (
                   <div ref={loadMoreRef} className="flex justify-center py-2">
                     {isFetchingNextPage ? (
-                      <span className="text-muted-foreground text-xs">Loading more...</span>
+                      <span className="text-muted-foreground text-xs">{t('Loading more...')}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">Scroll for more</span>
+                      <span className="text-muted-foreground text-xs">{t('Scroll for more')}</span>
                     )}
                   </div>
                 )}

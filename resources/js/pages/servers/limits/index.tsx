@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useEffect, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -36,6 +37,7 @@ type PageProps = {
 const NGINX_PRESETS = ['100M', '210M', '500M', '1G'];
 
 export default function ServerLimits() {
+  const t = useTranslate();
   const { server, limits } = usePage<PageProps>().props;
   const isOffline = server.status === 'disconnected';
 
@@ -150,7 +152,7 @@ export default function ServerLimits() {
                     disabled={!limits.has_nginx || isOffline || nginxForm.processing}
                   >
                     {nginxForm.processing && <LoaderCircleIcon className="mr-1.5 size-4 animate-spin" />}
-                    Save
+                    {t('Save')}
                   </Button>
                 </div>
               </form>
@@ -256,7 +258,7 @@ export default function ServerLimits() {
 
                     <Button type="submit" size="sm" disabled={isOffline || phpForm.processing}>
                       {phpForm.processing && <LoaderCircleIcon className="mr-1.5 size-4 animate-spin" />}
-                      Save
+                      {t('Save')}
                     </Button>
                   </div>
                 </form>

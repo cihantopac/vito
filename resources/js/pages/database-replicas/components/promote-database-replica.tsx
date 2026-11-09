@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
@@ -20,6 +21,7 @@ export default function PromoteDatabaseReplica({
   onOpenChange: (open: boolean) => void;
   replica: DatabaseReplica;
 }) {
+  const t = useTranslate();
   const form = useForm({ force: false, confirmation: '' });
   const lag = replica.latest_metric?.lag_bytes;
 
@@ -57,7 +59,7 @@ export default function PromoteDatabaseReplica({
 
             <FormField>
               <Label htmlFor="confirmation">
-                Type <strong>{replica.replica_server_name}</strong> to confirm
+                {t('Type')} <strong>{replica.replica_server_name}</strong> to confirm
               </Label>
               <Input id="confirmation" autoComplete="off" value={form.data.confirmation} onChange={(e) => form.setData('confirmation', e.target.value)} />
               <InputError message={form.errors.confirmation} />
@@ -77,7 +79,7 @@ export default function PromoteDatabaseReplica({
         <DialogFooter>
           <div className="flex items-center gap-2">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </DialogClose>
             <Button form="promote-database-replica-form" type="submit" variant="destructive" disabled={form.processing || form.data.confirmation !== replica.replica_server_name}>
               {form.processing && <LoaderCircle className="animate-spin" />}

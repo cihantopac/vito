@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode, useState } from 'react';
 import {
   Dialog,
@@ -33,6 +34,7 @@ export default function FieldUpdateDialog({
   trigger,
   children,
 }: FieldUpdateDialogProps) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm({
     [fieldName]: initialValue,
@@ -66,12 +68,12 @@ export default function FieldUpdateDialog({
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
 
           <Button form={`${fieldName}-form`} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

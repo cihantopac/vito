@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -8,6 +9,7 @@ import { useOverviewResources, type OverviewSite } from '@/hooks/use-overview-re
 import { useMemo } from 'react';
 
 export default function RecentSitesFlyout({ server }: { server: Server }) {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const userId = page.props.auth?.user?.id;
 
@@ -38,13 +40,13 @@ export default function RecentSitesFlyout({ server }: { server: Server }) {
     <div>
       <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/60 mb-1">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Recent Sites
+          {t('Recent Sites')}
         </span>
         <Link
           href={`/servers/${server.id}/sites`}
           className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
         >
-          <span>All</span>
+          <span>{t('All')}</span>
           <ArrowRightIcon className="size-3" />
         </Link>
       </div>
@@ -79,7 +81,7 @@ export default function RecentSitesFlyout({ server }: { server: Server }) {
             href={`/servers/${server.id}/sites`}
             className="text-primary hover:underline mt-1 inline-block text-xs font-medium"
           >
-            Create site
+            {t('Create site')}
           </Link>
         </div>
       )}

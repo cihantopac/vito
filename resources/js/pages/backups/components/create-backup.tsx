@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { FormEvent, useState } from 'react';
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -16,6 +17,7 @@ import ServerSelect from '@/pages/servers/components/server-select';
 import PgBackRestFields, { PgBackRestSettings, pgBackRestDefaults } from '@/pages/backups/components/pgbackrest-fields';
 
 export default function CreateBackup({ open, onOpenChange, server }: { open: boolean; onOpenChange: (open: boolean) => void; server?: Server }) {
+  const t = useTranslate();
   const configs = useConfigs()!;
   const [selectedServer, setSelectedServer] = useState<Server | undefined>(undefined);
   const activeServer = server ?? selectedServer;
@@ -64,7 +66,7 @@ export default function CreateBackup({ open, onOpenChange, server }: { open: boo
             {}
             {!server && (
               <FormField>
-                <Label htmlFor="server">Server</Label>
+                <Label htmlFor="server">{t('Server')}</Label>
                 <ServerSelect
                   id="server"
                   value={selectedServer ? String(selectedServer.id) : ''}
@@ -111,7 +113,7 @@ export default function CreateBackup({ open, onOpenChange, server }: { open: boo
             {}
             {form.data.type === 'database' && activeServer && (
               <FormField>
-                <Label htmlFor="database">Database</Label>
+                <Label htmlFor="database">{t('Database')}</Label>
                 <DatabaseSelect
                   id="database"
                   name="database"
@@ -202,10 +204,10 @@ export default function CreateBackup({ open, onOpenChange, server }: { open: boo
           <div className="flex items-center gap-2">
             <Button form="create-backup-form" type="submit" disabled={form.processing || !activeServer}>
               {form.processing && <LoaderCircle className="animate-spin" />}
-              Create
+              {t('Create')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

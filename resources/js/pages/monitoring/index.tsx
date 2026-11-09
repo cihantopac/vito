@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import ServerLayout from '@/layouts/server/layout';
@@ -15,6 +16,7 @@ import Actions from '@/pages/monitoring/components/actions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function Monitoring() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     hasMonitoringService: boolean;
@@ -28,7 +30,7 @@ export default function Monitoring() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Monitoring" description="Here you can see your server's metrics" />
+          <Heading title={t('Monitoring')} description="Here you can see your server's metrics" />
           <div className="flex items-center gap-2">
             <Filter onValueChange={setFilter} />
             <Actions server={page.props.server} />

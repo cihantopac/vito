@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { MetricsFilter } from '@/types/metric';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,6 +8,7 @@ import { useMetrics } from '@/pages/monitoring/components/use-metrics';
 import { kbToGb } from '@/lib/utils';
 
 export default function MemoryView({ server, filter }: { server: Server; filter?: MetricsFilter }) {
+  const t = useTranslate();
   const query = useMetrics(server, filter);
 
   if (query.isLoading || !query.data) {
@@ -28,7 +30,7 @@ export default function MemoryView({ server, filter }: { server: Server; filter?
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile
-          label="Memory Usage"
+          label={t('Memory Usage')}
           value={current?.memory_used_percent != null ? `${current.memory_used_percent.toFixed(2)}%` : 'N/A'}
           subtitle={latest ? `${kbToGb(latest.memory_used)} / ${kbToGb(latest.memory_total)} GB` : undefined}
         />

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { toast } from 'sonner';
 import Container from '@/components/container';
 import { DataTable } from '@/components/data-table';
@@ -99,6 +100,7 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export default function Projects() {
+  const t = useTranslate();
   const dialog = useDialog();
   const page = usePage<{
     projects: PaginatedData<Project>;
@@ -107,11 +109,11 @@ export default function Projects() {
 
   return (
     <Layout>
-      <Head title="Projects" />
+      <Head title={t('Projects')} />
 
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Projects" />
+          <Heading title={t('Projects')} />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.projectForm.open({})}>
               <PlusIcon />
@@ -151,10 +153,10 @@ export default function Projects() {
         </div>
         {(page.props.projects.links.prev || page.props.projects.links.next) && (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-muted-foreground text-sm">Page {page.props.projects.meta.current_page}</span>
+            <span className="text-muted-foreground text-sm">{t('Page')} {page.props.projects.meta.current_page}</span>
             <div className="flex gap-2">
-              {page.props.projects.links.prev && <Button variant="outline" asChild><Link href={page.props.projects.links.prev} preserveScroll>Previous</Link></Button>}
-              {page.props.projects.links.next && <Button variant="outline" asChild><Link href={page.props.projects.links.next} preserveScroll>Next</Link></Button>}
+              {page.props.projects.links.prev && <Button variant="outline" asChild><Link href={page.props.projects.links.prev} preserveScroll>{t('Previous')}</Link></Button>}
+              {page.props.projects.links.next && <Button variant="outline" asChild><Link href={page.props.projects.links.next} preserveScroll>{t('Next')}</Link></Button>}
             </div>
           </div>
         )}

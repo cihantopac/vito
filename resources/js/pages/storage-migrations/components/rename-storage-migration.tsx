@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
@@ -18,6 +19,7 @@ export default function RenameStorageMigration({
   onOpenChange: (open: boolean) => void;
   storageMigration: StorageMigration;
 }) {
+  const t = useTranslate();
   const form = useForm({ name: storageMigration.name ?? '' });
 
   const submit = (e: FormEvent) => {
@@ -37,7 +39,7 @@ export default function RenameStorageMigration({
         <Form className="p-4" id="rename-storage-migration-form" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -46,12 +48,12 @@ export default function RenameStorageMigration({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button form="rename-storage-migration-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

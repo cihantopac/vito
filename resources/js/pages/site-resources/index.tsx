@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
 import Heading from '@/components/heading';
@@ -39,6 +40,7 @@ type PendingConnect = {
 };
 
 export default function SiteResources() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -281,7 +283,7 @@ export default function SiteResources() {
       <Container>
         <HeaderContainer>
           <div className="flex items-center gap-2.5">
-            <Heading title="Resources" />
+            <Heading title={t('Resources')} />
             <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
               {connectedCount} resources registered
             </Badge>
@@ -316,7 +318,7 @@ export default function SiteResources() {
                 </div>
                 <div className="min-w-0 space-y-0.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold">Database</span>
+                    <span className="text-sm font-semibold">{t('Database')}</span>
                     {dbResource ? (
                       <Badge variant={dbResource.status_color}>
                         {dbResource.status === 'connecting' && <LoaderCircleIcon className="mr-1 size-3 animate-spin" />}
@@ -325,7 +327,7 @@ export default function SiteResources() {
                     ) : isDbInstalling ? (
                       <Badge variant="warning" className="text-xs">
                         <LoaderCircleIcon className="mr-1 size-3 animate-spin" />
-                        Installing...
+                        {t('Installing...')}
                       </Badge>
                     ) : isDbReady ? (
                       <Badge variant="outline" className="text-xs font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
@@ -354,7 +356,7 @@ export default function SiteResources() {
                     onClick={() => copyEnv(dbResource)}
                   >
                     <CopyIcon className="size-3.5" />
-                    <span>Details</span>
+                    <span>{t('Details')}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -365,12 +367,12 @@ export default function SiteResources() {
                     {!collapsedIds[dbResource.id] ? (
                       <>
                         <ChevronUpIcon className="size-3.5" />
-                        <span>Hide</span>
+                        <span>{t('Hide')}</span>
                       </>
                     ) : (
                       <>
                         <ChevronDownIcon className="size-3.5" />
-                        <span>Credentials</span>
+                        <span>{t('Credentials')}</span>
                       </>
                     )}
                   </Button>
@@ -474,7 +476,7 @@ export default function SiteResources() {
                     ) : isCacheInstalling ? (
                       <Badge variant="warning" className="text-xs">
                         <LoaderCircleIcon className="mr-1 size-3 animate-spin" />
-                        Installing...
+                        {t('Installing...')}
                       </Badge>
                     ) : isCacheReady ? (
                       <Badge variant="outline" className="text-xs font-normal text-neutral-600 dark:text-neutral-400 border-neutral-500/30">
@@ -503,7 +505,7 @@ export default function SiteResources() {
                     onClick={() => copyEnv(cacheResource)}
                   >
                     <CopyIcon className="size-3.5" />
-                    <span>Details</span>
+                    <span>{t('Details')}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -514,12 +516,12 @@ export default function SiteResources() {
                     {!collapsedIds[cacheResource.id] ? (
                       <>
                         <ChevronUpIcon className="size-3.5" />
-                        <span>Hide</span>
+                        <span>{t('Hide')}</span>
                       </>
                     ) : (
                       <>
                         <ChevronDownIcon className="size-3.5" />
-                        <span>Credentials</span>
+                        <span>{t('Credentials')}</span>
                       </>
                     )}
                   </Button>
@@ -642,7 +644,7 @@ export default function SiteResources() {
                     onClick={() => copyEnv(storageResource)}
                   >
                     <CopyIcon className="size-3.5" />
-                    <span>Details</span>
+                    <span>{t('Details')}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -653,12 +655,12 @@ export default function SiteResources() {
                     {!collapsedIds[storageResource.id] ? (
                       <>
                         <ChevronUpIcon className="size-3.5" />
-                        <span>Hide</span>
+                        <span>{t('Hide')}</span>
                       </>
                     ) : (
                       <>
                         <ChevronDownIcon className="size-3.5" />
-                        <span>Credentials</span>
+                        <span>{t('Credentials')}</span>
                       </>
                     )}
                   </Button>

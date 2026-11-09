@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
@@ -12,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function SiteFeatures() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -27,7 +29,7 @@ export default function SiteFeatures() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Features" description="Your site has some features enabled by Pure or other plugins" />
+          <Heading title={t('Features')} description="Your site has some features enabled by Pure or other plugins" />
         </HeaderContainer>
 
         <SiteBanners site={page.props.site} />

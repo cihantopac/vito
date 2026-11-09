@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useCallback, useEffect, useState } from 'react';
 import { Deferred, Head, Link, usePage } from '@inertiajs/react';
 import { Site } from '@/types/site';
@@ -65,6 +66,7 @@ function formatSiteType(type?: string): string {
 }
 
 export default function AppWithDeployment() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -131,9 +133,9 @@ export default function AppWithDeployment() {
 
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-lg font-semibold">{site.domain}</h1>
-          <div className="bg-muted/40 flex gap-1 rounded-md border p-1" role="group" aria-label="View">
-            <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
-            <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
+          <div className="bg-muted/40 flex gap-1 rounded-md border p-1" role="group" aria-label={t('View')}>
+            <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>{t('Basic')}</Button>
+            <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>{t('Advanced')}</Button>
           </div>
         </div>
 
@@ -151,7 +153,7 @@ export default function AppWithDeployment() {
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="min-w-0">
                           <div className="flex min-w-0 items-center gap-2">
-                            <CardTitle id="deployments-heading">Deployments</CardTitle>
+                            <CardTitle id="deployments-heading">{t('Deployments')}</CardTitle>
                             <Badge variant={site.status_color}>{site.status}</Badge>
                           </div>
                           <div className="text-muted-foreground mt-1 flex min-w-0 items-center gap-2 text-sm">
@@ -179,7 +181,7 @@ export default function AppWithDeployment() {
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="p-0">
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">{t('Open menu')}</span>
                               <MoreHorizontalIcon />
                             </Button>
                           </DropdownMenuTrigger>
@@ -219,7 +221,7 @@ export default function AppWithDeployment() {
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/servers/${page.props.server.id}/sites/${site.id}/logs`}>
-                                Logs
+                                {t('Logs')}
                               </Link>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -246,7 +248,7 @@ export default function AppWithDeployment() {
 
                             <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 text-xs cursor-pointer">
                               <Link href={`/servers/${page.props.server.id}/sites/${site.id}/deployments/${activeDeployment.id}`}>
-                                <span>Details</span>
+                                <span>{t('Details')}</span>
                                 <ExternalLinkIcon className="size-3.5" />
                               </Link>
                             </Button>
@@ -257,7 +259,7 @@ export default function AppWithDeployment() {
                                 size="icon"
                                 className="size-8 cursor-pointer"
                                 onClick={() => setDismissed(true)}
-                                title="Dismiss"
+                                title={t('Dismiss')}
                               >
                                 <XIcon className="size-3.5" />
                               </Button>
@@ -329,11 +331,11 @@ export default function AppWithDeployment() {
                       </div>
                       <div>
                         <CardTitle>Background processes</CardTitle>
-                        <p className="text-muted-foreground mt-1 text-xs">{page.props.overviewWorkersCount ?? 0} configured</p>
+                        <p className="text-muted-foreground mt-1 text-xs">{page.props.overviewWorkersCount ?? 0} {t('configured')}</p>
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/servers/${site.server_id}/sites/${site.id}/workers`}>Manage</Link>
+                      <Link href={`/servers/${site.server_id}/sites/${site.id}/workers`}>{t('Manage')}</Link>
                     </Button>
                   </CardHeader>
                   <CardContent className="divide-y p-0">
@@ -364,11 +366,11 @@ export default function AppWithDeployment() {
                       </div>
                       <div>
                         <CardTitle>Scheduled jobs</CardTitle>
-                        <p className="text-muted-foreground mt-1 text-xs">{page.props.overviewCronJobsCount ?? 0} configured</p>
+                        <p className="text-muted-foreground mt-1 text-xs">{page.props.overviewCronJobsCount ?? 0} {t('configured')}</p>
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/servers/${site.server_id}/sites/${site.id}/cronjobs`}>Manage</Link>
+                      <Link href={`/servers/${site.server_id}/sites/${site.id}/cronjobs`}>{t('Manage')}</Link>
                     </Button>
                   </CardHeader>
                   <CardContent className="divide-y p-0">
@@ -397,14 +399,14 @@ export default function AppWithDeployment() {
           {advanced && <Card className="overflow-hidden lg:sticky lg:top-4">
             <CardHeader className="flex-row items-center gap-3">
               <div className="flex flex-col gap-1">
-                <CardTitle>Site details</CardTitle>
+                <CardTitle>{t('Site details')}</CardTitle>
 
               </div>
             </CardHeader>
             <CardContent className="p-0">
               <div className="flex flex-col gap-3 p-4">
-                <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">Connection</p>
-                <Detail icon={ServerIcon} label="Server">
+                <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">{t('Connection')}</p>
+                <Detail icon={ServerIcon} label={t('Server')}>
                   {page.props.server.name}
                 </Detail>
                 <Detail icon={NetworkIcon} label="Public IP">

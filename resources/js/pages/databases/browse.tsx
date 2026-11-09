@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -17,6 +18,7 @@ type DatabaseTable = { schema: string; name: string; estimated_rows: number };
 type TableRows = { columns: Array<{ name: string; type: string }>; rows: Record<string, string | null>[]; page: number; has_more: boolean };
 
 function Browser({ databaseName, dataUrl, backUrl }: BrowserProps) {
+  const t = useTranslate();
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState<DatabaseTable | null>(null);
   const [page, setPage] = useState(1);
@@ -44,8 +46,8 @@ function Browser({ databaseName, dataUrl, backUrl }: BrowserProps) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <Heading title={databaseName} description="Browse PostgreSQL tables and records without changing application data." />
         <div className="flex items-center gap-2">
-          <Badge variant="outline">Read only</Badge>
-          <Button variant="outline" asChild><Link href={backUrl}><ArrowLeftIcon />Back</Link></Button>
+          <Badge variant="outline">{t('Read only')}</Badge>
+          <Button variant="outline" asChild><Link href={backUrl}><ArrowLeftIcon />{t('Back')}</Link></Button>
         </div>
       </div>
       {error && <Alert variant="destructive"><AlertDescription>{requestErrorMessage(error, 'Unable to read the database. Check server access and try again.')}</AlertDescription></Alert>}
@@ -84,8 +86,8 @@ function Browser({ databaseName, dataUrl, backUrl }: BrowserProps) {
                     {records.data.rows.length === 0 && <p className="text-muted-foreground p-6 text-sm">This table has no records.</p>}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-muted-foreground text-xs">Page {page} · up to 25 rows. Long values are shortened; binary data is omitted.</p>
-                    <div className="flex gap-2"><Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>Previous</Button><Button variant="outline" size="sm" disabled={!records.data.has_more || page >= 1000} onClick={() => setPage((value) => value + 1)}>Next</Button></div>
+                    <p className="text-muted-foreground text-xs">{t('Page')} {page} · up to 25 rows. Long values are shortened; binary data is omitted.</p>
+                    <div className="flex gap-2"><Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>{t('Previous')}</Button><Button variant="outline" size="sm" disabled={!records.data.has_more || page >= 1000} onClick={() => setPage((value) => value + 1)}>{t('Next')}</Button></div>
                   </div>
                 </>
               )}

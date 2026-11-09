@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import axios from 'axios';
@@ -25,6 +26,7 @@ export default function RestoreToServer({
   backup: Backup;
   file?: BackupFile;
 }) {
+  const t = useTranslate();
   const [requirements, setRequirements] = useState<RestoreRequirements | null>(null);
   const [planFit, setPlanFit] = useState<PlanFit>({ blocked: null, warnings: [] });
   const form = useForm({
@@ -58,7 +60,7 @@ export default function RestoreToServer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-3xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
-          <SheetTitle>Restore to a new server</SheetTitle>
+          <SheetTitle>{t('Restore to a new server')}</SheetTitle>
           <SheetDescription className="sr-only">Create a server and restore this backup onto it</SheetDescription>
         </SheetHeader>
         <Form id="restore-to-server-form" onSubmit={submit} className="p-4">
@@ -116,7 +118,7 @@ export default function RestoreToServer({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="latest">Latest: the last backup plus all archived WAL</SelectItem>
-                  {file && <SelectItem value="backup">Backup {file.name}, as it was when it finished</SelectItem>}
+                  {file && <SelectItem value="backup">{t('Backup')} {file.name}, as it was when it finished</SelectItem>}
                   <SelectItem value="time">A point in time</SelectItem>
                 </SelectContent>
               </Select>
@@ -141,7 +143,7 @@ export default function RestoreToServer({
               Create server and restore
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

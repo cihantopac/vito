@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -10,6 +11,7 @@ import { useMemo, useState } from 'react';
 import { getHetznerPlan, hetznerPlans } from './hetzner-plans';
 
 export default function HetznerPlanSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const selectedPlan = getHetznerPlan(value);
@@ -173,7 +175,7 @@ export default function HetznerPlanSelect({ value, onChange }: { value: string; 
         </ScrollArea>
         <DialogFooter className="border-t px-6 py-4">
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            Close
+            {t('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

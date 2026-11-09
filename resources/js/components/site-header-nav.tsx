@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -49,6 +50,7 @@ function isActive(currentPath: string, item: SiteNavItem): boolean {
 }
 
 export function SiteHeaderNav() {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const initialSite = page.props.site;
   const initialServer = page.props.server;
@@ -124,7 +126,7 @@ export function SiteHeaderNav() {
             asChild
           >
             <Link href={item.href} aria-current={active ? 'page' : undefined}>
-              <span>{item.title}</span>
+              <span>{t(item.title)}</span>
               {typeof item.count === 'number' && item.count > 0 && (
                 <span className="text-muted-foreground ml-1 text-xs">({item.count})</span>
               )}
@@ -140,7 +142,7 @@ export function SiteHeaderNav() {
             size="sm"
             className={cn('relative shrink-0 rounded-none px-3', otherActive && 'text-foreground after:bg-primary after:absolute after:inset-x-2 after:bottom-[-7px] after:h-0.5')}
           >
-            Others
+            {t('Others')}
             <ChevronDownIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -152,7 +154,7 @@ export function SiteHeaderNav() {
                 aria-current={isActive(currentPath, item) ? 'page' : undefined}
                 className={cn(isActive(currentPath, item) && 'bg-accent font-medium')}
               >
-                {item.title}
+                {t(item.title)}
               </Link>
             </DropdownMenuItem>
           ))}
@@ -164,7 +166,7 @@ export function SiteHeaderNav() {
         <Button variant="outline" size="sm" className="h-8" asChild>
           <a href={site.url} target="_blank" rel="noopener noreferrer">
             <ExternalLinkIcon className="size-3.5" />
-            <span className="hidden sm:inline">Open site</span>
+            <span className="hidden sm:inline">{t('Open site')}</span>
           </a>
         </Button>
       </div>

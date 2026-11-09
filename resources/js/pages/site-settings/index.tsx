@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
@@ -38,6 +39,7 @@ function Field({ label, children, className }: { label: ReactNode; children: Rea
 }
 
 export default function SiteSettings() {
+  const t = useTranslate();
   const dialog = useDialog();
   const page = usePage<{
     server: Server;
@@ -51,7 +53,7 @@ export default function SiteSettings() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Settings" description="Here you can manage your site's settings" />
+          <Heading title={t('Settings')} description="Here you can manage your site's settings" />
           <div className="flex items-center gap-2">
           </div>
         </HeaderContainer>
@@ -61,7 +63,7 @@ export default function SiteSettings() {
         <Card className="overflow-hidden">
           <CardHeader className="flex-row items-center justify-between gap-2">
             <div className="space-y-2">
-              <CardTitle>Site details</CardTitle>
+              <CardTitle>{t('Site details')}</CardTitle>
               <CardDescription>Update site details</CardDescription>
             </div>
           </CardHeader>
@@ -71,17 +73,17 @@ export default function SiteSettings() {
                 <span className="text-muted-foreground">{page.props.site.id}</span>
               </Field>
 
-              <Field label="Status">
+              <Field label={t('Status')}>
                 <Badge variant={page.props.site.status_color}>{page.props.site.status}</Badge>
               </Field>
 
-              <Field label="Domain" className="sm:col-span-2">
+              <Field label={t('Domain')} className="sm:col-span-2">
                 <a href={page.props.site.url} target="_blank" className="text-muted-foreground truncate hover:underline">
                   {page.props.site.domain}
                 </a>
               </Field>
 
-              <Field label="Type">
+              <Field label={t('Type')}>
                 <span className="text-muted-foreground">{page.props.site.type}</span>
               </Field>
 
@@ -93,7 +95,7 @@ export default function SiteSettings() {
                 </WebDirectory>
               </Field>
 
-              <Field label="Source control">
+              <Field label={t('Source control')}>
                 {page.props.site.source_control_id ? (
                   <ChangeSourceControl site={page.props.site}>
                     <Button variant="outline" className="h-6">
@@ -103,7 +105,7 @@ export default function SiteSettings() {
                 ) : (
                   <AttachSourceControl site={page.props.site}>
                     <Button variant="outline" className="h-6">
-                      Attach
+                      {t('Attach')}
                     </Button>
                   </AttachSourceControl>
                 )}
@@ -121,11 +123,11 @@ export default function SiteSettings() {
                 )}
               </Field>
 
-              <Field label="Repository" className="sm:col-span-2">
+              <Field label={t('Repository')} className="sm:col-span-2">
                 <span className="text-muted-foreground truncate">{page.props.site.repository || '-'}</span>
               </Field>
 
-              <Field label="Path" className="sm:col-span-2">
+              <Field label={t('Path')} className="sm:col-span-2">
                 <CopyableBadge text={page.props.site.path} />
               </Field>
 
@@ -181,7 +183,7 @@ export default function SiteSettings() {
                 </Field>
               )}
 
-              <Field label="PHP version">
+              <Field label={t('PHP version')}>
                 {page.props.site.php_version ? (
                   <div className="flex items-center gap-2">
                     <ChangePHPVersion site={page.props.site}>
@@ -205,7 +207,7 @@ export default function SiteSettings() {
                 )}
               </Field>
 
-              <Field label="Created at" className="sm:col-span-2 sm:border-b-0">
+              <Field label={t('Created at')} className="sm:col-span-2 sm:border-b-0">
                 <span className="text-muted-foreground">
                   <DateTime date={page.props.site.created_at} />
                 </span>
@@ -217,7 +219,7 @@ export default function SiteSettings() {
         {!page.props.site.type_data?.is_self && (
           <Card className="border-destructive/50 overflow-hidden">
             <CardHeader>
-              <CardTitle>Delete site</CardTitle>
+              <CardTitle>{t('Delete site')}</CardTitle>
               <CardDescription>Here you can delete the site.</CardDescription>
             </CardHeader>
             <CardContent className="bg-background">
@@ -225,7 +227,7 @@ export default function SiteSettings() {
                 <p>please note that this action is irreversible and will delete all data associated with the site.</p>
 
                 <DeleteSite site={page.props.site}>
-                  <Button variant="destructive">Delete site</Button>
+                  <Button variant="destructive">{t('Delete site')}</Button>
                 </DeleteSite>
               </div>
             </CardContent>

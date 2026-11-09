@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
@@ -31,6 +32,7 @@ type PageProps = {
 };
 
 export default function ServerUpdate() {
+  const t = useTranslate();
   const { server: initialServer, initialLog, csrf_token } = usePage<PageProps & SharedData>().props;
   const server = useRealtimeRecord<Server>(initialServer, 'server') ?? initialServer;
 
@@ -114,7 +116,7 @@ export default function ServerUpdate() {
           <Button variant="ghost" size="sm" asChild className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2 cursor-pointer">
             <Link href={`/servers/${server.id}`}>
               <ArrowLeftIcon className="size-3.5" />
-              <span>Overview</span>
+              <span>{t('Overview')}</span>
             </Link>
           </Button>
 
@@ -221,7 +223,7 @@ export default function ServerUpdate() {
                 className="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
                 asChild
                 title="Download log file"
-                aria-label="Download log"
+                aria-label={t('Download log')}
               >
                 <a
                   href={`/servers/${server.id}/logs/${activeLogId}/download`}

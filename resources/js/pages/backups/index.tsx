@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
@@ -25,6 +26,7 @@ type Page = {
 };
 
 export default function Backups() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
 
@@ -36,11 +38,11 @@ export default function Backups() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Backups" />
+          <Heading title={t('Backups')} />
           <div className="flex items-center gap-2">
             <Button onClick={() => dialog.backupCreate.open({ server: page.props.server })}>
               <PlusIcon />
-              <span className="hidden lg:block">Create</span>
+              <span className="hidden lg:block">{t('Create')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -48,7 +50,7 @@ export default function Backups() {
         {page.props.replicaOf && (
           <Alert>
             <InfoIcon />
-            <AlertTitle>This server is a PostgreSQL replica of {page.props.replicaOf.name}</AlertTitle>
+            <AlertTitle>{t('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
                 It holds the same data as {page.props.replicaOf.name}, so it isn't backed up separately. The cluster has one pgBackRest backup, set up on{' '}

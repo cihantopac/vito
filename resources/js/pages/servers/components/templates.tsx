@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -25,6 +26,7 @@ import InputError from '@/components/ui/input-error';
 import { Switch } from '@/components/ui/switch';
 
 function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onTemplateDeleted: (template: ServerTemplate) => void }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm({});
 
@@ -52,11 +54,11 @@ function Delete({ template, onTemplateDeleted }: { template: ServerTemplate; onT
         <p className="p-4">Are you sure you want to delete this template?</p>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button type="button" variant="destructive" onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Delete
+            {t('Delete')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -73,6 +75,7 @@ function Save({
   services: Service[];
   onChangesSaved: (template: ServerTemplate) => void;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm<{
     id: string | null;
@@ -157,11 +160,11 @@ function Save({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button type="button" onClick={save} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -182,7 +185,7 @@ export default function ServerTemplates({
   const query = useQuery<ServerTemplate[]>({
     queryKey: ['server-templates'],
     queryFn: async () => {
-      return (await axios.get("/server-templates")).data?.templates || [];
+      return (await axios.get('/server-templates')).data?.templates || [];
     },
   });
 

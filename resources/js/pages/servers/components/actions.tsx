@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { Server } from '@/types/server';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -61,6 +62,7 @@ export default function ServerActions({
   size = 'sm',
   className,
 }: ServerActionsProps) {
+  const t = useTranslate();
   const dialog = useDialog();
   const canPowerManage = server.can_power_manage === true;
   const isDisconnected = server.status === 'disconnected';
@@ -70,7 +72,7 @@ export default function ServerActions({
       <DropdownMenuTrigger asChild>
         <Button variant={variant} size={size} className={className ?? 'gap-1 cursor-pointer'}>
           <MoreVerticalIcon className="size-3 text-muted-foreground" />
-          <span>Server actions</span>
+          <span>{t('Server actions')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
@@ -98,7 +100,7 @@ export default function ServerActions({
         <DropdownMenuItem asChild>
           <Link href={withQuery(`/servers/${server.id}/restart`, { start: 1 })} className="flex items-center w-full cursor-pointer">
             <RefreshCwIcon className="size-4 mr-2" />
-            Restart
+            {t('Restart')}
           </Link>
         </DropdownMenuItem>
 

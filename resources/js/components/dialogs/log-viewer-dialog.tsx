@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import LogOutput from '@/components/log-output';
@@ -15,6 +16,7 @@ type LogViewerDialogProps = {
 };
 
 export default function LogViewerDialog({ open, onOpenChange, serverId, logId, title }: LogViewerDialogProps) {
+  const t = useTranslate();
   const { content, isLoading, error } = useLogContent({ serverId, logId, enabled: open });
 
   return (
@@ -38,7 +40,7 @@ export default function LogViewerDialog({ open, onOpenChange, serverId, logId, t
         <DialogFooter>
           <Button variant="outline" asChild>
             <a href={`/servers/${serverId}/logs/${logId}/download`} target="_blank" rel="noopener noreferrer">
-              Download
+              {t('Download')}
             </a>
           </Button>
         </DialogFooter>

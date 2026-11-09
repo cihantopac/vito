@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode } from 'react';
 import {
   Dialog,
@@ -22,6 +23,7 @@ import siteHelper from '@/lib/site-helper';
 import { SharedData } from '@/types';
 
 export default function DeleteSite({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const form = useForm({
     domain: '',
@@ -45,7 +47,7 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete {site.domain}</DialogTitle>
+          <DialogTitle>{t('Delete')} {site.domain}</DialogTitle>
           <DialogDescription className="sr-only">Delete site and its resources.</DialogDescription>
         </DialogHeader>
 
@@ -57,14 +59,14 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
         <Form id="delete-site-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="domain">Domain</Label>
+              <Label htmlFor="domain">{t('Domain')}</Label>
               <Input id="domain" value={form.data.domain} onChange={(e) => form.setData('domain', e.target.value)} />
               <InputError message={form.errors.domain} />
             </FormField>
             <FormField>
               <div className="flex items-center gap-2">
                 <Checkbox id="force" name="force" checked={form.data.force} onClick={() => form.setData('force', !form.data.force)} />
-                <Label htmlFor="force">Force delete</Label>
+                <Label htmlFor="force">{t('Force delete')}</Label>
               </div>
               <p className="text-muted-foreground text-sm">
                 Remove the site from Pure even if cleaning it up on the server fails (unreachable server, already removed files).
@@ -76,12 +78,12 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
 
           <Button form="delete-site-form" variant="destructive" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Delete site
+            {t('Delete site')}
           </Button>
         </DialogFooter>
       </DialogContent>

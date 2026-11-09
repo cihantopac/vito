@@ -1,3 +1,4 @@
+import { RequestFeedback } from '@/components/request-feedback';
 import AppLogo from '@/components/app-logo';
 import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
@@ -14,6 +15,7 @@ export default function AuthLayout({ children, title, description, showFooter = 
   const page = usePage<SharedData>();
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+      <RequestFeedback />
       <div className="bg-card w-full max-w-sm rounded-2xl p-6 shadow-xl sm:p-8">
         <div className="flex flex-col gap-5">
           <div className="flex flex-col items-center gap-4">

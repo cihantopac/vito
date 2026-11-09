@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CopyIcon, TerminalIcon, CheckIcon } from 'lucide-react';
@@ -19,6 +20,7 @@ function formatBytes(b: number): string {
 }
 
 export default function CleanupCommandsDialog({ open, onOpenChange, commands, selectedBytes }: CleanupCommandsDialogProps) {
+  const t = useTranslate();
   const [copied, setCopied] = useState(false);
 
   const copyCommands = () => {
@@ -57,7 +59,7 @@ export default function CleanupCommandsDialog({ open, onOpenChange, commands, se
 
         <DialogFooter className="flex-row items-center justify-between sm:justify-between">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Close
+            {t('Close')}
           </Button>
           <Button onClick={copyCommands} disabled={!commands}>
             {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}

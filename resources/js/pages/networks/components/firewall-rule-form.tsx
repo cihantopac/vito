@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEvent } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -21,6 +22,7 @@ export default function NetworkFirewallRuleForm({
   networkId: number;
   rule?: NetworkFirewallRule;
 }) {
+  const t = useTranslate();
   const form = useForm<{
     name: string;
     protocol: string;
@@ -48,13 +50,13 @@ export default function NetworkFirewallRuleForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{rule ? 'Edit' : 'Create'} firewall rule</DialogTitle>
+          <DialogTitle>{rule ? 'Edit' : 'Create'} {t('firewall rule')}</DialogTitle>
           <DialogDescription className="sr-only">{rule ? 'Edit' : 'Create new'} network firewall rule</DialogDescription>
         </DialogHeader>
         <Form id="network-firewall-rule-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
@@ -96,11 +98,11 @@ export default function NetworkFirewallRuleForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="network-firewall-rule-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

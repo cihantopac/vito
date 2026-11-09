@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
@@ -20,6 +21,7 @@ type Page = {
 };
 
 export default function Databases() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
 
@@ -52,13 +54,13 @@ export default function Databases() {
                 })
               }
             >
-              Sync
+              {t('Sync')}
             </Button>
             {!page.props.replicaOf && (
               <CreateDatabase server={page.props.server.id} defaultCharset={defaultCharset} defaultCollation={defaultCollation}>
                 <Button>
                   <PlusIcon />
-                  <span className="hidden lg:block">Create</span>
+                  <span className="hidden lg:block">{t('Create')}</span>
                 </Button>
               </CreateDatabase>
             )}
@@ -68,7 +70,7 @@ export default function Databases() {
         {page.props.replicaOf && (
           <Alert>
             <InfoIcon />
-            <AlertTitle>This server is a PostgreSQL replica of {page.props.replicaOf.name}</AlertTitle>
+            <AlertTitle>{t('This server is a PostgreSQL replica of')} {page.props.replicaOf.name}</AlertTitle>
             <AlertDescription>
               <p>
                 Everything here is a copy of {page.props.replicaOf.name} and is read-only, so create and delete on the primary. Pure imports the list when

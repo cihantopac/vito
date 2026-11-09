@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { NavUser } from '@/components/nav-user';
 import { cn, currentPath } from '@/lib/utils';
@@ -77,6 +78,7 @@ export function AppSidebar({
   secondNavOpen?: boolean;
   onSecondNavOpenChange?: (open: boolean) => void;
 }) {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const navGroups = secondNavGroups ?? [{ title: '', items: secondNavItems ?? [] }];
   const hasSecondNav = navGroups.some((group) => group.items.length > 0);
@@ -188,19 +190,19 @@ export function AppSidebar({
                     <SidebarMenuButton
                       asChild
                       isActive={item.href === activePrimaryHref}
-                      tooltip={item.title}
+                      tooltip={t(item.title)}
                       hidden={item.hidden}
                       className="group-data-[state=collapsed]:size-8! group-data-[state=collapsed]:p-2! group-data-[state=collapsed]:justify-center"
                     >
                       {item.external ? (
                         <a href={item.href} target="_blank">
                           {item.icon && <item.icon />}
-                          <span className="group-data-[state=collapsed]:hidden">{item.title}</span>
+                          <span className="group-data-[state=collapsed]:hidden">{t(item.title)}</span>
                         </a>
                       ) : (
                         <Link href={item.href}>
                           {item.icon && <item.icon />}
-                          <span className="group-data-[state=collapsed]:hidden">{item.title}</span>
+                          <span className="group-data-[state=collapsed]:hidden">{t(item.title)}</span>
                         </Link>
                       )}
                     </SidebarMenuButton>
@@ -278,7 +280,7 @@ export function AppSidebar({
                             <CollapsibleTrigger asChild>
                               <SidebarMenuButton isActive={groupActive} disabled={item.isDisabled || false} hidden={item.hidden}>
                                 {item.icon && <item.icon />}
-                                <span className="truncate">{item.title}</span>
+                                <span className="truncate">{t(item.title)}</span>
                                 <ChevronRightIcon className="ml-auto size-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                               </SidebarMenuButton>
                             </CollapsibleTrigger>
@@ -323,7 +325,7 @@ export function AppSidebar({
                               {item.external ? (
                                 <a href={item.href} target="_blank" className="flex items-center w-full">
                                   {item.icon && <item.icon />}
-                                  <span className="truncate">{item.title}</span>
+                                  <span className="truncate">{t(item.title)}</span>
                                   {item.badge !== undefined && (
                                     <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
                                       {item.badge}
@@ -337,7 +339,7 @@ export function AppSidebar({
                                   className={cn('flex items-center w-full', item.isDisabled && 'pointer-events-none opacity-50')}
                                 >
                                   {item.icon && <item.icon />}
-                                  <span className="truncate">{item.title}</span>
+                                  <span className="truncate">{t(item.title)}</span>
                                   {item.badge !== undefined && (
                                     <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
                                       {item.badge}
@@ -357,7 +359,7 @@ export function AppSidebar({
                           {item.external ? (
                             <a href={item.href} target="_blank" className="flex items-center w-full">
                               {item.icon && <item.icon />}
-                              <span className="truncate">{item.title}</span>
+                              <span className="truncate">{t(item.title)}</span>
                               {item.badge !== undefined && (
                                 <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
                                   {item.badge}
@@ -371,7 +373,7 @@ export function AppSidebar({
                               className={cn('flex items-center w-full', item.isDisabled && 'pointer-events-none opacity-50')}
                             >
                               {item.icon && <item.icon />}
-                              <span className="truncate">{item.title}</span>
+                              <span className="truncate">{t(item.title)}</span>
                               {item.badge !== undefined && (
                                 <span className="ml-auto text-[11px] font-mono font-medium text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded-md group-data-[collapsible=icon]:hidden">
                                   {item.badge}

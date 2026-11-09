@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { RefreshCw, TriangleAlertIcon } from 'lucide-react';
@@ -41,6 +42,7 @@ export default function PrivateIpSelect({
   disabled?: boolean;
   refreshSource?: RefreshSource;
 }) {
+  const t = useTranslate();
   const [refreshing, setRefreshing] = useState(false);
 
   const refresh = () => {
@@ -90,7 +92,7 @@ export default function PrivateIpSelect({
             )}
           </SelectContent>
         </Select>
-        <Button variant="outline" type="button" aria-label="Refresh" disabled={disabled || refreshing || !serverId} onClick={refresh}>
+        <Button variant="outline" type="button" aria-label={t('Refresh')} disabled={disabled || refreshing || !serverId} onClick={refresh}>
           <RefreshCw className={refreshing ? 'animate-spin' : ''} />
         </Button>
       </div>

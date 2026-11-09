@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { Link, useForm, usePage } from '@inertiajs/react';
@@ -7,9 +8,10 @@ import { SharedData } from '@/types';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Edit({ backup }: { backup: Backup }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.backupEdit.open({ backup })}>Edit</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.backupEdit.open({ backup })}>{t('Edit')}</DropdownMenuItem>;
 }
 
 function Passphrase({ backup }: { backup: Backup }) {
@@ -40,6 +42,7 @@ function ToggleEnabled({ backup }: { backup: Backup }) {
 }
 
 function Delete({ backup }: { backup: Backup }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const target =
     (backup.type === 'pgbackrest' ? 'PostgreSQL cluster' : backup.type === 'database' ? backup.database?.name : backup.path) ?? `#${backup.id}`;
@@ -61,7 +64,7 @@ function Delete({ backup }: { backup: Backup }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

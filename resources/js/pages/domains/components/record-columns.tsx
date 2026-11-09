@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ColumnDef } from '@tanstack/react-table';
 import DateTime from '@/components/date-time';
 import { DNSRecord } from '@/types/dns-record';
@@ -11,9 +12,10 @@ import { useClipboard } from '@/hooks/use-clipboard';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Edit({ domain, record }: { domain: Domain; record: DNSRecord }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.dnsRecordForm.open({ domain, record })}>Edit</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.dnsRecordForm.open({ domain, record })}>{t('Edit')}</DropdownMenuItem>;
 }
 
 function CopyableText({ text }: { text: string | null | undefined }) {
@@ -31,6 +33,7 @@ function CopyableText({ text }: { text: string | null | undefined }) {
 }
 
 function Delete({ record }: { record: DNSRecord }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -47,7 +50,7 @@ function Delete({ record }: { record: DNSRecord }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
@@ -91,6 +92,7 @@ function CommandRow({ item }: { item: CommandItem }) {
 }
 
 export default function ServerCommands() {
+  const t = useTranslate();
   const { server: initialServer, initialData, csrf_token } = usePage<PageProps & SharedData>().props;
   const server = useRealtimeRecord<Server>(initialServer, 'server') ?? initialServer;
 
@@ -150,7 +152,7 @@ export default function ServerCommands() {
       <Container className="space-y-5">
         <HeaderContainer>
           <Heading
-            title="Commands"
+            title={t('Commands')}
             description="Audit log and command execution history on this server."
           />
 
@@ -162,7 +164,7 @@ export default function ServerCommands() {
             disabled={loading || !server.is_ready}
           >
             <RefreshCwIcon className={`size-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span>{t('Refresh')}</span>
           </Button>
         </HeaderContainer>
 

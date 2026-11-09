@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { MetricsFilter } from '@/types/metric';
 import {
   DropdownMenu,
@@ -19,6 +20,7 @@ import { formatDateString } from '@/lib/utils';
 import { useConfigs } from '@/stores/bootstrap-store';
 
 export default function Filter({ value, onValueChange }: { value?: MetricsFilter; onValueChange?: (filter: MetricsFilter) => void }) {
+  const t = useTranslate();
   const configs = useConfigs()!;
   const form = useForm<MetricsFilter>(
     value || {
@@ -64,7 +66,7 @@ export default function Filter({ value, onValueChange }: { value?: MetricsFilter
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">{t('Open menu')}</span>
           {form.data.period ? <FilterIcon className="text-foreground fill-current" /> : <FilterIcon />}
           <span className="hidden lg:block">Filter</span>
         </Button>

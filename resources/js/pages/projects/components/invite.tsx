@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -21,6 +22,7 @@ export default function Invite({
   onOpenChange: (open: boolean) => void;
   project: Project;
 }) {
+  const t = useTranslate();
   const queryClient = useQueryClient();
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const [quickCreateEmail, setQuickCreateEmail] = useState('');
@@ -59,7 +61,7 @@ export default function Invite({
             <FormFields>
               <FormField>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="invite-user">User</Label>
+                  <Label htmlFor="invite-user">{t('User')}</Label>
                   <Button
                     type="button"
                     variant="ghost"
@@ -87,7 +89,7 @@ export default function Invite({
                 <InputError message={form.errors.user_id} />
               </FormField>
               <FormField>
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">{t('Role')}</Label>
                 <Select value={form.data.role} onValueChange={(value) => form.setData('role', value)}>
                   <SelectTrigger id="role" name="role" className="w-full">
                     <SelectValue placeholder="Select a role" />
@@ -95,7 +97,7 @@ export default function Invite({
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="user">{t('User')}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -106,11 +108,11 @@ export default function Invite({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </DialogClose>
             <Button form="invite-form" type="submit" disabled={form.processing || form.data.user_id === null}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              Add user
+              {t('Add user')}
             </Button>
           </DialogFooter>
         </DialogContent>

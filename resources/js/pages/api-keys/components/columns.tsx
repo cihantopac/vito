@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ColumnDef } from '@tanstack/react-table';
 import DateTime from '@/components/date-time';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -8,6 +9,7 @@ import { Project } from '@/types/project';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Delete({ apiKey }: { apiKey: ApiKey }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -24,7 +26,7 @@ function Delete({ apiKey }: { apiKey: ApiKey }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

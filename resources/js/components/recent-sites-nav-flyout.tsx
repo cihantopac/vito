@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useOverviewResources } from '@/hooks/use-overview-resources';
 
 export default function RecentSitesNavFlyout() {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const projectId = page.props.server?.project_id ?? page.props.auth?.currentProject?.id;
   const resources = useOverviewResources(projectId, [], [], Boolean(projectId));
@@ -15,13 +17,13 @@ export default function RecentSitesNavFlyout() {
     <div>
       <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/60 mb-1">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Recent Sites
+          {t('Recent Sites')}
         </span>
         <Link
           href={withQuery("/sites", { project: 'all' })}
           className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
         >
-          <span>All</span>
+          <span>{t('All')}</span>
           <ArrowRightIcon className="size-3" />
         </Link>
       </div>

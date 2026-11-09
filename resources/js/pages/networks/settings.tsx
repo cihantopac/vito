@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import HeaderContainer from '@/components/header-container';
@@ -18,6 +19,7 @@ import { formatDateString } from '@/lib/utils';
 import { Network } from '@/types/network';
 
 export default function NetworkSettings() {
+  const t = useTranslate();
   const page = usePage<{ network: Network }>();
   const network = useRealtimeRecord<Network>(page.props.network, 'network')!;
   const dialog = useDialog();
@@ -63,7 +65,7 @@ export default function NetworkSettings() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Settings" description="Manage this network's settings" />
+          <Heading title={t('Settings')} description="Manage this network's settings" />
         </HeaderContainer>
 
         <Card className="overflow-hidden">
@@ -76,7 +78,7 @@ export default function NetworkSettings() {
               {form.isDirty && (
                 <Button onClick={submit}>
                   {form.processing && <LoaderCircleIcon className="animate-spin" />}
-                  Save changes
+                  {t('Save changes')}
                 </Button>
               )}
               {(editMode || form.isDirty) && (
@@ -87,7 +89,7 @@ export default function NetworkSettings() {
                     form.reset();
                   }}
                 >
-                  Cancel
+                  {t('Cancel')}
                 </Button>
               )}
             </div>
@@ -99,7 +101,7 @@ export default function NetworkSettings() {
             </div>
             <Separator />
             <div className="flex items-center justify-between p-4">
-              <span>Name</span>
+              <span>{t('Name')}</span>
               {editMode === 'name' ? (
                 <div className="flex max-w-48 flex-col items-end gap-1">
                   <Input
@@ -120,12 +122,12 @@ export default function NetworkSettings() {
             </div>
             <Separator />
             <div className="flex items-center justify-between p-4">
-              <span>Type</span>
+              <span>{t('Type')}</span>
               <Badge variant={network.type_color}>{network.type}</Badge>
             </div>
             <Separator />
             <div className="flex items-center justify-between p-4">
-              <span>Status</span>
+              <span>{t('Status')}</span>
               <Badge variant={network.status_color}>{network.status}</Badge>
             </div>
             <Separator />
@@ -149,7 +151,7 @@ export default function NetworkSettings() {
             )}
             <Separator />
             <div className="flex items-center justify-between p-4">
-              <span>Created at</span>
+              <span>{t('Created at')}</span>
               <span className="text-muted-foreground">{formatDateString(network.created_at)}</span>
             </div>
           </CardContent>
@@ -166,12 +168,12 @@ export default function NetworkSettings() {
             </CardHeader>
             <CardContent className="bg-background p-0">
               <div className="flex items-center justify-between p-4">
-                <span>Provider</span>
+                <span>{t('Provider')}</span>
                 <span className="text-muted-foreground">{network.provider ?? '-'}</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between p-4">
-                <span>Region</span>
+                <span>{t('Region')}</span>
                 <span className="text-muted-foreground">{network.region ?? '-'}</span>
               </div>
               <Separator />

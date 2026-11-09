@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { InputHTMLAttributes, useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ const toolIdsOf = (config: DynamicFieldConfig): string[] =>
   Array.isArray(config.options) ? config.options : config.options ? Object.values(config.options) : [];
 
 export default function DynamicField({ value, onChange, config, error, form, inheritedVersionTools = [] }: DynamicFieldProps) {
+  const t = useTranslate();
   const defaultLabel = config.name.replaceAll('_', ' ');
   const label = config?.label || defaultLabel;
   const [initialValue, setInitialValue] = useState(false);
@@ -254,7 +256,7 @@ export default function DynamicField({ value, onChange, config, error, form, inh
         <InputError message={error} />
         {showVersion && (
           <div className="flex flex-col gap-2 pt-2">
-            <Label htmlFor={`field-${versionKey}`}>{descriptor.label} Version</Label>
+            <Label htmlFor={`field-${versionKey}`}>{descriptor.label} {t('Version')}</Label>
             <Select value={versionValue} onValueChange={(v) => form.setData(versionKey, v)}>
               <SelectTrigger id={`field-${versionKey}`}>
                 <SelectValue placeholder={`Select ${descriptor.label} version`} />

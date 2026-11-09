@@ -1,8 +1,10 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { DNSProvider } from '@/types/dns-provider';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ dnsProvider }: { dnsProvider: DNSProvider }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -19,7 +21,7 @@ export default function Delete({ dnsProvider }: { dnsProvider: DNSProvider }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

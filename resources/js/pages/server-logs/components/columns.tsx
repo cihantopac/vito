@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ColumnDef } from '@tanstack/react-table';
 import type { ServerLog } from '@/types/server-log';
 import { ReactNode } from 'react';
@@ -26,6 +27,7 @@ export function Download({ serverLog, children }: { serverLog: ServerLog; childr
 }
 
 function Clear({ serverLog }: { serverLog: ServerLog }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -40,12 +42,13 @@ function Clear({ serverLog }: { serverLog: ServerLog }) {
         })
       }
     >
-      Clear
+      {t('Clear')}
     </DropdownMenuItem>
   );
 }
 
 function Delete({ serverLog }: { serverLog: ServerLog }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -62,7 +65,7 @@ function Delete({ serverLog }: { serverLog: ServerLog }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

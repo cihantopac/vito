@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ColumnDef } from '@tanstack/react-table';
 import DateTime from '@/components/date-time';
 import { SourceControl } from '@/types/source-control';
@@ -7,12 +8,14 @@ import { TableActionTrigger } from '@/components/table-action-trigger';
 import { useDialog } from '@/hooks/use-dialog';
 
 function Edit({ sourceControl }: { sourceControl: SourceControl }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.sourceControlEdit.open({ sourceControl })}>Edit</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.sourceControlEdit.open({ sourceControl })}>{t('Edit')}</DropdownMenuItem>;
 }
 
 function Delete({ sourceControl }: { sourceControl: SourceControl }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -29,7 +32,7 @@ function Delete({ sourceControl }: { sourceControl: SourceControl }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

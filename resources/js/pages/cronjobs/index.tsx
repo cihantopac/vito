@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import RuntimeProcesses from '@/components/runtime-processes';
 import { Head, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -26,6 +27,7 @@ import {
 import { CRONJOB_TEMPLATES } from '@/config/cron-templates';
 
 export default function CronJobIndex() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     cronjobs: PaginatedData<CronJob>;
@@ -58,7 +60,7 @@ export default function CronJobIndex() {
                 })
               }
             >
-              Sync
+              {t('Sync')}
             </Button>
             <DropdownMenu>
               <div className="flex items-center rounded-md shadow-xs">
@@ -67,7 +69,7 @@ export default function CronJobIndex() {
                   onClick={() => dialog.cronjobForm.open({ serverId: page.props.server.id, site: page.props.site })}
                 >
                   <PlusIcon />
-                  <span className="hidden lg:block">Create</span>
+                  <span className="hidden lg:block">{t('Create')}</span>
                 </Button>
                 <DropdownMenuTrigger asChild>
                   <Button className="rounded-l-none px-2" aria-label="Quick add presets">

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Site, SiteFeatureAction } from '@/types/site';
 import { FormEvent } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -25,6 +26,7 @@ export default function FeatureAction({
   actionId: string;
   action: SiteFeatureAction;
 }) {
+  const t = useTranslate();
   const form = useForm<Record<string, FieldValue>>({});
 
   const submit = (e: FormEvent) => {
@@ -59,7 +61,7 @@ export default function FeatureAction({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="action-form" disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

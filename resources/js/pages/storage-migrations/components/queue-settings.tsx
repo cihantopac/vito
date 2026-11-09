@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -22,6 +23,7 @@ type Setting = {
 };
 
 export default function QueueSettings({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const t = useTranslate();
   const [setting, setSetting] = useState<Setting | null>(null);
   const [applying, setApplying] = useState(false);
 
@@ -56,7 +58,7 @@ export default function QueueSettings({ open, onOpenChange }: { open: boolean; o
   const apply = async () => {
     setApplying(true);
     try {
-      await axios.post("/storage-migrations/queue-settings/apply");
+      await axios.post('/storage-migrations/queue-settings/apply');
       toast.warning('Applied. The Horizon master process was restarted — your process supervisor must bring it back up.');
       await load();
     } catch {
@@ -130,7 +132,7 @@ export default function QueueSettings({ open, onOpenChange }: { open: boolean; o
         <DialogFooter className="gap-2 sm:gap-2">
           <Button type="submit" form="queue-settings-form" disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
           <Button type="button" variant="destructive" onClick={() => void apply()} disabled={applying || !setting?.needs_apply}>
             {applying && <LoaderCircle className="animate-spin" />}

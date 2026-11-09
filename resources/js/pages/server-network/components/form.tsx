@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEvent, useState } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -21,6 +22,7 @@ export default function ServerIpForm({
   serverId: number;
   interfaces?: string[];
 }) {
+  const t = useTranslate();
   const [customMask, setCustomMask] = useState(false);
   const [addRange, setAddRange] = useState(false);
   const form = useForm<{
@@ -140,11 +142,11 @@ export default function ServerIpForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="server-ip-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

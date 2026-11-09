@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Server } from '@/types/server';
@@ -22,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 const autoRefreshedServers = new Set<number>();
 
 export default function ServerNetwork() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     ipAddresses: InertiaTableData;
@@ -58,9 +60,9 @@ export default function ServerNetwork() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="Network" description="Here you can manage the IP addresses configured on the server" />
+          <Heading title={t('Network')} description="Here you can manage the IP addresses configured on the server" />
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" aria-label="Refresh" disabled={refreshing} onClick={refresh}>
+            <Button variant="outline" size="icon" aria-label={t('Refresh')} disabled={refreshing} onClick={refresh}>
               <RefreshCwIcon className={refreshing ? 'animate-spin' : undefined} />
             </Button>
             <Button onClick={() => dialog.serverIpForm.open({ serverId: page.props.server.id, interfaces: page.props.interfaces })}>

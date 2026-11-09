@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { Service } from '@/types/service';
 import { FormEvent } from 'react';
@@ -23,6 +24,7 @@ export default function PhpIniDialog({
   service: Service;
   type: 'fpm' | 'cli';
 }) {
+  const t = useTranslate();
   const form = useForm<{
     ini: string;
     type: 'fpm' | 'cli';
@@ -62,7 +64,7 @@ export default function PhpIniDialog({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-5xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader>
-          <SheetTitle>Edit {type} ini</SheetTitle>
+          <SheetTitle>{t('Edit')} {type} ini</SheetTitle>
           <SheetDescription className="sr-only">You can edit the {type} ini file for this service. Make sure to save your changes.</SheetDescription>
         </SheetHeader>
         <Form id="update-ini-form" className="h-full" onSubmit={submit}>
@@ -84,10 +86,10 @@ export default function PhpIniDialog({
           <div className="flex items-center gap-2">
             <Button form="update-ini-form" type="submit" disabled={form.processing || query.isLoading} className="ml-2">
               {(form.processing || query.isLoading) && <LoaderCircleIcon className="animate-spin" />}
-              Save
+              {t('Save')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

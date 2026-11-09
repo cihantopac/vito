@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode, useId, useState } from 'react';
 import {
   Dialog,
@@ -23,6 +24,7 @@ import RadioCard from '@/components/radio-card';
 type ApplyChoice = '' | 'config' | 'restart';
 
 export default function StartCommand({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const groupLabelId = useId();
   const hasWorker = site.bootstrap_worker_id != null;
@@ -113,11 +115,11 @@ export default function StartCommand({ site, children }: { site: Site; children:
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="start-command-form" disabled={form.processing || choiceMissing}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,8 +1,10 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Plugin } from '@/types/plugin';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function InstallPlugin({ plugin }: { plugin: Plugin }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -18,7 +20,7 @@ export default function InstallPlugin({ plugin }: { plugin: Plugin }) {
         })
       }
     >
-      Install
+      {t('Install')}
     </DropdownMenuItem>
   );
 }

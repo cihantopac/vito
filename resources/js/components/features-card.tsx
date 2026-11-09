@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ServerFeature } from '@/types/server';
 import { SiteFeature } from '@/types/site';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ export default function FeaturesCard({
   features, 
   onActionSelect 
 }: FeaturesCardProps) {
+  const t = useTranslate();
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex-row items-center justify-between gap-2">
@@ -42,7 +44,7 @@ export default function FeaturesCard({
                 <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline">
-                      Actions
+                      {t('Actions')}
                       <MoreVerticalIcon />
                     </Button>
                   </DropdownMenuTrigger>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import DateTime from '@/components/date-time';
 import LogOutput from '@/components/log-output';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { ChevronDownIcon, DownloadIcon, LoaderCircleIcon, TerminalIcon } from 'l
 import { useState } from 'react';
 
 export default function ExecutionLog({ execution, initiallyOpen = false }: { execution: CommandExecution; initiallyOpen?: boolean }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(initiallyOpen);
   const { content, isLoading, error } = useLogContent({
     serverId: execution.server_id,
@@ -36,7 +38,7 @@ export default function ExecutionLog({ execution, initiallyOpen = false }: { exe
         </CollapsibleTrigger>
         {execution.log && (
           <Button variant="outline" size="icon" className="size-8 shrink-0" asChild>
-            <a href={`/servers/${execution.server_id}/logs/${execution.log.id}/download`} target="_blank" rel="noopener noreferrer" aria-label="Download log">
+            <a href={`/servers/${execution.server_id}/logs/${execution.log.id}/download`} target="_blank" rel="noopener noreferrer" aria-label={t('Download log')}>
               <DownloadIcon />
             </a>
           </Button>

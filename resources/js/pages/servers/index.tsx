@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { usePanelView } from '@/hooks/use-panel-view';
 import { useSocketStore } from '@/stores/socket-store';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -304,6 +305,7 @@ const phpVersionsCell = ({ value, row }: CellRenderProps) => {
 };
 
 export default function Servers() {
+  const t = useTranslate();
   const page = usePage<Page & SharedData>();
   const versionForm = useForm({ project: page.props.serverScope ?? 'all' });
   const { advanced, setView } = usePanelView();
@@ -324,11 +326,11 @@ export default function Servers() {
 
   return (
     <Layout>
-      <Head title="Servers" />
+      <Head title={t('Servers')} />
 
       <Container>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <Heading title="Servers" />
+          <Heading title={t('Servers')} />
           <div className="flex flex-wrap items-center gap-2">
             {advanced && <Button
               variant="outline"
@@ -344,7 +346,7 @@ export default function Servers() {
             <Button asChild>
               <Link href={"/servers/create"}>
                 <PlusIcon />
-                Create server
+                {t('Create server')}
               </Link>
             </Button>
           </div>
@@ -366,8 +368,8 @@ export default function Servers() {
           toolbar={
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex rounded-md border border-border p-0.5" role="group" aria-label="Server view">
-                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>Basic</Button>
-                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>Advanced</Button>
+                <Button size="sm" variant={advanced ? 'ghost' : 'secondary'} aria-pressed={!advanced} onClick={() => setView('basic')}>{t('Basic')}</Button>
+                <Button size="sm" variant={advanced ? 'secondary' : 'ghost'} aria-pressed={advanced} onClick={() => setView('advanced')}>{t('Advanced')}</Button>
               </div>
               {advanced && <Select
                 value={page.props.phpStatus ?? 'all'}
@@ -406,10 +408,10 @@ export default function Servers() {
                   }}
                 >
                   <SelectTrigger className="h-8 w-40" aria-label="Group servers by">
-                    <SelectValue placeholder="No grouping" />
+                    <SelectValue placeholder={t('No grouping')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No grouping</SelectItem>
+                    <SelectItem value="none">{t('No grouping')}</SelectItem>
                     <SelectItem value="project">Group by Project</SelectItem>
                   </SelectContent>
                 </Select>

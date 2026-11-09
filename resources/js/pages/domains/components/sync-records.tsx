@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { LoaderCircleIcon, RefreshCwIcon } from 'lucide-react';
@@ -6,6 +7,7 @@ import { useState } from 'react';
 import { Domain } from '@/types/domain';
 
 export default function SyncRecords({ domain }: { domain: Domain }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm();
 
@@ -22,7 +24,7 @@ export default function SyncRecords({ domain }: { domain: Domain }) {
       <DialogTrigger asChild>
         <Button variant="outline">
           <RefreshCwIcon />
-          <span className="hidden lg:block">Sync</span>
+          <span className="hidden lg:block">{t('Sync')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
@@ -33,11 +35,11 @@ export default function SyncRecords({ domain }: { domain: Domain }) {
         <p className="p-4">This will delete the copy of the DNS records in vito and fetch them again from the provider</p>
         <DialogFooter>
           <DialogTrigger asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogTrigger>
           <Button disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Sync
+            {t('Sync')}
           </Button>
         </DialogFooter>
       </DialogContent>

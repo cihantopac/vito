@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Link } from '@inertiajs/react';
 import { LoaderCircleIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -8,6 +9,7 @@ import { DatabaseReplica } from '@/types/database-replica';
 const BUSY = ['pending', 'configuring', 'promoting', 'deleting'];
 
 export default function DatabaseReplicaActions({ replica, failoverEnabled = false }: { replica: DatabaseReplica; failoverEnabled?: boolean }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const server = replica.primary_server_id;
 
@@ -15,7 +17,7 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
     return (
       <div className="flex items-center justify-end gap-1">
         <Link href={`${`/servers/${server}/database-replicas/${replica.id}`}#logs`} className="text-muted-foreground text-xs underline">
-          Logs
+          {t('Logs')}
         </Link>
         <span className="flex h-8 w-8 items-center justify-center" aria-label={`Replica is ${replica.status}`}>
           <LoaderCircleIcon className="text-muted-foreground h-4 w-4 animate-spin" />
@@ -32,10 +34,10 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
-            <Link href={`/servers/${server}/database-replicas/${replica.id}`}>View</Link>
+            <Link href={`/servers/${server}/database-replicas/${replica.id}`}>{t('View')}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`${`/servers/${server}/database-replicas/${replica.id}`}#logs`}>View logs</Link>
+            <Link href={`${`/servers/${server}/database-replicas/${replica.id}`}#logs`}>{t('View logs')}</Link>
           </DropdownMenuItem>
           {['ready', 'failed', 'needs_rebuild'].includes(replica.status) && (
             <DropdownMenuItem
@@ -71,7 +73,7 @@ export default function DatabaseReplicaActions({ replica, failoverEnabled = fals
               })
             }
           >
-            Delete
+            {t('Delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

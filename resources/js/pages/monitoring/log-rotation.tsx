@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useEffect, useMemo, useState } from 'react';
 import { Head, usePage, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
@@ -122,6 +123,7 @@ function ClearAction({ entry, serverId }: { entry: LogEntry; serverId: number })
 }
 
 function CleanupSuggestions({ serverId }: { serverId: number }) {
+  const t = useTranslate();
   const [selected, setSelected] = useState<string[]>([]);
   const dialog = useDialog();
 
@@ -293,7 +295,7 @@ function CleanupSuggestions({ serverId }: { serverId: number }) {
                         </ul>
                         {category.count > category.samples.length && (
                           <p className="text-[10px] text-muted-foreground mt-1.5 pt-1 border-t">
-                            and {category.count - category.samples.length} more files
+                            {t('and')} {category.count - category.samples.length} more files
                           </p>
                         )}
                       </PopoverContent>
@@ -312,6 +314,7 @@ function CleanupSuggestions({ serverId }: { serverId: number }) {
 }
 
 export default function LogRotation() {
+  const t = useTranslate();
   const { server, logs } = usePage<Page>().props;
   const dialog = useDialog();
 
@@ -408,7 +411,7 @@ export default function LogRotation() {
           <div className="flex items-center gap-2">
             {totalSize > 0 && (
               <span className="text-muted-foreground text-sm">
-                Total: <strong className="text-foreground">{formatBytes(totalSize)}</strong>
+                {t('Total:')} <strong className="text-foreground">{formatBytes(totalSize)}</strong>
               </span>
             )}
             {clearable.length > 0 && (
@@ -423,7 +426,7 @@ export default function LogRotation() {
             )}
             <Button variant="outline" onClick={() => router.reload()}>
               <RefreshCwIcon className="size-4" />
-              <span className="hidden sm:inline">Refresh</span>
+              <span className="hidden sm:inline">{t('Refresh')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -512,11 +515,11 @@ export default function LogRotation() {
               <Table className="table-fixed w-full">
                 <TableHeader className="sticky top-0 bg-card shadow-xs z-10">
                   <TableRow>
-                    {activeTab === 'all' && <TableHead className="w-28">Service</TableHead>}
+                    {activeTab === 'all' && <TableHead className="w-28">{t('Service')}</TableHead>}
                     <TableHead className="w-56 md:w-72">Log File</TableHead>
-                    <TableHead>Path</TableHead>
-                    <TableHead className="w-24 text-right">Size</TableHead>
-                    <TableHead className="w-14 text-right">Actions</TableHead>
+                    <TableHead>{t('Path')}</TableHead>
+                    <TableHead className="w-24 text-right">{t('Size')}</TableHead>
+                    <TableHead className="w-14 text-right">{t('Actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

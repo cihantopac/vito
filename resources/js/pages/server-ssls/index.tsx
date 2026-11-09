@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import ServerLayout from '@/layouts/server/layout';
 import { Head, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -14,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import CreateServerSsl from '@/pages/server-ssls/components/create-server-ssl';
 
 export default function ServerSsls() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     ssls: PaginatedData<SSL>;
@@ -28,10 +30,10 @@ export default function ServerSsls() {
 
       <Container>
         <HeaderContainer>
-          <Heading title="SSL certificates" description="Certificates registered for this server and its applications. Review expiry dates and open the application's Domains page to manage a site certificate." />
+          <Heading title={t('SSL certificates')} description="Certificates registered for this server and its applications. Review expiry dates and open the application's Domains page to manage a site certificate." />
           <div className="flex items-center gap-2">
             <CreateServerSsl server={page.props.server} domains={page.props.domains}>
-              <Button>Add</Button>
+              <Button>{t('Add')}</Button>
             </CreateServerSsl>
           </div>
         </HeaderContainer>

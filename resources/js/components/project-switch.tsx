@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { type SharedData } from '@/types';
 import { type Project } from '@/types/project';
@@ -10,6 +11,7 @@ import { ProjectSelect } from '@/components/project-select';
 import { CommandGroup, CommandItem } from '@/components/ui/command';
 
 export function ProjectSwitch() {
+  const t = useTranslate();
   const page = usePage<SharedData & { siteScope?: string; serverScope?: string }>();
   const { auth } = page.props;
   const isAllProjects = (page.props.siteScope ?? page.props.serverScope) === 'all';
@@ -60,7 +62,7 @@ export function ProjectSwitch() {
     <CommandGroup>
       <CommandItem value="all-projects" onSelect={handleAllProjects}>
         <Layers3Icon />
-        All Projects
+        {t('All Projects')}
         <CheckIcon className={selected === 'all' ? 'ml-auto opacity-100' : 'ml-auto opacity-0'} />
       </CommandItem>
     </CommandGroup>

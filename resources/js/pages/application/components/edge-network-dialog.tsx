@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -46,6 +47,7 @@ export default function EdgeNetworkDialog({
   hostedDomains = [],
   domainProxyStatus = {},
 }: EdgeNetworkDialogProps) {
+  const t = useTranslate();
   const dialog = useDialog();
   const [togglingDomain, setTogglingDomain] = useState<string | null>(null);
 
@@ -112,13 +114,13 @@ export default function EdgeNetworkDialog({
                 <DropdownMenuItem asChild>
                   <Link href={`/servers/${server.id}/sites/${site.id}/domains`} className="flex items-center gap-2 cursor-pointer text-xs">
                     <GlobeIcon className="size-3.5 text-muted-foreground" />
-                    <span>Manage Domains</span>
+                    <span>{t('Manage Domains')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={"/settings/dns-providers"} className="flex items-center gap-2 cursor-pointer text-xs">
                     <SettingsIcon className="size-3.5 text-muted-foreground" />
-                    <span>DNS Providers</span>
+                    <span>{t('DNS Providers')}</span>
                   </Link>
                 </DropdownMenuItem>
                 {hasCloudflare && (
@@ -164,7 +166,7 @@ export default function EdgeNetworkDialog({
               {hasCloudflare ? (
                 <Button variant="outline" size="sm" onClick={openCloudflareEdit} className="h-8 text-xs">
                   <SettingsIcon className="size-3.5 mr-1" />
-                  Edit
+                  {t('Edit')}
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" asChild className="h-8 text-xs">
@@ -177,14 +179,14 @@ export default function EdgeNetworkDialog({
           <div className="rounded-lg border overflow-hidden">
             <div className="flex items-center justify-between bg-muted/30 px-4 py-2.5 border-b">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold">Domains</span>
+                <span className="text-xs font-semibold">{t('Domains')}</span>
                 <Badge variant="gray" className="text-[10px] font-mono font-normal">
                   {hasCloudflare ? `${protectedCount} confirmed protected${unknownCount ? ` · ${unknownCount} not checked` : ''}` : `${domains.length} total`}
                 </Badge>
               </div>
               <Button variant="outline" size="sm" onClick={openAddDomain} className="h-7 text-xs px-2.5 gap-1">
                 <PlusIcon className="size-3" />
-                <span>Add Domain</span>
+                <span>{t('Add Domain')}</span>
               </Button>
             </div>
 
@@ -204,7 +206,7 @@ export default function EdgeNetworkDialog({
                       </span>
                       {item.type === 'primary' && (
                         <Badge variant="gray" className="text-[9px] h-4 px-1 uppercase font-semibold">
-                          Primary
+                          {t('Primary')}
                         </Badge>
                       )}
                     </div>
@@ -239,7 +241,7 @@ export default function EdgeNetworkDialog({
         <DialogFooter className="pt-2">
           <DialogClose asChild>
             <Button variant="outline" size="sm" className="h-8 text-xs">
-              Close
+              {t('Close')}
             </Button>
           </DialogClose>
         </DialogFooter>

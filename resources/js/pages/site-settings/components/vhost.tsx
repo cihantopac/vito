@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { FormEvent, ReactNode, useEffect, useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { StatusRipple } from '@/components/status-ripple';
 
 export default function VHost({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -134,7 +136,7 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
           <div className="flex w-full items-center justify-between">
             <Button variant="outline" onClick={() => setShowResetDialog(true)}>
               <RotateCcwIcon />
-              Reset
+              {t('Reset')}
             </Button>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={previewTemplate} disabled={previewing || query.isLoading}>
@@ -143,10 +145,10 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
               </Button>
               <Button form="update-vhost-form" disabled={form.processing || query.isLoading} onClick={submit}>
                 {(form.processing || query.isLoading) && <LoaderCircleIcon className="animate-spin" />}
-                Save
+                {t('Save')}
               </Button>
               <SheetClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline">{t('Cancel')}</Button>
               </SheetClose>
             </div>
           </div>
@@ -162,11 +164,11 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowResetDialog(false)}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button variant="destructive" onClick={resetTemplate} disabled={resetting}>
               {resetting && <LoaderCircleIcon className="animate-spin" />}
-              Reset
+              {t('Reset')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -191,7 +193,7 @@ export default function VHost({ site, children }: { site: Site; children: ReactN
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
-              Close
+              {t('Close')}
             </Button>
           </DialogFooter>
         </DialogContent>

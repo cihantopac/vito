@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useForm } from '@inertiajs/react';
@@ -26,6 +27,7 @@ export default function StorageProviderEditDialog({
   onOpenChange: (open: boolean) => void;
   storageProvider: StorageProvider;
 }) {
+  const t = useTranslate();
   const configs = useConfigs()!;
   const [showOptional, setShowOptional] = useState(false);
 
@@ -58,7 +60,7 @@ export default function StorageProviderEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Edit {storageProvider.name}</DialogTitle>
+          <DialogTitle>{t('Edit')} {storageProvider.name}</DialogTitle>
           <DialogDescription className="sr-only">Edit storage provider</DialogDescription>
         </DialogHeader>
         <Form
@@ -72,7 +74,7 @@ export default function StorageProviderEditDialog({
         >
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input
                 type="text"
                 id="name"
@@ -129,7 +131,7 @@ export default function StorageProviderEditDialog({
                         onCheckedChange={(checked) => form.setData('global', Boolean(checked))}
                       />
                       <Label htmlFor="global" className="text-xs font-normal">
-                        Is global (accessible in all projects)
+                        {t('Is global (accessible in all projects)')}
                       </Label>
                     </div>
                     <InputError message={form.errors.global} />
@@ -145,12 +147,12 @@ export default function StorageProviderEditDialog({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="edit-storage-provider-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

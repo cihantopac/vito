@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -8,13 +9,14 @@ import ExportVito from '@/pages/vito-settings/components/export';
 import ImportVito from '@/pages/vito-settings/components/import';
 
 export default function VitoSettings() {
+  const t = useTranslate();
   return (
     <SettingsLayout>
-      <Head title="Pure Settings" />
+      <Head title={t('Pure Settings')} />
 
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Pure Settings" description="Here you can manage general Pure settings" />
+          <Heading title={t('Pure Settings')} description="Here you can manage general Pure settings" />
         </div>
 
         <Card>
@@ -25,7 +27,7 @@ export default function VitoSettings() {
             </CardRow>
             <Separator />
             <CardRow>
-              <span>Import</span>
+              <span>{t('Import')}</span>
               <ImportVito />
             </CardRow>
           </CardContent>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -37,6 +38,7 @@ export default function EditHostedDomain({
   hostedDomain: HostedDomain;
   installSsl?: boolean;
 }) {
+  const t = useTranslate();
   const { site } = usePage<{ site: Site }>().props;
   const isPrimary = hostedDomain.type === 'primary';
 
@@ -83,7 +85,7 @@ export default function EditHostedDomain({
         <Form className="p-4" id="edit-hosted-domain-form" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="edit-domain">Domain</Label>
+              <Label htmlFor="edit-domain">{t('Domain')}</Label>
               <Input
                 type="text"
                 id="edit-domain"
@@ -96,20 +98,20 @@ export default function EditHostedDomain({
               <InputError message={form.errors.domain} />
             </FormField>
             <FormField>
-              <Label htmlFor="edit-type">Type</Label>
+              <Label htmlFor="edit-type">{t('Type')}</Label>
               <Select onValueChange={(value) => form.setData('type', value)} value={form.data.type} disabled={isPrimary}>
                 <SelectTrigger id="edit-type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {isPrimary && <SelectItem value="primary">Primary</SelectItem>}
+                  {isPrimary && <SelectItem value="primary">{t('Primary')}</SelectItem>}
                   <SelectItem value="alias">Alias</SelectItem>
-                  <SelectItem value="redirect">Redirect</SelectItem>
+                  <SelectItem value="redirect">{t('Redirect')}</SelectItem>
                 </SelectContent>
               </Select>
               {!isPrimary && (
                 <p className="text-muted-foreground text-sm">
-                  <strong>Alias</strong> serves the same site content under another domain. <strong>Redirect</strong> sends visitors to the primary
+                  <strong>Alias</strong> serves the same site content under another domain. <strong>{t('Redirect')}</strong> sends visitors to the primary
                   domain via an HTTP redirect.
                 </p>
               )}
@@ -157,13 +159,13 @@ export default function EditHostedDomain({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing || loadingSsls || sslStale}>
             {(form.processing || loadingSsls || sslStale) && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useForm, usePage } from '@inertiajs/react';
 import type { SharedData } from '@/types';
 import { FormEvent, ReactNode, useState } from 'react';
@@ -22,6 +23,7 @@ import InputError from '@/components/ui/input-error';
 import axios from 'axios';
 
 function Enable({ show = true }: { show?: boolean }): ReactNode {
+  const t = useTranslate();
   const page = usePage<
     SharedData & {
       two_factor_must_confirm: boolean;
@@ -104,12 +106,12 @@ function Enable({ show = true }: { show?: boolean }): ReactNode {
           </form>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline">{t('Close')}</Button>
             </DialogClose>
             {page.props.two_factor_must_confirm && (
               <Button form="confirm-form" disabled={confirmForm.processing}>
                 {confirmForm.processing && <LoaderCircleIcon className="animate-spin" />}
-                Confirm
+                {t('Confirm')}
               </Button>
             )}
           </DialogFooter>
@@ -120,6 +122,7 @@ function Enable({ show = true }: { show?: boolean }): ReactNode {
 }
 
 function Disable(): ReactNode {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm();
 
@@ -143,11 +146,11 @@ function Disable(): ReactNode {
         <p className="p-4">Are you sure you want to enable two factor authentication?</p>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button onClick={submit} variant="destructive" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Disable
+            {t('Disable')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -156,6 +159,7 @@ function Disable(): ReactNode {
 }
 
 function Regenerate(): ReactNode {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const form = useForm();
 
@@ -169,21 +173,21 @@ function Regenerate(): ReactNode {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Regenerate recovery codes</Button>
+        <Button>{t('Regenerate recovery codes')}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Regenerate recovery codes</DialogTitle>
-          <DialogDescription>Regenerate recovery codes</DialogDescription>
+          <DialogTitle>{t('Regenerate recovery codes')}</DialogTitle>
+          <DialogDescription>{t('Regenerate recovery codes')}</DialogDescription>
         </DialogHeader>
         <p className="p-4">Are you sure you want to regenerate the recovery codes?</p>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button onClick={submit} disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Regenerate
+            {t('Regenerate')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -192,6 +196,7 @@ function Regenerate(): ReactNode {
 }
 
 export default function TwoFactor() {
+  const t = useTranslate();
   const page = usePage<
     SharedData & {
       two_factor_enabled: boolean;
@@ -212,7 +217,7 @@ export default function TwoFactor() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Two factor authentication</CardTitle>
+        <CardTitle>{t('Two factor authentication')}</CardTitle>
         <CardDescription>Enable or Disable two factor authentication</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 p-4">

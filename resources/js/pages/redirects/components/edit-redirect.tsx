@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { Form } from '@/components/ui/form';
 import { useForm } from '@inertiajs/react';
@@ -8,6 +9,7 @@ import { Redirect } from '@/types/redirect';
 import RedirectFormFields, { RedirectForm } from './redirect-form-fields';
 
 export default function EditRedirect({ open, onOpenChange, redirect }: { open: boolean; onOpenChange: (open: boolean) => void; redirect: Redirect }) {
+  const t = useTranslate();
   const form = useForm<RedirectForm>({
     mode: String(redirect.mode),
     from: redirect.from,
@@ -35,12 +37,12 @@ export default function EditRedirect({ open, onOpenChange, redirect }: { open: b
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button form="edit-redirect-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

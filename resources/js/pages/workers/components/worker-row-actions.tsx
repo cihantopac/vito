@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Worker } from '@/types/worker';
 import { useDialog } from '@/hooks/use-dialog';
@@ -26,17 +27,19 @@ export function WorkerAction({ type, worker }: { type: 'start' | 'stop' | 'resta
 }
 
 export function WorkerLogs({ worker }: { worker: Worker }) {
+  const t = useTranslate();
   return (
     <DropdownMenuItem asChild>
       <Link href={`/servers/${worker.server_id}/workers/${worker.id}/log`}>
-        Logs
+        {t('Logs')}
       </Link>
     </DropdownMenuItem>
   );
 }
 
 export function WorkerEnvironment({ worker }: { worker: Worker }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
-  return <DropdownMenuItem onSelect={() => dialog.workerEnv.open({ serverId: worker.server_id, workerId: worker.id })}>Environment</DropdownMenuItem>;
+  return <DropdownMenuItem onSelect={() => dialog.workerEnv.open({ serverId: worker.server_id, workerId: worker.id })}>{t('Environment')}</DropdownMenuItem>;
 }

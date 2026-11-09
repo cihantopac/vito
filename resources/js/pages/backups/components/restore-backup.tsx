@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Backup } from '@/types/backup';
 import { BackupFile } from '@/types/backup-file';
 import { Server } from '@/types/server';
@@ -24,6 +25,7 @@ export default function RestoreBackup({
   backup: Backup;
   file: BackupFile;
 }) {
+  const t = useTranslate();
   const page = usePage<{ server?: Server }>();
   const sourceServerName = page.props.server?.name ?? 'Original server';
   const [targetServerId, setTargetServerId] = useState(backup.server_id);
@@ -144,12 +146,12 @@ export default function RestoreBackup({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline" disabled={form.processing}>
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button form="restore-backup-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Restore
+            {t('Restore')}
           </Button>
         </DialogFooter>
       </DialogContent>

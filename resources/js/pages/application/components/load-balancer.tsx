@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Site } from '@/types/site';
 import ServerLayout from '@/layouts/server/layout';
@@ -21,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 
 export default function LoadBalancer() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -125,7 +127,7 @@ export default function LoadBalancer() {
                     />
                     <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-4">
                       <FormField>
-                        <Label htmlFor={`server-${index}`}>Server</Label>
+                        <Label htmlFor={`server-${index}`}>{t('Server')}</Label>
                         <ServerSelect
                           id={`server-${index}`}
                           value={item.ip}
@@ -179,7 +181,7 @@ export default function LoadBalancer() {
                       </FormField>
 
                       <FormField>
-                        <Label htmlFor={`backup-${index}`}>Backup</Label>
+                        <Label htmlFor={`backup-${index}`}>{t('Backup')}</Label>
                         <Switch
                           id={`backup-${index}`}
                           checked={item.backup || false}

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -95,6 +96,7 @@ export default function SiteStats() {
 }
 
 function StatsView({ server, site }: { server: Server; site: Site }) {
+  const t = useTranslate();
   const [month, setMonth] = useState<string | undefined>(undefined);
   const [refreshing, setRefreshing] = useState(false);
   const { data, isLoading, isError } = useSiteStats(server, site, month);
@@ -153,9 +155,9 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
               </SelectContent>
             </Select>
           )}
-          <Button variant="outline" onClick={refresh} disabled={refreshing} aria-label="Refresh">
+          <Button variant="outline" onClick={refresh} disabled={refreshing} aria-label={t('Refresh')}>
             <RefreshCwIcon className={refreshing ? 'animate-spin' : ''} />
-            <span className="hidden lg:block">Refresh</span>
+            <span className="hidden lg:block">{t('Refresh')}</span>
           </Button>
         </div>
       </HeaderContainer>
@@ -197,7 +199,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
           <h3 className="text-foreground text-base font-medium">Growth (monthly)</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <StatsChart
-              title="Visitors"
+              title={t('Visitors')}
               value={formatNumber(data.summary.reduce((t, m) => t + m.visitors, 0))}
               color="var(--color-chart-1)"
               dataKey="visitors"
@@ -207,7 +209,7 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
               valueFormatter={(v) => formatNumber(Number(v))}
             />
             <StatsChart
-              title="Hits"
+              title={t('Hits')}
               value={formatNumber(data.summary.reduce((t, m) => t + m.hits, 0))}
               color="var(--color-chart-2)"
               dataKey="hits"
@@ -239,8 +241,8 @@ function StatsView({ server, site }: { server: Server; site: Site }) {
             </div>
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <StatCard title="Visitors" value={formatNumber(detail.totals.visitors)} />
-                <StatCard title="Hits" value={formatNumber(detail.totals.hits)} />
+                <StatCard title={t('Visitors')} value={formatNumber(detail.totals.visitors)} />
+                <StatCard title={t('Hits')} value={formatNumber(detail.totals.hits)} />
                 <StatCard title="Bandwidth" value={formatBytes(detail.totals.bandwidth)} />
               </div>
               <StatsChart
@@ -302,6 +304,7 @@ function StatCard({ title, value }: { title: string; value: string }) {
 }
 
 function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }) {
+  const t = useTranslate();
   const columns: ColumnDef<SiteStatsPanelRow>[] = [
     {
       accessorKey: 'name',
@@ -310,12 +313,12 @@ function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }
     },
     {
       accessorKey: 'hits',
-      header: () => <div className="text-right">Hits</div>,
+      header: () => <div className="text-right">{t('Hits')}</div>,
       cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString('en-US')}</div>,
     },
     {
       accessorKey: 'visitors',
-      header: () => <div className="text-right">Visitors</div>,
+      header: () => <div className="text-right">{t('Visitors')}</div>,
       cell: ({ row }) => <div className="text-right">{row.original.visitors.toLocaleString('en-US')}</div>,
     },
   ];
@@ -324,6 +327,7 @@ function PanelCard({ title, rows }: { title: string; rows: SiteStatsPanelRow[] }
 }
 
 function StatusCodesCard({ rows }: { rows: SiteStatsStatusCode[] }) {
+  const t = useTranslate();
   const columns: ColumnDef<SiteStatsStatusCode>[] = [
     {
       accessorKey: 'name',
@@ -331,7 +335,7 @@ function StatusCodesCard({ rows }: { rows: SiteStatsStatusCode[] }) {
     },
     {
       accessorKey: 'hits',
-      header: () => <div className="text-right">Hits</div>,
+      header: () => <div className="text-right">{t('Hits')}</div>,
       cell: ({ row }) => <div className="text-right">{row.original.hits.toLocaleString('en-US')}</div>,
     },
   ];

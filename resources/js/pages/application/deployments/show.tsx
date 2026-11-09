@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import DateTime from '@/components/date-time';
 import LogOutput from '@/components/log-output';
 import SiteBanners from '@/components/site-banners';
@@ -29,6 +30,7 @@ import {
 import moment from 'moment';
 
 export default function DeploymentShow() {
+  const t = useTranslate();
   const page = usePage<{ server: Server; site: Site; deployment: Deployment }>();
   const { server, site } = page.props;
   const deployment = useRealtimeRecord<Deployment>(page.props.deployment, 'deployment')!;
@@ -195,7 +197,7 @@ export default function DeploymentShow() {
           <div className="flex items-center justify-between border-b px-3.5 py-2 bg-muted/20">
             <div className="flex items-center gap-2">
               <TerminalIcon className="size-3.5 text-muted-foreground" />
-              <span className="text-sm font-medium">Output</span>
+              <span className="text-sm font-medium">{t('Output')}</span>
               {selectedStep !== null && <Button variant="ghost" size="sm" onClick={() => setSelectedStep(null)}>Follow current command</Button>}
             </div>
 
@@ -220,7 +222,7 @@ export default function DeploymentShow() {
                     rel="noopener noreferrer"
                   >
                     <DownloadIcon className="size-3.5" />
-                    <span>Download</span>
+                    <span>{t('Download')}</span>
                   </a>
                 </Button>
               )}

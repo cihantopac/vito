@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Server } from '@/types/server';
@@ -74,6 +75,7 @@ const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 export default function ServerSettings() {
+  const t = useTranslate();
   const configs = useConfigs()!;
   const page = usePage<{
     server: Server;
@@ -141,7 +143,7 @@ export default function ServerSettings() {
       <Container>
         <HeaderContainer>
           <div className="flex flex-col gap-1">
-            <Heading title="Settings" description="Manage server configuration, network settings, and project assignment." />
+            <Heading title={t('Settings')} description="Manage server configuration, network settings, and project assignment." />
           </div>
           <div className="flex items-center gap-2">
             <TooltipProvider delayDuration={0}>
@@ -177,7 +179,7 @@ export default function ServerSettings() {
                       <SlidersIcon className="size-4" />
                     </div>
                     <div>
-                      <CardTitle className="text-base">Configuration</CardTitle>
+                      <CardTitle className="text-base">{t('Configuration')}</CardTitle>
                       <CardDescription>Update server details and network settings</CardDescription>
                     </div>
                   </div>
@@ -335,7 +337,7 @@ export default function ServerSettings() {
                   <div className="grid gap-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="local_ip">Private / Local IP</Label>
-                      <span className="text-[11px] text-muted-foreground">Optional</span>
+                      <span className="text-[11px] text-muted-foreground">{t('Optional')}</span>
                     </div>
                     <Input
                       id="local_ip"
@@ -373,7 +375,7 @@ export default function ServerSettings() {
                         size="sm"
                         onClick={() => form.reset()}
                       >
-                        Reset
+                        {t('Reset')}
                       </Button>
                     )}
                     <Button type="submit" size="sm" disabled={!form.isDirty || form.processing}>
@@ -404,7 +406,7 @@ export default function ServerSettings() {
 
               <CardContent className="divide-y p-0 text-sm">
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">{t('Status')}</span>
                   <div className="flex items-center gap-2">
                     <ServerStatus server={server} />
                   </div>
@@ -435,7 +437,7 @@ export default function ServerSettings() {
                 </div>
 
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-muted-foreground">Provider</span>
+                  <span className="text-muted-foreground">{t('Provider')}</span>
                   <Badge variant="outline" className="gap-1.5 capitalize font-medium">
                     <CloudIcon className="size-3 text-muted-foreground" />
                     {server.provider}
@@ -497,7 +499,7 @@ export default function ServerSettings() {
                   <ConnectSshDialog server={server}>
                     <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs cursor-pointer">
                       <KeyRoundIcon className="size-3.5" />
-                      <span>Connect</span>
+                      <span>{t('Connect')}</span>
                     </Button>
                   </ConnectSshDialog>
                 </div>
@@ -567,7 +569,7 @@ export default function ServerSettings() {
                   ) : (
                     <DeleteServer server={server}>
                       <Button variant="destructive" size="sm" className="shrink-0">
-                        Remove
+                        {t('Remove')}
                       </Button>
                     </DeleteServer>
                   )}

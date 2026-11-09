@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import { PaginatedData } from '@/types';
 import { ServerLog } from '@/types/server-log';
@@ -14,6 +15,7 @@ import LogForm from '@/pages/server-logs/components/form';
 import { useRealtime } from '@/hooks/use-socket-events';
 
 export default function ServerLogs() {
+  const t = useTranslate();
   const page = usePage<{
     title: string;
     server: Server;
@@ -41,7 +43,7 @@ export default function ServerLogs() {
               <LogForm>
                 <Button>
                   <PlusIcon />
-                  <span className="hidden lg:block">Create</span>
+                  <span className="hidden lg:block">{t('Create')}</span>
                 </Button>
               </LogForm>
             )}

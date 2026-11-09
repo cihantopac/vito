@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -16,6 +17,7 @@ export default function HetznerRegionSelect({
   onChange: (value: string) => void;
   loading?: boolean;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [testing, setTesting] = useState(false);
   const [latencies, setLatencies] = useState<Latencies>(() => getCachedLatencies() || {});
@@ -103,7 +105,7 @@ export default function HetznerRegionSelect({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Region</TableHead>
+                <TableHead>{t('Region')}</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Network Zone</TableHead>
                 <TableHead>Latency</TableHead>
@@ -156,7 +158,7 @@ export default function HetznerRegionSelect({
         </div>
         <DialogFooter className="border-t px-6 py-4">
           <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            Close
+            {t('Close')}
           </Button>
         </DialogFooter>
       </DialogContent>

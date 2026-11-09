@@ -1,8 +1,10 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { SshKey } from '@/types/ssh-key';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Delete({ sshKey }: { sshKey: SshKey }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   return (
@@ -19,7 +21,7 @@ export default function Delete({ sshKey }: { sshKey: SshKey }) {
         })
       }
     >
-      Delete
+      {t('Delete')}
     </DropdownMenuItem>
   );
 }

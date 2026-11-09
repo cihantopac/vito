@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Link } from '@inertiajs/react';
 import type { CellRenderProps, InertiaTableData, Row } from '@forjedio/inertia-table-react';
 import { Badge } from '@/components/ui/badge';
@@ -101,6 +102,7 @@ const durationCell = ({ row }: CellRenderProps) => {
 };
 
 export default function DeploymentsTable({ deployments, showPagination = true }: { deployments: InertiaTableData; showPagination?: boolean }) {
+  const t = useTranslate();
   const dialog = useDialog();
 
   if (!deployments || !deployments.columns) {
@@ -143,7 +145,7 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
                   <>
                     <View serverLog={deployment.log} />
                     <Download serverLog={deployment.log}>
-                      <DropdownMenuItem>Download</DropdownMenuItem>
+                      <DropdownMenuItem>{t('Download')}</DropdownMenuItem>
                     </Download>
                   </>
                 )}
@@ -176,7 +178,7 @@ export default function DeploymentsTable({ deployments, showPagination = true }:
                     })
                   }
                 >
-                  Delete
+                  {t('Delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

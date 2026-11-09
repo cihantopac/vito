@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -44,6 +45,7 @@ const SSL_METHOD_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export default function CreateHostedDomain({ open, onOpenChange, site }: { open: boolean; onOpenChange: (open: boolean) => void; site: Site }) {
+  const t = useTranslate();
   const page = usePage<{ server?: Server }>();
   const serverIp = site.server?.ip || page.props.server?.ip || '';
 
@@ -142,7 +144,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
   const fetchProviders = async () => {
     setLoadingProviders(true);
     try {
-      const response = await axios.get("/settings/dns-providers/json");
+      const response = await axios.get('/settings/dns-providers/json');
       const providers = (response.data || []) as DNSProvider[];
       setDnsProviders(providers);
 
@@ -220,7 +222,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Add Domain</DialogTitle>
+          <DialogTitle>{t('Add Domain')}</DialogTitle>
           <DialogDescription className="sr-only">Add a domain to this site</DialogDescription>
         </DialogHeader>
 
@@ -246,7 +248,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
             {mode === 'provider' && connectedProviders.length > 0 ? (
               <>
                 <FormField>
-                  <Label htmlFor="dns_provider_id">DNS Provider</Label>
+                  <Label htmlFor="dns_provider_id">{t('DNS Provider')}</Label>
                   <div className="flex items-center gap-2">
                     <Select value={form.data.dns_provider_id} onValueChange={handleProviderChange}>
                       <SelectTrigger id="dns_provider_id">
@@ -263,7 +265,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
                       </SelectContent>
                     </Select>
                     <ConnectDNSProvider onProviderAdded={fetchProviders}>
-                      <Button variant="outline" size="icon" type="button" aria-label="Connect DNS Provider">
+                      <Button variant="outline" size="icon" type="button" aria-label={t('Connect DNS Provider')}>
                         <CloudIcon className="h-4 w-4" />
                       </Button>
                     </ConnectDNSProvider>
@@ -387,7 +389,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
               </>
             ) : (
               <FormField>
-                <Label htmlFor="domain">Domain</Label>
+                <Label htmlFor="domain">{t('Domain')}</Label>
                 <Input
                   type="text"
                   id="domain"
@@ -401,14 +403,14 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
             )}
 
             <FormField>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t('Type')}</Label>
               <Select onValueChange={(value) => form.setData('type', value)} value={form.data.type}>
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alias">Alias</SelectItem>
-                  <SelectItem value="redirect">Redirect</SelectItem>
+                  <SelectItem value="redirect">{t('Redirect')}</SelectItem>
                 </SelectContent>
               </Select>
               <InputError message={form.errors.type} />
@@ -458,7 +460,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button
@@ -468,7 +470,7 @@ export default function CreateHostedDomain({ open, onOpenChange, site }: { open:
           >
             {(form.processing || loadingSsls || sslStale) && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Add Domain
+            {t('Add Domain')}
           </Button>
         </DialogFooter>
       </DialogContent>

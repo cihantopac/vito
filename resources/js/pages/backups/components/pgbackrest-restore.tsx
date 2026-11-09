@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useState } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ export default function PgBackRestRestore({
   backup: Backup;
   file?: BackupFile;
 }) {
+  const t = useTranslate();
   const [target, setTarget] = useState('');
   const pointInTime = target.trim();
 
@@ -50,7 +52,7 @@ export default function PgBackRestRestore({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Restore commands</DialogTitle>
+          <DialogTitle>{t('Restore commands')}</DialogTitle>
           <DialogDescription>
             A restore replaces all data in the PostgreSQL cluster where you run it. Run these commands yourself over SSH.
           </DialogDescription>
@@ -82,7 +84,7 @@ export default function PgBackRestRestore({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

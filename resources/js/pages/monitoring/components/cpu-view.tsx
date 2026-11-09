@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { MetricsFilter } from '@/types/metric';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -6,6 +7,7 @@ import { ResourceUsageChart } from '@/pages/monitoring/components/resource-usage
 import { useMetrics } from '@/pages/monitoring/components/use-metrics';
 
 export default function CpuView({ server, filter }: { server: Server; filter?: MetricsFilter }) {
+  const t = useTranslate();
   const query = useMetrics(server, filter);
 
   if (query.isLoading || !query.data) {
@@ -27,7 +29,7 @@ export default function CpuView({ server, filter }: { server: Server; filter?: M
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile label="CPU Usage" value={current?.cpu_usage_percent != null ? `${current.cpu_usage_percent.toFixed(2)}%` : 'N/A'} />
         <StatTile
-          label="Cores"
+          label={t('Cores')}
           value={current?.cpu_cores ?? 'N/A'}
           subtitle={current?.cpu_physical_cores != null ? `${current.cpu_cores} logical / ${current.cpu_physical_cores} physical` : undefined}
         />

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ export default function ServerConfigDialog({
   memberId: number;
   name: string;
 }) {
+  const t = useTranslate();
   const [data, setData] = useState<{ config: string; status: string | null } | null>(null);
   const [error, setError] = useState('');
 
@@ -73,7 +75,7 @@ export default function ServerConfigDialog({
                 )}
               </section>
               <section className="space-y-2">
-                <p className="text-sm font-medium">Configuration</p>
+                <p className="text-sm font-medium">{t('Configuration')}</p>
                 <pre className="bg-muted/50 max-h-64 overflow-auto rounded-md border p-3 font-mono text-xs leading-relaxed">{data.config}</pre>
               </section>
             </>
@@ -82,7 +84,7 @@ export default function ServerConfigDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

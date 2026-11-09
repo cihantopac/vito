@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useState } from 'react';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { Head, usePage } from '@inertiajs/react';
@@ -106,6 +107,7 @@ function UsageBar({ percent, label, used, total }: { percent: number; label: str
 }
 
 export default function Information() {
+  const t = useTranslate();
   const { server, info } = usePage<Page>().props;
   const [showRaw, setShowRaw] = useState(false);
   const { copied, copy } = useClipboard();
@@ -142,7 +144,7 @@ export default function Information() {
             <div className="rounded-md border shadow-2xs overflow-hidden">
               <div className="bg-muted/30 flex items-center gap-2 border-b px-3.5 py-2">
                 <ServerIcon className="size-3.5 text-muted-foreground" />
-                <h3 className="text-xs font-semibold">System</h3>
+                <h3 className="text-xs font-semibold">{t('System')}</h3>
               </div>
               <div className="p-3.5 space-y-0.5">
                 <CompactRow label="Hostname" value={info.system.hostname} />
@@ -170,7 +172,7 @@ export default function Information() {
                     <CompactRow label="Vendor" value={firstProc.vendor} />
                     <CompactRow label="Speed" value={firstProc.speed} />
                     <CompactRow label="Cache" value={firstProc.cache} />
-                    <CompactRow label="Cores" value={`${info.total_processors} active`} />
+                    <CompactRow label={t('Cores')} value={`${info.total_processors} active`} />
                   </>
                 ) : (
                   <p className="text-xs text-muted-foreground">No CPU data available.</p>
@@ -184,7 +186,7 @@ export default function Information() {
               <div className="bg-muted/30 flex items-center justify-between border-b px-3.5 py-2">
                 <h3 className="text-xs font-semibold">Memory</h3>
                 <span className="text-[11px] font-mono text-muted-foreground">
-                  Total: {info.memory.total}
+                  {t('Total:')} {info.memory.total}
                 </span>
               </div>
               <div className="p-3.5 space-y-3">
@@ -230,7 +232,7 @@ export default function Information() {
                     <thead>
                       <tr className="border-b bg-muted/10 text-muted-foreground">
                         <th className="py-1.5 px-3 text-left font-medium">Mount</th>
-                        <th className="py-1.5 px-3 text-left font-medium">Size</th>
+                        <th className="py-1.5 px-3 text-left font-medium">{t('Size')}</th>
                         <th className="py-1.5 px-3 text-left font-medium">Used</th>
                         <th className="py-1.5 px-3 text-left font-medium">Avail</th>
                         <th className="py-1.5 px-3 text-right font-medium">Use%</th>

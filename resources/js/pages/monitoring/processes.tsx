@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import { AlertCircleIcon, RefreshCwIcon, SearchIcon, SkullIcon } from 'lucide-react';
@@ -66,6 +67,7 @@ function MetricValue({ value }: { value: number }) {
 }
 
 export default function Processes() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const { server } = page.props;
   const dialog = useDialog();
@@ -240,7 +242,7 @@ export default function Processes() {
             </div>
             <Button variant="outline" size="sm" className="h-7 text-xs" onClick={fetchProcesses} disabled={loading}>
               <RefreshCwIcon className={cn('size-3', loading && 'animate-spin')} />
-              Retry
+              {t('Retry')}
             </Button>
           </div>
         )}
@@ -251,11 +253,11 @@ export default function Processes() {
               <TableRow className="h-8 hover:bg-transparent border-b border-border/60">
                 <TableHead className="h-8 w-8 px-2 text-center text-xs">#</TableHead>
                 <TableHead className="h-8 w-16 px-2 text-xs">PID</TableHead>
-                <TableHead className="h-8 w-24 px-2 text-xs">User</TableHead>
+                <TableHead className="h-8 w-24 px-2 text-xs">{t('User')}</TableHead>
                 <TableHead className="h-8 w-14 px-2 text-right text-xs">Priority</TableHead>
                 <TableHead className="h-8 w-20 px-2 text-right text-xs">CPU %</TableHead>
                 <TableHead className="h-8 w-20 px-2 text-right text-xs">Memory %</TableHead>
-                <TableHead className="h-8 px-2 text-xs">Command</TableHead>
+                <TableHead className="h-8 px-2 text-xs">{t('Command')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -318,7 +320,7 @@ export default function Processes() {
             {search && ` (filter: "${search}")`}
           </span>
           {data.processes.length > 0 && (
-            <span>Total: {data.processes.length} processes</span>
+            <span>{t('Total:')} {data.processes.length} processes</span>
           )}
         </div>
       </Container>

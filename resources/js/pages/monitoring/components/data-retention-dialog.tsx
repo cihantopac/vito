@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { Button } from '@/components/ui/button';
 import { LoaderCircleIcon } from 'lucide-react';
@@ -16,6 +17,7 @@ type DataRetentionDialogProps = {
 };
 
 export default function DataRetentionDialog({ open, onOpenChange, server, dataRetention }: DataRetentionDialogProps) {
+  const t = useTranslate();
   const form = useForm({
     data_retention: String(dataRetention || '30'),
   });
@@ -33,8 +35,8 @@ export default function DataRetentionDialog({ open, onOpenChange, server, dataRe
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Data retention</DialogTitle>
-          <DialogDescription className="sr-only">Data retention</DialogDescription>
+          <DialogTitle>{t('Data retention')}</DialogTitle>
+          <DialogDescription className="sr-only">{t('Data retention')}</DialogDescription>
         </DialogHeader>
         <Form id="data-retention-form" className="p-4" onSubmit={submit}>
           <FormFields>
@@ -61,11 +63,11 @@ export default function DataRetentionDialog({ open, onOpenChange, server, dataRe
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="data-retention-form" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, Link, usePage } from '@inertiajs/react';
 import SettingsLayout from '@/layouts/settings/layout';
 import AuthLayout from '@/layouts/auth/layout';
@@ -12,17 +13,18 @@ import { SharedData } from '@/types';
 import { Button } from '@/components/ui/button';
 
 export default function Profile() {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const mustChangePassword = page.props.auth.user.must_change_password;
   const [tab, setTab] = useState(mustChangePassword ? 'password' : 'info');
 
   if (mustChangePassword) {
     return (
-      <AuthLayout title="Change your password" description="Set a new password before continuing to your account." showFooter={false}>
-        <Head title="Change your password" />
+      <AuthLayout title={t('Change your password')} description={t('Set a new password before continuing to your account.')} showFooter={false}>
+        <Head title={t('Change your password')} />
         <UpdatePassword />
         <Button variant="outline" className="w-full" asChild>
-          <Link href="/logout" method="post" as="button">Log out</Link>
+          <Link href="/logout" method="post" as="button">{t('Log out')}</Link>
         </Button>
       </AuthLayout>
     );
@@ -30,21 +32,21 @@ export default function Profile() {
 
   return (
     <SettingsLayout>
-      <Head title="Profile settings" />
+      <Head title={t('Profile settings')} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Profile settings" description="Manage your profile settings." />
+          <Heading title={t('Profile settings')} description={t('Manage your profile settings.')} />
           <div className="flex items-center gap-2">
           </div>
         </div>
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList>
             <TabsTrigger value="info">
-              Info
+              {t('Info')}
             </TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="password">{t('Password')}</TabsTrigger>
             <TabsTrigger value="two_factor">
-              Two Factor
+              {t('Two Factor')}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="info" className="space-y-4">

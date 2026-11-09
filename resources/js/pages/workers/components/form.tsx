@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ export default function WorkerForm({
   site?: Site;
   worker?: Worker;
 }) {
+  const t = useTranslate();
   const page = usePage<SharedData & { server: Server; sites?: Array<{ id: number; domain: string }> }>();
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
 
@@ -165,7 +167,7 @@ export default function WorkerForm({
                         form.setData({ ...form.data, name: '', command: '' });
                       }}
                     >
-                      Clear
+                      {t('Clear')}
                     </Button>
                   )}
                 </div>
@@ -196,13 +198,13 @@ export default function WorkerForm({
             )}
 
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input type="text" id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
 
             <FormField>
-              <Label htmlFor="command">Command</Label>
+              <Label htmlFor="command">{t('Command')}</Label>
               <Input
                 type="text"
                 id="command"
@@ -294,7 +296,7 @@ export default function WorkerForm({
             )}
 
             <FormField>
-              <Label htmlFor="user">User</Label>
+              <Label htmlFor="user">{t('User')}</Label>
               <Select value={form.data.user} onValueChange={(value) => form.setData('user', value)} disabled={runningExternally}>
                 <SelectTrigger id="user">
                   <SelectValue placeholder="Select a user" />
@@ -345,11 +347,11 @@ export default function WorkerForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="worker-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import axios from 'axios';
@@ -29,6 +30,7 @@ export default function CreateDatabaseReplica({
   server: Server;
   cluster: PostgresCluster | null;
 }) {
+  const t = useTranslate();
   const [requirements, setRequirements] = useState<ServerRequirements | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [planFit, setPlanFit] = useState<PlanFit>({ blocked: null, warnings: [] });
@@ -146,7 +148,7 @@ export default function CreateDatabaseReplica({
             ) : (
               <>
                 <FormField>
-                  <Label htmlFor="replica_server_id">Server</Label>
+                  <Label htmlFor="replica_server_id">{t('Server')}</Label>
                   <Select value={form.data.replica_server_id} onValueChange={(value) => form.setData((data) => ({ ...data, replica_server_id: value, confirmation: '' }))}>
                     <SelectTrigger id="replica_server_id">
                       <SelectValue placeholder={candidates.length === 0 ? 'Loading the servers…' : 'Select a server'} />
@@ -182,7 +184,7 @@ export default function CreateDatabaseReplica({
                     </Alert>
 
                     <FormField>
-                      <Label htmlFor="confirmation">Type {selected.name} to confirm</Label>
+                      <Label htmlFor="confirmation">{t('Type')} {selected.name} to confirm</Label>
                       <Input
                         id="confirmation"
                         autoComplete="off"
@@ -255,10 +257,10 @@ export default function CreateDatabaseReplica({
               disabled={form.processing || (form.data.mode === 'new' && Boolean(planFit.blocked)) || (form.data.mode === 'existing' && !selected)}
             >
               {form.processing && <LoaderCircle className="animate-spin" />}
-              Create
+              {t('Create')}
             </Button>
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
           </div>
         </SheetFooter>

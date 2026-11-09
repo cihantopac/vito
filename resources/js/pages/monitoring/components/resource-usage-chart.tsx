@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import * as React from 'react';
 import { useId } from 'react';
 import { Area, AreaChart, XAxis, YAxis } from 'recharts';
@@ -23,6 +24,7 @@ interface Props<T extends object> {
 }
 
 export function ResourceUsageChart<T extends object>({ title, color, dataKey, label, chartData, link, formatter, single, height, showXAxis, valueFormatter }: Props<T>) {
+  const t = useTranslate();
   const gradientId = useId();
   const resolvedHeight = height ?? (single ? 'large' : 'small');
   const heightClass = resolvedHeight === 'large' ? 'h-[400px]' : resolvedHeight === 'medium' ? 'h-[200px]' : 'h-[100px]';
@@ -55,7 +57,7 @@ export function ResourceUsageChart<T extends object>({ title, color, dataKey, la
           </div>
           {!single && link && (
             <Button variant="ghost" onClick={() => router.visit(link)}>
-              View
+              {t('View')}
             </Button>
           )}
         </div>

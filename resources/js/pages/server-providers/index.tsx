@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -21,6 +22,7 @@ type Page = {
 };
 
 export default function ServerProviders() {
+  const t = useTranslate();
   const page = usePage<Page>();
 
   return (
@@ -31,7 +33,7 @@ export default function ServerProviders() {
           <Heading title="Server Providers" />
           <div className="flex items-center gap-2">
             <ConnectServerProvider>
-              <Button>Connect</Button>
+              <Button>{t('Connect')}</Button>
             </ConnectServerProvider>
           </div>
         </div>

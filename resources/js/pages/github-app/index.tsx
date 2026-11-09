@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -192,6 +193,7 @@ function ManualField({ label, value, hint }: { label: string; value: string; hin
 }
 
 function ManualSetupForm({ manualSetup }: { manualSetup: ManualSetup }) {
+  const t = useTranslate();
   const form = useForm({
     app_id: '',
     name: '',
@@ -246,10 +248,10 @@ function ManualSetupForm({ manualSetup }: { manualSetup: ManualSetup }) {
             <div className="text-muted-foreground text-xs font-medium tracking-wider uppercase">Permissions &amp; events</div>
             <ul className="ml-5 list-disc space-y-1">
               <li>
-                Repository → Contents: <strong>Read-only</strong>
+                Repository → Contents: <strong>{t('Read-only')}</strong>
               </li>
               <li>
-                Repository → Metadata: <strong>Read-only</strong> (auto-selected)
+                Repository → Metadata: <strong>{t('Read-only')}</strong> (auto-selected)
               </li>
               <li>
                 Subscribe to events: <strong>Push</strong>
@@ -259,7 +261,7 @@ function ManualSetupForm({ manualSetup }: { manualSetup: ManualSetup }) {
               </li>
             </ul>
             <p className="text-muted-foreground pt-1 text-xs">
-              <strong>Installation</strong> and <strong>installation repositories</strong> events are delivered automatically to every GitHub App with
+              <strong>Installation</strong> {t('and')} <strong>installation repositories</strong> events are delivered automatically to every GitHub App with
               a webhook URL — they aren&apos;t in the &ldquo;Subscribe to events&rdquo; list and don&apos;t need to be selected. Pure uses these to
               keep installed accounts and repositories in sync.
             </p>
@@ -267,7 +269,7 @@ function ManualSetupForm({ manualSetup }: { manualSetup: ManualSetup }) {
 
           <p className="text-muted-foreground text-sm">
             After saving, on the new app&apos;s settings page generate a <strong>Client secret</strong>, then scroll to <strong>Private keys</strong>{' '}
-            and <strong>Generate a private key</strong> (downloads as a .pem file). Note the <strong>App ID</strong> from the top of the page.
+            {t('and')} <strong>Generate a private key</strong> (downloads as a .pem file). Note the <strong>App ID</strong> from the top of the page.
           </p>
         </div>
       </section>
@@ -367,6 +369,7 @@ function ManualSetupForm({ manualSetup }: { manualSetup: ManualSetup }) {
 }
 
 function ConfiguredCard({ app, installPath }: { app: GithubAppData; installPath: string | null }) {
+  const t = useTranslate();
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex-row items-center justify-between gap-2">
@@ -390,7 +393,7 @@ function ConfiguredCard({ app, installPath }: { app: GithubAppData; installPath:
             <a href={"/admin/github-app/install"}>
               <Button>
                 <GithubIcon />
-                Install
+                {t('Install')}
               </Button>
             </a>
           )}
@@ -427,6 +430,7 @@ function SyncButton() {
 }
 
 function RemoveButton() {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const submit = () => {
     router.delete("/admin/github-app", {
@@ -439,7 +443,7 @@ function RemoveButton() {
       <DialogTrigger asChild>
         <Button variant="destructive">
           <Trash2Icon />
-          Remove
+          {t('Remove')}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -452,10 +456,10 @@ function RemoveButton() {
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button variant="destructive" onClick={submit}>
-            Remove
+            {t('Remove')}
           </Button>
         </DialogFooter>
       </DialogContent>

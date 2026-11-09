@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useMemo, FormEvent, useState, useEffect } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -33,6 +34,7 @@ export default function CronJobForm({
   cronJob?: CronJob;
   templateId?: string;
 }) {
+  const t = useTranslate();
   const page = usePage<SharedData & { server: Server; sites?: Array<{ id: number; domain: string }>; ssh_users?: string[] }>();
   const configs = useConfigs()!;
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
@@ -192,7 +194,7 @@ export default function CronJobForm({
             </FormField>
 
             <FormField>
-              <Label htmlFor="command">Command</Label>
+              <Label htmlFor="command">{t('Command')}</Label>
               <Textarea
                 id="command"
                 rows={2}
@@ -224,7 +226,7 @@ export default function CronJobForm({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="0">Server</SelectItem>
+                      <SelectItem value="0">{t('Server')}</SelectItem>
                       {page.props.sites.map((siteOption) => (
                         <SelectItem key={`site-${siteOption.id}`} value={siteOption.id.toString()}>
                           {siteOption.domain}
@@ -276,7 +278,7 @@ export default function CronJobForm({
             )}
 
             <FormField>
-              <Label htmlFor="user">User</Label>
+              <Label htmlFor="user">{t('User')}</Label>
               <Select value={form.data.user} onValueChange={(value) => form.setData('user', value)}>
                 <SelectTrigger id="user">
                   <SelectValue placeholder="Select a user" />
@@ -297,11 +299,11 @@ export default function CronJobForm({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="cronjob-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

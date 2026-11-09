@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import React, { FormEvent, ReactNode, useState } from 'react';
 import {
   Dialog,
@@ -17,6 +18,7 @@ import { Site } from '@/types/site';
 import RedirectFormFields, { RedirectForm } from './redirect-form-fields';
 
 export default function CreateRedirect({ site, children }: { site: Site; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const form = useForm<RedirectForm>({
@@ -50,12 +52,12 @@ export default function CreateRedirect({ site, children }: { site: Site; childre
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button form="create-redirect-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Create
+            {t('Create')}
           </Button>
         </DialogFooter>
       </DialogContent>

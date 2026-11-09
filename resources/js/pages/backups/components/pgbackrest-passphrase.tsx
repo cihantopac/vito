@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -8,6 +9,7 @@ import CopyableField from '@/components/copyable-field';
 import { Backup } from '@/types/backup';
 
 export default function PgBackRestPassphrase({ open, onOpenChange, backup }: { open: boolean; onOpenChange: (open: boolean) => void; backup: Backup }) {
+  const t = useTranslate();
   const [passphrase, setPassphrase] = useState<string>();
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function PgBackRestPassphrase({ open, onOpenChange, backup }: { o
         <div className="p-4">{passphrase ? <CopyableField value={passphrase} masked /> : <LoaderCircleIcon className="text-muted-foreground animate-spin" />}</div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

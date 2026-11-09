@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { LoaderCircle, GlobeIcon, RefreshCw, WifiIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +30,7 @@ type Domain = {
 };
 
 export default function AddDomain({ children }: { children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const [availableDomains, setAvailableDomains] = useState<Domain[]>([]);
   const [loadingDomains, setLoadingDomains] = useState(false);
@@ -73,7 +75,7 @@ export default function AddDomain({ children }: { children: ReactNode }) {
 
   const fetchProviders = async () => {
     try {
-      const response = await axios.get("/settings/dns-providers/json");
+      const response = await axios.get('/settings/dns-providers/json');
       setDNSProviders(response.data as DNSProvider[]);
     } catch (error) {
       toast.error(errorMessage(error, 'Failed to fetch DNS providers.'));
@@ -106,13 +108,13 @@ export default function AddDomain({ children }: { children: ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Add Domain</DialogTitle>
+          <DialogTitle>{t('Add Domain')}</DialogTitle>
           <DialogDescription className="sr-only">Add a domain from your DNS provider</DialogDescription>
         </DialogHeader>
         <Form id="add-domain-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="dns_provider_id">DNS Provider</Label>
+              <Label htmlFor="dns_provider_id">{t('DNS Provider')}</Label>
               <div className="flex items-center gap-2">
                 <Select value={form.data.dns_provider_id} onValueChange={selectProvider}>
                   <SelectTrigger id="dns_provider_id">
@@ -129,7 +131,7 @@ export default function AddDomain({ children }: { children: ReactNode }) {
                   </SelectContent>
                 </Select>
                 <ConnectDNSProvider onProviderAdded={fetchProviders}>
-                  <Button variant="outline" aria-label="Connect DNS Provider">
+                  <Button variant="outline" aria-label={t('Connect DNS Provider')}>
                     <WifiIcon />
                   </Button>
                 </ConnectDNSProvider>
@@ -137,7 +139,7 @@ export default function AddDomain({ children }: { children: ReactNode }) {
               <InputError message={form.errors.dns_provider_id} />
             </FormField>
             <FormField>
-              <Label htmlFor="provider_domain_id">Domain</Label>
+              <Label htmlFor="provider_domain_id">{t('Domain')}</Label>
               <div className="flex items-center gap-2">
                 <Select
                   value={form.data.provider_domain_id}
@@ -173,12 +175,12 @@ export default function AddDomain({ children }: { children: ReactNode }) {
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button type="button" onClick={submit} disabled={form.processing || !form.data.dns_provider_id || !form.data.provider_domain_id}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Add Domain
+            {t('Add Domain')}
           </Button>
         </DialogFooter>
       </DialogContent>

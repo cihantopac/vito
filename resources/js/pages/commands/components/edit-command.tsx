@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
 import { useForm } from '@inertiajs/react';
@@ -11,6 +12,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Textarea } from '@/components/ui/textarea';
 
 export default function EditCommand({ open, onOpenChange, command }: { open: boolean; onOpenChange: (open: boolean) => void; command: Command }) {
+  const t = useTranslate();
   const form = useForm<{
     name: string;
     command: string;
@@ -36,12 +38,12 @@ export default function EditCommand({ open, onOpenChange, command }: { open: boo
         <Form id="edit-command-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" name="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
               <InputError message={form.errors.name} />
             </FormField>
             <FormField>
-              <Label htmlFor="command">Command</Label>
+              <Label htmlFor="command">{t('Command')}</Label>
               <Textarea id="command" name="command" value={form.data.command} onChange={(e) => form.setData('command', e.target.value)} />
               {command.is_raw ? (
                 <p className="text-muted-foreground text-sm">Shell variables are passed through as written and are not prompted.</p>
@@ -57,11 +59,11 @@ export default function EditCommand({ open, onOpenChange, command }: { open: boo
         <DialogFooter>
           <div className="flex items-center gap-2">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </DialogClose>
             <Button form="edit-command-form" type="submit" disabled={form.processing}>
               {form.processing && <LoaderCircle className="animate-spin" />}
-              Save
+              {t('Save')}
             </Button>
           </div>
         </DialogFooter>

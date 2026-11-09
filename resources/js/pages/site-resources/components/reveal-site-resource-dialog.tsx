@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +26,7 @@ export default function RevealSiteResourceDialog({
   siteId: number;
   resource: SiteResource;
 }) {
+  const t = useTranslate();
   const query = useQuery({
     queryKey: ['site-resources.reveal', serverId, siteId, resource?.id],
     queryFn: async () => {
@@ -70,7 +72,7 @@ export default function RevealSiteResourceDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" size="sm">
-              Close
+              {t('Close')}
             </Button>
           </DialogClose>
         </DialogFooter>

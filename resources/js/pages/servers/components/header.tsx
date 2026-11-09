@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { CheckIcon, CloudIcon, KeyRoundIcon, LoaderCircleIcon, SlashIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -13,6 +14,7 @@ import ConnectSshDialog from './connect-ssh-dialog';
 import ServerActions from './actions';
 
 export default function ServerHeader({ server: initialServer }: { server: Server }) {
+  const t = useTranslate();
   const server = useRealtimeRecord<Server>(initialServer, 'server')!;
 
   useEffect(() => {
@@ -101,7 +103,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
                   )}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Status</TooltipContent>
+              <TooltipContent side="bottom">{t('Status')}</TooltipContent>
             </Tooltip>
           </>
         )}
@@ -127,7 +129,7 @@ export default function ServerHeader({ server: initialServer }: { server: Server
         <ConnectSshDialog server={server}>
           <Button aria-label="Connect via SSH" variant="ghost" size="sm" className="h-6 text-[11px] gap-1 px-2 text-muted-foreground hover:text-foreground cursor-pointer">
             <KeyRoundIcon className="size-3" />
-            <span className="hidden sm:inline">Connect</span>
+            <span className="hidden sm:inline">{t('Connect')}</span>
           </Button>
         </ConnectSshDialog>
       </div>

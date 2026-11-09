@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, ClipboardCheckIcon, ClipboardIcon, LoaderCircle, PlusIcon, ServerIcon, TrashIcon, TriangleAlertIcon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,7 @@ const servicesForRole = (role: CreateServerForm['role']): Service[] => {
 };
 
 function AddService() {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const configs = useConfigs()!;
   const form = useForm<Service>({
@@ -136,7 +138,7 @@ function AddService() {
         <Form id="add-service-form" onSubmit={add} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Select
                 value={form.data.name}
                 onValueChange={(value) => {
@@ -162,14 +164,14 @@ function AddService() {
             </FormField>
 
             <FormField>
-              <Label htmlFor="version">Version</Label>
+              <Label htmlFor="version">{t('Version')}</Label>
               <Select
                 value={form.data.version}
                 disabled={!form.data.name}
                 onValueChange={(value) => form.setData('version', value)}
               >
                 <SelectTrigger id="version">
-                  <SelectValue placeholder="Select a version" />
+                  <SelectValue placeholder={t('Select a version')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -186,7 +188,7 @@ function AddService() {
             </FormField>
 
             <Button type="button" onClick={add} className="w-full">
-              Add
+              {t('Add')}
             </Button>
           </FormFields>
         </Form>
@@ -244,6 +246,7 @@ export default function CreateServerPage({
   server_providers?: { data?: ServerProvider[] } | ServerProvider[];
   public_key?: string;
 }) {
+  const t = useTranslate();
   const configs = useConfigs()!;
   const bootstrapPublicKey = usePublicKeyText();
   const publicKey = initialPublicKey || bootstrapPublicKey;
@@ -566,7 +569,7 @@ export default function CreateServerPage({
     if (!roleConfirmed) {
       return;
     }
-    form.post("/servers");
+    form.post('/servers');
   };
 
   useEffect(() => {
@@ -587,7 +590,7 @@ export default function CreateServerPage({
 
   return (
     <Layout>
-      <Head title="Create server" />
+      <Head title={t('Create server')} />
 
       <Container className="max-w-3xl py-8">
         <div className="mb-6">
@@ -599,7 +602,7 @@ export default function CreateServerPage({
               </Link>
             </Button>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Create new server</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('Create new server')}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Connect a pre-existing server or deploy a new instance on your cloud provider.
           </p>
@@ -770,14 +773,14 @@ export default function CreateServerPage({
                                   asChild
                                   className="h-6 px-2 text-xs hover:bg-destructive/20 hover:text-destructive"
                                 >
-                                  <Link href={"/settings/server-providers"}>Settings</Link>
+                                  <Link href={"/settings/server-providers"}>{t('Settings')}</Link>
                                 </Button>
                               </div>
                             </div>
                           )}
 
                           <FormField>
-                            <Label htmlFor="region">Region</Label>
+                            <Label htmlFor="region">{t('Region')}</Label>
                             {regionLoading ? (
                               <Button
                                 type="button"
@@ -1016,7 +1019,7 @@ export default function CreateServerPage({
                               {copiedKey ? (
                                 <>
                                   <ClipboardCheckIcon className="size-3 text-neutral-500" />
-                                  <span>Copied</span>
+                                  <span>{t('Copied')}</span>
                                 </>
                               ) : (
                                 <>
@@ -1144,7 +1147,7 @@ export default function CreateServerPage({
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">Services</Label>
+                      <Label className="text-sm font-medium">{t('Services')}</Label>
                       <div className="flex items-center gap-2">
                         <ServerTemplates services={form.data.services} onTemplateChanged={serverTemplateChanged} />
                         <AddService />
@@ -1172,11 +1175,11 @@ export default function CreateServerPage({
                     onClick={() => setStep((s) => s - 1)}
                     disabled={form.processing}
                   >
-                    <ArrowLeftIcon className="mr-1.5 size-4" /> Back
+                    <ArrowLeftIcon className="mr-1.5 size-4" /> {t('Back')}
                   </Button>
                 ) : (
                   <Button variant="outline" asChild disabled={form.processing}>
-                    <Link href={"/servers"}>Cancel</Link>
+                    <Link href={"/servers"}>{t('Cancel')}</Link>
                   </Button>
                 )}
               </div>
@@ -1192,7 +1195,7 @@ export default function CreateServerPage({
                       setStep((s) => s + 1);
                     }}
                   >
-                    Next <ArrowRightIcon className="ml-1.5 size-4" />
+                    {t('Next')} <ArrowRightIcon className="ml-1.5 size-4" />
                   </Button>
                 ) : (
                   <Button type="button" onClick={createServer} disabled={form.processing || !roleConfirmed}>

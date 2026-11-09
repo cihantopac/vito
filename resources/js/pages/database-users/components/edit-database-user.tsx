@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useForm } from '@inertiajs/react';
@@ -23,6 +24,7 @@ export default function EditDatabaseUser({
   databaseUser: DatabaseUser;
   usesHost?: boolean;
 }) {
+  const t = useTranslate();
   const form = useForm<{
     password: string;
     remote: boolean;
@@ -58,7 +60,7 @@ export default function EditDatabaseUser({
             </FormField>
 
             <FormField>
-              <Label htmlFor="permission">Permission</Label>
+              <Label htmlFor="permission">{t('Permission')}</Label>
               <Select value={form.data.permission} onValueChange={(value) => form.setData('permission', value)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select permission" />
@@ -95,12 +97,12 @@ export default function EditDatabaseUser({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button form="edit-database-user-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
             <FormSuccessful successful={form.recentlySuccessful} />
-            Save
+            {t('Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

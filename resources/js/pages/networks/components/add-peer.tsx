@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FormEvent, useState } from 'react';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -19,6 +20,7 @@ export default function AddNetworkPeer({
   onOpenChange: (open: boolean) => void;
   networkId: number;
 }) {
+  const t = useTranslate();
   const [byo, setByo] = useState(false);
   const form = useForm<{ name: string; public_key: string }>({
     name: '',
@@ -41,13 +43,13 @@ export default function AddNetworkPeer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Add peer</DialogTitle>
+          <DialogTitle>{t('Add peer')}</DialogTitle>
           <DialogDescription className="sr-only">Add a device to this network</DialogDescription>
         </DialogHeader>
         <Form id="add-network-peer-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('Name')}</Label>
               <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} placeholder="e.g. my-laptop" />
               <InputError message={form.errors.name} />
             </FormField>
@@ -76,11 +78,11 @@ export default function AddNetworkPeer({
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline">{t('Close')}</Button>
           </DialogClose>
           <Button form="add-network-peer-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}
-            Add peer
+            {t('Add peer')}
           </Button>
         </DialogFooter>
       </DialogContent>

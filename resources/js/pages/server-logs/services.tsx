@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,6 +31,7 @@ const LINE_OPTIONS = ['100', '200', '500', '1000', '2000'] as const;
 type LineOption = (typeof LINE_OPTIONS)[number];
 
 export default function ServiceLogs() {
+  const t = useTranslate();
   const page = usePage<{
     title: string;
     server: Server;
@@ -221,7 +223,7 @@ export default function ServiceLogs() {
             <CardHeader className="gap-3">
               <div className="grid min-w-0 gap-4 md:grid-cols-2">
                 <div className="flex min-w-0 flex-col gap-2 [&_[role=combobox]]:min-w-0 [&_[role=combobox]>span]:truncate">
-                  <Label htmlFor="log-service">Service</Label>
+                  <Label htmlFor="log-service">{t('Service')}</Label>
                   <Combobox
                     id="log-service"
                     items={serviceItems}
@@ -271,7 +273,7 @@ export default function ServiceLogs() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="icon" onClick={fetchLog} disabled={!selectedKey || isLoading} title="Refresh" aria-label="Refresh">
+                <Button variant="outline" size="icon" onClick={fetchLog} disabled={!selectedKey || isLoading} title={t('Refresh')} aria-label={t('Refresh')}>
                   {isLoading ? <LoaderCircleIcon className="animate-spin" /> : <RefreshCwIcon />}
                 </Button>
                 <Button
@@ -279,8 +281,8 @@ export default function ServiceLogs() {
                   size="icon"
                   onClick={downloadLog}
                   disabled={!selectedKey || isDownloading}
-                  title="Download"
-                  aria-label="Download log"
+                  title={t('Download')}
+                  aria-label={t('Download log')}
                 >
                   {isDownloading ? <LoaderCircleIcon className="animate-spin" /> : <DownloadIcon />}
                 </Button>
@@ -288,8 +290,8 @@ export default function ServiceLogs() {
                   <Button
                     variant="outline"
                     size="icon"
-                    title="Clear log"
-                    aria-label="Clear log"
+                    title={t('Clear log')}
+                    aria-label={t('Clear log')}
                     onClick={() => dialog.confirm.open({
                       title: 'Clear log',
                       description: `Clear all contents of ${selected.display_target}? This cannot be undone. The file and its permissions are preserved.`,
@@ -304,7 +306,7 @@ export default function ServiceLogs() {
                     <EraserIcon />
                   </Button>
                 ) : (
-                  <Button variant="outline" size="icon" disabled title="Journal logs cannot be cleared" aria-label="Clear log">
+                  <Button variant="outline" size="icon" disabled title="Journal logs cannot be cleared" aria-label={t('Clear log')}>
                     <EraserIcon />
                   </Button>
                 )}

@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { withQuery } from '@/lib/url';
 import { Head, Link, usePage, usePoll } from '@inertiajs/react';
 import Container from '@/components/container';
@@ -31,6 +32,7 @@ const formatLatency = (value: unknown): string => {
 const formatByteValue = (value: unknown): string => formatBytes(Number(value ?? 0), 1);
 
 export default function ShowDatabaseReplica() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const replica = useRealtimeRecord<DatabaseReplica>(page.props.replica, 'database-replica') ?? page.props.replica;
   const latest = replica.latest_metric;
@@ -80,7 +82,7 @@ export default function ShowDatabaseReplica() {
             {replica.message}{' '}
             {replica.status === 'failed' && (
               <a href="#logs" className="underline">
-                View logs
+                {t('View logs')}
               </a>
             )}
           </p>

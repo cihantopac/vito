@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { BreadcrumbHeader } from '@/components/breadcrumb-header';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
@@ -24,6 +25,7 @@ type Page = {
 };
 
 export default function Show() {
+  const t = useTranslate();
   const page = usePage<Page>();
   const dialog = useDialog();
   const { command, server, site } = page.props;
@@ -67,7 +69,7 @@ export default function Show() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TerminalIcon className="size-4" />
-              Command
+              {t('Command')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
@@ -88,11 +90,11 @@ export default function Show() {
               {(executions.links.prev || executions.links.next) && (
                 <div className="flex items-center justify-between gap-3 pt-1">
                   <Button variant="outline" disabled={!executions.links.prev} onClick={() => visitPage(executions.links.prev)}>
-                    Previous
+                    {t('Previous')}
                   </Button>
-                  <span className="text-muted-foreground text-sm">Page {executions.meta.current_page}</span>
+                  <span className="text-muted-foreground text-sm">{t('Page')} {executions.meta.current_page}</span>
                   <Button variant="outline" disabled={!executions.links.next} onClick={() => visitPage(executions.links.next)}>
-                    Next
+                    {t('Next')}
                   </Button>
                 </div>
               )}

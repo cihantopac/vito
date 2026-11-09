@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode, useState } from 'react';
 import {
   Dialog,
@@ -38,6 +39,7 @@ export default function CreateDatabaseUser({
   onDatabaseUserCreated?: () => void;
   children: ReactNode;
 }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const form = useForm<CreateForm>({
@@ -76,7 +78,7 @@ export default function CreateDatabaseUser({
         <Form className="p-4" id="create-database-user-form" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">{t('Username')}</Label>
               <Input
                 type="text"
                 id="username"
@@ -87,7 +89,7 @@ export default function CreateDatabaseUser({
               <InputError message={form.errors.username} />
             </FormField>
             <FormField>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('Password')}</Label>
               <Input
                 type="password"
                 id="password"
@@ -98,7 +100,7 @@ export default function CreateDatabaseUser({
               <InputError message={form.errors.password} />
             </FormField>
             <FormField>
-              <Label htmlFor="permission">Permission</Label>
+              <Label htmlFor="permission">{t('Permission')}</Label>
               <Select value={form.data.permission} onValueChange={(value) => form.setData('permission', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select permission" />
@@ -134,12 +136,12 @@ export default function CreateDatabaseUser({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
-              Cancel
+              {t('Cancel')}
             </Button>
           </DialogClose>
           <Button form="create-database-user-form" type="submit" disabled={form.processing}>
             {form.processing && <LoaderCircle className="animate-spin" />}
-            Create
+            {t('Create')}
           </Button>
         </DialogFooter>
       </DialogContent>

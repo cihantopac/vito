@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { DataTable } from '@/components/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -90,6 +91,7 @@ export default function Users({
   onOpenChange: (open: boolean) => void;
   project: Project;
 }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const canManageAccess = project.role === 'owner' || project.role === 'admin';
@@ -107,14 +109,14 @@ export default function Users({
           </div>
           <SheetFooter>
             <div className="flex items-center justify-between w-full">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>{t('Close')}</Button>
               {canManageAccess && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" onClick={() => setShowQuickCreate(true)}>
                     <UserPlusIcon className="size-3.5 mr-1.5" />
-                    Create user
+                    {t('Create user')}
                   </Button>
-                  <Button onClick={() => dialog.projectInvite.open({ project })}>Add user</Button>
+                  <Button onClick={() => dialog.projectInvite.open({ project })}>{t('Add user')}</Button>
                 </div>
               )}
             </div>

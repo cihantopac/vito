@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from '@inertiajs/react';
@@ -33,6 +34,7 @@ export default function ConfirmationDialog({
   options,
   onSuccess,
 }: ConfirmationDialogProps) {
+  const t = useTranslate();
   const form = useForm<Record<string, string | number | boolean | null>>(data ?? {});
 
   const submit = () => {
@@ -77,7 +79,7 @@ export default function ConfirmationDialog({
         )}
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('Cancel')}</Button>
           </DialogClose>
           <Button variant={variant} disabled={form.processing} onClick={submit}>
             {form.processing && <LoaderCircleIcon className="animate-spin" />}

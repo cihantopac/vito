@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, useId, useMemo, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
@@ -31,6 +32,7 @@ export default function WorkerEnvDialog({
   workerId?: number;
   siteId?: number;
 }) {
+  const t = useTranslate();
   const groupLabelId = useId();
   const [variables, setVariables] = useState<EnvVariable[]>([]);
   const [apply, setApply] = useState<ApplyChoice>('');
@@ -153,7 +155,7 @@ export default function WorkerEnvDialog({
                   Failed to load the environment variables.
                   <Button type="button" variant="outline" size="sm" onClick={() => query.refetch()} disabled={query.isFetching}>
                     <RefreshCwIcon className={query.isFetching ? 'animate-spin' : ''} />
-                    Retry
+                    {t('Retry')}
                   </Button>
                 </AlertDescription>
               </Alert>
@@ -216,11 +218,11 @@ export default function WorkerEnvDialog({
         <SheetFooter className="shrink-0">
           <div className="flex items-center gap-2">
             <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('Cancel')}</Button>
             </SheetClose>
             <Button form="worker-env-form" type="submit" disabled={form.processing || !query.isSuccess || hasDuplicates || choiceMissing}>
               {form.processing && <LoaderCircleIcon className="animate-spin" />}
-              Save
+              {t('Save')}
             </Button>
           </div>
         </SheetFooter>

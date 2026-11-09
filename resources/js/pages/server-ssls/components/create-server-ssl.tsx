@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { FormEvent, ReactNode, useState } from 'react';
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Form, FormField, FormFields } from '@/components/ui/form';
@@ -31,6 +32,7 @@ type CreateForm = {
 };
 
 export default function CreateServerSsl({ server, domains, children }: { server: Server; domains: Domain[]; children: ReactNode }) {
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const page = usePage<SharedData>();
 
@@ -81,7 +83,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
         <Form id="create-server-ssl-form" className="p-4" onSubmit={submit}>
           <FormFields>
             <FormField>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t('Type')}</Label>
               <Select
                 onValueChange={(value) => {
                   if (value === 'letsencrypt' && !form.data.email) {
@@ -93,7 +95,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
                 value={form.data.type}
               >
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('Select type')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="csr">CSR (Certificate Signing Request)</SelectItem>
@@ -149,7 +151,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
             {form.data.type === 'letsencrypt' && (
               <>
                 <FormField>
-                  <Label htmlFor="domain_id">Domain</Label>
+                  <Label htmlFor="domain_id">{t('Domain')}</Label>
                   <p className="text-muted-foreground text-xs">
                     Only domains managed by Pure with a DNS provider are available, as wildcard SSL requires DNS verification.
                   </p>
@@ -168,7 +170,7 @@ export default function CreateServerSsl({ server, domains, children }: { server:
                   <InputError message={form.errors.domain_id} />
                 </FormField>
                 <FormField>
-                  <Label htmlFor="wildcard_email">Email</Label>
+                  <Label htmlFor="wildcard_email">{t('Email')}</Label>
                   <Input
                     type="email"
                     id="wildcard_email"
@@ -301,11 +303,11 @@ export default function CreateServerSsl({ server, domains, children }: { server:
         <SheetFooter>
           <div className="flex items-center gap-2">
             <Button type="submit" form="create-server-ssl-form" disabled={form.processing}>
-              {form.processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Create
+              {form.processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} {t('Create')}
             </Button>
             <SheetClose asChild>
               <Button variant="outline" disabled={form.processing}>
-                Cancel
+                {t('Cancel')}
               </Button>
             </SheetClose>
           </div>

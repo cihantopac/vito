@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { useForm, usePage, router } from '@inertiajs/react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -29,6 +30,7 @@ type Inventory = { processes: Process[]; sites: Array<{ id: number; domain: stri
 const driverLabels: Record<string, string> = { systemd: 'Systemd', docker: 'Docker', supervisor: 'Supervisor', systemd_user: 'Systemd (user)', rootless_docker: 'Docker (rootless)' };
 
 export default function RuntimeProcesses({ kind }: { kind?: 'worker' | 'scheduler' | 'service' }) {
+  const t = useTranslate();
   const { server, site } = usePage<{ server: Server; site?: Site }>().props;
   const dialog = useDialog();
   const [adding, setAdding] = useState(false);
@@ -67,7 +69,7 @@ export default function RuntimeProcesses({ kind }: { kind?: 'worker' | 'schedule
         </div>}
       </div>
       {inventory.isPending && <p role="status">Loading processes…</p>}
-      {inventory.isError && <div role="alert"><p>Process inventory could not be loaded.</p><Button variant="outline" onClick={() => void inventory.refetch()}>Retry</Button></div>}
+      {inventory.isError && <div role="alert"><p>Process inventory could not be loaded.</p><Button variant="outline" onClick={() => void inventory.refetch()}>{t('Retry')}</Button></div>}
       {adding && <form className="space-y-3 rounded-md border p-4" onSubmit={(event) => {
         event.preventDefault();
         form.post(base, { preserveScroll: true, onSuccess: () => { setAdding(false); form.reset(); void inventory.refetch(); } });
@@ -85,7 +87,7 @@ export default function RuntimeProcesses({ kind }: { kind?: 'worker' | 'schedule
             <p className="text-muted-foreground text-xs">Connects to this user's service manager or rootless Docker daemon.</p>
             {inventory.data?.isolated_users?.length === 0 && <p role="status" className="text-muted-foreground text-xs">Register an isolated Linux user on this server first.</p>}
           </div>}
-          <div className="space-y-1"><Label htmlFor="runtime-kind">Purpose</Label><select id="runtime-kind" className="bg-background w-full rounded-md border p-2" value={form.data.kind} onChange={(event) => form.setData('kind', event.target.value as typeof form.data.kind)}><option value="worker">Worker</option><option value="scheduler">Scheduler</option><option value="service">Service</option></select></div>
+          <div className="space-y-1"><Label htmlFor="runtime-kind">Purpose</Label><select id="runtime-kind" className="bg-background w-full rounded-md border p-2" value={form.data.kind} onChange={(event) => form.setData('kind', event.target.value as typeof form.data.kind)}><option value="worker">Worker</option><option value="scheduler">Scheduler</option><option value="service">{t('Service')}</option></select></div>
         </div>
         <fieldset className="space-y-2"><legend className="text-sm font-medium">Linked applications</legend><div className="flex flex-wrap gap-3">{inventory.data?.sites.map((application) => <label key={application.id} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.data.site_ids.includes(application.id)} onChange={(event) => form.setData('site_ids', event.target.checked ? [...form.data.site_ids, application.id] : form.data.site_ids.filter((id) => id !== application.id))} />{application.domain}</label>)}</div></fieldset>
         {Object.entries(form.errors).map(([field, error]) => <InputError key={field} message={error} />)}

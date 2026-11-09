@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Head, usePage } from '@inertiajs/react';
 import Container from '@/components/container';
 import Heading from '@/components/heading';
@@ -15,19 +16,20 @@ type Page = {
 };
 
 export default function Domains() {
+  const t = useTranslate();
   const page = usePage<Page>();
 
   return (
     <SettingsLayout>
-      <Head title="Domains" />
+      <Head title={t('Domains')} />
       <Container>
         <div className="flex items-start justify-between">
-          <Heading title="Domains" />
+          <Heading title={t('Domains')} />
           <div className="flex items-center gap-2">
             <AddDomain>
               <Button>
                 <PlusIcon />
-                Add Domain
+                {t('Add Domain')}
               </Button>
             </AddDomain>
           </div>

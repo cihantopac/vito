@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import { Server } from '@/types/server';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { usePage } from '@inertiajs/react';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Actions({ server }: { server: Server }) {
+  const t = useTranslate();
   const dialog = useDialog();
   const page = usePage<{ dataRetention: string }>();
 
@@ -13,13 +15,13 @@ export default function Actions({ server }: { server: Server }) {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="p-0">
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">{t('Open menu')}</span>
           <MoreHorizontalIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onSelect={() => dialog.dataRetention.open({ server, dataRetention: page.props.dataRetention })}>
-          Data retention
+          {t('Data retention')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -35,7 +37,7 @@ export default function Actions({ server }: { server: Server }) {
             })
           }
         >
-          Reset
+          {t('Reset')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

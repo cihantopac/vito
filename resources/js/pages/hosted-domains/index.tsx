@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import ServerLayout from '@/layouts/server/layout';
 import SiteBanners from '@/components/site-banners';
 import { Head, usePage } from '@inertiajs/react';
@@ -80,6 +81,7 @@ function CertificateCell({ row }: { row: HostedDomain }) {
 }
 
 export default function HostedDomains() {
+  const t = useTranslate();
   const page = usePage<{
     server: Server;
     site: Site;
@@ -124,7 +126,7 @@ export default function HostedDomains() {
                     onClick={() => !sslLocked && router.post(`/servers/${page.props.server.id}/sites/${page.props.site.id}/enable-ssl`)}
                   >
                     <LockIcon />
-                    Enable SSL
+                    {t('Enable SSL')}
                   </DropdownMenuItem>
                 )}
                 {page.props.site.force_ssl ? (
@@ -171,7 +173,7 @@ export default function HostedDomains() {
             </DropdownMenu>
             <Button onClick={() => dialog.createHostedDomain.open({ site: page.props.site })}>
               <PlusIcon />
-              <span className="hidden lg:block">Add Domain</span>
+              <span className="hidden lg:block">{t('Add Domain')}</span>
             </Button>
           </div>
         </HeaderContainer>
@@ -219,7 +221,7 @@ export default function HostedDomains() {
                     <TableActionTrigger />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onSelect={() => dialog.editHostedDomain.open({ hostedDomain: hd })}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => dialog.editHostedDomain.open({ hostedDomain: hd })}>{t('Edit')}</DropdownMenuItem>
                     {hd.ssl_can_check_expiry && (
                       <>
                         <DropdownMenuSeparator />
@@ -307,7 +309,7 @@ export default function HostedDomains() {
                             })
                           }
                         >
-                          Delete
+                          {t('Delete')}
                         </DropdownMenuItem>
                       </>
                     )}

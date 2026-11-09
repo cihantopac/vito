@@ -1,3 +1,4 @@
+import { useTranslate } from '@/hooks/use-translate';
 import InputError from '@/components/ui/input-error';
 import { useForm, usePage } from '@inertiajs/react';
 import { FormEvent, useRef } from 'react';
@@ -11,6 +12,7 @@ import { SharedData } from '@/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function UpdatePassword() {
+  const t = useTranslate();
   const page = usePage<SharedData>();
   const passwordInput = useRef<HTMLInputElement>(null);
   const currentPasswordInput = useRef<HTMLInputElement>(null);
@@ -49,8 +51,8 @@ export default function UpdatePassword() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Update password</CardTitle>
-        <CardDescription>Use at least 8 characters, including an uppercase letter and a special character (such as !, @ or #).</CardDescription>
+        <CardTitle>{t('Update password')}</CardTitle>
+        <CardDescription>{t('Use at least 8 characters, including an uppercase letter and a special character (such as !, @ or #).')}</CardDescription>
       </CardHeader>
       <CardContent className="p-4">
         {page.props.auth.user.two_factor_enabled && (
@@ -64,7 +66,7 @@ export default function UpdatePassword() {
         <form id="update-password-form" onSubmit={updatePassword}>
           <div className="grid gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="current_password">Current password</Label>
+              <Label htmlFor="current_password">{t('Current password')}</Label>
               <Input
                 id="current_password"
                 ref={currentPasswordInput}
@@ -73,12 +75,12 @@ export default function UpdatePassword() {
                 type="password"
                 className="mt-1 block w-full"
                 autoComplete="current-password"
-                placeholder="Current password"
+                placeholder={t('Current password')}
               />
               <InputError message={form.errors.current_password} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">New password</Label>
+              <Label htmlFor="password">{t('New password')}</Label>
               <Input
                 id="password"
                 required
@@ -91,12 +93,12 @@ export default function UpdatePassword() {
                 type="password"
                 className="mt-1 block w-full"
                 autoComplete="new-password"
-                placeholder="New password"
+                placeholder={t('New password')}
               />
               <InputError message={form.errors.password} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password_confirmation">Confirm password</Label>
+              <Label htmlFor="password_confirmation">{t('Confirm password')}</Label>
               <Input
                 id="password_confirmation"
                 value={form.data.password_confirmation}
@@ -104,7 +106,7 @@ export default function UpdatePassword() {
                 type="password"
                 className="mt-1 block w-full"
                 autoComplete="new-password"
-                placeholder="Confirm password"
+                placeholder={t('Confirm password')}
               />
               <InputError message={form.errors.password_confirmation} />
             </div>
