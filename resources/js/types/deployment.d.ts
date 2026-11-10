@@ -36,8 +36,6 @@ export interface Deployment {
   deployed_by: string | null;
   trigger: string | null;
   trigger_color: 'gray' | 'info' | 'warning' | null;
-  rolled_back_by: string | null;
-  rolled_back_at: string | null;
   finished_at: string | null;
   duration?: number | null;
   formatted_duration?: string | null;

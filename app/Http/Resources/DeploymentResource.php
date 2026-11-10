@@ -27,8 +27,6 @@ class DeploymentResource extends JsonResource
             'deployed_by' => $this->user?->name,
             'trigger' => $this->trigger?->getText(),
             'trigger_color' => $this->trigger?->getColor(),
-            'rolled_back_by' => $this->rolledBackBy?->name,
-            'rolled_back_at' => $this->rolled_back_at,
             'finished_at' => $this->finished_at,
             'duration' => $this->duration(),
             'formatted_duration' => $this->formattedDuration(),

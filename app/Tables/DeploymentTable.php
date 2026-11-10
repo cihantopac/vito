@@ -19,28 +19,6 @@ class DeploymentTable extends Table
 
     private bool $overview = false;
 
-    private ?array $firstDeploymentIdByCommit = null;
-
-    protected function getFirstDeploymentIdForCommit(Deployment $deployment): ?int
-    {
-        if (empty($deployment->commit_id)) {
-            return null;
-        }
-
-        if ($this->firstDeploymentIdByCommit === null) {
-            $this->firstDeploymentIdByCommit = Deployment::query()
-                ->where('site_id', $deployment->site_id)
-                ->whereNotNull('commit_id')
-                ->where('commit_id', '!=', '')
-                ->groupBy('commit_id')
-                ->selectRaw('commit_id, MIN(id) as first_id')
-                ->pluck('first_id', 'commit_id')
-                ->toArray();
-        }
-
-        return $this->firstDeploymentIdByCommit[$deployment->commit_id] ?? null;
-    }
-
     public function overview(): array
     {
         $this->overview = true;
@@ -69,11 +47,7 @@ class DeploymentTable extends Table
     protected function query(): void
     {
         $this->perPage = config('web.pagination_size');
-        $this->query->with('log', 'site', 'user', 'rolledBackBy');
-
-        if ($this->overview) {
-            $this->query->latest();
-        }
+        $this->query->with('log', 'site', 'user');
     }
 
     protected function columns(): array
@@ -86,7 +60,6 @@ class DeploymentTable extends Table
             Column::make('duration', 'Duration')
                 ->value(fn (Deployment $deployment): ?string => $deployment->formattedDuration()),
             DateTimeColumn::make('created_at', 'Deployed At')->sortable(! $this->overview)->toLocal(),
-            Column::make('release', 'Release'),
             TextColumn::make('id', 'ID')
                 ->sortable(! $this->overview)
                 ->link('application.deployments.show', [
@@ -95,19 +68,13 @@ class DeploymentTable extends Table
                     'deployment' => ':id',
                 ]),
             Column::data('site_id'),
-            Column::data('server_id', fn (Deployment $deployment) => $deployment->site->server_id),
+            Column::data('server_id', fn (Deployment $deployment): int => $deployment->site->server_id),
             Column::data('active'),
+            Column::data('release'),
             Column::data('trigger', fn (Deployment $deployment): ?string => $deployment->trigger?->getText()),
             Column::data('trigger_color', fn (Deployment $deployment): ?string => $deployment->trigger?->getColor()),
-            Column::data('rolled_back_by', fn (Deployment $deployment): ?string => $deployment->rolledBackBy?->name),
-            Column::data('rolled_back_at', fn (Deployment $deployment) => $deployment->rolled_back_at),
             Column::data('commit_id'),
             Column::data('commit_id_short', fn (Deployment $deployment): ?string => $deployment->commit_id_short),
-            Column::data('is_duplicate', function (Deployment $deployment): bool {
-                $firstId = $this->getFirstDeploymentIdForCommit($deployment);
-                return $firstId !== null && $deployment->id > $firstId;
-            }),
-            Column::data('original_deployment_id', fn (Deployment $deployment): ?int => $this->getFirstDeploymentIdForCommit($deployment)),
             Column::data('commit_data'),
             Column::data('finished_at', fn (Deployment $deployment) => $deployment->finished_at),
             Column::data('duration', fn (Deployment $deployment): ?int => $deployment->duration()),
