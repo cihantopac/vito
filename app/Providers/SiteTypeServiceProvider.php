@@ -144,7 +144,7 @@ class SiteTypeServiceProvider extends ServiceProvider
             ->register();
         RegisterSiteFeature::make(Laravel::id(), 'modern-deployment')
             ->label('Modern Deployment (beta)')
-            ->description('Enables zero downtime deployment and deployment rollbacks')
+            ->description('Enables zero downtime deployment')
             ->register();
         RegisterSiteFeatureAction::make(Laravel::id(), 'modern-deployment', 'enable')
             ->label('Enable')

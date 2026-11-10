@@ -7,7 +7,6 @@ use App\Actions\Site\GenerateAppKey;
 use App\Actions\Site\GetEnv;
 use App\Actions\Site\GetSiteOverview;
 use App\Actions\Site\ParseEnv;
-use App\Actions\Site\Rollback;
 use App\Actions\Site\StringifyEnv;
 use App\Actions\Site\UpdateDeploymentScript;
 use App\Actions\Site\UpdateEnv;
@@ -67,22 +66,7 @@ class ApplicationController extends Controller
         };
 
         return Inertia::render('application/index', [
-            'activeDeployment' => function () use ($site, $ensureScripts): ?DeploymentResource {
-                $activeDeployment = $site->deployments()
-                    ->where('status', DeploymentStatus::DEPLOYING)
-                    ->with('log', 'user', 'deploymentScript')
-                    ->latest('id')
-                    ->first();
-
-                if (! $activeDeployment) {
-                    return null;
-                }
-
-                $ensureScripts();
-                $activeDeployment->setRelation('site', $site);
-
-                return new DeploymentResource($activeDeployment);
-            },
+            'activeDeployment' => fn (): ?DeploymentResource => $this->resolveActiveDeployment($site, $ensureScripts),
             'deployments' => Inertia::defer(fn () => DeploymentTable::make($site->deployments())->overview(), 'deployments'),
             'deploymentScript' => Inertia::defer(function () use ($site, $ensureScripts): ?DeploymentScriptResource {
                 $ensureScripts();
@@ -141,21 +125,7 @@ class ApplicationController extends Controller
 
         return Inertia::render('application/deployments/index', [
             'deployments' => DeploymentTable::make($site->deployments())->paginate(),
-            'activeDeployment' => function () use ($site): ?DeploymentResource {
-                $activeDeployment = $site->deployments()
-                    ->where('status', DeploymentStatus::DEPLOYING)
-                    ->with('log', 'user', 'deploymentScript')
-                    ->latest('id')
-                    ->first();
-
-                if (! $activeDeployment) {
-                    return null;
-                }
-
-                $activeDeployment->setRelation('site', $site);
-
-                return new DeploymentResource($activeDeployment);
-            },
+            'activeDeployment' => fn (): ?DeploymentResource => $this->resolveActiveDeployment($site),
         ]);
     }
 
@@ -202,20 +172,6 @@ class ApplicationController extends Controller
             'site' => $site,
             'deployment' => $deployment,
         ])->with('info', 'Deployment started, please wait...');
-    }
-
-    #[Post('/rollback/{deployment}', name: 'application.rollback')]
-    public function rollback(Request $request, Server $server, Site $site, Deployment $deployment): RedirectResponse
-    {
-        $this->authorize('update', [$site, $server]);
-
-        if ($deployment->site_id !== $site->id) {
-            return back()->with('error', 'Invalid deployment selected for rollback.');
-        }
-
-        app(Rollback::class)->run($deployment, $request->user());
-
-        return back()->with('info', 'Rollback started, please wait...');
     }
 
     #[Delete('/deployments/{deployment}', name: 'application.deployments.destroy')]
@@ -387,5 +343,26 @@ class ApplicationController extends Controller
         app(UpdateLoadBalancer::class)->update($site, $request->input());
 
         return back()->with('success', 'Load balancer updated successfully.');
+    }
+
+    private function resolveActiveDeployment(Site $site, ?callable $beforeReturn = null): ?DeploymentResource
+    {
+        $activeDeployment = $site->deployments()
+            ->where('status', DeploymentStatus::DEPLOYING)
+            ->with('log', 'user', 'deploymentScript')
+            ->latest('id')
+            ->first();
+
+        if (! $activeDeployment) {
+            return null;
+        }
+
+        if ($beforeReturn) {
+            $beforeReturn();
+        }
+
+        $activeDeployment->setRelation('site', $site);
+
+        return new DeploymentResource($activeDeployment);
     }
 }

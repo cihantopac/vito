@@ -17,7 +17,7 @@ class GetDeploymentProgress
 
     public function get(Deployment $deployment): array
     {
-        if ($deployment->rolled_back_at || ! ($site = $deployment->site) instanceof Site) {
+        if (! ($site = $deployment->site) instanceof Site) {
             return ['steps' => [], 'estimated_duration' => null, 'samples' => 0];
         }
 

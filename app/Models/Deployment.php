@@ -22,8 +22,6 @@ class Deployment extends AbstractModel
         'active',
         'user_id',
         'trigger',
-        'rolled_back_by_id',
-        'rolled_back_at',
         'finished_at',
     ];
 
@@ -36,8 +34,6 @@ class Deployment extends AbstractModel
         'status' => DeploymentStatus::class,
         'user_id' => 'integer',
         'trigger' => DeploymentTrigger::class,
-        'rolled_back_by_id' => 'integer',
-        'rolled_back_at' => 'datetime',
         'finished_at' => 'datetime',
     ];
 
@@ -87,11 +83,6 @@ class Deployment extends AbstractModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function rolledBackBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'rolled_back_by_id');
     }
 
     public function getCommitIdShortAttribute(): ?string
