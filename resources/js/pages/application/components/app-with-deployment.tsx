@@ -1,18 +1,15 @@
 import { useTranslate } from '@/hooks/use-translate';
 import { useCallback, useEffect, useState } from 'react';
-import { Deferred, Head, Link, usePage } from '@inertiajs/react';
+import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
 import { Site } from '@/types/site';
 import ServerLayout from '@/layouts/server/layout';
 import { Server } from '@/types/server';
 import Container from '@/components/container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarClockIcon, ChevronDownIcon, ChevronUpIcon, CodeXmlIcon, ExternalLinkIcon, FileCode2Icon, GitBranchIcon, Globe2Icon, ListEndIcon, LockKeyholeIcon, MoreHorizontalIcon, NetworkIcon, ServerIcon, UserRoundIcon, XIcon, ZapIcon, type LucideIcon } from 'lucide-react';
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import DeploymentScript from '@/pages/application/components/deployment-script';
+import { Switch } from '@/components/ui/switch';
+import { CalendarClockIcon, ChevronDownIcon, ChevronUpIcon, CodeXmlIcon, ExternalLinkIcon, FileCode2Icon, GitBranchIcon, ListEndIcon, LockKeyholeIcon, NetworkIcon, ServerIcon, XIcon, type LucideIcon } from 'lucide-react';
 import Deploy from '@/pages/application/components/deploy';
-import AutoDeployment from '@/pages/application/components/auto-deployment';
 import { DeploymentScript as DeploymentScriptType } from '@/types/deployment-script';
 import { useRealtimeRecord, useSocketListener } from '@/hooks/use-socket-events';
 import type { InertiaTableData } from '@forjedio/inertia-table-react';
@@ -45,19 +42,6 @@ function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label: stri
   );
 }
 
-function StatusDetail({ icon: Icon, label, enabled }: { icon: LucideIcon; label: string; enabled: boolean }) {
-  const translateText = useTranslate();
-  return (
-    <div className="flex min-w-0 flex-col gap-2 p-4">
-      <div className="text-muted-foreground flex items-center gap-2 text-xs">
-        <Icon className="size-3.5" />
-        {label}
-      </div>
-      <Badge variant={enabled ? 'success' : 'outline'}>{enabled ? translateText("Enabled") : translateText("Disabled")}</Badge>
-    </div>
-  );
-}
-
 function formatSiteType(type?: string): string {
   if (!type) return '';
   return type
@@ -84,11 +68,27 @@ export default function AppWithDeployment() {
   }>();
   const site = useRealtimeRecord<Site>(page.props.site, 'site')!;
   const { advanced, setView } = usePanelView();
-  const [showDetails, setShowDetails] = useState(false);
   const latestDeployment = page.props.deployments?.data[0] as unknown as Deployment | undefined;
   const [activeDeployment, setActiveDeployment] = useState<Deployment | null>(page.props.activeDeployment ?? null);
   const [showLog, setShowLog] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [togglingAutoDeploy, setTogglingAutoDeploy] = useState(false);
+
+  const handleToggleAutoDeploy = () => {
+    if (!site.source_control_id || togglingAutoDeploy) return;
+    setTogglingAutoDeploy(true);
+    const url = site.auto_deploy
+      ? `/servers/${site.server_id}/sites/${site.id}/disable-auto-deployment`
+      : `/servers/${site.server_id}/sites/${site.id}/enable-auto-deployment`;
+    router.post(
+      url,
+      {},
+      {
+        preserveScroll: true,
+        onFinish: () => setTogglingAutoDeploy(false),
+      },
+    );
+  };
 
   useEffect(() => {
     if (page.props.activeDeployment) {
@@ -172,6 +172,17 @@ export default function AppWithDeployment() {
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         {site.status !== 'installation_failed' && <SiteBanners site={site} compact includeAppDebug />}
+                        {!advanced && site.source_control_id && (
+                          <div className="flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs">
+                            <span className="text-muted-foreground">{translateText("Auto deploy")}</span>
+                            <Switch
+                              checked={site.auto_deploy}
+                              disabled={togglingAutoDeploy}
+                              onCheckedChange={handleToggleAutoDeploy}
+                              aria-label={translateText('Toggle auto deploy')}
+                            />
+                          </div>
+                        )}
                         <Deploy site={site} />
                         <Button variant="outline" asChild className="gap-1.5 cursor-pointer">
                           <Link href={`/servers/${page.props.server.id}/sites/${site.id}/environment`}>
@@ -179,54 +190,6 @@ export default function AppWithDeployment() {
                             <span>Env</span>
                           </Link>
                         </Button>
-                        <DropdownMenu modal={false}>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="p-0">
-                              <span className="sr-only">{translateText('Open menu')}</span>
-                              <MoreHorizontalIcon />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <AutoDeployment site={site}>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} disabled={!site.source_control_id}>
-                                {site.auto_deploy ? translateText("Disable") : translateText("Enable")} {translateText("auto deploy")}
-                              </DropdownMenuItem>
-                            </AutoDeployment>
-                            {!site.modern_deployment && (
-                              <DeploymentScript site={site} script={page.props.deploymentScript} description={translateText("This script will be executed on every deployment.")}>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>{translateText("Deployment Script")}</DropdownMenuItem>
-                              </DeploymentScript>
-                            )}
-                            {page.props.buildScript && site.modern_deployment && (
-                              <DeploymentScript
-                                site={site}
-                                script={page.props.buildScript}
-                                description={translateText("This script will build resources like composer and npm before release")}
-                              >
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>{translateText("Build Script")}</DropdownMenuItem>
-                              </DeploymentScript>
-                            )}
-                            {page.props.preFlightScript && site.modern_deployment && (
-                              <DeploymentScript
-                                site={site}
-                                script={page.props.preFlightScript}
-                                description={translateText("This script will be executed before release like migrations and optimizations")}
-                              >
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>{translateText("Pre Flight Script")}</DropdownMenuItem>
-                              </DeploymentScript>
-                            )}
-                            <DropdownMenuItem asChild>
-                              <Link href={`/servers/${page.props.server.id}/sites/${site.id}/environment`}>
-                                {translateText("Environment (.env)")}
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/servers/${page.props.server.id}/sites/${site.id}/logs`}>
-                                {translateText('Logs')}
-                              </Link>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       </div>
                     </div>
                   </CardHeader>
@@ -300,7 +263,7 @@ export default function AppWithDeployment() {
                   </CardContent>
                   <CardFooter className="justify-end p-3">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/servers/${site.server_id}/sites/${site.id}/deployments`}>{translateText("View all deployments")}</Link>
+                      <Link href={`/servers/${site.server_id}/sites/${site.id}/deployments`}>{translateText("All")}</Link>
                     </Button>
                   </CardFooter>
                 </Card>
@@ -351,10 +314,10 @@ export default function AppWithDeployment() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-muted-foreground px-4 py-6 text-center text-sm">{translateText("No background processes yet.")}</p>
+                      <p className="text-muted-foreground px-4 py-6 text-center text-sm">{(page.props.overviewWorkersCount ?? 0) > 0 ? <Link className="underline" href={`/servers/${site.server_id}/sites/${site.id}/resources`}>{translateText('Linked background processes are listed under Resources.')}</Link> : translateText('No background processes yet.')}</p>
                     )}
                     {(page.props.overviewWorkersCount ?? 0) > (page.props.overviewWorkers?.length ?? 0) && (
-                      <p className="text-muted-foreground px-4 py-2 text-xs">{translateText('Showing 3 of :total', { total: page.props.overviewWorkersCount })}</p>
+                      <p className="text-muted-foreground px-4 py-2 text-xs">{translateText('Showing :shown of :total', { shown: page.props.overviewWorkers?.length ?? 0, total: page.props.overviewWorkersCount })}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -386,10 +349,10 @@ export default function AppWithDeployment() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-muted-foreground px-4 py-6 text-center text-sm">{translateText("No scheduled jobs yet.")}</p>
+                      <p className="text-muted-foreground px-4 py-6 text-center text-sm">{(page.props.overviewCronJobsCount ?? 0) > 0 ? <Link className="underline" href={`/servers/${site.server_id}/sites/${site.id}/resources`}>{translateText('Linked scheduled jobs are listed under Resources.')}</Link> : translateText('No scheduled jobs yet.')}</p>
                     )}
                     {(page.props.overviewCronJobsCount ?? 0) > (page.props.overviewCronJobs?.length ?? 0) && (
-                      <p className="text-muted-foreground px-4 py-2 text-xs">{translateText('Showing 3 of :total', { total: page.props.overviewCronJobsCount })}</p>
+                      <p className="text-muted-foreground px-4 py-2 text-xs">{translateText('Showing :shown of :total', { shown: page.props.overviewCronJobs?.length ?? 0, total: page.props.overviewCronJobsCount })}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -397,77 +360,45 @@ export default function AppWithDeployment() {
             </Deferred>}
           </div>
 
-          {advanced && <Card className="overflow-hidden lg:sticky lg:top-4">
-            <CardHeader className="flex-row items-center gap-3">
-              <div className="flex flex-col gap-1">
-                <CardTitle>{translateText('Site details')}</CardTitle>
-
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="flex flex-col gap-3 p-4">
-                <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">{translateText('Connection')}</p>
-                <Detail icon={ServerIcon} label={translateText('Server')}>
-                  {page.props.server.name}
-                </Detail>
-                <Detail icon={NetworkIcon} label="Public IP">
-                  <span className="font-mono">{page.props.server.ip}</span>
-                </Detail>
-              </div>
-
-              <div className="flex flex-col gap-3 border-t p-4">
-                <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">Runtime</p>
-                <Detail icon={CodeXmlIcon} label={translateText("Site type")}>
-                  {formatSiteType(site.type)}
-                </Detail>
-                {site.php_version && <Detail icon={CodeXmlIcon} label="PHP">{site.php_version}</Detail>}
-              </div>
-
-              <Collapsible open={showDetails} onOpenChange={setShowDetails}>
-                <CollapsibleContent>
-                  <div className="flex flex-col gap-3 border-t p-4">
-                    <Detail icon={UserRoundIcon} label={translateText("Site user")}>
-                      {site.user}
-                    </Detail>
-                    <Detail icon={Globe2Icon} label={translateText("Webserver")}>
-                      {site.webserver}
-                    </Detail>
-                    {site.branch && <Detail icon={GitBranchIcon} label="Branch">{site.branch}</Detail>}
+          {advanced && (
+            <Card className="overflow-hidden lg:sticky lg:top-4">
+              <CardHeader className="flex-row items-center justify-between gap-3 p-4">
+                <CardTitle>{translateText("Site details")}</CardTitle>
+                {site.source_control_id && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{translateText("Auto deploy")}</span>
+                    <Switch
+                      checked={site.auto_deploy}
+                      disabled={togglingAutoDeploy}
+                      onCheckedChange={handleToggleAutoDeploy}
+                      aria-label={translateText('Toggle auto deploy')}
+                    />
                   </div>
-                  <div className="bg-muted/30 text-muted-foreground flex items-center justify-between gap-3 border-t px-4 py-3 text-xs">
-                    <span>{translateText("Server ID:")} {page.props.server.id}</span>
-                    <span>Site ID: {site.id}</span>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
-              <div className="grid grid-cols-2 divide-x border-t">
-                <StatusDetail icon={LockKeyholeIcon} label="SSL" enabled={site.ssl_enabled} />
-                <StatusDetail icon={ZapIcon} label={translateText("Auto deploy")} enabled={site.auto_deploy} />
-              </div>
-
-              <div className="border-t p-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground w-full justify-center text-xs"
-                  onClick={() => setShowDetails(!showDetails)}
-                >
-                  {showDetails ? (
-                    <>
-                      {translateText("Hide details")}
-                      <ChevronUpIcon className="ml-1.5 size-3.5" />
-                    </>
-                  ) : (
-                    <>
-                      {translateText("More details")}
-                      <ChevronDownIcon className="ml-1.5 size-3.5" />
-                    </>
+                )}
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="flex flex-col gap-3 p-4">
+                  <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">{translateText("Connection")}</p>
+                  <Detail icon={ServerIcon} label={translateText("Server")}>
+                    {page.props.server.name}
+                  </Detail>
+                  <Detail icon={NetworkIcon} label="Public IP">
+                    <span className="font-mono">{page.props.server.ip}</span>
+                  </Detail>
+                  {site.php_version && (
+                    <Detail icon={CodeXmlIcon} label="PHP">
+                      {site.php_version}
+                    </Detail>
                   )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>}
+                  <Detail icon={LockKeyholeIcon} label="SSL">
+                    <Badge variant={site.ssl_enabled ? 'success' : 'outline'}>
+                      {site.ssl_enabled ? translateText('Enabled') : translateText('Disabled')}
+                    </Badge>
+                  </Detail>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </Container>
     </ServerLayout>

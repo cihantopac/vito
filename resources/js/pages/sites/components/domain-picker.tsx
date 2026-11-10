@@ -1,12 +1,14 @@
 import { useTranslate } from '@/hooks/use-translate';
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { CloudIcon, GlobeIcon, RefreshCwIcon, ServerIcon, UnlinkIcon } from 'lucide-react';
+import { CheckIcon, ChevronsUpDownIcon, CloudIcon, GlobeIcon, RefreshCwIcon, ServerIcon, UnlinkIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -64,6 +66,7 @@ export default function DomainPicker({
   const [loadingProviders, setLoadingProviders] = useState(false);
   const [availableDomains, setAvailableDomains] = useState<ProviderDomain[]>([]);
   const [loadingDomains, setLoadingDomains] = useState(false);
+  const [zoneSelectOpen, setZoneSelectOpen] = useState(false);
 
   const [tempProviderId, setTempProviderId] = useState('');
   const [tempZoneId, setTempZoneId] = useState('');
@@ -142,6 +145,7 @@ export default function DomainPicker({
     setTempZoneId(value.provider_domain_id || '');
     setTempCreateDnsRecord(value.create_dns_record);
     setTempDnsRecordProxied(value.dns_record_proxied);
+    setZoneSelectOpen(false);
     if (providerId) {
       fetchDomainsForProvider(providerId);
     }
@@ -151,6 +155,7 @@ export default function DomainPicker({
   const handleProviderSelect = (providerId: string) => {
     setTempProviderId(providerId);
     setTempZoneId('');
+    setZoneSelectOpen(false);
     fetchDomainsForProvider(providerId);
   };
 
@@ -229,7 +234,13 @@ export default function DomainPicker({
 
       <InputError message={error} />
 
-      <Dialog open={dnsDialogOpen} onOpenChange={setDnsDialogOpen}>
+      <Dialog
+        open={dnsDialogOpen}
+        onOpenChange={(open) => {
+          setDnsDialogOpen(open);
+          if (!open) setZoneSelectOpen(false);
+        }}
+      >
         <DialogContent className="p-0 gap-0 sm:max-w-xl overflow-hidden rounded-xl">
           <DialogHeader className="border-b px-6 py-4 bg-muted/20">
             <div className="flex items-center gap-2.5">
@@ -301,27 +312,68 @@ export default function DomainPicker({
                     {translateText("Domain / Zone")}
                   </Label>
                   <div className="flex items-center gap-1.5">
-                    <Select
-                      value={tempZoneId}
-                      onValueChange={setTempZoneId}
-                      disabled={!tempProviderId || loadingDomains}
-                    >
-                      <SelectTrigger id="provider_zone_id" className="h-9 flex-1">
-                        <SelectValue placeholder={loadingDomains ? translateText("Loading domains...") : translateText("Select a domain")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {availableDomains.map((domain) => (
-                            <SelectItem key={domain.id} value={domain.id}>
-                              <div className="flex items-center gap-2">
-                                <GlobeIcon className="size-3.5 text-muted-foreground shrink-0" />
-                                <span className="font-mono text-xs">{domain.name}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <Popover open={zoneSelectOpen} onOpenChange={setZoneSelectOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="provider_zone_id"
+                          type="button"
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={zoneSelectOpen}
+                          disabled={!tempProviderId || loadingDomains}
+                          className="h-9 flex-1 justify-between font-normal px-3"
+                        >
+                          {loadingDomains ? (
+                            <span className="text-muted-foreground text-xs flex items-center gap-1.5">
+                              <RefreshCwIcon className="size-3 animate-spin shrink-0" />
+                              <span>{translateText("Loading domains...")}</span>
+                            </span>
+                          ) : selectedZone ? (
+                            <div className="flex items-center gap-2 min-w-0">
+                              <GlobeIcon className="size-3.5 text-muted-foreground shrink-0" />
+                              <span className="font-mono text-xs truncate">{selectedZone.name}</span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">
+                              {availableDomains.length === 0 ? translateText('No domains available') : translateText('Select a domain')}
+                            </span>
+                          )}
+                          <ChevronsUpDownIcon className="size-4 opacity-50 shrink-0 ml-1" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0 min-w-(--radix-popover-trigger-width) max-w-sm" align="start">
+                        <Command>
+                          <CommandInput placeholder={translateText("Search domain...")} />
+                          <CommandList className="max-h-60 overflow-y-auto">
+                            <CommandEmpty>{translateText("No domain found.")}</CommandEmpty>
+                            <CommandGroup>
+                              {availableDomains.map((domain) => (
+                                <CommandItem
+                                  key={domain.id}
+                                  value={domain.name}
+                                  onSelect={() => {
+                                    setTempZoneId(domain.id);
+                                    setZoneSelectOpen(false);
+                                  }}
+                                  className="flex items-center justify-between gap-2 cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <GlobeIcon className="size-3.5 text-muted-foreground shrink-0" />
+                                    <span className="font-mono text-xs truncate">{domain.name}</span>
+                                  </div>
+                                  <CheckIcon
+                                    className={cn(
+                                      'size-4 shrink-0',
+                                      tempZoneId === domain.id ? 'opacity-100' : 'opacity-0'
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <Button
                       variant="outline"
                       size="icon"

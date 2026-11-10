@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { useDialog } from '@/hooks/use-dialog';
 import { useLogContent } from '@/hooks/use-log-content';
 import { useRealtimeRecord } from '@/hooks/use-socket-events';
 import ServerLayout from '@/layouts/server/layout';
@@ -24,7 +23,6 @@ import {
   CopyIcon,
   DownloadIcon,
   ExternalLinkIcon,
-  RotateCcwIcon,
   TerminalIcon,
 } from 'lucide-react';
 import moment from 'moment';
@@ -34,7 +32,6 @@ export default function DeploymentShow() {
   const page = usePage<{ server: Server; site: Site; deployment: Deployment }>();
   const { server, site } = page.props;
   const deployment = useRealtimeRecord<Deployment>(page.props.deployment, 'deployment')!;
-  const dialog = useDialog();
   const { copied: copiedSha, copy: copySha } = useClipboard();
   const { copied: copiedLog, copy: copyLog } = useClipboard();
 
@@ -160,26 +157,6 @@ export default function DeploymentShow() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {!deployment.active && deployment.release && deployment.status === 'finished' && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5 text-destructive hover:text-destructive cursor-pointer"
-                onClick={() =>
-                  dialog.confirm.open({
-                    title: 'Rollback',
-                    description: translateText("Are you sure you want to rollback your site to version [:value]?", { value: (deployment.release ?? '—') }),
-                    confirmLabel: 'Rollback',
-                    method: 'post',
-                    url: `/servers/${encodeURIComponent(String(server.id))}/sites/${site.id}/rollback/${deployment.id}`,
-                  })
-                }
-              >
-                <RotateCcwIcon className="size-3.5" />
-                <span>Rollback</span>
-              </Button>
-            )}
-
             {deployment.status !== 'deploying' && <Deploy site={site} />}
           </div>
         </div>

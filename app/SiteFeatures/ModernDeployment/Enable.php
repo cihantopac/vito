@@ -49,7 +49,7 @@ class Enable extends Action
                 ->text()
                 ->label('Deployments to keep')
                 ->default('10')
-                ->description('This amount specifies how many previous deployments to keep for rollback purposes'),
+                ->description('This amount specifies how many previous deployments to keep'),
         ]);
     }
 

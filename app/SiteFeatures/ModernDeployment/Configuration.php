@@ -32,7 +32,7 @@ class Configuration extends Action
                 ->text()
                 ->label('Deployments to keep')
                 ->default($this->site->type_data['modern_deployment_history'] ?? '10')
-                ->description('This amount specifies how many previous deployments to keep for rollback purposes'),
+                ->description('This amount specifies how many previous deployments to keep'),
         ]);
     }
 

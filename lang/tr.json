@@ -205,6 +205,7 @@
   "Repository": "Repo",
   "Branch": "Branch",
   "Commit": "Commit",
+  "Deployed By": "Deploy eden",
   "Deploy": "Deploy",
   "Deployments": "Deploy geçmişi",
   "Deployment": "Deploy",
@@ -3256,5 +3257,13 @@
   "The certificate inventory is invalid.": "Sertifika envanteri geçersiz.",
   "valid": "Geçerli",
   "expired": "Süresi dolmuş",
-  "expiring": "Süresi yaklaşıyor"
+  "expiring": "Süresi yaklaşıyor",
+  "No domains available": "Kullanılabilir alan adı yok",
+  "Search domain...": "Alan adı ara...",
+  "No domain found.": "Alan adı bulunamadı.",
+  "This amount specifies how many previous deployments to keep": "Saklanacak önceki deploy sayısını belirtir.",
+  "Toggle auto deploy": "Otomatik deploy’u aç/kapat",
+  "Linked background processes are listed under Resources.": "Bağlı arka plan süreçleri Kaynaklar altında listelenir.",
+  "Linked scheduled jobs are listed under Resources.": "Bağlı zamanlanmış görevler Kaynaklar altında listelenir.",
+  "Showing :shown of :total": ":total kayıttan :shown gösteriliyor"
 }
