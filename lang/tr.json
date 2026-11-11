@@ -3268,5 +3268,6 @@
   "Showing :shown of :total": ":total kayıttan :shown gösteriliyor",
   "Scripts": "Scriptler",
   "Script": "Script",
-  "Manage jobs": "Görevleri yönet"
+  "Manage jobs": "Görevleri yönet",
+  "Deployed At": "Deploy zamanı"
 }

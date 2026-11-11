@@ -459,7 +459,7 @@ export default function AppWithDeployment() {
                       {site.php_version}
                     </Detail>
                   )}
-                  <Detail icon={LockKeyholeIcon} label="SSL">
+                  <Detail icon={LockKeyholeIcon}>
                     <Link
                       href={`/servers/${site.server_id}/sites/${site.id}/domains`}
                       className="inline-flex items-center gap-2 hover:opacity-80"
