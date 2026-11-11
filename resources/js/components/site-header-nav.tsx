@@ -29,9 +29,6 @@ function buildPrimaryItems(server: Server, site: Site): SiteNavItem[] {
 
   return [
     { title: 'Application', href: applicationHref, exact: true, activePrefixes: [`${applicationPath}/deployments/`] },
-    { title: 'Topology', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/topology` },
-    { title: 'Resources', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/resources`, count: site.counts?.resources ?? 0 },
-    { title: 'Domains', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/domains`, count: site.counts?.domains ?? 0 },
     { title: 'CI', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/ci` },
     { title: 'Commands', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/commands`, count: site.counts?.commands ?? 0 },
     { title: 'Workers', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/workers`, count: site.counts?.workers ?? 0 },
@@ -85,11 +82,14 @@ export function SiteHeaderNav() {
   const routeParams = { server: server.id, site: site.id };
   const primaryItems: SiteNavItem[] = buildPrimaryItems(server, site);
   const otherItems: SiteNavItem[] = [
+    { title: 'Domains', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/domains`, count: site.counts?.domains ?? 0 },
+    { title: 'Topology', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/topology` },
+    { title: 'Resources', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/resources`, count: site.counts?.resources ?? 0 },
+    { title: 'CronJobs', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/cronjobs` },
+    { title: 'Logs', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/logs` },
+    { title: 'Redirects', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/redirects` },
     { title: 'Features', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/features` },
     { title: 'Tooling', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/tooling` },
-    { title: 'CronJobs', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/cronjobs` },
-    { title: 'Redirects', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/redirects` },
-    { title: 'Logs', href: `/servers/${encodeURIComponent(String(routeParams.server))}/sites/${encodeURIComponent(String(routeParams.site))}/logs` },
   ];
   const otherActive = otherItems.some((item) => isActive(currentPath, item));
 
@@ -163,10 +163,9 @@ export function SiteHeaderNav() {
 
       <div className="ml-auto flex shrink-0 items-center gap-2 pl-2">
         {site.status === 'installation_failed' && <Badge variant={site.status_color}>{site.status}</Badge>}
-        <Button variant="outline" size="sm" className="h-8" asChild>
-          <a href={site.url} target="_blank" rel="noopener noreferrer">
+        <Button variant="outline" size="icon" className="size-8" asChild>
+          <a href={site.url} target="_blank" rel="noopener noreferrer" aria-label={translateText('Open site')}>
             <ExternalLinkIcon className="size-3.5" />
-            <span className="hidden sm:inline">{translateText('Open site')}</span>
           </a>
         </Button>
       </div>

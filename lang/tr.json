@@ -3265,5 +3265,8 @@
   "Toggle auto deploy": "Otomatik deploy’u aç/kapat",
   "Linked background processes are listed under Resources.": "Bağlı arka plan süreçleri Kaynaklar altında listelenir.",
   "Linked scheduled jobs are listed under Resources.": "Bağlı zamanlanmış görevler Kaynaklar altında listelenir.",
-  "Showing :shown of :total": ":total kayıttan :shown gösteriliyor"
+  "Showing :shown of :total": ":total kayıttan :shown gösteriliyor",
+  "Scripts": "Scriptler",
+  "Script": "Script",
+  "Manage jobs": "Görevleri yönet"
 }

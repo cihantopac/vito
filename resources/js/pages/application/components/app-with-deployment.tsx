@@ -8,8 +8,10 @@ import Container from '@/components/container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { CalendarClockIcon, ChevronDownIcon, ChevronUpIcon, CodeXmlIcon, ExternalLinkIcon, FileCode2Icon, GitBranchIcon, ListEndIcon, LockKeyholeIcon, NetworkIcon, ServerIcon, XIcon, type LucideIcon } from 'lucide-react';
+import { CalendarClockIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon, CodeXmlIcon, CopyIcon, ExternalLinkIcon, FileCode2Icon, GitBranchIcon, ListEndIcon, LockKeyholeIcon, NetworkIcon, ServerIcon, SettingsIcon, TerminalIcon, XIcon, type LucideIcon } from 'lucide-react';
 import Deploy from '@/pages/application/components/deploy';
+import DeploymentScript from '@/pages/application/components/deployment-script';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DeploymentScript as DeploymentScriptType } from '@/types/deployment-script';
 import { useRealtimeRecord, useSocketListener } from '@/hooks/use-socket-events';
 import type { InertiaTableData } from '@forjedio/inertia-table-react';
@@ -22,21 +24,20 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import DeploymentsTable from '@/pages/application/deployments/table';
 import DeploymentProgress from '@/pages/application/deployments/progress';
 import { useLogContent } from '@/hooks/use-log-content';
+import { useClipboard } from '@/hooks/use-clipboard';
 import LogOutput from '@/components/log-output';
 import { Deployment } from '@/types/deployment';
 import { DeploymentsSkeleton, WorkersCronJobsSkeleton } from '@/components/page-skeleton';
 import DateTime from '@/components/date-time';
 import { usePanelView } from '@/hooks/use-panel-view';
 
-function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: React.ReactNode }) {
+function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="text-muted-foreground flex size-5 shrink-0 items-center justify-center">
-        <Icon className="size-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-muted-foreground text-xs">{label}</p>
-        <p className="break-words text-sm font-medium">{children}</p>
+    <div className="flex items-center gap-3 text-sm font-medium">
+      <Icon className="text-muted-foreground size-4 shrink-0" />
+      <div className="min-w-0 flex-1 break-words">
+        {label && <p className="text-muted-foreground text-xs">{label}</p>}
+        {children}
       </div>
     </div>
   );
@@ -73,6 +74,7 @@ export default function AppWithDeployment() {
   const [showLog, setShowLog] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [togglingAutoDeploy, setTogglingAutoDeploy] = useState(false);
+  const { copied: copiedIp, copy: copyIp } = useClipboard();
 
   const handleToggleAutoDeploy = () => {
     if (!site.source_control_id || togglingAutoDeploy) return;
@@ -147,7 +149,7 @@ export default function AppWithDeployment() {
             )}
 
             <Deferred data={['deployments', 'deploymentScript']} fallback={<DeploymentsSkeleton />}>
-              <section aria-labelledby="deployments-heading">
+              <section aria-label="Deployments">
                 <Card>
                   <CardHeader className="gap-3 p-4">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -184,6 +186,54 @@ export default function AppWithDeployment() {
                           </div>
                         )}
                         <Deploy site={site} />
+                        {site.modern_deployment ? (
+                          (page.props.buildScript || page.props.preFlightScript) && (
+                            <DropdownMenu modal={false}>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="gap-1.5 cursor-pointer">
+                                  <TerminalIcon className="size-4" />
+                                  <span className="hidden sm:inline">{translateText('Deployment')}</span>
+                                  <span>{translateText('Scripts')}</span>
+                                  <ChevronDownIcon className="size-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {page.props.buildScript && (
+                                  <DeploymentScript
+                                    site={site}
+                                    script={page.props.buildScript}
+                                    description={translateText('This script will build resources like composer and npm before release')}
+                                  >
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>{translateText('Build Script')}</DropdownMenuItem>
+                                  </DeploymentScript>
+                                )}
+                                {page.props.preFlightScript && (
+                                  <DeploymentScript
+                                    site={site}
+                                    script={page.props.preFlightScript}
+                                    description={translateText('This script will be executed before release like migrations and optimizations')}
+                                  >
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>{translateText('Pre Flight Script')}</DropdownMenuItem>
+                                  </DeploymentScript>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )
+                        ) : (
+                          page.props.deploymentScript && (
+                            <DeploymentScript
+                              site={site}
+                              script={page.props.deploymentScript}
+                              description={translateText('This script will be executed on every deployment.')}
+                            >
+                              <Button variant="outline" className="gap-1.5 cursor-pointer">
+                                <TerminalIcon className="size-4" />
+                                <span className="hidden sm:inline">{translateText('Deployment')}</span>
+                                <span>{translateText('Script')}</span>
+                              </Button>
+                            </DeploymentScript>
+                          )
+                        )}
                         <Button variant="outline" asChild className="gap-1.5 cursor-pointer">
                           <Link href={`/servers/${page.props.server.id}/sites/${site.id}/environment`}>
                             <FileCode2Icon className="size-4" />
@@ -242,26 +292,28 @@ export default function AppWithDeployment() {
                       )}
                     </div>
                   )}
-                  <CardContent className="p-4">
+                  <CardContent className="p-0 border-t">
                     {advanced ? (
-                      <DeploymentsTable deployments={page.props.deployments} showPagination={false} />
+                      <DeploymentsTable deployments={page.props.deployments} showPagination={false} modal />
                     ) : latestDeployment ? (
-                      <Link
-                        href={`/servers/${site.server_id}/sites/${site.id}/deployments/${latestDeployment.id}`}
-                        className="hover:bg-muted/30 flex flex-wrap items-center justify-between gap-3 rounded-md p-2 text-sm"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="text-muted-foreground text-xs">{translateText("Latest deployment · #")}{latestDeployment.id}</p>
-                          <p className="break-words font-medium">{latestDeployment.commit_data?.message || latestDeployment.commit_id_short || translateText("Deployment")}</p>
-                        </div>
-                        <Badge variant={latestDeployment.status_color}>{latestDeployment.status}</Badge>
-                        <DateTime date={latestDeployment.created_at} relative className="text-muted-foreground text-xs" />
-                      </Link>
+                      <div className="p-4">
+                        <Link
+                          href={`/servers/${site.server_id}/sites/${site.id}/deployments/${latestDeployment.id}`}
+                          className="hover:bg-muted/30 flex flex-wrap items-center justify-between gap-3 rounded-md p-2 text-sm"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-muted-foreground text-xs">{translateText('Latest deployment')} · #{latestDeployment.id}</p>
+                            <p className="break-words font-medium">{latestDeployment.commit_data?.message || latestDeployment.commit_id_short || translateText('Deployment')}</p>
+                          </div>
+                          <Badge variant={latestDeployment.status_color}>{latestDeployment.status}</Badge>
+                          <DateTime date={latestDeployment.created_at} relative className="text-muted-foreground text-xs" />
+                        </Link>
+                      </div>
                     ) : (
-                      <p className="text-muted-foreground text-sm">{translateText("No deployments yet.")}</p>
+                      <p className="text-muted-foreground p-6 text-center text-sm">{translateText('No deployments yet.')}</p>
                     )}
                   </CardContent>
-                  <CardFooter className="justify-end p-3">
+                  <CardFooter className="justify-end border-t p-2">
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/servers/${site.server_id}/sites/${site.id}/deployments`}>{translateText("All")}</Link>
                     </Button>
@@ -298,8 +350,10 @@ export default function AppWithDeployment() {
                         <p className="text-muted-foreground mt-1 text-xs">{page.props.overviewWorkersCount ?? 0} {translateText('configured')}</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/servers/${site.server_id}/sites/${site.id}/workers`}>{translateText('Manage')}</Link>
+                    <Button variant="ghost" size="icon" className="size-8" asChild>
+                      <Link href={`/servers/${site.server_id}/sites/${site.id}/workers`} aria-label={translateText('Manage services')}>
+                        <SettingsIcon className="size-4" />
+                      </Link>
                     </Button>
                   </CardHeader>
                   <CardContent className="divide-y p-0">
@@ -333,8 +387,10 @@ export default function AppWithDeployment() {
                         <p className="text-muted-foreground mt-1 text-xs">{page.props.overviewCronJobsCount ?? 0} {translateText('configured')}</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/servers/${site.server_id}/sites/${site.id}/cronjobs`}>{translateText('Manage')}</Link>
+                    <Button variant="ghost" size="icon" className="size-8" asChild>
+                      <Link href={`/servers/${site.server_id}/sites/${site.id}/cronjobs`} aria-label={translateText('Manage jobs')}>
+                        <SettingsIcon className="size-4" />
+                      </Link>
                     </Button>
                   </CardHeader>
                   <CardContent className="divide-y p-0">
@@ -382,18 +438,37 @@ export default function AppWithDeployment() {
                   <Detail icon={ServerIcon} label={translateText("Server")}>
                     {page.props.server.name}
                   </Detail>
-                  <Detail icon={NetworkIcon} label="Public IP">
-                    <span className="font-mono">{page.props.server.ip}</span>
+                  <Detail icon={NetworkIcon}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono">{page.props.server.ip}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+                        onClick={() => copyIp(page.props.server.ip)}
+                        aria-label={translateText('Copy IP address')}
+                        title={translateText('Copy IP address')}
+                      >
+                        {copiedIp ? <CheckIcon className="size-3 text-success" /> : <CopyIcon className="size-3" />}
+                      </Button>
+                    </div>
                   </Detail>
                   {site.php_version && (
-                    <Detail icon={CodeXmlIcon} label="PHP">
+                    <Detail icon={CodeXmlIcon}>
                       {site.php_version}
                     </Detail>
                   )}
                   <Detail icon={LockKeyholeIcon} label="SSL">
-                    <Badge variant={site.ssl_enabled ? 'success' : 'outline'}>
-                      {site.ssl_enabled ? translateText('Enabled') : translateText('Disabled')}
-                    </Badge>
+                    <Link
+                      href={`/servers/${site.server_id}/sites/${site.id}/domains`}
+                      className="inline-flex items-center gap-2 hover:opacity-80"
+                    >
+                      <span>SSL</span>
+                      <Badge variant={site.ssl_enabled ? 'success' : 'outline'}>
+                        {site.ssl_enabled ? translateText('Enabled') : translateText('Disabled')}
+                      </Badge>
+                    </Link>
                   </Detail>
                 </div>
               </CardContent>
