@@ -24,12 +24,15 @@ class RegisterExistingSiteResource
             'server_id' => ['nullable', 'integer'],
             'storage_provider_id' => ['nullable', 'integer'],
             'database_name' => ['nullable', 'string', 'max:63'],
-            'runtime_driver' => ['nullable', Rule::in(['native', 'docker'])],
+            'runtime_driver' => ['nullable', Rule::in(['native', 'docker', 'rootless_docker'])],
+            'runtime_user' => ['nullable', 'string', 'max:32'],
+            'database_username' => ['nullable', 'string', 'max:63'],
             'container' => ['nullable', 'string', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/'],
         ])->validate();
         $type = SiteResourceType::from($data['type']);
         $configuration = ['management_mode' => 'observed'];
         $environment = [];
+        $rootless = ($data['runtime_driver'] ?? 'native') === 'rootless_docker';
         $admin = auth()->user()?->isAdmin() ?? false;
         $server = $type === SiteResourceType::STORAGE ? null : Server::query()
             ->when(! $admin, fn ($query) => $query->where('project_id', $site->server->project_id))
@@ -48,7 +51,7 @@ class RegisterExistingSiteResource
             }
         }
 
-        if ($type === SiteResourceType::DATABASE || $type === SiteResourceType::CACHE) {
+        if (($type === SiteResourceType::DATABASE && ! $rootless) || $type === SiteResourceType::CACHE) {
             $raw = $site->getEnv($site->resolveEnvPath(), timeout: 8);
             $environment = collect(EnvParser::parse($raw))->pluck('value', 'key')->all();
             $keys = $type === SiteResourceType::DATABASE
@@ -58,16 +61,22 @@ class RegisterExistingSiteResource
         }
 
         if ($type === SiteResourceType::DATABASE) {
+            if ($rootless) {
+                $environment = ['DB_DATABASE' => $data['database_name'] ?? '', 'DB_USERNAME' => $data['database_username'] ?? ''];
+            }
             $name = $data['database_name'] ?? $environment['DB_DATABASE'] ?? '';
             if ($name === '' || $name !== ($environment['DB_DATABASE'] ?? null)) {
                 throw ValidationException::withMessages(['database_name' => __('Select the database already configured in the application environment.')]);
             }
             $configuration['database_name'] = $name;
-            if (($data['runtime_driver'] ?? 'native') === 'docker') {
+            if (in_array($data['runtime_driver'] ?? 'native', ['docker', 'rootless_docker'], true)) {
                 if (empty($data['container']) || empty($environment['DB_USERNAME'])) {
                     throw ValidationException::withMessages(['container' => __('Select the existing PostgreSQL container and configure the application database username.')]);
                 }
-                $configuration['runtime'] = ['driver' => 'docker', 'container' => $data['container'], 'username' => $environment['DB_USERNAME']];
+                $configuration['runtime'] = ['driver' => $data['runtime_driver'], 'container' => $data['container'], 'username' => $environment['DB_USERNAME']];
+                if ($rootless) {
+                    $configuration['runtime']['unix_user'] = $data['runtime_user'] ?? '';
+                }
             } else {
                 $database = Database::query()->where('server_id', $server->id)->where('name', $name)->first();
                 if (! $database) {

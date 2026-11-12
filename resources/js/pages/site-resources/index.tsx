@@ -62,6 +62,8 @@ export default function SiteResources() {
   const [runtimeDriver, setRuntimeDriver] = useState('native');
   const [databaseName, setDatabaseName] = useState('');
   const [container, setContainer] = useState('');
+  const [runtimeUser, setRuntimeUser] = useState('');
+  const [databaseUsername, setDatabaseUsername] = useState('');
   const [isInstalling, setIsInstalling] = useState(false);
   const [pendingConnect, setPendingConnect] = useState<PendingConnect | null>(null);
 
@@ -124,6 +126,8 @@ export default function SiteResources() {
       runtime_driver: runtimeDriver,
       database_name: databaseName || undefined,
       container: container || undefined,
+      runtime_user: runtimeDriver === 'rootless_docker' ? runtimeUser : undefined,
+      database_username: runtimeDriver === 'rootless_docker' ? databaseUsername : undefined,
     };
     if (type === 'storage') {
       data.storage_provider_id = storageProviderId;
@@ -159,7 +163,7 @@ export default function SiteResources() {
               data: { ...data, confirm_overwrite: true },
             });
           } else {
-            toast.error(serverError || storageError || typeError || 'Failed to connect resource');
+            toast.error(serverError || storageError || typeError || Object.values(errors).find((message) => typeof message === 'string' && message) || translateText('Failed to connect resource'));
           }
         },
       },
@@ -302,9 +306,13 @@ export default function SiteResources() {
           <Alert><AlertDescription>{managementMode === 'observed' ? translateText("Register what the application already uses. No environment files, users, services or firewall rules are changed. A missing link here does not mean the application is disconnected.") : translateText("Pure can create database users, change environment values and configure networking. Use this for new applications or a planned connection change.")}</AlertDescription></Alert>
           {managementMode === 'observed' && !dbResource && (
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="grid gap-2"><Label htmlFor="existing-database">{translateText("Existing database name")}</Label><Input id="existing-database" value={databaseName} onChange={(event) => setDatabaseName(event.target.value)} placeholder={translateText("Use the application's DB_DATABASE")} /></div>
-              <div className="grid gap-2"><Label htmlFor="database-runtime">PostgreSQL runtime</Label><Select value={runtimeDriver} onValueChange={setRuntimeDriver}><SelectTrigger id="database-runtime"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="native">{translateText("Installed on the server")}</SelectItem><SelectItem value="docker">Docker container</SelectItem></SelectContent></Select></div>
-              {runtimeDriver === 'docker' && <div className="grid gap-2"><Label htmlFor="database-container">{translateText("Existing container name")}</Label><Input id="database-container" value={container} onChange={(event) => setContainer(event.target.value)} placeholder="project-db-1" /></div>}
+              <div className="grid gap-2"><Label htmlFor="existing-database">{translateText("Existing database name")}</Label><Input id="existing-database" value={databaseName} onChange={(event) => setDatabaseName(event.target.value)} placeholder={translateText(runtimeDriver === 'rootless_docker' ? "Existing database name" : "Use the application's DB_DATABASE")} /></div>
+              <div className="grid gap-2"><Label htmlFor="database-runtime">PostgreSQL runtime</Label><Select value={runtimeDriver} onValueChange={setRuntimeDriver}><SelectTrigger id="database-runtime"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="native">{translateText("Installed on the server")}</SelectItem><SelectItem value="docker">Docker container</SelectItem><SelectItem value="rootless_docker">Rootless Docker</SelectItem></SelectContent></Select></div>
+              {['docker', 'rootless_docker'].includes(runtimeDriver) && <div className="grid gap-2"><Label htmlFor="database-container">{translateText("Existing container name")}</Label><Input id="database-container" value={container} onChange={(event) => setContainer(event.target.value)} placeholder="project-db-1" /></div>}
+              {runtimeDriver === 'rootless_docker' && <>
+                <div className="grid gap-2"><Label htmlFor="database-runtime-user">{translateText("Isolated Linux user")}</Label><Input id="database-runtime-user" value={runtimeUser} onChange={(event) => setRuntimeUser(event.target.value)} autoComplete="off" /></div>
+                <div className="grid gap-2"><Label htmlFor="existing-database-user">{translateText("Database username")}</Label><Input id="existing-database-user" value={databaseUsername} onChange={(event) => setDatabaseUsername(event.target.value)} autoComplete="off" /></div>
+              </>}
             </div>
           )}
         </div>

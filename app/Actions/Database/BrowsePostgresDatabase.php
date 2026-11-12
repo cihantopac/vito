@@ -7,6 +7,7 @@ use App\Models\Database;
 use App\Models\Server;
 use App\Models\SiteResource;
 use App\Services\Database\Postgresql;
+use App\Services\RuntimeProcess\RuntimeCommand;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -91,12 +92,14 @@ class BrowsePostgresDatabase
         if ($database === '' || str_contains($database, '=') || str_contains($database, ':') || str_contains($database, "\0")) {
             throw ValidationException::withMessages(['database' => __('The database connection has not been registered.')]);
         }
-        if (($runtime['driver'] ?? 'native') === 'docker') {
+        $driver = $runtime['driver'] ?? 'native';
+        if (in_array($driver, ['docker', 'rootless_docker'], true)) {
             $validated = Validator::make($runtime, [
                 'container' => ['required', 'string', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/'],
                 'username' => ['required', 'string', 'max:63'],
             ])->validate();
-            $command = 'sudo -n docker exec -i '.escapeshellarg($validated['container']).' psql -h /var/run/postgresql -p 5432 -U '.escapeshellarg($validated['username']);
+            $prefix = app(RuntimeCommand::class)->prefix($server, $driver, (string) ($runtime['unix_user'] ?? ''));
+            $command = $prefix.' exec -i '.escapeshellarg($validated['container']).' psql -h /var/run/postgresql -p 5432 -U '.escapeshellarg($validated['username']);
             $ssh = $server->ssh()->clearLog();
         } else {
             if ($server->database()?->name !== Postgresql::id()) {

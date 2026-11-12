@@ -3269,5 +3269,6 @@
   "Scripts": "Scriptler",
   "Script": "Script",
   "Manage jobs": "Görevleri yönet",
-  "Deployed At": "Deploy zamanı"
+  "Deployed At": "Deploy zamanı",
+    "Database username": "Veritabanı kullanıcı adı"
 }

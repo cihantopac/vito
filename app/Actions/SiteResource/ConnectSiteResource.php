@@ -71,7 +71,9 @@ class ConnectSiteResource
             'database_name' => ['nullable', 'string', 'max:64'],
             'confirm_overwrite' => ['nullable', 'boolean'],
             'management_mode' => ['nullable', Rule::in(['managed', 'observed'])],
-            'runtime_driver' => ['nullable', Rule::in(['native', 'docker'])],
+            'runtime_driver' => ['nullable', Rule::in(['native', 'docker', 'rootless_docker'])],
+            'runtime_user' => ['nullable', 'string', 'max:32'],
+            'database_username' => ['nullable', 'string', 'max:63'],
             'container' => ['nullable', 'string', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/'],
         ]);
 
