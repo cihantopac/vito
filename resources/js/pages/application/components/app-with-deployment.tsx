@@ -26,7 +26,8 @@ import DeploymentProgress from '@/pages/application/deployments/progress';
 import { useLogContent } from '@/hooks/use-log-content';
 import { useClipboard } from '@/hooks/use-clipboard';
 import LogOutput from '@/components/log-output';
-import { Deployment } from '@/types/deployment';
+import { Deployment, LatestCommit } from '@/types/deployment';
+import LatestCommitBanner from '@/pages/application/components/latest-commit-banner';
 import { DeploymentsSkeleton, WorkersCronJobsSkeleton } from '@/components/page-skeleton';
 
 function Detail({ icon: Icon, label, children }: { icon: LucideIcon; label?: string; children: React.ReactNode }) {
@@ -56,6 +57,8 @@ export default function AppWithDeployment() {
     site: Site;
     deployments: InertiaTableData;
     activeDeployment?: Deployment | null;
+    repositoryUrl: string | null;
+    latestCommit?: LatestCommit | null;
     deploymentScript: DeploymentScriptType;
     buildScript?: DeploymentScriptType;
     preFlightScript?: DeploymentScriptType;
@@ -151,24 +154,33 @@ export default function AppWithDeployment() {
                 <Card>
                   <CardHeader className="gap-3 p-4">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="min-w-0">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <CardTitle id="deployments-heading">{translateText('Deployments')}</CardTitle>
-                            <Badge variant={site.status_color}>{site.status}</Badge>
-                          </div>
-                          <div className="text-muted-foreground mt-1 flex min-w-0 items-center gap-2 text-sm">
-                            {site.repository ? (
-                              <>
-                                <GitBranchIcon className="size-4 shrink-0" />
+                      <div className="text-muted-foreground flex min-w-0 items-center gap-2 text-sm">
+                        {site.repository ? (
+                          <>
+                            {page.props.repositoryUrl ? (
+                              <a
+                                href={page.props.repositoryUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-foreground inline-flex min-w-0 items-center gap-1.5 font-medium hover:underline"
+                                title={translateText('Open repository')}
+                              >
                                 <span className="truncate">{site.repository}</span>
-                                {site.branch && <span className="shrink-0">· {site.branch}</span>}
-                              </>
+                                <ExternalLinkIcon className="size-3.5 shrink-0" />
+                              </a>
                             ) : (
-                              <span>{formatSiteType(site.type)} site</span>
+                              <span className="text-foreground truncate font-medium">{site.repository}</span>
                             )}
-                          </div>
-                        </div>
+                            {site.branch && (
+                              <Badge variant="outline" className="shrink-0 gap-1 font-mono font-normal">
+                                <GitBranchIcon className="size-3" />
+                                {site.branch}
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <span>{formatSiteType(site.type)} site</span>
+                        )}
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         {site.status !== 'installation_failed' && <SiteBanners site={site} compact includeAppDebug />}
@@ -224,6 +236,9 @@ export default function AppWithDeployment() {
                       </div>
                     </div>
                   </CardHeader>
+                  <Deferred data="latestCommit" fallback={<></>}>
+                    <LatestCommitBanner site={site} latestCommit={page.props.latestCommit} activeDeployment={activeDeployment} />
+                  </Deferred>
                   {activeDeployment && !dismissed && (
                     <div className="border-t p-4 flex flex-col gap-3">
                       {activeDeployment.is_duplicate && (
