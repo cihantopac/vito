@@ -3306,5 +3306,9 @@
   "Full output": "Tüm çıktı",
   "Follow current": "Geçerli adımı takip et",
   "Last step": "Son adım",
-  "Could not retrieve the latest commit. Check the source control connection and try again.": "Son commit alınamadı. Kaynak kontrol bağlantısını kontrol edip tekrar deneyin."
+  "Could not retrieve the latest commit. Check the source control connection and try again.": "Son commit alınamadı. Kaynak kontrol bağlantısını kontrol edip tekrar deneyin.",
+  "Author": "Yazar",
+  "Deployed by": "Deploy eden",
+  "Started": "Başlangıç",
+  "Deployed": "Deploy zamanı"
 }

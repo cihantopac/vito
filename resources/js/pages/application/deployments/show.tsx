@@ -1,3 +1,4 @@
+import DateTime from '@/components/date-time';
 import { useTranslate } from '@/hooks/use-translate';
 import LogOutput from '@/components/log-output';
 import SiteBanners from '@/components/site-banners';
@@ -45,8 +46,8 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 
 function RelativeDate({ date }: { date: string }) {
   return (
-    <span className="truncate" title={moment(date).format('YYYY-MM-DD HH:mm:ss')}>
-      {moment(date).format('MMM D, HH:mm')} <span className="text-muted-foreground">· {moment(date).fromNow()}</span>
+    <span className="truncate">
+      <DateTime date={date} format="MMM D, HH:mm" /> <span className="text-muted-foreground">· <DateTime date={date} relative /></span>
     </span>
   );
 }

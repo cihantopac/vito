@@ -42,7 +42,7 @@ const commitCell = ({ row }: CellRenderProps, translateText: ReturnType<typeof u
         )}
         {commit.date && (
           <span className="shrink-0" title={`${branch ? translateText('Merged') : translateText('Committed')} ${moment(commit.date).format('YYYY-MM-DD HH:mm:ss')}`}>
-            · {branch ? translateText('merged') : translateText('committed')} {moment(commit.date).fromNow()}
+            · {branch ? translateText('merged') : translateText('committed')} <DateTime date={commit.date} relative />
           </span>
         )}
         {user && <span className="shrink-0">· {user}</span>}

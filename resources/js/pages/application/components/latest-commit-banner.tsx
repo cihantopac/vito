@@ -1,3 +1,4 @@
+import DateTime from '@/components/date-time';
 import { useTranslate } from '@/hooks/use-translate';
 import { useState } from 'react';
 import moment from 'moment';
@@ -53,7 +54,7 @@ export default function LatestCommitBanner({
           {commit.name && <span>· {commit.name}</span>}
           {commit.date && (
             <span title={moment(commit.date).format('YYYY-MM-DD HH:mm:ss')}>
-              · {merged ? translateText('merged') : translateText('committed')} {moment(commit.date).fromNow()}
+              · {merged ? translateText('merged') : translateText('committed')} <DateTime date={commit.date} relative />
             </span>
           )}
           <span>· {translateText('not deployed yet. Deploy now?')}</span>
