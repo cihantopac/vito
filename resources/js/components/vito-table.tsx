@@ -195,7 +195,10 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
       )}
 
       <div className={cn('relative w-full overflow-hidden rounded-md border shadow-xs', modal && 'border-none shadow-none')}>
-        <Table className={fitContent ? 'table-fixed [&_td]:whitespace-normal [&_td]:break-words [&_th]:whitespace-normal [&_svg]:shrink-0' : undefined}>
+        <Table
+          containerClassName={cn(modal && 'overflow-x-hidden', (fitContent || columnWidths) && 'overflow-x-hidden')}
+          className={cn((fitContent || columnWidths) && 'table-fixed', fitContent && '[&_td]:whitespace-normal [&_td]:break-words [&_th]:whitespace-normal [&_svg]:shrink-0')}
+        >
           <TableHeader>
             <TableRow>
               {(orderedTableData.columns ?? [])
@@ -204,7 +207,13 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                   const sortState = getSortState(colDef.sort_key);
 
                   return (
-                    <TableHead style={columnWidths?.[colDef.name] ? { width: columnWidths[colDef.name] } : undefined} key={colDef.name} className={colDef.fit ? (fitContent ? 'w-20' : 'w-0') : undefined}>
+                    <TableHead
+                      style={columnWidths?.[colDef.name] ? { width: columnWidths[colDef.name] } : undefined}
+                      key={colDef.name}
+                      className={cn(
+                        colDef.fit ? (fitContent ? 'w-20' : 'w-0') : undefined,
+                      )}
+                    >
                       {colDef.sortable ? (
                         <button type="button" className="flex cursor-pointer items-center gap-2" onClick={() => onSort(colDef.sort_key)}>
                           {typeof colDef.header === 'string' ? translateText(colDef.header) : colDef.header}
@@ -318,7 +327,12 @@ export function VitoTable({ tableData, children, modal, isFetching, showPaginati
                       className={cn(props.onRowClick && 'hover:bg-muted/50 cursor-pointer', props.rowClassName?.(row, rowIndex))}
                     >
                       {(columns ?? []).map((col) => (
-                        <TableCell key={col.id}>{col.renderCell(row, rowIndex)}</TableCell>
+                        <TableCell
+                          key={col.id}
+                          className={cn(columnWidths && !columnWidths[col.id] && 'max-w-0 overflow-hidden')}
+                        >
+                          {col.renderCell(row, rowIndex)}
+                        </TableCell>
                       ))}
                     </TableRow>
                   </Fragment>

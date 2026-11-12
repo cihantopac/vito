@@ -159,6 +159,15 @@ export default function DeploymentsTable({
                 #{deployment.id}
               </Link>
             )}
+            {Boolean(row.is_duplicate ?? deployment.is_duplicate) && (
+              <Badge
+                variant="warning"
+                className="text-[9px] px-1 py-0 h-3.5 font-normal shrink-0"
+                title={translateText('This commit was already deployed previously')}
+              >
+                {translateText('Duplicate')}
+              </Badge>
+            )}
             {href ? (
               <a
                 href={href}
@@ -176,10 +185,10 @@ export default function DeploymentsTable({
             )}
           </div>
           {isOverview && user && (
-            <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-              <span>{user}</span>
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 truncate">
+              <span className="truncate">{user}</span>
               {deployment.trigger && deployment.trigger_color && (
-                <Badge variant={deployment.trigger_color} className="text-[9px] px-1 py-0 h-3.5 font-normal">
+                <Badge variant={deployment.trigger_color} className="text-[9px] px-1 py-0 h-3.5 font-normal shrink-0">
                   {deployment.trigger}
                 </Badge>
               )}
@@ -198,8 +207,8 @@ export default function DeploymentsTable({
       modal={modal}
       columnWidths={
         isOverview
-          ? { actions: '2.5rem', status: '6rem', duration: '4rem', created_at: '7rem' }
-          : { actions: '3rem', id: '4rem', status: '7.5rem', duration: '5rem', created_at: '8rem' }
+          ? { actions: '2.75rem', status: '5.5rem', duration: '3.5rem', created_at: '7.5rem' }
+          : { actions: '3rem', id: '3.5rem', status: '6.5rem', duration: '4.5rem', created_at: '7.5rem', deployed_by: '7rem' }
       }
       tableData={deployments}
       showPagination={showPagination}

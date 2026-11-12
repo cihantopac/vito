@@ -16,7 +16,6 @@ import { Form, FormField, FormFields } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
-import { Checkbox } from '@/components/ui/checkbox';
 import { LoaderCircleIcon } from 'lucide-react';
 import { Site } from '@/types/site';
 import siteHelper from '@/lib/site-helper';
@@ -27,7 +26,6 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
   const page = usePage<SharedData>();
   const form = useForm({
     domain: '',
-    force: false as boolean,
   });
 
   const submit = (e: FormEvent) => {
@@ -48,29 +46,19 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{translateText('Delete')} {site.domain}</DialogTitle>
-          <DialogDescription className="sr-only">{translateText("Delete site and its resources.")}</DialogDescription>
+          <DialogDescription className="sr-only">{translateText('Delete site from Pure.')}</DialogDescription>
         </DialogHeader>
 
-        <p className="p-4">
-          {translateText("Are you sure you want to delete this site:")} <strong>{site.domain}</strong>{translateText("? The site and its files will be deleted and this action cannot be undone. Databases and database users are kept — delete them from the Databases page if you no longer need them.")}
+        <p className="p-4 text-sm text-muted-foreground">
+          {translateText('Are you sure you want to delete')} <strong className="text-foreground">{site.domain}</strong>{translateText('? The site will be removed from Pure. Its files and physical server will remain untouched.')}
         </p>
 
         <Form id="delete-site-form" onSubmit={submit} className="p-4">
           <FormFields>
             <FormField>
-              <Label htmlFor="domain">{translateText('Domain')}</Label>
+              <Label htmlFor="domain">{translateText('Confirm domain name')}</Label>
               <Input id="domain" value={form.data.domain} onChange={(e) => form.setData('domain', e.target.value)} />
               <InputError message={form.errors.domain} />
-            </FormField>
-            <FormField>
-              <div className="flex items-center gap-2">
-                <Checkbox id="force" name="force" checked={form.data.force} onClick={() => form.setData('force', !form.data.force)} />
-                <Label htmlFor="force">{translateText('Force delete')}</Label>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                {translateText("Remove the site from Pure even if cleaning it up on the server fails (unreachable server, already removed files).")}
-              </p>
-              <InputError message={form.errors.force} />
             </FormField>
           </FormFields>
         </Form>
@@ -80,7 +68,7 @@ export default function DeleteSite({ site, children }: { site: Site; children: R
             <Button variant="outline">{translateText('Cancel')}</Button>
           </DialogClose>
 
-          <Button form="delete-site-form" variant="destructive" disabled={form.processing}>
+          <Button form="delete-site-form" variant="destructive" disabled={form.processing || form.data.domain !== site.domain}>
             {form.processing && <LoaderCircleIcon className="size-4 animate-spin" />}
             {translateText('Delete site')}
           </Button>
