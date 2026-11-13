@@ -5,7 +5,6 @@ import { RotateCcwIcon } from 'lucide-react';
 import { TableActionTrigger } from '@/components/table-action-trigger';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VitoTable } from '@/components/vito-table';
-import { useDialog } from '@/hooks/use-dialog';
 import { asRow } from '@/lib/inertia-table';
 import { Download, View } from '@/pages/server-logs/components/columns';
 import { Deployment } from '@/types/deployment';
@@ -26,7 +25,6 @@ const commitCell = ({ row }: CellRenderProps, translateText: ReturnType<typeof u
   const showsLabel = state === 'deploying' || state === 'failed';
   const details = [
     showsLabel && <span className={cn('font-medium', DEPLOYMENT_STATES[state].className)}>{translateText(DEPLOYMENT_STATES[state].label)}</span>,
-    deployment.commit_id && <span className="font-mono text-xs">{deployment.commit_id.slice(0, 7)}</span>,
     duration,
     actor,
   ].filter(Boolean);
@@ -65,8 +63,6 @@ const deployedAtCell = ({ row }: CellRenderProps) => {
 
 function DeploymentRowActions({ deployment }: { deployment: Deployment }) {
   const translateText = useTranslate();
-  const dialog = useDialog();
-
   return (
     <div className="flex items-center gap-2">
       <DropdownMenu modal={false}>
@@ -87,21 +83,6 @@ function DeploymentRowActions({ deployment }: { deployment: Deployment }) {
               </Download>
             </>
           )}
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() =>
-              dialog.confirm.open({
-                title: translateText("Delete release [:release]", { release: deployment.release || deployment.id }),
-                description: translateText("Are you sure you want to delete release :release? This will delete the release files from the server. This action cannot be undone.", { release: deployment.release || deployment.id }),
-                variant: 'destructive',
-                confirmLabel: translateText('Delete'),
-                method: 'delete',
-                url: deploymentUrl(deployment),
-              })
-            }
-          >
-            {translateText('Delete')}
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

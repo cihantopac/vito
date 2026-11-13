@@ -3328,5 +3328,8 @@
   "All Git statuses": "Tüm Git durumları",
   "Filter sites by Git status": "Siteleri Git durumuna göre filtrele",
   ":count new commit on :branch since the last deployment.": "Son deploy’dan beri :branch üzerinde :count yeni commit var.",
-  ":count new commits on :branch since the last deployment.": "Son deploy’dan beri :branch üzerinde :count yeni commit var."
+  ":count new commits on :branch since the last deployment.": "Son deploy’dan beri :branch üzerinde :count yeni commit var.",
+  "Manage how this site is built, served and deployed": "Sitenin build, sunum ve deploy ayarlarını yönetin",
+  "Enabled (:count)": "Etkin (:count)",
+  "The site will be removed from Pure. Its files and physical server will remain untouched.": "Site Pure üzerinden kaldırılacak. Dosyaları ve fiziksel sunucusu korunacak."
 }

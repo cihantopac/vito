@@ -7,14 +7,13 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import ServerLayout from '@/layouts/server/layout';
 import SiteBanners from '@/components/site-banners';
-import { TriangleAlertIcon } from 'lucide-react';
+import { PencilIcon, SlidersHorizontalIcon, TriangleAlertIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DateTime from '@/components/date-time';
 import React, { type ReactNode } from 'react';
 import { Site } from '@/types/site';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import ChangeBranch from '@/pages/site-settings/components/branch';
 import { SourceControl } from '@/types/source-control';
 import CopyableBadge from '@/components/copyable-badge';
@@ -29,12 +28,38 @@ import StatsToggle from '@/pages/site-settings/components/stats-toggle';
 import WebDirectory from './components/web-directory';
 import { useDialog } from '@/hooks/use-dialog';
 
-function Field({ label, children, className }: { label: ReactNode; children: ReactNode; className?: string }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  const translateText = useTranslate();
   return (
-    <div className={cn('flex items-center justify-between gap-3 border-b p-2 text-sm', className)}>
-      <span className="shrink-0">{label}</span>
-      <div className="flex min-w-0 items-center justify-end gap-1.5">{children}</div>
+    <Card className="overflow-hidden">
+      <CardHeader className="px-3 py-2">
+        <CardTitle className="text-sm">{translateText(title)}</CardTitle>
+      </CardHeader>
+      <CardContent className="bg-background divide-y p-0">{children}</CardContent>
+    </Card>
+  );
+}
+
+function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
+  const translateText = useTranslate();
+  return (
+    <div className="grid min-h-10 grid-cols-[8rem_minmax(0,1fr)] items-center gap-3 px-3 py-1.5 text-sm">
+      <span className="text-muted-foreground">{typeof label === 'string' ? translateText(label) : label}</span>
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">{children}</div>
     </div>
+  );
+}
+
+function Value({ children }: { children: ReactNode }) {
+  return <span className="truncate">{children}</span>;
+}
+
+function EditButton({ children, ...props }: React.ComponentProps<typeof Button>) {
+  return (
+    <Button variant="outline" size="sm" className="h-6 max-w-full" {...props}>
+      <span className="truncate">{children}</span>
+      <PencilIcon className="text-muted-foreground size-3" />
+    </Button>
   );
 }
 
@@ -46,191 +71,145 @@ export default function SiteSettings() {
     site: Site;
     sourceControl?: SourceControl;
   }>();
+  const site = page.props.site;
+  const supportsBasicAuth = site.webserver === 'nginx' || site.webserver === 'caddy';
 
   return (
     <ServerLayout>
-      <Head title={translateText("Settings - :value", { value: page.props.site.domain })} />
+      <Head title={translateText('Settings - :value', { value: site.domain })} />
 
       <Container>
         <HeaderContainer>
-          <Heading title={translateText('Settings')} description={translateText("Here you can manage your site's settings")} />
-          <div className="flex items-center gap-2">
-          </div>
+          <Heading title={translateText('Settings')} description={translateText('Manage how this site is built, served and deployed')} />
         </HeaderContainer>
 
-        <SiteBanners site={page.props.site} />
+        <SiteBanners site={site} />
 
-        <Card className="overflow-hidden">
-          <CardHeader className="flex-row items-center justify-between gap-2">
-            <div className="space-y-2">
-              <CardTitle>{translateText('Site details')}</CardTitle>
-              <CardDescription>{translateText("Update site details")}</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="bg-background p-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2">
-              <Field label="ID">
-                <span className="text-muted-foreground">{page.props.site.id}</span>
-              </Field>
+        <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+          <Section title="General">
+            <Field label="Status">
+              <Badge variant={site.status_color}>{translateText(site.status)}</Badge>
+            </Field>
+            <Field label="Type">
+              <Value>{site.type}</Value>
+            </Field>
+            <Field label="ID">
+              <Value>{site.id}</Value>
+            </Field>
+            <Field label="User">
+              <Value>{site.user}</Value>
+            </Field>
+            <Field label="Path">
+              <CopyableBadge text={site.path} />
+            </Field>
+            <Field label="Created">
+              <DateTime date={site.created_at} />
+            </Field>
+          </Section>
 
-              <Field label={translateText('Status')}>
-                <Badge variant={page.props.site.status_color}>{page.props.site.status}</Badge>
-              </Field>
-
-              <Field label={translateText('Domain')} className="sm:col-span-2">
-                <a href={page.props.site.url} target="_blank" className="text-muted-foreground truncate hover:underline">
-                  {page.props.site.domain}
-                </a>
-              </Field>
-
-              <Field label={translateText('Type')}>
-                <span className="text-muted-foreground">{page.props.site.type}</span>
-              </Field>
-
-              <Field label={translateText("Web directory")}>
-                <WebDirectory site={page.props.site}>
-                  <Button variant="outline" className="h-6">
-                    {page.props.site.web_directory || '/'}
-                  </Button>
-                </WebDirectory>
-              </Field>
-
-              <Field label={translateText('Source control')}>
-                {page.props.site.source_control_id ? (
-                  <ChangeSourceControl site={page.props.site}>
-                    <Button variant="outline" className="h-6">
-                      {page.props.sourceControl?.provider}
-                    </Button>
-                  </ChangeSourceControl>
-                ) : (
-                  <AttachSourceControl site={page.props.site}>
-                    <Button variant="outline" className="h-6">
-                      {translateText('Attach')}
-                    </Button>
-                  </AttachSourceControl>
-                )}
-              </Field>
-
-              <Field label="Branch">
-                {page.props.site.source_control_id || page.props.site.branch ? (
-                  <ChangeBranch site={page.props.site}>
-                    <Button variant="outline" className="h-6">
-                      {page.props.site.branch}
-                    </Button>
-                  </ChangeBranch>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </Field>
-
-              <Field label={translateText('Repository')} className="sm:col-span-2">
-                <span className="text-muted-foreground truncate">{page.props.site.repository || '-'}</span>
-              </Field>
-
-              <Field label={translateText('Path')} className="sm:col-span-2">
-                <CopyableBadge text={page.props.site.path} />
-              </Field>
-
-              <Field label="VHost">
-                <VHostPreview site={page.props.site}>
-                  <Button variant="outline" className="h-6">
-                    {translateText("View VHost")}
-                  </Button>
-                </VHostPreview>
-              </Field>
-
-              <Field
-                label={
-                  <div className="flex items-center gap-2">
-                    <span>{translateText("VHost Template")}</span>
-                    {page.props.site.has_custom_vhost_template && (
-                      <TooltipProvider delayDuration={0}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <TriangleAlertIcon className="text-destructive h-4 w-4" />
-                          </TooltipTrigger>
-                          <TooltipContent>{translateText("You are using a custom vhost template")}</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
-                  </div>
-                }
-              >
-                <VHost site={page.props.site}>
-                  <Button variant="outline" className="h-6">
-                    {translateText("Edit Template")}
-                  </Button>
-                </VHost>
-              </Field>
-
-              {(page.props.site.webserver === 'nginx' || page.props.site.webserver === 'caddy') && (
-                <Field label="Basic Auth">
-                  <BasicAuth site={page.props.site}>
-                    <Button variant="outline" className="h-6">
-                      {page.props.site.basic_auth?.enabled ? `Enabled (${page.props.site.basic_auth.users.length})` : translateText("Disabled")}
-                    </Button>
-                  </BasicAuth>
-                </Field>
+          <Section title="Git">
+            <Field label="Source control">
+              {site.source_control_id ? (
+                <ChangeSourceControl site={site}>
+                  <EditButton>{page.props.sourceControl?.provider}</EditButton>
+                </ChangeSourceControl>
+              ) : (
+                <AttachSourceControl site={site}>
+                  <EditButton>{translateText("Attach")}</EditButton>
+                </AttachSourceControl>
               )}
-
-              {page.props.server.services['log_analysis'] && (
-                <Field label={translateText("Statistics")}>
-                  <StatsToggle site={page.props.site}>
-                    <Button variant="outline" className="h-6">
-                      {page.props.site.stats_enabled ? translateText("Enabled") : translateText("Disabled")}
-                    </Button>
-                  </StatsToggle>
-                </Field>
+            </Field>
+            <Field label="Repository">
+              <Value>{site.repository || '-'}</Value>
+            </Field>
+            <Field label="Branch">
+              {site.source_control_id || site.branch ? (
+                <ChangeBranch site={site}>
+                  <EditButton>{site.branch}</EditButton>
+                </ChangeBranch>
+              ) : (
+                <Value>-</Value>
               )}
+            </Field>
+          </Section>
 
-              <Field label={translateText('PHP version')}>
-                {page.props.site.php_version ? (
-                  <div className="flex items-center gap-2">
-                    <ChangePHPVersion site={page.props.site}>
-                      <Button variant="outline" className="h-6">
-                        {page.props.site.php_version}
-                      </Button>
-                    </ChangePHPVersion>
-                    {page.props.site.supports_php_settings && (
-                      <Button
-                        variant="outline"
-                        className="h-6"
-                        aria-label={translateText("Configure PHP settings")}
-                        onClick={() => dialog.phpSettings.open({ site: page.props.site })}
-                      >
-                        {translateText("Configure")}
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </Field>
-
-              <Field label={translateText('Created at')} className="sm:col-span-2 sm:border-b-0">
-                <span className="text-muted-foreground">
-                  <DateTime date={page.props.site.created_at} />
+          <Section title="Web server">
+            <Field label="Web directory">
+              <WebDirectory site={site}>
+                <EditButton>{site.web_directory || '/'}</EditButton>
+              </WebDirectory>
+            </Field>
+            <Field
+              label={
+                <span className="flex items-center gap-1.5">
+                  VHost
+                  {site.has_custom_vhost_template && (
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <TriangleAlertIcon className="text-destructive size-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>{translateText('You are using a custom vhost template')}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </span>
+              }
+            >
+              <VHostPreview site={site}>
+                <Button variant="outline" size="sm" className="h-6">
+                  {translateText('View')}
+                </Button>
+              </VHostPreview>
+              <VHost site={site}>
+                <EditButton>{translateText("Template")}</EditButton>
+              </VHost>
+            </Field>
+            {supportsBasicAuth && (
+              <Field label="Basic auth">
+                <BasicAuth site={site}>
+                  <EditButton>{site.basic_auth?.enabled ? translateText('Enabled (:count)', { count: site.basic_auth.users.length }) : translateText('Disabled')}</EditButton>
+                </BasicAuth>
               </Field>
+            )}
+            {page.props.server.services['log_analysis'] && (
+              <Field label="Statistics">
+                <StatsToggle site={site}>
+                  <EditButton>{site.stats_enabled ? translateText('Enabled') : translateText('Disabled')}</EditButton>
+                </StatsToggle>
+              </Field>
+            )}
+            <Field label="PHP">
+              {site.php_version ? (
+                <>
+                  <ChangePHPVersion site={site}>
+                    <EditButton>{site.php_version}</EditButton>
+                  </ChangePHPVersion>
+                  {site.supports_php_settings && (
+                    <Button variant="outline" size="sm" className="h-6" onClick={() => dialog.phpSettings.open({ site })}>
+                      <SlidersHorizontalIcon className="text-muted-foreground size-3" />
+                      {translateText('Settings')}
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <Value>-</Value>
+              )}
+            </Field>
+          </Section>
+        </div>
+
+        {!site.type_data?.is_self && (
+          <Card className="border-destructive/50 flex-row flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium">{translateText("Delete site")}</span>
+              <span className="text-muted-foreground text-sm">{translateText('The site will be removed from Pure. Its files and physical server will remain untouched.')}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        {!page.props.site.type_data?.is_self && (
-          <Card className="border-destructive/50 overflow-hidden">
-            <CardHeader>
-              <CardTitle>{translateText('Delete site')}</CardTitle>
-              <CardDescription>{translateText("Here you can delete the site.")}</CardDescription>
-            </CardHeader>
-            <CardContent className="bg-background">
-              <div className="space-y-2 p-4">
-                <p>{translateText("Removing a site cannot be undone. Review the deletion dialog for the resources that will be removed.")}</p>
-
-                <DeleteSite site={page.props.site}>
-                  <Button variant="destructive">{translateText('Delete site')}</Button>
-                </DeleteSite>
-              </div>
-            </CardContent>
+            <DeleteSite site={site}>
+              <Button variant="destructive" size="sm">
+                {translateText('Delete site')}
+              </Button>
+            </DeleteSite>
           </Card>
         )}
       </Container>
