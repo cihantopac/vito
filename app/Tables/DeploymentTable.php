@@ -7,7 +7,6 @@ use App\Models\Deployment;
 use Forjed\InertiaTable\Column;
 use Forjed\InertiaTable\Columns\ActionsColumn;
 use Forjed\InertiaTable\Columns\DateTimeColumn;
-use Forjed\InertiaTable\Columns\EnumColumn;
 use App\Tables\AbstractTable as Table;
 
 class DeploymentTable extends Table
@@ -57,9 +56,7 @@ class DeploymentTable extends Table
             Column::data('active'),
             Column::data('release'),
             Column::data('trigger', fn (Deployment $deployment): ?string => $deployment->trigger?->getText()),
-            Column::data('trigger_color', fn (Deployment $deployment): ?string => $deployment->trigger?->getColor()),
             Column::data('commit_id'),
-            Column::data('commit_id_short', fn (Deployment $deployment): ?string => $deployment->commit_id_short),
             Column::data('is_duplicate', fn (Deployment $deployment): bool => $deployment->isDuplicate()),
             Column::data('commit_data'),
             Column::data('finished_at', fn (Deployment $deployment) => $deployment->finished_at),
@@ -70,8 +67,8 @@ class DeploymentTable extends Table
         ];
 
         return [
-            Column::make('commit', 'Commit'),
-            EnumColumn::make('status', 'Status')->sortable(! $this->overview),
+            Column::make('commit', 'Deployment'),
+            Column::data('status', fn (Deployment $deployment): string => $deployment->status->value),
             DateTimeColumn::make('created_at', 'Deployed')->sortable(! $this->overview)->toLocal(),
             Column::data('id'),
             Column::data('deployed_by', fn (Deployment $deployment): ?string => $deployment->user?->name),

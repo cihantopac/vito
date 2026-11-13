@@ -25,7 +25,7 @@ use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
 #[Prefix('servers/{server}/runtime-processes')]
-#[Middleware(['auth', 'has-project'])]
+#[Middleware(['auth'])]
 class RuntimeProcessController extends Controller
 {
     #[Get('/', name: 'runtime-processes')]

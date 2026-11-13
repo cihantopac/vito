@@ -43,7 +43,7 @@ use Spatie\RouteAttributes\Attributes\Put;
 use Spatie\RouteAttributes\Attributes\Where;
 
 #[Prefix('/servers/{server}/sites/{site}')]
-#[Middleware(['auth', 'has-project'])]
+#[Middleware(['auth'])]
 #[Where('site', '[0-9]+')]
 class ApplicationController extends Controller
 {
@@ -110,7 +110,6 @@ class ApplicationController extends Controller
 
         return Inertia::render('application/deployments/index', [
             'deployments' => DeploymentTable::make($site->deployments())->paginate(),
-            'repositoryUrl' => fn (): ?string => $site->getRepositoryWebUrl(),
             'activeDeployment' => fn (): ?DeploymentResource => $this->resolveActiveDeployment($site),
         ]);
     }
@@ -129,7 +128,6 @@ class ApplicationController extends Controller
 
         return Inertia::render('application/deployments/show', [
             'deployment' => new DeploymentResource($deployment),
-            'repositoryUrl' => fn (): ?string => $site->getRepositoryWebUrl(),
         ]);
     }
 

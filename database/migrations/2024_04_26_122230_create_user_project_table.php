@@ -19,12 +19,12 @@ return new class extends Migration
         });
         Model::withoutEvents(function (): void {
             Project::withoutGlobalScopes()->select(['id', 'user_id'])->each(function (Project $project): void {
-                if ($project->user_id && User::query()->whereKey($project->user_id)->exists()) {
+                if ($project->user_id && User::withoutGlobalScopes()->whereKey($project->user_id)->exists()) {
                     $project->users()->firstOrCreate(['user_id' => $project->user_id]);
                 }
             });
 
-            User::query()->select('id')->each(function (User $user): void {
+            User::withoutGlobalScopes()->select('id')->each(function (User $user): void {
                 $projectId = $user->projectMemberships()->orderBy('id')->value('project_id');
 
                 if (! $projectId) {

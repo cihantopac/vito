@@ -15,7 +15,7 @@ use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
 #[Prefix('servers/{server}/backup-monitors')]
-#[Middleware(['auth', 'has-project', 'throttle:20,1'])]
+#[Middleware(['auth', 'throttle:20,1'])]
 class BackupMonitorController extends Controller
 {
     #[Post('/', name: 'backup-monitors.store')]

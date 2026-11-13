@@ -27,7 +27,7 @@ use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
 #[Prefix('servers/{server}/sites/{site}/resources')]
-#[Middleware(['auth', 'has-project'])]
+#[Middleware(['auth'])]
 class SiteResourceController extends Controller
 {
     #[Get('/{resource}/browse', name: 'site-resources.browse')]

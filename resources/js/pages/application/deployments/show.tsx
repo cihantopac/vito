@@ -1,8 +1,6 @@
-import DateTime from '@/components/date-time';
 import { useTranslate } from '@/hooks/use-translate';
 import LogOutput from '@/components/log-output';
 import SiteBanners from '@/components/site-banners';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useClipboard } from '@/hooks/use-clipboard';
@@ -13,49 +11,24 @@ import Container from '@/components/container';
 import Deploy from '@/pages/application/components/deploy';
 import CommitSummary from '@/pages/application/components/commit-summary';
 import DeploymentProgress, { formatDuration } from '@/pages/application/deployments/progress';
-import { parseCommitMessage, pullRequestUrl, safeUrl } from '@/lib/commit-message';
+import { safeUrl } from '@/lib/commit-message';
+import { cn } from '@/lib/utils';
+import { DEPLOYMENT_STATES, DeploymentStateGlyph, deploymentActor, deploymentState } from '@/pages/application/components/deployment-state';
 import { Deployment } from '@/types/deployment';
 import { Server } from '@/types/server';
 import { Site } from '@/types/site';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ReactNode, useEffect, useState } from 'react';
-import {
-  ArrowLeftIcon,
-  CheckIcon,
-  CopyIcon,
-  DownloadIcon,
-  ExternalLinkIcon,
-  GitBranchIcon,
-  GitPullRequestIcon,
-  ListIcon,
-  RadioIcon,
-  TerminalIcon,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeftIcon, CheckIcon, CopyIcon, DownloadIcon, RotateCcwIcon, TerminalIcon } from 'lucide-react';
 import moment from 'moment';
+import DateTime from '@/components/date-time';
 
 const FULL_LOG = -1;
 
-function Fact({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <span className="text-muted-foreground text-xs">{label}</span>
-      <div className="flex min-w-0 items-center gap-1.5 text-sm">{children}</div>
-    </div>
-  );
-}
-
-function RelativeDate({ date }: { date: string }) {
-  return (
-    <span className="truncate">
-      <DateTime date={date} format="MMM D, HH:mm" /> <span className="text-muted-foreground">· <DateTime date={date} relative /></span>
-    </span>
-  );
-}
-
 export default function DeploymentShow() {
   const translateText = useTranslate();
-  const page = usePage<{ server: Server; site: Site; deployment: Deployment; repositoryUrl: string | null }>();
-  const { server, site, repositoryUrl } = page.props;
+  const page = usePage<{ server: Server; site: Site; deployment: Deployment }>();
+  const { server, site } = page.props;
   const deployment = useRealtimeRecord<Deployment>(page.props.deployment, 'deployment')!;
   const { copied: copiedSha, copy: copySha } = useClipboard();
   const { copied: copiedLog, copy: copyLog } = useClipboard();
@@ -93,142 +66,62 @@ export default function DeploymentShow() {
   const elapsedSeconds = deployment.duration ?? (deploying ? (now - moment(deployment.created_at).valueOf()) / 1000 : null);
 
   const commit = deployment.commit_data ?? {};
-  const parsed = commit.message ? parseCommitMessage(commit.message) : null;
   const commitUrl = safeUrl(commit.url);
-  const prUrl = parsed?.pullRequest ? pullRequestUrl(commitUrl, parsed.pullRequest) : undefined;
-  const branch = parsed?.branch ?? site.branch;
+  const state = deploymentState(deployment);
+  const actor = deploymentActor(deployment);
 
   return (
     <ServerLayout>
-      <Head title={translateText("Deployment #:value - :value2", { value: deployment.id, value2: site.domain })} />
+      <Head title={`${translateText("Deployment")} #${deployment.id} - ${site.domain}`} />
 
       <Container className="flex min-h-[calc(100vh-80px)] flex-col gap-3 py-4">
         <SiteBanners site={site} />
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Button variant="outline" size="icon" asChild className="size-8">
-              <Link href={`/servers/${server.id}/sites/${site.id}`} title={translateText('Back to site')} aria-label={translateText('Back to site')}>
-                <ArrowLeftIcon className="size-4" />
-              </Link>
-            </Button>
-            <h1 className="text-base font-semibold">{translateText('Deployment #')}{deployment.id}</h1>
-            <Badge variant={deployment.status_color} className="capitalize">
-              {deployment.status}
-            </Badge>
-            {deployment.active && (
-              <Badge variant="success" className="gap-1">
-                <RadioIcon className="size-3" />
-                {translateText('Live')}
-              </Badge>
-            )}
-            {deployment.is_duplicate && (
-              <Badge variant="warning" title={translateText('This commit was already deployed previously')}>
-                {translateText('Redeploy')}
-              </Badge>
-            )}
-          </div>
+        <div className="flex items-start gap-3">
+          <Button variant="ghost" size="icon" asChild className="size-8 shrink-0">
+            <Link href={`/servers/${server.id}/sites/${site.id}`} title={translateText("Back to site")} aria-label={translateText("Back to site")}>
+              <ArrowLeftIcon className="size-4" />
+            </Link>
+          </Button>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/servers/${server.id}/sites/${site.id}/deployments`}>
-                <ListIcon className="size-3.5" />
-                {translateText('All deployments')}
-              </Link>
-            </Button>
-            {!deploying && <Deploy site={site} />}
-          </div>
-        </div>
-
-        <Card className="flex flex-col gap-4 p-4 shadow-none">
-          <CommitSummary commit={commit} className="text-base" />
-
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
-            <Fact label={translateText('Commit')}>
-              {deployment.commit_id_short ? (
-                <>
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <h1 className="min-w-0">
+              <CommitSummary commit={commit} className="text-lg font-semibold" />
+            </h1>
+            <div className="text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px]">
+              <span className={cn('inline-flex items-center gap-1.5 font-medium', DEPLOYMENT_STATES[state].className)}>
+                <DeploymentStateGlyph state={state} />
+                {translateText(DEPLOYMENT_STATES[state].label)}
+              </span>
+              {elapsedSeconds != null && <span className="tabular-nums">· {formatDuration(elapsedSeconds)}</span>}
+              {actor && <span>· {actor}</span>}
+              <span title={moment(deployment.created_at).format('YYYY-MM-DD HH:mm:ss')}>· <DateTime date={deployment.created_at} relative /></span>
+              {deployment.commit_id && (
+                <span className="inline-flex items-center gap-0.5">
+                  ·
                   {commitUrl ? (
-                    <a href={commitUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-mono hover:underline">
+                    <a href={commitUrl} target="_blank" rel="noopener noreferrer" className="hover:text-foreground ml-1 font-mono hover:underline">
                       {deployment.commit_id_short}
-                      <ExternalLinkIcon className="size-3" />
                     </a>
                   ) : (
-                    <span className="font-mono">{deployment.commit_id_short}</span>
+                    <span className="ml-1 font-mono">{deployment.commit_id_short}</span>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-6"
-                    onClick={() => copySha(deployment.commit_id || deployment.commit_id_short)}
-                    aria-label={translateText('Copy commit SHA')}
-                    title={translateText('Copy commit SHA')}
-                  >
+                  <Button variant="ghost" size="icon" className="size-6" onClick={() => copySha(deployment.commit_id)} aria-label={translateText("Copy commit SHA")} title={translateText("Copy commit SHA")}>
                     {copiedSha ? <CheckIcon className="text-success size-3" /> : <CopyIcon className="size-3" />}
                   </Button>
-                </>
-              ) : (
-                <span className="text-muted-foreground">—</span>
-              )}
-            </Fact>
-
-            <Fact label={parsed?.pullRequest ? translateText('Pull request') : translateText('Branch')}>
-              {parsed?.pullRequest &&
-                (prUrl ? (
-                  <a href={prUrl} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 font-mono hover:underline">
-                    <GitPullRequestIcon className="size-3.5" />#{parsed.pullRequest}
-                  </a>
-                ) : (
-                  <span className="inline-flex shrink-0 items-center gap-1 font-mono">
-                    <GitPullRequestIcon className="size-3.5" />#{parsed.pullRequest}
-                  </span>
-                ))}
-              {branch && (
-                <span className="text-muted-foreground inline-flex min-w-0 items-center gap-1 font-mono text-xs" title={branch}>
-                  <GitBranchIcon className="size-3 shrink-0" />
-                  <span className="truncate">{branch}</span>
                 </span>
               )}
-            </Fact>
-
-            <Fact label={parsed?.branch ? translateText('Merged') : translateText('Committed')}>
-              {commit.date ? <RelativeDate date={commit.date} /> : <span className="text-muted-foreground">—</span>}
-            </Fact>
-
-            <Fact label={translateText('Author')}>
-              <span className="truncate" title={commit.email}>
-                {commit.name ?? '—'}
-              </span>
-            </Fact>
-
-            <Fact label={translateText('Deployed by')}>
-              <span className="truncate">{deployment.deployed_by ?? translateText('System')}</span>
-              {deployment.trigger && deployment.trigger_color && (
-                <Badge variant={deployment.trigger_color} className="h-4 px-1.5 py-0 text-[10px] font-normal">
-                  {deployment.trigger}
-                </Badge>
+              {deployment.is_duplicate && (
+                <span className="text-warning inline-flex items-center gap-1" title={translateText("This commit was already deployed previously")}>
+                  · <RotateCcwIcon className="size-3.5" />
+                  {translateText('Redeploy')}
+                </span>
               )}
-            </Fact>
-
-            <Fact label={translateText('Started')}>
-              <RelativeDate date={deployment.created_at} />
-            </Fact>
-
-            <Fact label={translateText('Duration')}>
-              <span className="font-mono">{elapsedSeconds != null ? formatDuration(elapsedSeconds) : '—'}</span>
-            </Fact>
-
-            <Fact label={translateText('Repository')}>
-              {repositoryUrl ? (
-                <a href={repositoryUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-w-0 items-center gap-1 hover:underline">
-                  <span className="truncate">{site.repository}</span>
-                  <ExternalLinkIcon className="size-3 shrink-0" />
-                </a>
-              ) : (
-                <span className="truncate">{site.repository ?? '—'}</span>
-              )}
-            </Fact>
+            </div>
           </div>
-        </Card>
+
+          {!deploying && <Deploy site={site} variant="outline" />}
+        </div>
 
         <div className="grid min-h-0 flex-1 items-start gap-3 2xl:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
           <DeploymentProgress
@@ -261,20 +154,18 @@ export default function DeploymentShow() {
                 )}
                 {selectedStep !== null && (
                   <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => setSelectedStep(null)}>
-                    {deploying ? translateText('Follow current') : translateText('Last step')}
+                    {translateText(deploying ? 'Follow current' : 'Last step')}
                   </Button>
                 )}
                 {content && (
-                  <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2" onClick={() => copyLog(selectedOutput)}>
+                  <Button variant="ghost" size="icon" className="size-8" onClick={() => copyLog(selectedOutput)} aria-label={translateText("Copy output")} title={translateText("Copy output")}>
                     {copiedLog ? <CheckIcon className="text-success size-3.5" /> : <CopyIcon className="size-3.5" />}
-                    <span>{copiedLog ? translateText('Copied') : translateText('Copy')}</span>
                   </Button>
                 )}
                 {deployment.log && (
-                  <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2" asChild>
-                    <a href={`/servers/${server.id}/logs/${deployment.log.id}/download`} target="_blank" rel="noopener noreferrer">
+                  <Button variant="ghost" size="icon" className="size-8" asChild>
+                    <a href={`/servers/${server.id}/logs/${deployment.log.id}/download`} target="_blank" rel="noopener noreferrer" aria-label={translateText("Download output")} title={translateText("Download output")}>
                       <DownloadIcon className="size-3.5" />
-                      <span>{translateText('Download')}</span>
                     </a>
                   </Button>
                 )}
@@ -286,10 +177,10 @@ export default function DeploymentShow() {
               {error && <span className="text-destructive">{error}</span>}
               {!deployment.log && (
                 <span className="text-muted-foreground flex items-center gap-2">
-                  <TerminalIcon className="size-4" /> {translateText('No deployment output was recorded.')}
+                  <TerminalIcon className="size-4" /> {translateText("No deployment output was recorded.")}
                 </span>
               )}
-              {!isLoading && !error && deployment.log && (selectedOutput || (deploying ? translateText('Waiting for output...') : translateText('No output was recorded.')))}
+              {!isLoading && !error && deployment.log && (selectedOutput || translateText(deploying ? 'Waiting for output...' : 'No output was recorded.'))}
             </LogOutput>
           </Card>
         </div>

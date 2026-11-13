@@ -14,7 +14,15 @@ const TYPE_VARIANTS: Record<string, 'success' | 'warning' | 'info' | 'danger'> =
   refactor: 'info',
 };
 
-export default function CommitSummary({ commit, className }: { commit: Deployment['commit_data'] | null | undefined; className?: string }) {
+export default function CommitSummary({
+  commit,
+  showScope = true,
+  className,
+}: {
+  commit: Deployment['commit_data'] | null | undefined;
+  showScope?: boolean;
+  className?: string;
+}) {
   const translateText = useTranslate();
   if (!commit?.message) {
     return <span className={cn('text-muted-foreground', className)}>{translateText('No commit message')}</span>;
@@ -27,12 +35,12 @@ export default function CommitSummary({ commit, className }: { commit: Deploymen
   return (
     <div className={cn('flex min-w-0 items-center gap-1.5', className)} title={commit.message}>
       {parsed.type && (
-        <Badge variant={TYPE_VARIANTS[parsed.type] ?? 'gray'} className="h-4 shrink-0 px-1.5 py-0 font-mono text-[10px] font-normal">
+        <Badge variant={TYPE_VARIANTS[parsed.type] ?? 'gray'} className="shrink-0 px-1.5 py-0 text-xs">
           {parsed.type}
           {parsed.breaking && '!'}
         </Badge>
       )}
-      {parsed.scope && <span className="text-muted-foreground shrink-0 font-mono text-[0.9em]">{parsed.scope}</span>}
+      {showScope && parsed.scope && <span className="text-muted-foreground shrink-0">{parsed.scope}</span>}
       {url ? (
         <a href={url} target="_blank" rel="noopener noreferrer" className="text-foreground truncate font-medium hover:underline">
           {parsed.title}
@@ -46,14 +54,14 @@ export default function CommitSummary({ commit, className }: { commit: Deploymen
             href={prUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-0.5 font-mono text-[0.9em] hover:underline"
+            className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-0.5 tabular-nums hover:underline"
             title={translateText("Open pull request #:number", { number: parsed.pullRequest })}
           >
-            <GitPullRequestIcon className="size-3" />#{parsed.pullRequest}
+            <GitPullRequestIcon className="size-3.5" />#{parsed.pullRequest}
           </a>
         ) : (
-          <span className="text-muted-foreground inline-flex shrink-0 items-center gap-0.5 font-mono text-[0.9em]">
-            <GitPullRequestIcon className="size-3" />#{parsed.pullRequest}
+          <span className="text-muted-foreground inline-flex shrink-0 items-center gap-0.5 tabular-nums">
+            <GitPullRequestIcon className="size-3.5" />#{parsed.pullRequest}
           </span>
         ))}
     </div>

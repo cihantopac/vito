@@ -3310,5 +3310,11 @@
   "Author": "Yazar",
   "Deployed by": "Deploy eden",
   "Started": "Başlangıç",
-  "Deployed": "Deploy zamanı"
+  "Deployed": "Deploy zamanı",
+  "Are you sure you want to delete release :release? This will delete the release files from the server. This action cannot be undone.": ":release release sürümü silinsin mi? Sunucudaki release dosyaları silinecek. Bu işlem geri alınamaz.",
+  "Delete release [:release]": "Release [:release] sil",
+  "Download output": "Çıktıyı indir",
+  "Deploying…": "Deploy ediliyor…",
+  "Finished": "Tamamlandı",
+  "Completed": "Tamamlandı"
 }

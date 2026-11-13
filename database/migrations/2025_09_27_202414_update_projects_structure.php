@@ -25,7 +25,7 @@ return new class extends Migration
         });
 
         Model::withoutEvents(function (): void {
-            $admins = User::query()->where('is_admin', true)->get(['id', 'email']);
+            $admins = User::withoutGlobalScopes()->where('is_admin', true)->get(['id', 'email']);
 
             Project::withoutGlobalScopes()->select('id')->each(function (Project $project) use ($admins): void {
                 foreach ($admins as $admin) {
@@ -35,7 +35,7 @@ return new class extends Migration
                     );
                 }
 
-                $project->users()->with('user:id,email,is_admin')->whereNotNull('user_id')
+                $project->users()->with(['user' => fn ($query) => $query->withoutGlobalScopes()->select(['id', 'email', 'is_admin'])])->whereNotNull('user_id')
                     ->each(function (UserProject $membership): void {
                         $membership->forceFill([
                             'email' => $membership->user?->email,

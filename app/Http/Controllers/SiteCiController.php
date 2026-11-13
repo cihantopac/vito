@@ -20,7 +20,7 @@ use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
 #[Prefix('/servers/{server}/sites/{site}/ci')]
-#[Middleware(['auth', 'has-project', 'throttle:90,1'])]
+#[Middleware(['auth', 'throttle:90,1'])]
 class SiteCiController extends Controller
 {
     #[Get('/', name: 'site-ci')]

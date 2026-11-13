@@ -90,20 +90,20 @@ export function AppSidebar({
   const mainNavItems: NavItem[] = [
     {
       title: 'Overview',
-      href: "/overview",
+      href: withQuery('/overview', { project: page.props.auth.projectScope }),
       onlyActivePath: "/overview",
       icon: LayoutDashboardIcon,
     },
     {
       title: 'Servers',
-      href: "/servers",
+      href: withQuery('/servers', { project: page.props.auth.projectScope }),
       icon: ServerIcon,
       badge: serversCount,
       flyoutContent: <RecentServersFlyout />,
     },
     {
       title: 'Sites',
-      href: withQuery("/sites", { project: 'all' }),
+      href: withQuery('/sites', { project: page.props.auth.projectScope }),
       onlyActivePath: "/sites",
       icon: MousePointerClickIcon,
       badge: sitesCount,

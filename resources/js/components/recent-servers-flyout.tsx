@@ -1,4 +1,5 @@
 import { useTranslate } from '@/hooks/use-translate';
+import { withQuery } from '@/lib/url';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowRightIcon, ServerIcon } from 'lucide-react';
@@ -19,7 +20,7 @@ export default function RecentServersFlyout() {
           {translateText("Recent Servers")}
         </span>
         <Link
-          href={"/servers"}
+          href={withQuery('/servers', { project: page.props.auth.projectScope })}
           className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
         >
           <span>{translateText('All')}</span>
