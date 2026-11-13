@@ -126,7 +126,7 @@ export const dialogs = {
   projectForm: ProjectForm,
   siteResourceReveal: RevealSiteResourceDialog,
   
-} as const satisfies Record<string, ComponentType<any>>;
+} as const satisfies Record<string, ComponentType<never>>;
 
 export type DialogRegistry = typeof dialogs;
 

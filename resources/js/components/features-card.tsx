@@ -1,6 +1,6 @@
 import { useTranslate } from '@/hooks/use-translate';
-import { ServerFeature } from '@/types/server';
-import { SiteFeature } from '@/types/site';
+import { ServerFeature, ServerFeatureAction } from '@/types/server';
+import { SiteFeature, SiteFeatureAction } from '@/types/site';
 import { Button } from '@/components/ui/button';
 import { MoreVerticalIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardRow, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,7 @@ interface FeaturesCardProps {
   features: {
     [key: string]: ServerFeature | SiteFeature;
   };
-  onActionSelect: (featureId: string, actionId: string, action: any) => void;
+  onActionSelect: (featureId: string, actionId: string, action: ServerFeatureAction | SiteFeatureAction) => void;
 }
 
 export default function FeaturesCard({ 
