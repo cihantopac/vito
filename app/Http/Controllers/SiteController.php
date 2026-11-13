@@ -6,6 +6,7 @@ use App\Actions\Site\CreateSite;
 use App\Actions\Site\DisableSsl;
 use App\Actions\Site\EnableSsl;
 use App\Actions\Site\GetAccessibleSites;
+use App\Actions\Site\GetCommitsBehind;
 use App\Actions\Site\GetSiteCreationDefaults;
 use App\Actions\Site\GetSites;
 use App\Actions\Site\RetrySite;
@@ -35,17 +36,18 @@ class SiteController extends Controller
     {
         $this->authorize('viewAny', user()->currentProject);
         $result = app(GetAccessibleSites::class)->get(user(), $request->input());
+        $gitFilter = app(GetCommitsBehind::class)->scan($result['query'], $request->input());
 
-        $sites = SiteTable::make($result['query'])
+        $sites = SiteTable::make($gitFilter['query'])
+            ->withCommitsBehind($gitFilter['behind'])
             ->withGrouping($result['groupBy'])
             ->paginate();
 
         return Inertia::render('sites/index', [
             'sites' => $sites,
-            'siteScope' => $result['scope'],
-            'serverScope' => $result['serverScope'],
             'groupBy' => $result['groupBy'],
-            'servers' => $result['servers'],
+            'gitStatus' => $request->input('git_status', 'all'),
+            'gitStatusChecking' => $gitFilter['checking'],
         ]);
     }
 
@@ -58,12 +60,15 @@ class SiteController extends Controller
     }
 
     #[Get('/servers/{server}/sites', name: 'sites')]
-    public function server(Server $server): Response
+    public function server(Request $request, Server $server): Response
     {
         $this->authorize('viewAny', [Site::class, $server]);
+        $gitFilter = app(GetCommitsBehind::class)->scan($server->sites()->getQuery(), $request->input());
 
         return Inertia::render('sites/index', [
-            'sites' => SiteTable::make($server->sites())->forServer($server)->simplePaginate(),
+            'sites' => SiteTable::make($gitFilter['query'])->withCommitsBehind($gitFilter['behind'])->forServer($server)->simplePaginate(),
+            'gitStatus' => $request->input('git_status', 'all'),
+            'gitStatusChecking' => $gitFilter['checking'],
         ]);
     }
 

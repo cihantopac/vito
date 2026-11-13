@@ -3316,5 +3316,17 @@
   "Download output": "Çıktıyı indir",
   "Deploying…": "Deploy ediliyor…",
   "Finished": "Tamamlandı",
-  "Completed": "Tamamlandı"
+  "Completed": "Tamamlandı",
+  "Site view": "Site görünümü",
+  "Not deployed": "Henüz deploy edilmedi",
+  "Behind": "Geride",
+  ":count behind": ":count commit geride",
+  "No successful deployment yet.": "Henüz başarılı bir deploy yok.",
+  "The deployed commit is the latest on :branch.": ":branch üzerindeki son commit deploy edilmiş.",
+  "Checking :count site": ":count site kontrol ediliyor",
+  "Checking :count sites": ":count site kontrol ediliyor",
+  "All Git statuses": "Tüm Git durumları",
+  "Filter sites by Git status": "Siteleri Git durumuna göre filtrele",
+  ":count new commit on :branch since the last deployment.": "Son deploy’dan beri :branch üzerinde :count yeni commit var.",
+  ":count new commits on :branch since the last deployment.": "Son deploy’dan beri :branch üzerinde :count yeni commit var."
 }

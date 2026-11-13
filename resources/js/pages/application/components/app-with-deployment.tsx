@@ -190,7 +190,7 @@ export default function AppWithDeployment() {
                             <DropdownMenuTrigger asChild>
                               <Button variant="outline" className="gap-1.5 cursor-pointer">
                                 <TerminalIcon className="size-4" />
-                                <span>{translateText('Deploy Scripts')}</span>
+                                <span>{translateText('Scripts')}</span>
                                 <ChevronDownIcon className="size-3.5" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -223,7 +223,7 @@ export default function AppWithDeployment() {
                           >
                             <Button variant="outline" className="gap-1.5 cursor-pointer">
                               <TerminalIcon className="size-4" />
-                              <span>{translateText('Deploy Script')}</span>
+                              <span>{translateText('Script')}</span>
                             </Button>
                           </DeploymentScript>
                         )}
