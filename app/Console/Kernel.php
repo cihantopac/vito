@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('metrics:get')->everyMinute()->withoutOverlapping(5);
         $schedule->command('runtime:refresh')->everyTwoMinutes()->withoutOverlapping(5);
         $schedule->command('servers:check')->everyFiveMinutes();
+        $schedule->command('workers:sync-statuses')->everyFiveMinutes();
         $schedule->command('servers:check-updates')->dailyAt('02:00');
         $schedule->command('servers:auto-update')->everyMinute()->withoutOverlapping();
         $schedule->command('domains:check-pending')->everyFiveMinutes();
